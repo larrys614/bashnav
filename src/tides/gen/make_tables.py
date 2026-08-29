@@ -6,6 +6,13 @@ The definitions come from UTide (Codiga), which carries Foreman's constituent
 set - the same machinery t_tide uses.  Nothing here is hand-transcribed: the
 tables are written straight out of that package, so a typo is not possible.
 """
+# SA_FIX: Foreman and UTide give SA the Doodson numbers (0 0 1 0 0 -1),
+# i.e. h - p'. The harmonic constants in this database come from NOAA and
+# TICON, whose SA is referenced to h alone (speed 0.0410686 deg/hr, exactly
+# the rate of h). p' is about 283 degrees, so keeping Foreman's convention
+# throws SA's phase by nearly a full turn - which showed up as a vertical
+# offset of +8 cm in August and -6 cm in February, checked against NOAA's
+# own published predictions. SA is therefore emitted as (0 0 1 0 0 0).
 import numpy as np, json, glob, sys
 from utide._ut_constants import ut_constants as U
 

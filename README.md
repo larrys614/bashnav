@@ -11,6 +11,11 @@ Two of them so far:
 | **[celnav](#celnav)** | Celestial navigation: a computed almanac, sight reduction, the fix, and a training mode that teaches the whole subject from first principles. |
 | **[colregs](#colregs)** | The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, and lessons on the rules themselves. |
 
+<img src="docs/img/plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
+
+<details>
+<summary>the same thing as text, to copy</summary>
+
 ```
   INTERCEPT PLOT  (AP at centre, N up)
                                |    N :          //
@@ -42,6 +47,8 @@ Two of them so far:
        ///                      |   S :                       5 nm per row
   AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm
 ```
+
+</details>
 
 ---
 
@@ -205,6 +212,20 @@ in night mode, in plain mode, and for anyone who does not see red and green.
 
 ---
 
+### Contacts
+
+Bearing drift, the report, and the tracking watch — the method a fire
+control tracking party uses, written down. Five marks three minutes apart,
+and you call the drift, where she goes, and her CPA before the plot can.
+
+<img src="docs/img/contacts.svg" alt="The relative-motion plot: own ship at the centre head up, the contact's successive positions, and the closest point of approach marked" width="633">
+
+A bearing drawing **away** from your bow passes astern of you. A bearing
+drawing **toward** it crosses ahead. That is not a rule of thumb: relative
+motion is a straight line, so the bearing sweeps one way and can never come
+back. The test suite re-checks it against four hundred fresh geometries on
+every run.
+
 ## Colour and night vision
 
 Three modes, remembered between sessions: `day`, `night`, `plain`.
@@ -219,6 +240,11 @@ output is not a terminal — so redirected output is always clean text.
 ```sh
 celnav night
 colregs night
+<img src="docs/img/lights.svg" alt="A vessel restricted in her ability to manoeuvre, drawn from 040: red over white over red, with her sidelights" width="633">
+
+<details>
+<summary>the same thing as text, to copy</summary>
+
 ```
 
 ---
@@ -238,6 +264,8 @@ the Convention differ, the Convention is right and this program is wrong.
 ./tests/run-tests.sh                              # with whatever sh and awk you have
 SHELLS="dash bash" AWKS="mawk gawk" ./tests/run-tests.sh   # the full matrix
 ```
+
+</details>
 
 The suite checks the almanac against embedded reference positions, reduces a
 known set of sights to a known fix, renders every lesson, and — importantly —

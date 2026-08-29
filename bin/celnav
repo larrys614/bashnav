@@ -476,7 +476,7 @@ function kepler(M,e,   E,dE,i){
   return E
 }
 # sets HX,HY,HZ : heliocentric ecliptic J2000, au
-function helio(body,jdtt,   T,n,el,a,e,I,L,pe,no,M,w,E,xv,yv,cw,sw,co,so,ci,si,rr,lm,bt){
+function helio(body,jdtt,   T,n,el,a,e,I,L,pe,no,M,w,E,xv,yv,cosw,sinw,co,so,ci,si,rr,lm,bt){
   pl_init()
   T=(jdtt-2451545.0)/36525.0
   n=split(PL_TAB[body],el," ")
@@ -487,10 +487,10 @@ function helio(body,jdtt,   T,n,el,a,e,I,L,pe,no,M,w,E,xv,yv,cw,sw,co,so,ci,si,r
   E = kepler(M,e)
   xv = a*(cosd(E)-e)
   yv = a*sqrt(1-e*e)*sind(E)
-  cw=cosd(w); sw=sind(w); co=cosd(no); so=sind(no); ci=cosd(I); si=sind(I)
-  HX = (cw*co - sw*so*ci)*xv + (-sw*co - cw*so*ci)*yv
-  HY = (cw*so + sw*co*ci)*xv + (-sw*so + cw*co*ci)*yv
-  HZ = (sw*si)*xv + (cw*si)*yv
+  cosw=cosd(w); sinw=sind(w); co=cosd(no); so=sind(no); ci=cosd(I); si=sind(I)
+  HX = (cosw*co - sinw*so*ci)*xv + (-sinw*co - cosw*so*ci)*yv
+  HY = (cosw*so + sinw*co*ci)*xv + (-sinw*so + cosw*co*ci)*yv
+  HZ = (sinw*si)*xv + (cosw*si)*yv
   corr_init()
   if((body,"lam") in CORR){
     rr=sqrt(HX*HX+HY*HY+HZ*HZ)

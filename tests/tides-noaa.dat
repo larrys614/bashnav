@@ -1,0 +1,20 @@
+#  NOAA's own published tide predictions, captured for validation.
+#
+#  Source: https://api.tidesandcurrents.noaa.gov  product=predictions
+#          interval=hilo  datum=MLLW  time_zone=gmt  units=metric
+#  Works of the U.S. federal government: public domain.
+#
+#  These are the numbers the program has to reproduce. They are committed
+#  rather than fetched so the check runs with no network, like everything
+#  else here. Five regimes on purpose: two small New England ranges, a
+#  mixed Pacific tide, a large Puget Sound tide, a big Gulf of Maine
+#  range, and a diurnal Gulf coast station where there are only two turns
+#  a day and the semidiurnal machinery has to get out of the way.
+#
+#  station | date | HH:MM,height,type ...
+noaa/8461490|2026-08-30|03:07,0.896,H 09:29,0.072,L 15:36,0.958,H 22:04,0.101,L
+noaa/8452660|2026-08-30|01:25,1.194,H 07:06,-0.027,L 13:48,1.238,H 19:33,0.030,L
+noaa/9414290|2026-08-30|01:55,0.465,L 08:10,1.664,H 14:07,0.211,L 20:49,1.733,H
+noaa/9447130|2026-08-30|01:51,3.475,H 07:58,0.864,L 13:45,3.055,H 19:53,0.487,L
+noaa/8443970|2026-08-30|05:04,3.143,H 11:16,0.017,L 17:26,3.106,H 23:37,0.035,L
+noaa/8770570|2026-08-30|04:02,0.183,L 10:50,0.470,H 16:46,0.201,L 23:12,0.469,H

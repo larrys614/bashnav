@@ -3,8 +3,20 @@
 # Runs under any POSIX shell. Set SHELLS and AWKS to widen the matrix.
 set -e
 cd "$(dirname "$0")/.."
-: "${SHELLS:=sh}"
-: "${AWKS:=awk}"
+#  Default to every shell and awk installed on this machine, not just
+#  "sh" and "awk". A portability suite that only runs one combination by
+#  default is a portability suite that finds nothing: two syntax errors
+#  mawk rejects and gawk accepts sat in this repository until CI ran.
+if [ -z "${SHELLS:-}" ]; then
+  SHELLS=""
+  for _s in sh dash bash ksh; do command -v "$_s" >/dev/null 2>&1 && SHELLS="$SHELLS $_s"; done
+  [ -n "$SHELLS" ] || SHELLS=sh
+fi
+if [ -z "${AWKS:-}" ]; then
+  AWKS=""
+  for _a in awk gawk mawk; do command -v "$_a" >/dev/null 2>&1 && AWKS="$AWKS $_a"; done
+  [ -n "$AWKS" ] || AWKS=awk
+fi
 fail=0
 tmp=${TMPDIR:-/tmp}/bashnav-test.$$
 mkdir -p "$tmp"
@@ -28,6 +40,9 @@ for SH in $SHELLS; do
   say ""
   say "matrix: $SH + $AW"
   CH="$tmp/celnav-$SH-$AW"; CR="$tmp/colregs-$SH-$AW"
+  #  The three files colregs loads together. mawk resolves called
+  #  functions at parse time, so the engine alone no longer loads.
+  CSRC="-f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk"
   rm -rf "$CH" "$CR"
 
   # ---- celnav ------------------------------------------------------
@@ -89,13 +104,19 @@ for SH in $SHELLS; do
   check "colregs lesson L9 has a question" "1" "$o"
 
   RV=$(COLREGS_HOME="$CR" COLREGS_AWK="$AW" $SH ./bin/colregs version | awk '{print $2}')
-  CE="$CR/engine-$RV.awk"
+  #  The tool always loads all three of its awk files together, so the
+  #  tests must too. mawk resolves every called function at PARSE time,
+  #  so engine.awk on its own does not even load under it once the
+  #  engine dispatches into contacts.awk and review.awk. gawk only
+  #  complains when such a function is actually called, which is why
+  #  this passed locally and failed in CI.
+  CE="$CR/engine-$RV.awk -f $CR/contacts-$RV.awk -f $CR/review-$RV.awk"
   # the lights quiz asks two questions and both must mark correctly
   for sd in 3 17 91 404 7; do
-    r=$($AW -f "$CE" -v cmd=qlightm -v seed="$sd" -v ans=z -v ans2=z -v cmode=plain </dev/null || true)
+    r=$($AW -f $CE -v cmd=qlightm -v seed="$sd" -v ans=z -v ans2=z -v cmode=plain </dev/null || true)
     w1=$(echo "$r" | grep '^  Q1 ' | grep -o '[A-D] is right' | cut -c1 | tr 'A-D' 'a-d')
     w2=$(echo "$r" | grep '^  Q2 ' | grep -o '[A-D] is right' | cut -c1 | tr 'A-D' 'a-d')
-    if $AW -f "$CE" -v cmd=qlightm -v seed="$sd" -v ans="$w1" -v ans2="$w2" -v cmode=plain </dev/null >/dev/null 2>&1
+    if $AW -f $CE -v cmd=qlightm -v seed="$sd" -v ans="$w1" -v ans2="$w2" -v cmode=plain </dev/null >/dev/null 2>&1
     then :; else bad "colregs lights quiz seed $sd self-mark (q1=$w1 q2=$w2)"; fi
   done
   ok "lights quiz marks both of its answers correctly"
@@ -103,40 +124,40 @@ for SH in $SHELLS; do
   # every quiz must mark its own correct answer as correct
   for q in qshape qsound; do
     for sd in 3 17 91 404; do
-      want=$($AW -f "$CE" -v cmd="${q}m" -v seed="$sd" -v ans=z </dev/null 2>&1 \
+      want=$($AW -f $CE -v cmd="${q}m" -v seed="$sd" -v ans=z </dev/null 2>&1 \
              | grep -o '^  [A-D] is right' | cut -c3 | tr 'A-D' 'a-d' || true)
-      if $AW -f "$CE" -v cmd="${q}m" -v seed="$sd" -v ans="$want" </dev/null >/dev/null 2>&1
+      if $AW -f $CE -v cmd="${q}m" -v seed="$sd" -v ans="$want" </dev/null >/dev/null 2>&1
       then :; else bad "colregs $q seed $sd self-mark"; fi
     done
   done
   ok "colregs quizzes mark their own answers correctly"
   # a lights picture must have exactly one right answer among the four offered:
   # two vessels that look identical from that angle must never both appear
-  if $AW -f "$CE" -v cmd=sigcheck </dev/null | grep -q "single right answer"
+  if $AW -f $CE -v cmd=sigcheck </dev/null | grep -q "single right answer"
   then ok "lights questions have a single right answer"
   else bad "lights questions offer look-alike vessels"
-       $AW -f "$CE" -v cmd=sigcheck </dev/null | head -4; fi
+       $AW -f $CE -v cmd=sigcheck </dev/null | head -4; fi
   for sd in 5 55 555; do
-    want=$($AW -f "$CE" -v cmd=encm -v seed="$sd" -v ans=z </dev/null 2>&1 \
+    want=$($AW -f $CE -v cmd=encm -v seed="$sd" -v ans=z </dev/null 2>&1 \
            | grep -o '^  [A-D] is right' | cut -c3 | tr 'A-D' 'a-d' || true)
-    if $AW -f "$CE" -v cmd=encm -v seed="$sd" -v ans="$want" </dev/null >/dev/null 2>&1
+    if $AW -f $CE -v cmd=encm -v seed="$sd" -v ans="$want" </dev/null >/dev/null 2>&1
     then :; else bad "colregs encounter seed $sd self-mark"; fi
   done
   ok "colregs encounters mark their own answers correctly"
 
   # ---- collision-avoidance scenarios -------------------------------
   for sd in 2 9 44 101 3030; do
-    o=$($AW -f "$CE" -v cmd=scen -v seed="$sd" -v cmode=plain </dev/null | grep -c "COLLISION AVOIDANCE")
+    o=$($AW -f $CE -v cmd=scen -v seed="$sd" -v cmode=plain </dev/null | grep -c "COLLISION AVOIDANCE")
     [ "$o" = 1 ] || bad "scenario seed $sd did not generate"
   done
   ok "scenarios generate"
   # and each must mark its own three correct answers as correct
   for sd in 2 9 44 101 3030; do
-    r=$($AW -f "$CE" -v cmd=scenm -v seed="$sd" -v a1=z -v a2=z -v a3=z -v cmode=plain </dev/null || true)
+    r=$($AW -f $CE -v cmd=scenm -v seed="$sd" -v a1=z -v a2=z -v a3=z -v cmode=plain </dev/null || true)
     k1=$(echo "$r" | grep '^  Q1' | sed 's/.*the answer is //' | tr 'A-Z' 'a-z')
     k2=$(echo "$r" | grep '^  Q2' | sed 's/.*the answer is //' | tr 'A-Z' 'a-z')
     k3=$(echo "$r" | grep '^  Q3' | sed 's/.*the answer is //' | tr 'A-Z' 'a-z')
-    if $AW -f "$CE" -v cmd=scenm -v seed="$sd" -v a1="$k1" -v a2="$k2" -v a3="$k3" -v cmode=plain </dev/null >/dev/null 2>&1
+    if $AW -f $CE -v cmd=scenm -v seed="$sd" -v a1="$k1" -v a2="$k2" -v a3="$k3" -v cmode=plain </dev/null >/dev/null 2>&1
     then :; else bad "scenario seed $sd self-mark (a1=$k1 a2=$k2 a3=$k3)"; fi
   done
   ok "scenarios mark their own answers correctly"
@@ -144,7 +165,7 @@ for SH in $SHELLS; do
   for sd in 2 44; do
     ended=0
     for tm in 12 24 36 48 60 72 84 96; do
-      $AW -f "$CE" -v cmd=scenframe -v seed="$sd" -v ans=a -v tmin="$tm" -v cmode=plain </dev/null >/dev/null 2>&1 || rc=$?
+      $AW -f $CE -v cmd=scenframe -v seed="$sd" -v ans=a -v tmin="$tm" -v cmode=plain </dev/null >/dev/null 2>&1 || rc=$?
       rc=${rc:-0}
       if [ "$rc" -eq 3 ]; then ended=1; break; fi
       rc=0
@@ -191,7 +212,7 @@ for SH in $SHELLS; do
   #  angle from which all three are seen.
   bad_a=""
   for a in 0 30 60 90 120 150 180 210 240 270 300 330 45 135 225 315; do
-    r=$($AW -f src/colregs/engine.awk -v cmd=light -v key=mineclear -v th=$a -v cmode=plain </dev/null \
+    r=$($AW $CSRC -v cmd=light -v key=mineclear -v th=$a -v cmode=plain </dev/null \
         | $AW '
           /G[-:]+G/ { yl=index($0,"G"); yr=length($0); while(substr($0,yr,1)!="G") yr--; got=1 }
           !yard && /^ *G *$/ { mast=index($0,"G") }
@@ -225,12 +246,11 @@ for SH in $SHELLS; do
   #  which is exactly the failure this section exists to prevent.
   a=$(COLREGS_HOME="$CR" COLREGS_AWK="$AW" printf '3\n5\nx\n' \
       | $SH ./bin/colregs about 2>/dev/null)
-  nv=$($AW -f src/colregs/engine.awk -v cmode=plain -f tests/count-check.awk \
+  nv=$($AW $CSRC -v cmode=plain -f tests/count-check.awk \
        -v what=vessels </dev/null)
-  ne=$($AW -f src/colregs/engine.awk -v cmode=plain -f tests/count-check.awk \
+  ne=$($AW $CSRC -v cmode=plain -f tests/count-check.awk \
        -v what=encounters </dev/null)
-  nm=$($AW -f src/colregs/engine.awk -f src/colregs/contacts.awk -v cmode=plain \
-       -f tests/count-check.awk -v what=motion </dev/null)
+  nm=$($AW $CSRC -v cmode=plain -f tests/count-check.awk -v what=motion </dev/null)
   [ "$nv" = 20 ] || bad "about says twenty vessels; there are $nv"
   [ "$ne" = 28 ] || bad "about says twenty-eight encounters; there are $ne"
   [ "$nm" = 65 ] || bad "about says sixty-five give-way calls; there are $nm"
@@ -251,6 +271,60 @@ for SH in $SHELLS; do
     grep -q "MIT" "$t" && bad "$t still mentions MIT"
   done
   ok "the licence the tools claim is the licence in LICENSE and NOTICE"
+
+  # ---- the README's pictures ---------------------------------------
+  #  The coloured art is generated from the tools' real output. If an
+  #  image goes missing, or make-site.sh stops producing one, the front
+  #  page silently shows a broken image to everybody who arrives.
+  rm_bad=0
+  for f in $(sed -n 's/.*src="\(docs\/img\/[^"]*\)".*/\1/p' README.md); do
+    [ -s "$f" ] || { bad "README references $f, which is missing or empty"; rm_bad=1; }
+  done
+  for f in docs/img/*.svg; do
+    [ -s "$f" ] || continue
+    head -1 "$f" | grep -q "<svg" || { bad "$f is not an SVG"; rm_bad=1; }
+    grep -q "<script" "$f" && { bad "$f contains a script; GitHub will not render it"; rm_bad=1; }
+  done
+  [ "$rm_bad" = 0 ] && ok "every picture the README shows exists and is a plain SVG"
+
+  # ---- a function name used as a variable ---------------------------
+  #  awk will not let a function's name be used as a variable or a
+  #  parameter. gawk lets it pass; mawk refuses to parse the file, but
+  #  only when the function was defined BEFORE the use - so the same
+  #  code can work in one file and break when another is loaded after
+  #  it. Check each tool's files as they are actually loaded together.
+  fp=0
+  for grp in "src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk" \
+             "src/celnav/engine.awk src/celnav/teach.awk" \
+             "src/tides/tables.awk src/tides/engine.awk"; do
+    r=$($AW -f tests/fnparam-check.awk $grp)
+    n=$(echo "$r" | tail -1 | $AW '{print $2}')
+    if [ "$n" != 0 ]; then bad "$n parameters shadow a function name"; echo "$r" | grep -v '^BAD' | head -4; fp=1; fi
+  done
+  [ "$fp" = 0 ] && ok "no parameter shadows a function name"
+
+  # ---- awk's own built-in variables --------------------------------
+  #  A global called RS is the record separator. Setting it to a number
+  #  makes the next getline read a whole file as a single record, with no
+  #  error anywhere - which is exactly what a rate variable named RS did
+  #  in the tide engine, and it took a while to see.
+  r=$($AW -f tests/awkvars-check.awk src/celnav/engine.awk src/celnav/teach.awk \
+        src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk \
+        src/tides/engine.awk src/tides/tables.awk)
+  n=$(echo "$r" | tail -1 | $AW '{print $2}')
+  if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
+  else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
+
+  # ---- tides against NOAA's own published predictions ---------------
+  r=$($AW -f src/tides/tables.awk -f src/tides/engine.awk -f tests/tides-check.awk \
+        -v SF=src/tides/stations.dat -v REF=tests/tides-noaa.dat </dev/null | grep '^RESULT')
+  set -- $r
+  tn=$2; tt=$3; th=$4; tm=$5
+  [ "$tm" = 0 ] || bad "$tm predicted turns could not be matched to NOAA's"
+  [ "$tn" -ge 24 ] || bad "only $tn turns compared against NOAA"
+  if $AW -v t="$tt" 'BEGIN{exit !(t<12)}' </dev/null; then :; else bad "worst high/low water time error $tt min"; fi
+  if $AW -v h="$th" 'BEGIN{exit !(h<0.06)}' </dev/null; then :; else bad "worst high/low water height error $th m"; fi
+  ok "tides match NOAA's published tables ($tn turns, worst $tt min and $th m)"
 
   # ---- no network, ever --------------------------------------------
   #  The founding promise of both tools, and the reason the review
@@ -351,7 +425,7 @@ for SH in $SHELLS; do
   #  Every table is a delimited string; a delimiter inside a field splits
   #  it silently. Encounters 13 and 14 shipped with five options and the
   #  right answer cut in half because of exactly this.
-  r=$($AW -f src/colregs/engine.awk -v cmode=plain -f tests/fields-check.awk </dev/null)
+  r=$($AW $CSRC -v cmode=plain -f tests/fields-check.awk </dev/null)
   n=$(echo "$r" | tail -1)
   if [ "$n" = 0 ]; then ok "no table field is split by its own separator"
   else bad "$n split fields"; echo "$r" | grep -v '^[0-9]*$' | head -6; fi
@@ -360,13 +434,13 @@ for SH in $SHELLS; do
   #  Not whether a vessel shows the right lights - that needs a person
   #  with the Convention. Only the parts that are geometry: pairs, arcs,
   #  heights and the circle adding up.
-  r=$($AW -f src/colregs/engine.awk -f tests/annex1-check.awk -v cmode=plain </dev/null)
+  r=$($AW $CSRC -f tests/annex1-check.awk -v cmode=plain </dev/null)
   n=$(echo "$r" | tail -1)
   if [ "$n" = 0 ]; then ok "light tables satisfy Annex I where it is checkable"
   else bad "$n Annex I violations"; echo "$r" | grep '^FAIL' | head -8; fi
 
   # ---- the reporting style -----------------------------------------
-  CT="-f src/colregs/engine.awk -f src/colregs/contacts.awk"
+  CT="$CSRC"      # the tool loads all three; so must every test
   #  Every style must produce a report, and each must be its own words.
   prev=""
   for st in rn usn rel360 words none; do
@@ -426,9 +500,9 @@ for SH in $SHELLS; do
   else bad "Ekelund error $nw is too large"; fi
 
   # ---- the quiz must not give away what it is asking --------------
-  e=$($AW -f src/colregs/engine.awk -v cmd=qlight -v seed=4242 -v cmode=plain </dev/null | grep -c 'You are ' || true)
+  e=$($AW $CSRC -v cmd=qlight -v seed=4242 -v cmode=plain </dev/null | grep -c 'You are ' || true)
   check "lights quiz does not tell you the aspect" "0" "$e"
-  e=$($AW -f src/colregs/engine.awk -v cmd=light -v key=sail -v th=300 -v cmode=plain </dev/null | grep -c 'You are ' || true)
+  e=$($AW $CSRC -v cmd=light -v key=sail -v th=300 -v cmode=plain </dev/null | grep -c 'You are ' || true)
   check "the lights reference still tells you the aspect" "1" "$e"
  done
 done

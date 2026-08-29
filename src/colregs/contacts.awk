@@ -537,9 +537,12 @@ function ct_lesson(id,   x){
 # =====================================================================
 #  Ekelund drill: two legs, two bearing rates, how far off is she?
 # =====================================================================
-function ek_across(sp,co,tb){ return sp*sind(co-tb) }
-function ek_rate(R,tb,cs,cc,os,oc){
-  return ((ek_across(cs,cc,tb) - ek_across(os,oc,tb))*ktym()/R)*57.2957795130823 }
+#  NOT a parameter called tb: tb() is the blank-line helper in the engine,
+#  and awk will not let a function name be used as a variable. gawk lets
+#  it pass; mawk refuses to parse the file at all.
+function ek_across(sp,co,bg){ return sp*sind(co-bg) }
+function ek_rate(R,bg,cs,cc,os,oc){
+  return ((ek_across(cs,cc,bg) - ek_across(os,oc,bg))*ktym()/R)*57.2957795130823 }
 function ek_gen(seed,   try,r1,r2,a1,a2,est,band,eband){
   xsrand(seed+0)
   EK_WANT = 1 + int(xrand()*4)

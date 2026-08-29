@@ -24,7 +24,11 @@ except ImportError:
 
 ALIAS = {'LAMBDA2':'LDA2','LAM2':'LDA2','SIGMA1':'SIG1','SGM':'SIG1',
          'RHO':'RHO1','THETA1':'THE1','EP2':'EPS2'}
-FLOOR = 0.01                     # metres; below this a constituent cannot matter
+#  Keep essentially everything published. A 10 mm floor looked harmless
+#  and cost a factor of four in the timing of high water - worst error
+#  against NOAA's own predictions went from 5.9 minutes to 26.9. The
+#  extra megabyte is worth it.
+FLOOR = 0.0005                   # metres
 
 def clean(s):
     if s is None: return ""

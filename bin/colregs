@@ -547,7 +547,7 @@ function arrowchar(hdg,   h){
   if(h<292.5) return "<"
   return "\\"
 }
-function draw_plan(brg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
+function draw_plan(bg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
   w=63; h=25; cx=int(w/2); cy=int(h/2); rx=cx-2; ry=cy-1
   gclear(w,h)
   for(t=0;t<360;t+=1.0){
@@ -559,8 +559,8 @@ function draw_plan(brg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
   gputc(cy-1,cx,"^",C_ACC); gputc(cy,cx,"|",C_ACC)
   gputsc(cy+1,cx-1,"YOU",C_ACC)
   # the other vessel
-  tr = cy - ry*rng*cosd(brg)
-  tc = cx + rx*rng*sind(brg)
+  tr = cy - ry*rng*cosd(bg)
+  tc = cx + rx*rng*sind(bg)
   ch = arrowchar(thdg)
   dr = -cosd(thdg); dc = sind(thdg)
   m = fabs(dr); if(fabs(dc)>m) m=fabs(dc)
@@ -667,23 +667,23 @@ function enc_pick(i,   a){
   ENC_ANS=a[6]; ENC_WHY=a[8]; ENC_RULE=a[9]
   return 0
 }
-function enc_show(i,seed,   a,o,brg,rng,thdg,n){
+function enc_show(i,seed,   a,o,bg,rng,thdg,n){
   enc_init()
   split(EC[i],a,"|")
   xsrand(seed+0); xrand()
-  brg = a[3]+0; n = a[4]+0
-  if(n < brg) n += 360
-  brg = nrm360(brg + xrand()*(n-brg))
+  bg = a[3]+0; n = a[4]+0
+  if(n < bg) n += 360
+  bg = nrm360(bg + xrand()*(n-bg))
   rng = 0.55 + xrand()*0.35
   thdg = nrm360(a[5]+0 + (xrand()*30-15))
-  draw_plan(brg,rng,thdg,"HER")
+  draw_plan(bg,rng,thdg,"HER")
   print ""
   printf "  %s\n", cw("WHAT DO YOU DO?",C_ACC)
   hr()
   gshow()
   hr()
   printf "  %s\n", a[1]
-  printf "  You see %s, bearing %03d relative, heading as drawn.\n", a[2], brg
+  printf "  You see %s, bearing %03d relative, heading as drawn.\n", a[2], bg
   hr()
   n=split(a[7],o,";")
   printf "   a) %s\n   b) %s\n   c) %s\n   d) %s\n", o[1],o[2],o[3],o[4]
@@ -2264,9 +2264,12 @@ function ct_lesson(id,   x){
 # =====================================================================
 #  Ekelund drill: two legs, two bearing rates, how far off is she?
 # =====================================================================
-function ek_across(sp,co,tb){ return sp*sind(co-tb) }
-function ek_rate(R,tb,cs,cc,os,oc){
-  return ((ek_across(cs,cc,tb) - ek_across(os,oc,tb))*ktym()/R)*57.2957795130823 }
+#  NOT a parameter called tb: tb() is the blank-line helper in the engine,
+#  and awk will not let a function name be used as a variable. gawk lets
+#  it pass; mawk refuses to parse the file at all.
+function ek_across(sp,co,bg){ return sp*sind(co-bg) }
+function ek_rate(R,bg,cs,cc,os,oc){
+  return ((ek_across(cs,cc,bg) - ek_across(os,oc,bg))*ktym()/R)*57.2957795130823 }
 function ek_gen(seed,   try,r1,r2,a1,a2,est,band,eband){
   xsrand(seed+0)
   EK_WANT = 1 + int(xrand()*4)
@@ -2500,6 +2503,27 @@ function rv_find(key,   i){ rv_build()
   for(i=1;i<=RV_N;i++) if(RV_K[i]==key) return i
   return 0 }
 
+#  Written as plain ifs rather than nested ternaries split over lines:
+#  awk permits a newline after a comma or an operator, but not after the
+#  ':' of a conditional. gawk accepts it anyway, mawk does not, and the
+#  file then fails to parse at all.
+function rv_colour(c){
+  if(c=="W") return "white"
+  if(c=="R") return "red"
+  if(c=="G") return "green"
+  if(c=="Y") return "yellow"
+  return c
+}
+function rv_arc(a){
+  if(a=="A") return "all-round 360"
+  if(a=="M") return "masthead 225"
+  if(a=="S") return "starboard side 112.5"
+  if(a=="P") return "port side 112.5"
+  if(a=="T") return "stern 135"
+  if(a=="Y") return "towing 135"
+  return a
+}
+
 # ---- show one claim, in full ----------------------------------------
 function rv_show(key,   i,s,a,n,O,j,idx,parts){
   i=rv_find(key); if(i==0){ print "  no such item: " key; return 1 }
@@ -2539,10 +2563,7 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     for(j=1;j<=n;j++){
       split(O[j],parts,",")
       printf "     %-6s %-22s height %.2f   %+.2f along   %+.2f across\n",
-        (parts[5]=="W"?"white":(parts[5]=="R"?"red":(parts[5]=="G"?"green":"yellow"))),
-        (parts[4]=="A"?"all-round 360":(parts[4]=="M"?"masthead 225":
-         (parts[4]=="S"?"starboard side 112.5":(parts[4]=="P"?"port side 112.5":
-         (parts[4]=="T"?"stern 135":"towing 135"))))),
+        rv_colour(parts[5]), rv_arc(parts[4]),
         parts[3]+0, parts[1]+0, parts[2]+0
     }
   }

@@ -10,7 +10,7 @@ jobs:
   matrix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install shells and awks
         run: |
@@ -20,6 +20,12 @@ jobs:
       - name: Build
         run: ./build.sh
 
+      #  Both shells against both awks. gawk accepts things mawk refuses
+      #  outright - a parameter that shadows a function name, a newline
+      #  after the ':' of a ternary - so a single-awk run proves nothing
+      #  about portability. run-tests.sh now defaults to every shell and
+      #  awk it can find, but the matrix is named here as well so the
+      #  intent survives a change to that default.
       - name: Test matrix (dash and bash, mawk and gawk)
         run: SHELLS="dash bash" AWKS="mawk gawk" ./tests/run-tests.sh
 

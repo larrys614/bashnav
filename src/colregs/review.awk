@@ -88,6 +88,27 @@ function rv_find(key,   i){ rv_build()
   for(i=1;i<=RV_N;i++) if(RV_K[i]==key) return i
   return 0 }
 
+#  Written as plain ifs rather than nested ternaries split over lines:
+#  awk permits a newline after a comma or an operator, but not after the
+#  ':' of a conditional. gawk accepts it anyway, mawk does not, and the
+#  file then fails to parse at all.
+function rv_colour(c){
+  if(c=="W") return "white"
+  if(c=="R") return "red"
+  if(c=="G") return "green"
+  if(c=="Y") return "yellow"
+  return c
+}
+function rv_arc(a){
+  if(a=="A") return "all-round 360"
+  if(a=="M") return "masthead 225"
+  if(a=="S") return "starboard side 112.5"
+  if(a=="P") return "port side 112.5"
+  if(a=="T") return "stern 135"
+  if(a=="Y") return "towing 135"
+  return a
+}
+
 # ---- show one claim, in full ----------------------------------------
 function rv_show(key,   i,s,a,n,O,j,idx,parts){
   i=rv_find(key); if(i==0){ print "  no such item: " key; return 1 }
@@ -127,10 +148,7 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     for(j=1;j<=n;j++){
       split(O[j],parts,",")
       printf "     %-6s %-22s height %.2f   %+.2f along   %+.2f across\n",
-        (parts[5]=="W"?"white":(parts[5]=="R"?"red":(parts[5]=="G"?"green":"yellow"))),
-        (parts[4]=="A"?"all-round 360":(parts[4]=="M"?"masthead 225":
-         (parts[4]=="S"?"starboard side 112.5":(parts[4]=="P"?"port side 112.5":
-         (parts[4]=="T"?"stern 135":"towing 135"))))),
+        rv_colour(parts[5]), rv_arc(parts[4]),
         parts[3]+0, parts[1]+0, parts[2]+0
     }
   }

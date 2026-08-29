@@ -455,7 +455,7 @@ function arrowchar(hdg,   h){
   if(h<292.5) return "<"
   return "\\"
 }
-function draw_plan(brg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
+function draw_plan(bg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
   w=63; h=25; cx=int(w/2); cy=int(h/2); rx=cx-2; ry=cy-1
   gclear(w,h)
   for(t=0;t<360;t+=1.0){
@@ -467,8 +467,8 @@ function draw_plan(brg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
   gputc(cy-1,cx,"^",C_ACC); gputc(cy,cx,"|",C_ACC)
   gputsc(cy+1,cx-1,"YOU",C_ACC)
   # the other vessel
-  tr = cy - ry*rng*cosd(brg)
-  tc = cx + rx*rng*sind(brg)
+  tr = cy - ry*rng*cosd(bg)
+  tc = cx + rx*rng*sind(bg)
   ch = arrowchar(thdg)
   dr = -cosd(thdg); dc = sind(thdg)
   m = fabs(dr); if(fabs(dc)>m) m=fabs(dc)
@@ -575,23 +575,23 @@ function enc_pick(i,   a){
   ENC_ANS=a[6]; ENC_WHY=a[8]; ENC_RULE=a[9]
   return 0
 }
-function enc_show(i,seed,   a,o,brg,rng,thdg,n){
+function enc_show(i,seed,   a,o,bg,rng,thdg,n){
   enc_init()
   split(EC[i],a,"|")
   xsrand(seed+0); xrand()
-  brg = a[3]+0; n = a[4]+0
-  if(n < brg) n += 360
-  brg = nrm360(brg + xrand()*(n-brg))
+  bg = a[3]+0; n = a[4]+0
+  if(n < bg) n += 360
+  bg = nrm360(bg + xrand()*(n-bg))
   rng = 0.55 + xrand()*0.35
   thdg = nrm360(a[5]+0 + (xrand()*30-15))
-  draw_plan(brg,rng,thdg,"HER")
+  draw_plan(bg,rng,thdg,"HER")
   print ""
   printf "  %s\n", cw("WHAT DO YOU DO?",C_ACC)
   hr()
   gshow()
   hr()
   printf "  %s\n", a[1]
-  printf "  You see %s, bearing %03d relative, heading as drawn.\n", a[2], brg
+  printf "  You see %s, bearing %03d relative, heading as drawn.\n", a[2], bg
   hr()
   n=split(a[7],o,";")
   printf "   a) %s\n   b) %s\n   c) %s\n   d) %s\n", o[1],o[2],o[3],o[4]

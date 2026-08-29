@@ -85,6 +85,45 @@ function platelights(f,   line,out,t){
   print
 }' docs/site-template.html > docs/index.html
 
+
+# ---- coloured pictures for the README -------------------------------
+#  GitHub will not render ANSI in a code block and strips inline styles
+#  from a README, but it does render an SVG image. So the art on the
+#  front page can be the program's real output in the program's real
+#  colours, rather than a plain-text approximation of it.
+mkdir -p docs/img
+CENG="$CH/engine-$CV.awk"
+REN="-f $CR/engine-$RV.awk -f $CR/contacts-$RV.awk -f $CR/review-$RV.awk"
+
+awk -f "$CENG" -v cmode=day -v cmd=reduce -v sfile="$CH/sights.txt" \
+    -v drlat="35 00 N" -v drlon="040 00 W" -v course=0 -v speed=0 </dev/null \
+  | sed -n '/INTERCEPT PLOT/,/1 column/p' \
+  | awk -f docs/ansi2svg.awk -v title="celnav: the intercept plot, three star sights and the fix" \
+  > docs/img/plot.svg
+
+awk -f "$CENG" -v cmode=day -v cmd=plan -v utc="2026-08-29 07:34:00" \
+    -v drlat="35 00 N" -v drlon="040 00 W" </dev/null \
+  | sed -n '/SKY VIEW/,/suggested set/p' \
+  | awk -f docs/ansi2svg.awk -v title="celnav: the sky, with the best three bodies marked" \
+  > docs/img/sky.svg
+
+awk $REN -v cmode=day -v cmd=light -v key=ram -v th=40 </dev/null \
+  | sed -n '/WHAT DO YOU SEE/,/yellow/p' \
+  | awk -f docs/ansi2svg.awk -v title="colregs: a vessel restricted in her ability to manoeuvre, seen from 040" \
+  > docs/img/lights.svg
+
+awk $REN -v cmode=day -v cmd=light -v key=mineclear -v th=310 </dev/null \
+  | sed -n '/WHAT DO YOU SEE/,/yellow/p' \
+  | awk -f docs/ansi2svg.awk -v title="colregs: a mine clearance vessel, three green lights on one yard" \
+  > docs/img/lights-mineclear.svg
+
+awk $REN -v cmode=day -v cmd=trackm -v seed=7 -v a1=b -v a2=b -v a3=c </dev/null \
+  | sed -n '/yd across/,/whole question/p' \
+  | awk -f docs/ansi2svg.awk -v title="colregs: the relative-motion plot from the tracking watch" \
+  > docs/img/contacts.svg
+
+echo "docs/img: $(ls docs/img/*.svg | wc -l) coloured pictures"
+
 echo "docs/index.html written ($(wc -l < docs/index.html) lines)"
 grep -c '{{' docs/index.html >/dev/null && {
   n=$(grep -c '{{' docs/index.html || true)
