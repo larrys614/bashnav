@@ -1,28 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="557" height="402" viewBox="0 0 557 402" role="img" aria-label="colregs: the relative-motion plot from the tracking watch">
+<svg xmlns="http://www.w3.org/2000/svg" width="557" height="402" viewBox="0 0 557 402">
 <title>colregs: the relative-motion plot from the tracking watch</title>
-<rect width="557" height="402" rx="6" fill="#0b1a22"/>
-<g font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="14" fill="#c9d6dc" xml:space="preserve">
-<text x="14" y="27.0">  <tspan fill="#72868f">27000 yd across</tspan>                  <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="44.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="61.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="78.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="95.0">                                   <tspan fill="#72868f">|</tspan>              1</text>
-<text x="14" y="112.0">                                   <tspan fill="#72868f">|</tspan>            2<tspan fill="#72868f">..</tspan></text>
-<text x="14" y="129.0">                                   <tspan fill="#72868f">|</tspan>          <tspan fill="#72868f">.</tspan>3<tspan fill="#72868f">.</tspan></text>
-<text x="14" y="146.0">                                   <tspan fill="#72868f">|</tspan>         <tspan fill="#72868f">.</tspan>4</text>
-<text x="14" y="163.0">                                  <tspan fill="#5cbf94">^^^</tspan>      <tspan fill="#72868f">.</tspan>5<tspan fill="#72868f">.</tspan></text>
-<text x="14" y="180.0">                                   <tspan fill="#5cbf94">Y</tspan>      <tspan fill="#72868f">..</tspan></text>
-<text x="14" y="197.0">                                   <tspan fill="#72868f">|</tspan>    <tspan fill="#72868f">...</tspan></text>
-<text x="14" y="214.0">                                   <tspan fill="#72868f">|</tspan>   <tspan fill="#5cbf94">*</tspan><tspan fill="#72868f">.</tspan></text>
-<text x="14" y="231.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="248.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="265.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="282.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="299.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="316.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="333.0">                                   <tspan fill="#72868f">|</tspan></text>
-<text x="14" y="350.0">  <tspan fill="#72868f">Y = you, head up. 1 to 5 = her, three minutes apart. * = CPA.</tspan></text>
-<text x="14" y="367.0">  <tspan fill="#72868f">The upright line is your own track. Which side of you she</tspan></text>
-<text x="14" y="384.0">  <tspan fill="#72868f">crosses it is the whole question.</tspan></text>
+<rect width="557" height="402" fill="#0b1a22"/>
+<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="14">
+<text x="30.8" y="27.0" fill="#72868f">27000 yd across</text>
+<text x="308.0" y="27.0" fill="#72868f">|</text>
+<text x="308.0" y="44.0" fill="#72868f">|</text>
+<text x="308.0" y="61.0" fill="#72868f">|</text>
+<text x="308.0" y="78.0" fill="#72868f">|</text>
+<text x="308.0" y="95.0" fill="#72868f">|</text>
+<text x="434.0" y="95.0" fill="#c9d6dc">1</text>
+<text x="308.0" y="112.0" fill="#72868f">|</text>
+<text x="417.2" y="112.0" fill="#c9d6dc">2</text>
+<text x="425.6" y="112.0" fill="#72868f">..</text>
+<text x="308.0" y="129.0" fill="#72868f">|</text>
+<text x="400.4" y="129.0" fill="#72868f">.</text>
+<text x="408.8" y="129.0" fill="#c9d6dc">3</text>
+<text x="417.2" y="129.0" fill="#72868f">.</text>
+<text x="308.0" y="146.0" fill="#72868f">|</text>
+<text x="392.0" y="146.0" fill="#72868f">.</text>
+<text x="400.4" y="146.0" fill="#c9d6dc">4</text>
+<text x="299.6" y="163.0" fill="#5cbf94">^^^</text>
+<text x="375.2" y="163.0" fill="#72868f">.</text>
+<text x="383.6" y="163.0" fill="#c9d6dc">5</text>
+<text x="392.0" y="163.0" fill="#72868f">.</text>
+<text x="308.0" y="180.0" fill="#5cbf94">Y</text>
+<text x="366.8" y="180.0" fill="#72868f">..</text>
+<text x="308.0" y="197.0" fill="#72868f">|</text>
+<text x="350.0" y="197.0" fill="#72868f">...</text>
+<text x="308.0" y="214.0" fill="#72868f">|</text>
+<text x="341.6" y="214.0" fill="#5cbf94">*</text>
+<text x="350.0" y="214.0" fill="#72868f">.</text>
+<text x="308.0" y="231.0" fill="#72868f">|</text>
+<text x="308.0" y="248.0" fill="#72868f">|</text>
+<text x="308.0" y="265.0" fill="#72868f">|</text>
+<text x="308.0" y="282.0" fill="#72868f">|</text>
+<text x="308.0" y="299.0" fill="#72868f">|</text>
+<text x="308.0" y="316.0" fill="#72868f">|</text>
+<text x="308.0" y="333.0" fill="#72868f">|</text>
+<text x="30.8" y="350.0" fill="#72868f">Y = you, head up. 1 to 5 = her, three minutes apart. * = CPA.</text>
+<text x="30.8" y="367.0" fill="#72868f">The upright line is your own track. Which side of you she</text>
+<text x="30.8" y="384.0" fill="#72868f">crosses it is the whole question.</text>
 </g>
 </svg>

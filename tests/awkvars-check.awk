@@ -4,7 +4,11 @@
 #  entire file as one record with no error anywhere. This walks the
 #  sources looking for such an assignment.
 BEGIN{
-  n=split("FS OFS ORS RS NR NF FNR FILENAME SUBSEP RSTART RLENGTH CONVFMT OFMT ARGC ARGV ENVIRON",B," ")
+  #  POSIX awk's built-ins, plus the gawk ones - RT bit me while writing
+  #  the SVG generator, which is exactly what this check exists for.
+  n=split("FS OFS ORS RS NR NF FNR FILENAME SUBSEP RSTART RLENGTH CONVFMT " \
+          "OFMT ARGC ARGV ENVIRON RT FIELDWIDTHS FPAT IGNORECASE BINMODE " \
+          "LINT TEXTDOMAIN PROCINFO ERRNO",B," ")
   for(i=1;i<=n;i++) BUILT[B[i]]=1
   bad=0
 }

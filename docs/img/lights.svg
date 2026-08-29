@@ -1,28 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="633" height="402" viewBox="0 0 633 402" role="img" aria-label="colregs: a vessel restricted in her ability to manoeuvre, seen from 040">
+<svg xmlns="http://www.w3.org/2000/svg" width="633" height="402" viewBox="0 0 633 402">
 <title>colregs: a vessel restricted in her ability to manoeuvre, seen from 040</title>
-<rect width="633" height="402" rx="6" fill="#0b1a22"/>
-<g font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="14" fill="#c9d6dc" xml:space="preserve">
-<text x="14" y="27.0">  <tspan fill="#5cbf94">WHAT DO YOU SEE?</tspan></text>
-<text x="14" y="44.0">  ----------------------------------------------------------------------</text>
-<text x="14" y="61.0">  <tspan fill="#72868f">masthead height</tspan></text>
-<text x="14" y="78.0">                                      <tspan fill="#e8695c">R</tspan></text>
-<text x="14" y="95.0">                                      <tspan fill="#ffffff">W</tspan></text>
-<text x="14" y="112.0">                                      <tspan fill="#72868f">:</tspan></text>
-<text x="14" y="129.0">                                      <tspan fill="#e8695c">R</tspan></text>
-<text x="14" y="146.0">                                      <tspan fill="#72868f">:</tspan><tspan fill="#ffffff">W</tspan></text>
-<text x="14" y="163.0">                                      <tspan fill="#72868f">::</tspan></text>
-<text x="14" y="180.0">                                      <tspan fill="#72868f">::</tspan></text>
-<text x="14" y="197.0">                                      <tspan fill="#72868f">::</tspan></text>
-<text x="14" y="214.0">                                 <tspan fill="#5cbf94">G</tspan>    <tspan fill="#72868f">::</tspan></text>
-<text x="14" y="231.0">                                 <tspan fill="#72868f">:</tspan>    <tspan fill="#72868f">::</tspan></text>
-<text x="14" y="248.0">                                 <tspan fill="#72868f">:</tspan>    <tspan fill="#72868f">::</tspan></text>
-<text x="14" y="265.0">                                 <tspan fill="#72868f">:</tspan>    <tspan fill="#72868f">::</tspan></text>
-<text x="14" y="282.0">  <tspan fill="#72868f">deck</tspan>                           <tspan fill="#72868f">:</tspan>    <tspan fill="#72868f">::</tspan></text>
-<text x="14" y="299.0">                   =================================</text>
-<text x="14" y="316.0">  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</text>
-<text x="14" y="333.0">  </text>
-<text x="14" y="350.0">  ----------------------------------------------------------------------</text>
-<text x="14" y="367.0">  You are broad on her starboard bow.</text>
-<text x="14" y="384.0">  Letters are the colours: <tspan fill="#ffffff">W</tspan> white  <tspan fill="#e8695c">R</tspan> red  <tspan fill="#5cbf94">G</tspan> green  <tspan fill="#e3b862">Y</tspan> yellow</text>
+<rect width="633" height="402" fill="#0b1a22"/>
+<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="14">
+<text x="30.8" y="27.0" fill="#5cbf94">WHAT DO YOU SEE?</text>
+<text x="30.8" y="44.0" fill="#c9d6dc">----------------------------------------------------------------------</text>
+<text x="30.8" y="61.0" fill="#72868f">masthead height</text>
+<text x="333.2" y="78.0" fill="#e8695c">R</text>
+<text x="333.2" y="95.0" fill="#ffffff">W</text>
+<text x="333.2" y="112.0" fill="#72868f">:</text>
+<text x="333.2" y="129.0" fill="#e8695c">R</text>
+<text x="333.2" y="146.0" fill="#72868f">:</text>
+<text x="341.6" y="146.0" fill="#ffffff">W</text>
+<text x="333.2" y="163.0" fill="#72868f">::</text>
+<text x="333.2" y="180.0" fill="#72868f">::</text>
+<text x="333.2" y="197.0" fill="#72868f">::</text>
+<text x="291.2" y="214.0" fill="#5cbf94">G</text>
+<text x="333.2" y="214.0" fill="#72868f">::</text>
+<text x="291.2" y="231.0" fill="#72868f">:</text>
+<text x="333.2" y="231.0" fill="#72868f">::</text>
+<text x="291.2" y="248.0" fill="#72868f">:</text>
+<text x="333.2" y="248.0" fill="#72868f">::</text>
+<text x="291.2" y="265.0" fill="#72868f">:</text>
+<text x="333.2" y="265.0" fill="#72868f">::</text>
+<text x="30.8" y="282.0" fill="#72868f">deck</text>
+<text x="291.2" y="282.0" fill="#72868f">:</text>
+<text x="333.2" y="282.0" fill="#72868f">::</text>
+<text x="173.6" y="299.0" fill="#c9d6dc">=================================</text>
+<text x="30.8" y="316.0" fill="#c9d6dc">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</text>
+<text x="30.8" y="350.0" fill="#c9d6dc">----------------------------------------------------------------------</text>
+<text x="30.8" y="367.0" fill="#c9d6dc">You are broad on her starboard bow.</text>
+<text x="30.8" y="384.0" fill="#c9d6dc">Letters are the colours:</text>
+<text x="240.8" y="384.0" fill="#ffffff">W</text>
+<text x="257.6" y="384.0" fill="#c9d6dc">white</text>
+<text x="316.4" y="384.0" fill="#e8695c">R</text>
+<text x="333.2" y="384.0" fill="#c9d6dc">red</text>
+<text x="375.2" y="384.0" fill="#5cbf94">G</text>
+<text x="392.0" y="384.0" fill="#c9d6dc">green</text>
+<text x="450.8" y="384.0" fill="#e3b862">Y</text>
+<text x="467.6" y="384.0" fill="#c9d6dc">yellow</text>
 </g>
 </svg>

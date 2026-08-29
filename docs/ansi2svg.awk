@@ -31,26 +31,36 @@ function hexof(c){
   return ""
 }
 function xesc(s){ gsub(/&/,"\\&amp;",s); gsub(/</,"\\&lt;",s); gsub(/>/,"\\&gt;",s); return s }
+#  Emit each run at an explicit x, computed from its column. Nothing then
+#  depends on the renderer preserving runs of spaces - GitHub's SVG
+#  sanitiser drops xml:space, which collapses every indent and shears the
+#  art sideways. A character's position is arithmetic, so state it.
 function flush_run(   t){
-  if(RUN=="") return
+  if(RUN=="") { RCOL=CCOL; return }
+  #  a run of pure spaces carries no ink: skip it, the next run's x
+  #  already accounts for the gap
+  if(RUN ~ /^ +$/){ RUN=""; RCOL=CCOL; return }
+  #  and trim the spaces off either end, moving the start column to
+  #  match - a leading space that a renderer collapses would shear the
+  #  run sideways, and the position is arithmetic anyway
+  while(substr(RUN,1,1)==" "){ RUN=substr(RUN,2); RCOL++ }
+  while(substr(RUN,length(RUN),1)==" ") RUN=substr(RUN,1,length(RUN)-1)
   t = xesc(RUN)
-  if(COL=="" || COL=="#c9d6dc") LINE = LINE t
-  else LINE = LINE "<tspan fill=\"" COL "\">" t "</tspan>"
-  RUN=""
+  NR_++
+  RX[NR_]=RCOL; RTX[NR_]=t; RC[NR_]=COL
+  RUN=""; RCOL=CCOL
 }
 BEGIN{
   ESC=sprintf("%c",27)
   if(pad=="") pad=14
-  FS=""
   nl=0; maxc=0
 }
 {
-  s=$0; COL=""; RUN=""; LINE=""; cols=0
+  s=$0; COL=""; RUN=""; CCOL=0; RCOL=0; NR_=0
   i=1; n=length(s)
   while(i<=n){
     c=substr(s,i,1)
     if(c==ESC){
-      #  an escape: ESC [ ... final-letter
       j=i+1
       if(substr(s,j,1)!="["){ i++; continue }
       j++
@@ -59,44 +69,47 @@ BEGIN{
       fin=substr(s,j,1)
       if(fin=="m"){
         flush_run()
-        if(p=="" || p=="0"){ COL="" }
+        if(p=="" || p=="0"){ COL=""; BOLD=0 }
         else {
           k=split(p,a,";")
           for(q=1;q<=k;q++){
             v=a[q]
-            if(v=="0"){ COL="" }
+            if(v=="0"){ COL=""; BOLD=0 }
             else if(v=="1"){ BOLD=1 }
-            else if(hexof(v)!="" && (v+0)>=30 && (v+0)<=37){
+            else if((v+0)>=30 && (v+0)<=37){
               COL = (BOLD) ? hexof(sprintf("%d",v+60)) : hexof(v)
             }
             else if((v+0)>=90 && (v+0)<=97) COL=hexof(v)
           }
-          if(p ~ /^0?;?4[0-7]$/) COL=COL      # a background: ignore, the panel is one colour
           BOLD=0
         }
       }
       i=j+1
       continue
     }
-    RUN=RUN c; cols++
+    RUN=RUN c; CCOL++
     i++
   }
   flush_run()
   nl++
-  OUT[nl]=LINE
-  if(cols>maxc) maxc=cols
+  LN[nl]=NR_
+  for(q=1;q<=NR_;q++){ LX[nl,q]=RX[q]; LT[nl,q]=RTX[q]; LC[nl,q]=RC[q] }
+  if(CCOL>maxc) maxc=CCOL
 }
 END{
   fw=8.4; fh=17; fs=14
   w = int(maxc*fw + 2*pad + 0.5)
   h = int(nl*fh + 2*pad + 0.5)
-  printf "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%d\" height=\"%d\" viewBox=\"0 0 %d %d\" role=\"img\" aria-label=\"%s\">\n", w, h, w, h, xesc(title)
+  printf "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%d\" height=\"%d\" viewBox=\"0 0 %d %d\">\n", w, h, w, h
   printf "<title>%s</title>\n", xesc(title)
-  printf "<rect width=\"%d\" height=\"%d\" rx=\"6\" fill=\"#0b1a22\"/>\n", w, h
-  printf "<g font-family=\"ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,DejaVu Sans Mono,monospace\" font-size=\"%d\" fill=\"#c9d6dc\" xml:space=\"preserve\">\n", fs
+  printf "<rect width=\"%d\" height=\"%d\" fill=\"#0b1a22\"/>\n", w, h
+  printf "<g font-family=\"ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace\" font-size=\"%d\">\n", fs
   for(i=1;i<=nl;i++){
-    if(OUT[i]=="") continue
-    printf "<text x=\"%d\" y=\"%.1f\">%s</text>\n", pad, pad + i*fh - 4, OUT[i]
+    for(q=1;q<=LN[i];q++){
+      printf "<text x=\"%.1f\" y=\"%.1f\" fill=\"%s\">%s</text>\n",
+        pad + LX[i,q]*fw, pad + i*fh - 4,
+        (LC[i,q]=="" ? "#c9d6dc" : LC[i,q]), LT[i,q]
+    }
   }
   print "</g>\n</svg>"
 }

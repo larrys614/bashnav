@@ -308,9 +308,14 @@ for SH in $SHELLS; do
   #  makes the next getline read a whole file as a single record, with no
   #  error anywhere - which is exactly what a rate variable named RS did
   #  in the tide engine, and it took a while to see.
+  #  every awk source in the repository, not just the tools': the SVG
+  #  generator used RT, which is gawk's record terminator, and the lint
+  #  did not cover that file or that name.
   r=$($AW -f tests/awkvars-check.awk src/celnav/engine.awk src/celnav/teach.awk \
         src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk \
-        src/tides/engine.awk src/tides/tables.awk)
+        src/tides/engine.awk src/tides/tables.awk docs/ansi2svg.awk \
+        tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
+        tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk)
   n=$(echo "$r" | tail -1 | $AW '{print $2}')
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi

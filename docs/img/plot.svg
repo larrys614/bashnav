@@ -1,35 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="675" height="521" viewBox="0 0 675 521" role="img" aria-label="celnav: the intercept plot, three star sights and the fix">
+<svg xmlns="http://www.w3.org/2000/svg" width="675" height="521" viewBox="0 0 675 521">
 <title>celnav: the intercept plot, three star sights and the fix</title>
-<rect width="675" height="521" rx="6" fill="#0b1a22"/>
-<g font-family="ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="14" fill="#c9d6dc" xml:space="preserve">
-<text x="14" y="27.0">  INTERCEPT PLOT  (AP at centre, N up)</text>
-<text x="14" y="44.0">                               |    N <tspan fill="#72868f">:</tspan>          //</text>
-<text x="14" y="61.0">                               |      <tspan fill="#72868f">:</tspan>        //</text>
-<text x="14" y="78.0">                               |      <tspan fill="#72868f">:</tspan>      //</text>
-<text x="14" y="95.0">  -                            |      <tspan fill="#72868f">:</tspan>     //</text>
-<text x="14" y="112.0">  ----                         |      <tspan fill="#72868f">:</tspan>   //</text>
-<text x="14" y="129.0">      ----                     |      <tspan fill="#72868f">:</tspan>  //</text>
-<text x="14" y="146.0">          ----                 |      <tspan fill="#72868f">:</tspan>//</text>
-<text x="14" y="163.0">              ----             |     ///</text>
-<text x="14" y="180.0">                  ----         |    //<tspan fill="#72868f">:</tspan></text>
-<text x="14" y="197.0">                      ----     |  //  <tspan fill="#72868f">:</tspan></text>
-<text x="14" y="214.0">                          ---- | //   <tspan fill="#72868f">:</tspan></text>
-<text x="14" y="231.0">                              -<tspan fill="#5cbf94">@b</tspan>-<tspan fill="#72868f">.</tspan>   <tspan fill="#72868f">:</tspan></text>
-<text x="14" y="248.0">  W                           /|  ----<tspan fill="#72868f">:</tspan>                                   E</text>
-<text x="14" y="265.0">  <tspan fill="#72868f">..........................</tspan>//<tspan fill="#72868f">..</tspan><tspan fill="#5cbf94">c</tspan><tspan fill="#72868f">.....</tspan><tspan fill="#5cbf94">+a</tspan>--<tspan fill="#72868f">.................................</tspan></text>
-<text x="14" y="282.0">                          //    |     <tspan fill="#72868f">:</tspan>   ----</text>
-<text x="14" y="299.0">                         //     |     <tspan fill="#72868f">:</tspan>      -----</text>
-<text x="14" y="316.0">                       //       |     <tspan fill="#72868f">:</tspan>          -----</text>
-<text x="14" y="333.0">                      //        |     <tspan fill="#72868f">:</tspan>              -----</text>
-<text x="14" y="350.0">                    //          |     <tspan fill="#72868f">:</tspan>                  -----</text>
-<text x="14" y="367.0">                   //           |     <tspan fill="#72868f">:</tspan>                      -----</text>
-<text x="14" y="384.0">                 //             |     <tspan fill="#72868f">:</tspan>                          -----</text>
-<text x="14" y="401.0">               //               |     <tspan fill="#72868f">:</tspan>                              -----</text>
-<text x="14" y="418.0">              //                |     <tspan fill="#72868f">:</tspan>                                  --</text>
-<text x="14" y="435.0">            //                  |     <tspan fill="#72868f">:</tspan></text>
-<text x="14" y="452.0">           //                   |     <tspan fill="#72868f">:</tspan></text>
-<text x="14" y="469.0">         //                     |     <tspan fill="#72868f">:</tspan></text>
-<text x="14" y="486.0">       ///                      |   S <tspan fill="#72868f">:</tspan>                       5 nm per row</text>
-<text x="14" y="503.0">  AP = <tspan fill="#5cbf94">+</tspan>    LOP = lettered line    fix = <tspan fill="#5cbf94">@</tspan>    1 row = 5 nm, 1 column = 2.5 nm</text>
+<rect width="675" height="521" fill="#0b1a22"/>
+<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="14">
+<text x="30.8" y="27.0" fill="#c9d6dc">INTERCEPT PLOT  (AP at centre, N up)</text>
+<text x="274.4" y="44.0" fill="#c9d6dc">|    N</text>
+<text x="333.2" y="44.0" fill="#72868f">:</text>
+<text x="425.6" y="44.0" fill="#c9d6dc">//</text>
+<text x="274.4" y="61.0" fill="#c9d6dc">|</text>
+<text x="333.2" y="61.0" fill="#72868f">:</text>
+<text x="408.8" y="61.0" fill="#c9d6dc">//</text>
+<text x="274.4" y="78.0" fill="#c9d6dc">|</text>
+<text x="333.2" y="78.0" fill="#72868f">:</text>
+<text x="392.0" y="78.0" fill="#c9d6dc">//</text>
+<text x="30.8" y="95.0" fill="#c9d6dc">-                            |</text>
+<text x="333.2" y="95.0" fill="#72868f">:</text>
+<text x="383.6" y="95.0" fill="#c9d6dc">//</text>
+<text x="30.8" y="112.0" fill="#c9d6dc">----                         |</text>
+<text x="333.2" y="112.0" fill="#72868f">:</text>
+<text x="366.8" y="112.0" fill="#c9d6dc">//</text>
+<text x="64.4" y="129.0" fill="#c9d6dc">----                     |</text>
+<text x="333.2" y="129.0" fill="#72868f">:</text>
+<text x="358.4" y="129.0" fill="#c9d6dc">//</text>
+<text x="98.0" y="146.0" fill="#c9d6dc">----                 |</text>
+<text x="333.2" y="146.0" fill="#72868f">:</text>
+<text x="341.6" y="146.0" fill="#c9d6dc">//</text>
+<text x="131.6" y="163.0" fill="#c9d6dc">----             |     ///</text>
+<text x="165.2" y="180.0" fill="#c9d6dc">----         |    //</text>
+<text x="333.2" y="180.0" fill="#72868f">:</text>
+<text x="198.8" y="197.0" fill="#c9d6dc">----     |  //</text>
+<text x="333.2" y="197.0" fill="#72868f">:</text>
+<text x="232.4" y="214.0" fill="#c9d6dc">---- | //</text>
+<text x="333.2" y="214.0" fill="#72868f">:</text>
+<text x="266.0" y="231.0" fill="#c9d6dc">-</text>
+<text x="274.4" y="231.0" fill="#5cbf94">@b</text>
+<text x="291.2" y="231.0" fill="#c9d6dc">-</text>
+<text x="299.6" y="231.0" fill="#72868f">.</text>
+<text x="333.2" y="231.0" fill="#72868f">:</text>
+<text x="30.8" y="248.0" fill="#c9d6dc">W                           /|  ----</text>
+<text x="333.2" y="248.0" fill="#72868f">:</text>
+<text x="635.6" y="248.0" fill="#c9d6dc">E</text>
+<text x="30.8" y="265.0" fill="#72868f">..........................</text>
+<text x="249.2" y="265.0" fill="#c9d6dc">//</text>
+<text x="266.0" y="265.0" fill="#72868f">..</text>
+<text x="282.8" y="265.0" fill="#5cbf94">c</text>
+<text x="291.2" y="265.0" fill="#72868f">.....</text>
+<text x="333.2" y="265.0" fill="#5cbf94">+a</text>
+<text x="350.0" y="265.0" fill="#c9d6dc">--</text>
+<text x="366.8" y="265.0" fill="#72868f">.................................</text>
+<text x="232.4" y="282.0" fill="#c9d6dc">//    |</text>
+<text x="333.2" y="282.0" fill="#72868f">:</text>
+<text x="366.8" y="282.0" fill="#c9d6dc">----</text>
+<text x="224.0" y="299.0" fill="#c9d6dc">//     |</text>
+<text x="333.2" y="299.0" fill="#72868f">:</text>
+<text x="392.0" y="299.0" fill="#c9d6dc">-----</text>
+<text x="207.2" y="316.0" fill="#c9d6dc">//       |</text>
+<text x="333.2" y="316.0" fill="#72868f">:</text>
+<text x="425.6" y="316.0" fill="#c9d6dc">-----</text>
+<text x="198.8" y="333.0" fill="#c9d6dc">//        |</text>
+<text x="333.2" y="333.0" fill="#72868f">:</text>
+<text x="459.2" y="333.0" fill="#c9d6dc">-----</text>
+<text x="182.0" y="350.0" fill="#c9d6dc">//          |</text>
+<text x="333.2" y="350.0" fill="#72868f">:</text>
+<text x="492.8" y="350.0" fill="#c9d6dc">-----</text>
+<text x="173.6" y="367.0" fill="#c9d6dc">//           |</text>
+<text x="333.2" y="367.0" fill="#72868f">:</text>
+<text x="526.4" y="367.0" fill="#c9d6dc">-----</text>
+<text x="156.8" y="384.0" fill="#c9d6dc">//             |</text>
+<text x="333.2" y="384.0" fill="#72868f">:</text>
+<text x="560.0" y="384.0" fill="#c9d6dc">-----</text>
+<text x="140.0" y="401.0" fill="#c9d6dc">//               |</text>
+<text x="333.2" y="401.0" fill="#72868f">:</text>
+<text x="593.6" y="401.0" fill="#c9d6dc">-----</text>
+<text x="131.6" y="418.0" fill="#c9d6dc">//                |</text>
+<text x="333.2" y="418.0" fill="#72868f">:</text>
+<text x="627.2" y="418.0" fill="#c9d6dc">--</text>
+<text x="114.8" y="435.0" fill="#c9d6dc">//                  |</text>
+<text x="333.2" y="435.0" fill="#72868f">:</text>
+<text x="106.4" y="452.0" fill="#c9d6dc">//                   |</text>
+<text x="333.2" y="452.0" fill="#72868f">:</text>
+<text x="89.6" y="469.0" fill="#c9d6dc">//                     |</text>
+<text x="333.2" y="469.0" fill="#72868f">:</text>
+<text x="72.8" y="486.0" fill="#c9d6dc">///                      |   S</text>
+<text x="333.2" y="486.0" fill="#72868f">:</text>
+<text x="534.8" y="486.0" fill="#c9d6dc">5 nm per row</text>
+<text x="30.8" y="503.0" fill="#c9d6dc">AP =</text>
+<text x="72.8" y="503.0" fill="#5cbf94">+</text>
+<text x="114.8" y="503.0" fill="#c9d6dc">LOP = lettered line    fix =</text>
+<text x="358.4" y="503.0" fill="#5cbf94">@</text>
+<text x="400.4" y="503.0" fill="#c9d6dc">1 row = 5 nm, 1 column = 2.5 nm</text>
 </g>
 </svg>
