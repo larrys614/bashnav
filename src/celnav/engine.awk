@@ -595,6 +595,7 @@ function col_init(   e){
   return 0
 }
 function cw(s,col){ col_init(); if(col=="") return s; return col s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
 
 function gclear(w,h,   r,c){ col_init(); PW=w; PH=h
   for(r=0;r<h;r++) for(c=0;c<w;c++){ G[r,c]=" "; GC[r,c]="" } }
@@ -686,6 +687,14 @@ function plot_sheet(n,fixN,fixE,haveFix,title,   i,maxr,r,sc,xs,ys,cx,cy,fr,fc,d
   gshow()
   printf "  AP = %s    LOP = lettered line    fix = %s    1 row = %g nm, 1 column = %g nm\n",
          cw("+",C_ACC), cw("@",C_ACC), sc, xs
+  #  A cell is twice as tall as it is wide, so a line within a couple of
+  #  degrees of vertical has to step a column somewhere down the plot.
+  #  That step is the geometry, not the drawing: forcing it straight
+  #  would draw a line that is a degree wrong, and a degree over the
+  #  height of this sheet is a real distance. Say so, because it looks
+  #  like a fault and is not.
+  printf "  %s\n", cwd(sprintf("A near-vertical LOP steps a column part way down: a cell is %g nm", xs))
+  printf "  %s\n", cwd(sprintf("wide, so one degree off vertical is %.1f nm across this sheet.", (h-1)*sc*0.01745))
 }
 function nicestep(x,   e,m){
   if(x<=0) return 1

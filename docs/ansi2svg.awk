@@ -35,19 +35,27 @@ function xesc(s){ gsub(/&/,"\\&amp;",s); gsub(/</,"\\&lt;",s); gsub(/>/,"\\&gt;"
 #  depends on the renderer preserving runs of spaces - GitHub's SVG
 #  sanitiser drops xml:space, which collapses every indent and shears the
 #  art sideways. A character's position is arithmetic, so state it.
-function flush_run(   t){
+#  Emit each run as one or more whitespace-free chunks, each at its own
+#  column. NO SPACE is ever written into the SVG: XML collapses runs of
+#  whitespace in text content, and once it does, a per-character x list
+#  no longer lines up with the characters it was built for - everything
+#  after a gap slides left, which is how the meridian ended up sitting
+#  against a line of position. A gap is expressed by arithmetic, never by
+#  spaces.
+function flush_run(   i,n,c,chunk,col0){
   if(RUN=="") { RCOL=CCOL; return }
-  #  a run of pure spaces carries no ink: skip it, the next run's x
-  #  already accounts for the gap
-  if(RUN ~ /^ +$/){ RUN=""; RCOL=CCOL; return }
-  #  and trim the spaces off either end, moving the start column to
-  #  match - a leading space that a renderer collapses would shear the
-  #  run sideways, and the position is arithmetic anyway
-  while(substr(RUN,1,1)==" "){ RUN=substr(RUN,2); RCOL++ }
-  while(substr(RUN,length(RUN),1)==" ") RUN=substr(RUN,1,length(RUN)-1)
-  t = xesc(RUN)
-  NR_++
-  RX[NR_]=RCOL; RTX[NR_]=t; RC[NR_]=COL
+  n=length(RUN)
+  chunk=""; col0=0
+  for(i=1;i<=n;i++){
+    c=substr(RUN,i,1)
+    if(c==" "){
+      if(chunk!=""){ NR_++; RX[NR_]=RCOL+col0; RTX[NR_]=xesc(chunk); RC[NR_]=COL; RW[NR_]=chunk; chunk="" }
+      continue
+    }
+    if(chunk=="") col0=i-1
+    chunk=chunk c
+  }
+  if(chunk!=""){ NR_++; RX[NR_]=RCOL+col0; RTX[NR_]=xesc(chunk); RC[NR_]=COL; RW[NR_]=chunk }
   RUN=""; RCOL=CCOL
 }
 BEGIN{
@@ -93,11 +101,18 @@ BEGIN{
   flush_run()
   nl++
   LN[nl]=NR_
-  for(q=1;q<=NR_;q++){ LX[nl,q]=RX[q]; LT[nl,q]=RTX[q]; LC[nl,q]=RC[q] }
+  for(q=1;q<=NR_;q++){ LX[nl,q]=RX[q]; LT[nl,q]=RTX[q]; LC[nl,q]=RC[q]; LR[nl,q]=RW[q] }
   if(CCOL>maxc) maxc=CCOL
 }
 END{
-  fw=8.4; fh=17; fs=14
+  #  Every CHARACTER gets its own x. SVG's text element takes a list of
+  #  x coordinates, one per glyph, which is exactly what a terminal grid
+  #  is. Positioning whole runs is not enough: the glyphs inside a run
+  #  still advance by the FONT's width, and if the reader has no
+  #  monospace font - or a different one - the line drifts and a vertical
+  #  rule stops being vertical. With a coordinate per character nothing
+  #  depends on the font's metrics at all.
+  fw=8.0; fh=17; fs=13
   w = int(maxc*fw + 2*pad + 0.5)
   h = int(nl*fh + 2*pad + 0.5)
   printf "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%d\" height=\"%d\" viewBox=\"0 0 %d %d\">\n", w, h, w, h
@@ -106,9 +121,15 @@ END{
   printf "<g font-family=\"ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace\" font-size=\"%d\">\n", fs
   for(i=1;i<=nl;i++){
     for(q=1;q<=LN[i];q++){
-      printf "<text x=\"%.1f\" y=\"%.1f\" fill=\"%s\">%s</text>\n",
-        pad + LX[i,q]*fw, pad + i*fh - 4,
-        (LC[i,q]=="" ? "#c9d6dc" : LC[i,q]), LT[i,q]
+      t = LT[i,q]
+      #  the x list must have one entry per RENDERED character, so it is
+      #  built from the unescaped run, not from the escaped markup
+      raw = LR[i,q]
+      xs=""
+      for(c=0;c<length(raw);c++)
+        xs = xs sprintf("%s%.1f", (c?" ":""), pad + (LX[i,q]+c)*fw)
+      printf "<text x=\"%s\" y=\"%.1f\" fill=\"%s\">%s</text>\n",
+        xs, pad + i*fh - 4, (LC[i,q]=="" ? "#c9d6dc" : LC[i,q]), t
     }
   }
   print "</g>\n</svg>"

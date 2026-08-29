@@ -285,7 +285,21 @@ for SH in $SHELLS; do
     head -1 "$f" | grep -q "<svg" || { bad "$f is not an SVG"; rm_bad=1; }
     grep -q "<script" "$f" && { bad "$f contains a script; GitHub will not render it"; rm_bad=1; }
   done
-  [ "$rm_bad" = 0 ] && ok "every picture the README shows exists and is a plain SVG"
+  #  and the pictures must be an exact character grid. Three separate
+  #  bugs sheared it - xml:space stripped, glyphs advancing by the font's
+  #  width, XML collapsing spaces - all with the same symptom and none
+  #  visible without rendering the file and looking at it.
+  for f in docs/img/*.svg; do
+    [ -s "$f" ] || continue
+    r=$($AW -f tests/svg-check.awk -v pad=14 -v fw=8.0 < "$f" | tail -1)
+    case "$r" in *"BAD 0") ;; *) bad "$f is not an exact grid: $r"; rm_bad=1 ;; esac
+  done
+  #  a round trip through known input, so the arithmetic itself is checked
+  #  and not just the files that happen to be committed
+  r=$(printf 'A%29sB\n' "" | $AW -f docs/ansi2svg.awk -v title=t \
+      | $AW -f tests/svg-check.awk -v pad=14 -v fw=8.0 | tail -1)
+  case "$r" in "TEXTS 2 BAD 0") ;; *) bad "ansi2svg does not place a known grid correctly: $r"; rm_bad=1 ;; esac
+  [ "$rm_bad" = 0 ] && ok "every picture the README shows exists, is a plain SVG, and is an exact grid"
 
   # ---- a function name used as a variable ---------------------------
   #  awk will not let a function's name be used as a variable or a

@@ -283,6 +283,8 @@
          //                     |     :
        ///                      |   S :                       5 nm per row
   AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm
+  A near-vertical LOP steps a column part way down: a cell is 2.5 nm
+  wide, so one degree off vertical is 2.3 nm across this sheet.
 
       body         Zn       intercept  LOP
   a   Dubhe        027 T       1.5 nm  toward Ho 19 24.8'  Hc 19 23.3'
@@ -392,6 +394,8 @@
         ///                     |     :
        //                       |   S :                       5 nm per row
   AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm
+  A near-vertical LOP steps a column part way down: a cell is 2.5 nm
+  wide, so one degree off vertical is 2.3 nm across this sheet.
 
       body         Zn       intercept  LOP
   a   Dubhe        027 T       0.7 nm  toward Ho 19 24.8'  Hc 19 24.1'
@@ -498,6 +502,8 @@
          //                   |       :
        ///                    |     S :                       5 nm per row
   AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm
+  A near-vertical LOP steps a column part way down: a cell is 2.5 nm
+  wide, so one degree off vertical is 2.3 nm across this sheet.
 
       body         Zn       intercept  LOP
   a   Dubhe        027 T       1.5 nm  toward Ho 19 24.8'  Hc 19 23.3'
@@ -586,6 +592,8 @@
                                       :
                                     S :                      20 nm per row
   AP = +    LOP = lettered line    fix = @    1 row = 20 nm, 1 column = 10 nm
+  A near-vertical LOP steps a column part way down: a cell is 10 nm
+  wide, so one degree off vertical is 9.1 nm across this sheet.
 
       body         Zn       intercept  LOP
   a   Dubhe        027 T       1.5 nm  toward Ho 19 24.8'  Hc 19 23.3'

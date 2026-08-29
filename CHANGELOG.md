@@ -1,5 +1,16 @@
 # Changelog
 
+## celnav 1.6 - 2026-08-29
+
+Added
+- The plot legend now says why a near-vertical line of position steps a
+  column part way down, and how far off vertical that is in miles. It
+  looks like a drawing fault and is not: a cell is half as wide as it is
+  tall, so a line within a couple of degrees of vertical must either step
+  once or be drawn wrong - and one degree over the height of the sheet is
+  a real distance, not a rounding error. Reported by a reader who counted
+  the columns.
+
 ## colregs 1.15 - 2026-08-29
 
 Fixed
