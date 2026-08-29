@@ -1,0 +1,43 @@
+COLLISION AVOIDANCE -- a radar plot
+----------------------------------------------------------------------
+You are a power-driven vessel, steering 162 T at 8 knots.
+Visibility is good and you have her in sight.
+----------------------------------------------------------------------
+Three observations, six minutes apart:
+
+    time     bearing      range
+    00 min   133 T        6.8 nm
+    06 min   131 T        5.6 nm
+    12 min   131 T        4.4 nm
+
+She shows red over white over red: restricted in her ability to manoeuvre.
+----------------------------------------------------------------------
+                             N
+                      .................
+                ......                 .......
+            ....                             ....
+         ...                                     ...
+       ...                                         ...
+     ...                                             ...
+    ..                .................                ..
+   ..              ....               ....               .
+  .              ...                     ...              .
+ ..             ..                         ..             ..
+ .              .                           .              .
+W.              .             +             .              .E
+ .              .            YOU            .              .
+ ..             ..                         ..             ..
+  .              ...                     ...              .
+   .               ....               ....3             ..
+    ..                .................      2         ..
+     ...                                         1   ...
+       ...                                         ...
+         ...                                     ...
+            ....                             ....
+                ......                 .......
+                      .................
+                             S
+----------------------------------------------------------------------
+The marks are where she was, relative to you, at each observation.
+
+Q1  Is there a risk of collision?

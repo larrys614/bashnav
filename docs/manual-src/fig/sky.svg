@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="939.4" height="516.9" viewBox="0 0 939.4 516.9" font-family="DejaVu Sans, Helvetica, sans-serif">
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#1f5673"/></marker><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a2542a"/></marker></defs>
+<rect x="0" y="0" width="939.4" height="516.9" fill="#ffffff"/>
+<rect x="236.8" y="3.7" width="501.7" height="466.3" rx="5" fill="#f7fafb" stroke="#bfcdd6" stroke-width="1"/>
+<rect x="427.5" y="50.2" width="136.1" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="396.1" y="132.1" width="34.3" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="341.3" y="230.4" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="568.4" y="99.4" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="490.1" y="230.4" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="505.8" y="214.0" width="50.0" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="568.4" y="279.6" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="482.3" y="33.9" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="263.0" y="443.4" width="316.3" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<g font-family="DejaVu Sans Mono, monospace" font-size="13.00" fill="#16222c" xml:space="preserve">
+<text x="248.8" y="28.0">  SKY VIEW  (centre = overhead, rim = horizon, N up, E right)</text>
+<text x="248.8" y="44.4">                              N</text>
+<text x="248.8" y="60.8">                       *****************</text>
+<text x="248.8" y="77.2">                 ******                 ******</text>
+<text x="248.8" y="93.5">             *****                           *****</text>
+<text x="248.8" y="109.9">           ***                           a       ***</text>
+<text x="248.8" y="126.3">         **            .................            **</text>
+<text x="248.8" y="142.7">       **          ....                 ....          **</text>
+<text x="248.8" y="159.1">      **        ....                       ....        **</text>
+<text x="248.8" y="175.4">     *         ..           .......           ..         *</text>
+<text x="248.8" y="191.8">    *        ...        .....     .....        ...        *</text>
+<text x="248.8" y="208.2">   **        .         ..             ..         .        **</text>
+<text x="248.8" y="224.6">   *        ..        .          zenith .        ..        *</text>
+<text x="248.8" y="241.0">  W*        c         .        +        .         .        *E</text>
+<text x="248.8" y="257.3">   *        ..        .                 .        ..        *</text>
+<text x="248.8" y="273.7">   **        .         ..             ..         .        **</text>
+<text x="248.8" y="290.1">    *        ...        .....     .....  b     ...        *</text>
+<text x="248.8" y="306.5">     *         ..           .......           ..         *</text>
+<text x="248.8" y="322.9">      **        ....                       ....        **</text>
+<text x="248.8" y="339.2">       **          ....                 ....          **</text>
+<text x="248.8" y="355.6">         **            .................            **</text>
+<text x="248.8" y="372.0">           ***                                   ***</text>
+<text x="248.8" y="388.4">             *****                           *****</text>
+<text x="248.8" y="404.8">                 ******                 ******</text>
+<text x="248.8" y="421.1">                       *****************</text>
+<text x="248.8" y="437.5">                              S</text>
+<text x="248.8" y="453.9">  inner rings = 60 and 30 degrees altitude</text>
+</g>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="223.8" y="82.6">The horizon. A body drawn</text>
+<text x="223.8" y="95.6">on this rim is just rising</text>
+<text x="223.8" y="108.6">or just setting.</text>
+</g>
+<path d="M225.3,91.0 L423.0,58.4" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="end">
+<text x="223.8" y="164.5">Altitude rings at 60 and</text>
+<text x="223.8" y="177.5">30 degrees. Sights between</text>
+<text x="223.8" y="190.5">these two rings are the</text>
+<text x="223.8" y="203.5">ones worth taking.</text>
+</g>
+<path d="M225.3,179.5 L391.7,140.6" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="223.8" y="269.3">Markab, low in the west.</text>
+<text x="223.8" y="282.3">The letters match the</text>
+<text x="223.8" y="295.3">sights in the reduction.</text>
+</g>
+<path d="M225.3,277.8 L337.0,239.3" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="751.6" y="77.6">Dubhe, high in the north.</text>
+</g>
+<path d="M750.1,73.0 L583.7,105.9" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="751.6" y="177.5">The centre is straight</text>
+<text x="751.6" y="190.5">overhead - the zenith.</text>
+</g>
+<path d="M750.1,179.5 L505.3,236.8" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M750.1,179.5 L560.2,220.5" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="751.6" y="271.0">Bellatrix, in the south-east.</text>
+<text x="751.6" y="284.0">These three are spread widely</text>
+<text x="751.6" y="297.0">round the compass, which is</text>
+<text x="751.6" y="310.0">what makes the cut a good one.</text>
+</g>
+<path d="M750.1,285.9 L583.8,286.9" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="223.8" y="17.0">North at the top, east to the right.</text>
+<text x="223.8" y="30.1">You are looking straight up at the</text>
+<text x="223.8" y="43.1">sky, not down at a chart.</text>
+</g>
+<path d="M225.3,25.5 L477.8,41.0" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="middle">
+<text x="468.1" y="490.8">The rim and the rings are the altitude scale: rim = 0 degrees,</text>
+<text x="468.1" y="503.8">centre = 90. A body halfway out stands about 45 degrees up.</text>
+</g>
+<path d="M468.1,477.3 L425.3,459.9" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+</svg>

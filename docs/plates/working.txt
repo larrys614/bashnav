@@ -1,0 +1,7 @@
+Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre
+  Hs     19 32.1'     GHA   283 41.6'     assumed pos 35 00.0'N 040 00.0'W
+  IE         -1.5'    Dec   N61 36.5'     LHA 243 41.6'
+  Dip        -3.0'    SD         -       Hc     19 23.3'
+  Ha     19 27.6'     HP         -       Zn    026 51.9'
+  Ref        -2.8'
+  Ho     19 24.8'                          Intercept    1.5 nm TOWARD

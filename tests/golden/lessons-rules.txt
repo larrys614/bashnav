@@ -1,0 +1,580 @@
+=== lesson L1 ===
+
+  L1  Rule 5 - Look-out
+  -----------------------
+
+  Every vessel shall at all times maintain a proper look-out by sight and
+  hearing as well as by all available means appropriate in the prevailing
+  circumstances and conditions so as to make a full appraisal of the
+  situation and of the risk of collision.
+
+    1. It is the first substantive rule, and it is the one most often
+       broken. More collisions are put down to a failure of look-out than
+       to any other cause.
+    2. 'By sight and hearing' means a person, outside, looking and
+       listening - not only a radar screen.
+    3. 'All available means' does include radar, AIS and VHF, and if you
+       have them and do not use them properly, that is a breach too.
+    4. 'At all times' has no exceptions for singlehanders, for tiredness,
+       or for the middle of an ocean.
+
+  The look-out must be able to appraise the situation. Someone at the
+  wheel who cannot see astern past the sprayhood is not, by themselves, a
+  proper look-out.
+
+  Q. Which of these on its own satisfies Rule 5?
+       a) a radar with ARPA, watched from the chart table
+       b) AIS with a CPA alarm set    c) none of them
+
+
+  Not quite - the answer is C.  Rule 5 requires sight and hearing as well as all available means. Electronics supplement a look-out; they do not replace one.
+
+
+  Not quite - the answer is C.  Rule 5 requires sight and hearing as well as all available means. Electronics supplement a look-out; they do not replace one.
+
+
+  Correct.  Rule 5 requires sight and hearing as well as all available means. Electronics supplement a look-out; they do not replace one.
+
+
+  Not quite - the answer is C.  Rule 5 requires sight and hearing as well as all available means. Electronics supplement a look-out; they do not replace one.
+
+=== lesson L2 ===
+
+  L2  Rule 6 - Safe speed
+  -------------------------
+
+  Every vessel shall at all times proceed at a safe speed so that she can
+  take proper and effective action to avoid collision and be stopped
+  within a distance appropriate to the prevailing circumstances.
+
+    1. There is no number in this rule. Safe speed depends on visibility,
+       traffic density, manoeuvrability, background lights, the state of
+       wind, sea and current, the proximity of hazards and your draught.
+    2. If you are using radar there are further factors: its limitations,
+       the scale in use, sea and weather clutter, and the possibility that
+       small vessels and ice may not be detected at all.
+    3. 'Be stopped within a distance appropriate' is the practical test.
+       In thick fog with shipping about, that usually means slower than
+       feels comfortable.
+    4. A sailing vessel is not exempt. Reducing sail is reducing speed.
+
+  Q. What speed does Rule 6 specify in fog?
+       a) six knots     b) half your normal speed     c) no number at all
+
+
+  Not quite - the answer is C.  Rule 6 gives factors, not numbers. The test is that you can stop within a distance appropriate to the circumstances.
+
+
+  Not quite - the answer is C.  Rule 6 gives factors, not numbers. The test is that you can stop within a distance appropriate to the circumstances.
+
+
+  Correct.  Rule 6 gives factors, not numbers. The test is that you can stop within a distance appropriate to the circumstances.
+
+
+  Not quite - the answer is C.  Rule 6 gives factors, not numbers. The test is that you can stop within a distance appropriate to the circumstances.
+
+=== lesson L3 ===
+
+  L3  Rule 7 - Risk of collision
+  --------------------------------
+
+  Every vessel shall use all available means appropriate to determine if
+  risk of collision exists. If there is any doubt, such risk shall be
+  deemed to exist.
+
+    1. The test is compass bearing. If the compass bearing of an
+       approaching vessel does not appreciably change, risk of collision
+       exists.
+    2. It can exist even with an appreciable bearing change - with a very
+       large vessel, a tow, or anything at close range.
+    3. Radar must be used properly if fitted and working: long-range
+       scanning, and systematic observation of detected objects. A
+       glance at the screen is not plotting.
+    4. Assumptions shall not be made on the basis of scanty information,
+       especially scanty radar information. One AIS target is not a
+       picture of the traffic.
+
+  Take the bearing with a hand bearing compass over several minutes, or
+  line her up against a stanchion and keep your head still. Steady
+  bearing, decreasing range: you are going to hit her.
+
+  Q. A ship's compass bearing is steady and the range is closing. What does Rule 7 say?
+       a) risk of collision exists    b) risk exists only inside two miles
+       c) no risk while she is more than 30 degrees off the bow
+
+
+  Correct.  A steady compass bearing with decreasing range is the definition of risk of collision. And if in any doubt, risk shall be deemed to exist.
+
+
+  Not quite - the answer is A.  A steady compass bearing with decreasing range is the definition of risk of collision. And if in any doubt, risk shall be deemed to exist.
+
+
+  Not quite - the answer is A.  A steady compass bearing with decreasing range is the definition of risk of collision. And if in any doubt, risk shall be deemed to exist.
+
+
+  Not quite - the answer is A.  A steady compass bearing with decreasing range is the definition of risk of collision. And if in any doubt, risk shall be deemed to exist.
+
+=== lesson L4 ===
+
+  L4  Rule 8 - Action to avoid collision
+  ----------------------------------------
+
+  Any action shall be positive, made in ample time and with due regard to
+  good seamanship.
+
+    1. Alterations of course or speed shall be large enough to be readily
+       apparent to another vessel observing visually or by radar. A
+       succession of small alterations is exactly what the rule forbids.
+    2. If there is sea room, an alteration of course alone may be the most
+       effective action - provided it is made in good time, is substantial,
+       and does not result in another close-quarters situation.
+    3. Action to avoid collision shall result in passing at a safe
+       distance, and its effectiveness shall be carefully checked until
+       the other vessel is finally past and clear.
+    4. If necessary to avoid collision or allow more time to assess, slack
+       off, stop, or reverse. Taking all way off is always available to you.
+
+  A ten degree alteration at four miles is invisible on the other bridge.
+  Thirty degrees, early, is a signal in itself.
+
+  Q. Which action best meets Rule 8?
+       a) five degrees now, and five more if she does not respond
+       b) a single alteration of 30 degrees, made early
+       c) hold on until one mile, then alter hard
+
+
+  Not quite - the answer is B.  Action must be positive, made in ample time, and large enough to be readily apparent to the other vessel visually or by radar.
+
+
+  Correct.  Action must be positive, made in ample time, and large enough to be readily apparent to the other vessel visually or by radar.
+
+
+  Not quite - the answer is B.  Action must be positive, made in ample time, and large enough to be readily apparent to the other vessel visually or by radar.
+
+
+  Not quite - the answer is B.  Action must be positive, made in ample time, and large enough to be readily apparent to the other vessel visually or by radar.
+
+=== lesson L5 ===
+
+  L5  Rule 9 - Narrow channels
+  ------------------------------
+
+  A vessel proceeding along the course of a narrow channel or fairway
+  shall keep as near to the outer limit which lies on her starboard side
+  as is safe and practicable.
+
+    1. Keep to the starboard side of the channel. That is the whole rule
+       in one line.
+    2. A vessel of less than 20 metres, or a sailing vessel, shall not
+       impede the passage of a vessel which can safely navigate only
+       within the channel. Nor shall a vessel engaged in fishing.
+    3. Do not cross a channel if it impedes a vessel that can only
+       navigate within it. If in doubt about her intentions, the doubt
+       signal - five or more short blasts - is available.
+    4. Overtaking in a narrow channel needs the other vessel's agreement,
+       signalled by sound: two prolonged and one short means you intend to
+       pass on her starboard side.
+
+  'Shall not impede' is not the same as give way. It means you must keep
+  clear early enough that the question of who gives way never arises.
+
+  Q. In a narrow channel, which side do you keep to?
+       a) the port side     b) the starboard side     c) the deepest water
+
+
+  Not quite - the answer is B.  As near to the outer limit on your starboard side as is safe and practicable.
+
+
+  Correct.  As near to the outer limit on your starboard side as is safe and practicable.
+
+
+  Not quite - the answer is B.  As near to the outer limit on your starboard side as is safe and practicable.
+
+
+  Not quite - the answer is B.  As near to the outer limit on your starboard side as is safe and practicable.
+
+=== lesson L6 ===
+
+  L6  Rule 10 - Traffic separation schemes
+  ------------------------------------------
+
+  A vessel using a traffic separation scheme shall proceed in the
+  appropriate lane in the general direction of traffic flow, keep clear of
+  the separation line or zone, and normally join or leave at the ends.
+
+    1. If you must join at the side, do so at as small an angle to the
+       general direction of flow as practicable.
+    2. If you must cross, cross on a heading as nearly as practicable at
+       right angles to the direction of flow. Heading, not track - so you
+       do not crab across with the tide to make a right-angled ground
+       track. This was changed deliberately: a beam-on aspect is what makes
+       you visible and predictable.
+    3. A vessel under 20 metres, a sailing vessel, or a vessel fishing
+       shall not impede the safe passage of a power-driven vessel
+       following a lane.
+    4. Inshore traffic zones are not for through traffic, with limited
+       exceptions - vessels under 20 metres, sailing vessels, fishing
+       vessels, and vessels going to or from a place inside the zone.
+
+  Q. Crossing a traffic separation scheme, what should be at right angles to the flow?
+       a) your heading     b) your ground track     c) your wake
+
+
+  Correct.  Rule 10(c) says heading. Do not crab across with the tide to make the track square - a beam-on aspect is what makes you visible.
+
+
+  Not quite - the answer is A.  Rule 10(c) says heading. Do not crab across with the tide to make the track square - a beam-on aspect is what makes you visible.
+
+
+  Not quite - the answer is A.  Rule 10(c) says heading. Do not crab across with the tide to make the track square - a beam-on aspect is what makes you visible.
+
+
+  Not quite - the answer is A.  Rule 10(c) says heading. Do not crab across with the tide to make the track square - a beam-on aspect is what makes you visible.
+
+=== lesson L7 ===
+
+  L7  Rule 12 - Sailing vessels
+  -------------------------------
+
+  When two sailing vessels are approaching one another so as to involve
+  risk of collision:
+
+    1. When each has the wind on a different side, the vessel with the
+       wind on her port side shall keep out of the way of the other.
+       Port tack gives way to starboard tack.
+    2. When both have the wind on the same side, the vessel to windward
+       shall keep out of the way of the vessel to leeward. Windward gives
+       way - which surprises most people the first time.
+    3. If a vessel with the wind on the port side sees a vessel to
+       windward and cannot tell whether that vessel has the wind on the
+       port or the starboard side, she shall keep out of the way.
+    4. The windward side is the side opposite that on which the mainsail
+       is carried - or, for a square-rigged vessel, the largest fore-and-
+       aft sail.
+
+  Note that this rule applies between two sailing vessels only. Rule 18
+  governs a sailing vessel meeting anything else.
+
+  Q. Two sailing vessels, both with the wind on the starboard side. Who gives way?
+       a) the vessel to windward     b) the vessel to leeward     c) the overtaking vessel
+
+
+  Correct.  Same tack: windward keeps out of the way of leeward.
+
+
+  Not quite - the answer is A.  Same tack: windward keeps out of the way of leeward.
+
+
+  Not quite - the answer is A.  Same tack: windward keeps out of the way of leeward.
+
+
+  Not quite - the answer is A.  Same tack: windward keeps out of the way of leeward.
+
+=== lesson L8 ===
+
+  L8  Rule 13 - Overtaking
+  --------------------------
+
+  Any vessel overtaking any other shall keep out of the way of the vessel
+  being overtaken. This rule overrides everything in the other steering
+  rules - it applies notwithstanding anything in Rules 4 to 18.
+
+    1. A vessel is overtaking when coming up on another from a direction
+       more than 22.5 degrees abaft her beam.
+    2. The practical test at night: if you can see only her sternlight,
+       and neither of her sidelights, you are overtaking.
+    3. When in any doubt whether you are overtaking, assume that you are
+       and act accordingly.
+    4. Any subsequent alteration of the bearing between the two shall not
+       make you a crossing vessel or relieve you of the duty to keep clear
+       until you are finally past and clear.
+
+  A sailing vessel overtaking a power-driven vessel keeps clear. This is
+  the case that most often catches sailors out.
+
+  Q. At night you can see another vessel's sternlight and neither sidelight. What are you?
+       a) crossing     b) overtaking     c) head-on
+
+
+  Not quite - the answer is B.  Sternlight only means you are more than 22.5 degrees abaft her beam: you are overtaking, and you keep clear until finally past and clear.
+
+
+  Correct.  Sternlight only means you are more than 22.5 degrees abaft her beam: you are overtaking, and you keep clear until finally past and clear.
+
+
+  Not quite - the answer is B.  Sternlight only means you are more than 22.5 degrees abaft her beam: you are overtaking, and you keep clear until finally past and clear.
+
+
+  Not quite - the answer is B.  Sternlight only means you are more than 22.5 degrees abaft her beam: you are overtaking, and you keep clear until finally past and clear.
+
+=== lesson L9 ===
+
+  L9  Rule 14 - Head-on situation
+  ---------------------------------
+
+  When two power-driven vessels are meeting on reciprocal or nearly
+  reciprocal courses so as to involve risk of collision, each shall alter
+  her course to starboard so that each shall pass on the port side of the
+  other.
+
+    1. Neither vessel is the stand-on vessel. Both act.
+    2. The situation shall be deemed to exist when a vessel sees the other
+       ahead or nearly ahead - by night, both sidelights, or the masthead
+       lights in a line or nearly in a line.
+    3. When in doubt whether such a situation exists, assume that it does
+       and act accordingly.
+    4. This rule is between power-driven vessels only.
+
+  Alter to starboard, early and boldly, and pass port to port: red to red.
+
+  Q. Two power-driven vessels meeting head-on. Who is the stand-on vessel?
+       a) the larger     b) the one to starboard     c) neither
+
+
+  Not quite - the answer is C.  In a head-on situation there is no stand-on vessel. Each alters to starboard and they pass port to port.
+
+
+  Not quite - the answer is C.  In a head-on situation there is no stand-on vessel. Each alters to starboard and they pass port to port.
+
+
+  Correct.  In a head-on situation there is no stand-on vessel. Each alters to starboard and they pass port to port.
+
+
+  Not quite - the answer is C.  In a head-on situation there is no stand-on vessel. Each alters to starboard and they pass port to port.
+
+=== lesson L10 ===
+
+  L10  Rules 15 and 16 - Crossing, and the give-way vessel
+  ---------------------------------------------------------
+
+  When two power-driven vessels are crossing so as to involve risk of
+  collision, the vessel which has the other on her own starboard side
+  shall keep out of the way and shall, if the circumstances of the case
+  admit, avoid crossing ahead of the other vessel.
+
+    1. Starboard side, so at night you see her red sidelight. Red means
+       stop: she is on your right and you give way.
+    2. Avoid crossing ahead. In practice, alter to starboard and pass
+       under her stern: it is the action that is unmistakable from her
+       bridge.
+    3. Rule 16 tells the give-way vessel to take early and substantial
+       action to keep well clear. Early and substantial.
+    4. This rule is between power-driven vessels. A crossing sailing
+       vessel is a Rule 18 problem.
+
+  Q. You are power-driven and see another power-driven vessel's red sidelight, crossing. What do you do?
+       a) stand on     b) give way, and avoid crossing ahead of her
+       c) give way by altering to port
+
+
+  Not quite - the answer is B.  Her red light means she is on your starboard side. You give way, and Rule 15 says avoid crossing ahead - so alter to starboard and pass under her stern.
+
+
+  Correct.  Her red light means she is on your starboard side. You give way, and Rule 15 says avoid crossing ahead - so alter to starboard and pass under her stern.
+
+
+  Not quite - the answer is B.  Her red light means she is on your starboard side. You give way, and Rule 15 says avoid crossing ahead - so alter to starboard and pass under her stern.
+
+
+  Not quite - the answer is B.  Her red light means she is on your starboard side. You give way, and Rule 15 says avoid crossing ahead - so alter to starboard and pass under her stern.
+
+=== lesson L11 ===
+
+  L11  Rule 17 - Action by the stand-on vessel
+  ---------------------------------------------
+
+  Where one vessel is to keep out of the way, the other shall keep her
+  course and speed. But standing on is not a licence to do nothing.
+
+    1. Normally: keep your course and speed, so that the give-way vessel
+       can work out a solution around you.
+    2. You MAY take action as soon as it becomes apparent to you that she
+       is not taking appropriate action. This is permission, not duty.
+    3. You SHALL take such action as will best aid to avoid collision when
+       you find yourself so close that collision cannot be avoided by the
+       give-way vessel's action alone. This is a duty.
+    4. If you are a power-driven vessel taking action in a crossing
+       situation, do not alter to port for a vessel on your own port side.
+
+  The give-way vessel's obligation does not go away because you have
+  acted. Both of you remain bound to avoid collision.
+
+  Q. You are the stand-on vessel and she is doing nothing about it. What does Rule 17 allow?
+       a) nothing until collision is unavoidable    b) you may act as soon as it is
+          apparent she is not acting    c) you must alter to port
+
+
+  Not quite - the answer is B.  Rule 17(a)(ii) permits you to act as soon as it becomes apparent she is not taking appropriate action, and 17(b) requires you to act when collision cannot be avoided by her action alone.
+
+
+  Correct.  Rule 17(a)(ii) permits you to act as soon as it becomes apparent she is not taking appropriate action, and 17(b) requires you to act when collision cannot be avoided by her action alone.
+
+
+  Not quite - the answer is B.  Rule 17(a)(ii) permits you to act as soon as it becomes apparent she is not taking appropriate action, and 17(b) requires you to act when collision cannot be avoided by her action alone.
+
+
+  Not quite - the answer is B.  Rule 17(a)(ii) permits you to act as soon as it becomes apparent she is not taking appropriate action, and 17(b) requires you to act when collision cannot be avoided by her action alone.
+
+=== lesson L12 ===
+
+  L12  Rule 18 - Responsibilities between vessels
+  ------------------------------------------------
+
+  Except where Rules 9, 10 and 13 otherwise require, the pecking order
+  runs from the least manoeuvrable to the most:
+
+       not under command
+       restricted in her ability to manoeuvre
+       engaged in fishing
+       sailing
+       power-driven
+
+    1. Each keeps out of the way of everything above it in that list.
+    2. A vessel constrained by her draught sits slightly outside the list:
+       Rule 18(d) says every vessel shall avoid impeding her safe passage,
+       and she must navigate with particular caution.
+    3. A seaplane on the water keeps well clear of all vessels; a
+       wing-in-ground craft, when taking off, landing or in flight near
+       the surface, keeps well clear of all vessels.
+    4. The exceptions matter: in a narrow channel, in a traffic scheme,
+       and when overtaking, the ordinary order can be reversed.
+
+  Sailing vessels are third from the bottom, not at the top. A yacht keeps
+  out of the way of a fishing vessel, and out of the way of anything not
+  under command.
+
+  Q. A yacht under sail meets a vessel engaged in fishing. Who keeps clear?
+       a) the fishing vessel     b) the yacht     c) neither, it is a crossing situation
+
+
+  Not quite - the answer is B.  Rule 18: a sailing vessel keeps out of the way of a vessel engaged in fishing, and of one restricted in her ability to manoeuvre, and of one not under command.
+
+
+  Correct.  Rule 18: a sailing vessel keeps out of the way of a vessel engaged in fishing, and of one restricted in her ability to manoeuvre, and of one not under command.
+
+
+  Not quite - the answer is B.  Rule 18: a sailing vessel keeps out of the way of a vessel engaged in fishing, and of one restricted in her ability to manoeuvre, and of one not under command.
+
+
+  Not quite - the answer is B.  Rule 18: a sailing vessel keeps out of the way of a vessel engaged in fishing, and of one restricted in her ability to manoeuvre, and of one not under command.
+
+=== lesson L13 ===
+
+  L13  Rule 19 - Restricted visibility
+  -------------------------------------
+
+  This rule applies to vessels not in sight of one another when navigating
+  in or near an area of restricted visibility. It is a different world
+  from Rules 11 to 18.
+
+    1. There is no stand-on vessel. Nobody has right of way. The give-way
+       and stand-on rules simply do not apply.
+    2. Every vessel shall proceed at a safe speed adapted to the
+       circumstances, with engines ready for immediate manoeuvre.
+    3. A vessel which detects by radar alone another vessel shall
+       determine if a close-quarters situation is developing, and if so
+       take avoiding action in ample time. If that action is an alteration
+       of course, avoid: an alteration to port for a vessel forward of the
+       beam other than for a vessel being overtaken, and an alteration
+       towards a vessel abeam or abaft the beam.
+    4. A vessel which hears apparently forward of her beam the fog signal
+       of another vessel, or which cannot avoid a close-quarters situation
+       with a vessel forward of her beam, shall reduce to the minimum at
+       which she can be kept on course - and if necessary take all her way
+       off, and in any event navigate with extreme caution until the
+       danger of collision is over.
+
+  Q. In fog, you hear one prolonged and two short forward of the beam. Who is the stand-on vessel?
+       a) you     b) she is     c) neither - Rule 19 has no stand-on vessel
+
+
+  Not quite - the answer is C.  Rule 19 applies to vessels not in sight of one another, and it has no give-way and stand-on. Reduce to the minimum steerage way and, if necessary, take all way off.
+
+
+  Not quite - the answer is C.  Rule 19 applies to vessels not in sight of one another, and it has no give-way and stand-on. Reduce to the minimum steerage way and, if necessary, take all way off.
+
+
+  Correct.  Rule 19 applies to vessels not in sight of one another, and it has no give-way and stand-on. Reduce to the minimum steerage way and, if necessary, take all way off.
+
+
+  Not quite - the answer is C.  Rule 19 applies to vessels not in sight of one another, and it has no give-way and stand-on. Reduce to the minimum steerage way and, if necessary, take all way off.
+
+=== lesson L14 ===
+
+  L14  Rules 20 to 31 - Lights and shapes
+  ----------------------------------------
+
+  Lights are shown from sunset to sunrise, and in restricted visibility,
+  and may be shown at any other time when it is considered necessary.
+  Shapes are shown by day.
+
+    1. The arcs are fixed and worth knowing by heart: masthead light 225
+       degrees, sidelights 112.5 each, sternlight 135. Sidelights plus
+       sternlight make the full circle.
+    2. What you see tells you her aspect. Both sidelights: she is nearly
+       bow-on. One sidelight and a masthead light: she is crossing. Only a
+       white light: she may be a sternlight, an anchor light, or a small
+       boat - keep watching until you know which.
+    3. All-round lights in a vertical line are the vessel telling you what
+       she is doing and what she cannot do. Red over white, fishing at
+       night. Red over red, the captain is dead - not under command.
+       Red, white, red - restricted in her ability to manoeuvre.
+    4. Day shapes carry the same meanings: a ball for anchored, three
+       balls aground, two balls not under command, ball-diamond-ball
+       restricted, a cone point down for a sailing vessel under power.
+
+  Q. What arc does a masthead light cover?
+       a) 112.5 degrees     b) 225 degrees     c) 360 degrees
+
+
+  Not quite - the answer is B.  225 degrees, from right ahead to 22.5 degrees abaft the beam on each side. The sidelights cover 112.5 each and the sternlight the remaining 135.
+
+
+  Correct.  225 degrees, from right ahead to 22.5 degrees abaft the beam on each side. The sidelights cover 112.5 each and the sternlight the remaining 135.
+
+
+  Not quite - the answer is B.  225 degrees, from right ahead to 22.5 degrees abaft the beam on each side. The sidelights cover 112.5 each and the sternlight the remaining 135.
+
+
+  Not quite - the answer is B.  225 degrees, from right ahead to 22.5 degrees abaft the beam on each side. The sidelights cover 112.5 each and the sternlight the remaining 135.
+
+=== lesson L15 ===
+
+  L15  Rules 32 to 37 - Sound and light signals
+  ----------------------------------------------
+
+  Sound signals fall into two groups, and the difference matters more
+  than the signals themselves.
+
+    1. Rule 34 signals are for vessels IN SIGHT of one another. They say
+       what you are doing right now: one short, I am altering to
+       starboard; two short, to port; three short, my engines are going
+       astern.
+    2. Rule 35 signals are for RESTRICTED VISIBILITY, when you cannot see
+       each other. They say what kind of vessel you are: one prolonged
+       for a power-driven vessel making way; one prolonged and two short
+       for anything from not-under-command to a sailing vessel.
+    3. Five or more short and rapid blasts is the doubt signal, and the
+       most under-used signal at sea. It means: I do not understand what
+       you are doing, or I do not think you are doing enough.
+    4. A prolonged blast is four to six seconds. A short blast is about
+       one second. Vessels of 100 metres or more carry a bell and a gong;
+       under 12 metres you need not carry the equipment, but you must make
+       some other efficient sound signal.
+
+  Q. What does one prolonged blast mean from a vessel you cannot see, in fog?
+       a) I am altering to starboard     b) a power-driven vessel making way
+       c) I am approaching a bend
+
+
+  Not quite - the answer is B.  In restricted visibility (Rule 35) one prolonged every two minutes is a power-driven vessel making way through the water. The same signal in sight of another vessel, at a bend, is Rule 34(e).
+
+
+  Correct.  In restricted visibility (Rule 35) one prolonged every two minutes is a power-driven vessel making way through the water. The same signal in sight of another vessel, at a bend, is Rule 34(e).
+
+
+  Not quite - the answer is B.  In restricted visibility (Rule 35) one prolonged every two minutes is a power-driven vessel making way through the water. The same signal in sight of another vessel, at a bend, is Rule 34(e).
+
+
+  Not quite - the answer is B.  In restricted visibility (Rule 35) one prolonged every two minutes is a power-driven vessel making way through the water. The same signal in sight of another vessel, at a bend, is Rule 34(e).
+

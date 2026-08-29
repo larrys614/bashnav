@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1032.9" height="251.9" viewBox="0 0 1032.9 251.9" font-family="DejaVu Sans, Helvetica, sans-serif">
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#1f5673"/></marker><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a2542a"/></marker></defs>
+<rect x="0" y="0" width="1032.9" height="251.9" fill="#ffffff"/>
+<rect x="194.9" y="57.2" width="619.2" height="138.7" rx="5" fill="#f7fafb" stroke="#bfcdd6" stroke-width="1"/>
+<rect x="236.7" y="87.4" width="120.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="236.7" y="103.8" width="128.3" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="236.7" y="120.2" width="128.3" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="236.7" y="136.5" width="120.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="236.7" y="152.9" width="128.3" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="236.7" y="169.3" width="120.5" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="393.3" y="87.4" width="120.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="393.3" y="103.8" width="120.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="550.0" y="103.8" width="104.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="542.1" y="120.2" width="120.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="542.1" y="136.5" width="120.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="557.8" y="169.3" width="206.6" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="550.0" y="87.4" width="253.6" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<g font-family="DejaVu Sans Mono, monospace" font-size="13.00" fill="#16222c" xml:space="preserve">
+<text x="206.9" y="81.6">  Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre</text>
+<text x="206.9" y="98.0">    Hs     19 32.1&#x27;     GHA   283 41.6&#x27;     assumed pos 35 00.0&#x27;N 040 00.0&#x27;W</text>
+<text x="206.9" y="114.3">    IE         -1.5&#x27;    Dec   N61 36.5&#x27;     LHA 243 41.6&#x27;</text>
+<text x="206.9" y="130.7">    Dip        -3.0&#x27;    SD         -       Hc     19 23.3&#x27;</text>
+<text x="206.9" y="147.1">    Ha     19 27.6&#x27;     HP         -       Zn    026 51.9&#x27;</text>
+<text x="206.9" y="163.5">    Ref        -2.8&#x27;</text>
+<text x="206.9" y="179.9">    Ho     19 24.8&#x27;                          Intercept    1.5 nm TOWARD</text>
+</g>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="181.8" y="83.7">Hs - what you read</text>
+<text x="181.8" y="96.7">off the sextant.</text>
+</g>
+<path d="M183.3,85.6 L232.2,94.1" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="181.8" y="126.3">Index error and dip come</text>
+<text x="181.8" y="139.3">off first. Ha is the</text>
+<text x="181.8" y="152.3">apparent altitude.</text>
+</g>
+<path d="M183.3,134.7 L232.6,113.0" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M183.3,134.7 L232.2,128.2" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M183.3,134.7 L232.2,143.2" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="end">
+<text x="181.8" y="178.8">Refraction comes off next.</text>
+<text x="181.8" y="191.8">Ho is the true observed</text>
+<text x="181.8" y="204.8">altitude - what a perfect</text>
+<text x="181.8" y="217.8">observer would have measured.</text>
+</g>
+<path d="M183.3,193.7 L232.9,162.7" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<path d="M183.3,193.7 L232.4,178.1" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="827.1" y="64.0">The built-in almanac: where</text>
+<text x="827.1" y="77.0">Dubhe was over the earth at</text>
+<text x="827.1" y="90.1">that instant.</text>
+</g>
+<path d="M825.6,72.5 L518.3,94.5" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M825.6,72.5 L518.3,110.6" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="827.1" y="119.8">The navigational triangle,</text>
+<text x="827.1" y="132.8">solved at the assumed position:</text>
+<text x="827.1" y="145.8">Hc is the altitude you would</text>
+<text x="827.1" y="158.8">have measured from there, Zn</text>
+<text x="827.1" y="171.8">the true bearing of the body.</text>
+</g>
+<path d="M825.6,141.3 L659.2,112.0" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M825.6,141.3 L667.1,128.0" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M825.6,141.3 L667.1,143.9" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a">
+<text x="827.1" y="205.0">Ho minus Hc, in minutes of arc,</text>
+<text x="827.1" y="218.0">which is miles: you are 1.5 miles</text>
+<text x="827.1" y="231.0">nearer to Dubhe than the assumed</text>
+<text x="827.1" y="244.0">position was.</text>
+</g>
+<path d="M825.6,219.9 L768.1,179.3" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="middle">
+<text x="692.4" y="33.7">The DR, run back along your course and speed</text>
+<text x="692.4" y="46.7">to the time of this sight.</text>
+</g>
+<path d="M692.4,49.9 L678.5,83.3" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+</svg>

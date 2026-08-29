@@ -1,0 +1,46 @@
+Bash Navigation Software (bashnav)
+Copyright 2026 M. Larry Sherman
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this work except in compliance with the License. You may obtain
+a copy of the License in the LICENSE file, or at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+
+-----------------------------------------------------------------------
+THIRD-PARTY DATA
+-----------------------------------------------------------------------
+
+Tide station harmonic constants
+  National Oceanic and Atmospheric Administration (NOAA), United States.
+  Works of the U.S. federal government: public domain.
+
+  TICON-4 harmonic constants: Piccioni, G., Dettmering, D., Schwatke, C.,
+  Passaro, M., Seitz, F. Licensed under the Creative Commons Attribution
+  4.0 International License (CC BY 4.0).
+  https://creativecommons.org/licenses/by/4.0/
+
+  Both were assembled by way of the neaps tide-database project
+  (https://github.com/neaps/tide-database), CC BY 4.0.
+
+  These constants are redistributed under their own terms, which are not
+  changed by the Apache License above. Attribution must travel with them.
+
+Star positions
+  Derived from the Hipparcos and Yale Bright Star catalogues.
+
+Astronomical algorithms
+  Implemented from published descriptions, principally Jean Meeus,
+  "Astronomical Algorithms" (2nd edition), and E. M. Standish's
+  Keplerian elements for approximate positions of the major planets
+  (Jet Propulsion Laboratory). No code was taken from either.
+
+The International Regulations for Preventing Collisions at Sea, 1972,
+as amended, are published by the International Maritime Organization.
+Rule text is quoted here only in short extracts, for teaching. The
+Convention is the authority; this software is a drawing of it.

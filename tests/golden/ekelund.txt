@@ -1,0 +1,893 @@
+=== ekelund 1 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 095 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 026, speed 13   bearing rate  -0.5 deg/min
+     leg 2   own course 138, speed 10   bearing rate  -2.4 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  C is right -- she is 19,800 yards off.
+
+     across the line of sight, leg 1 = 13 x sin(026 - 095) =  -12.1 kt
+     across the line of sight, leg 2 = 10 x sin(138 - 095) =   +6.8 kt
+     change in across = +19.0     change in rate = +1.9 deg/min
+     range = 1.91 x 19.0 / 1.9 = 19,100 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 2 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 217 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 358, speed 19   bearing rate  -2.2 deg/min
+     leg 2   own course 178, speed  7   bearing rate  +1.2 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  B is right -- she is 9,200 yards off.
+
+     across the line of sight, leg 1 = 19 x sin(358 - 217) =  +12.0 kt
+     across the line of sight, leg 2 =  7 x sin(178 - 217) =   -4.4 kt
+     change in across = -16.4     change in rate = -3.4 deg/min
+     range = 1.91 x -16.4 / -3.4 = 9,200 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 3 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 296 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 271, speed 17   bearing rate  +4.8 deg/min
+     leg 2   own course 327, speed 17   bearing rate  -0.0 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  A is right -- she is 6,300 yards off.
+
+     across the line of sight, leg 1 = 17 x sin(271 - 296) =   -7.2 kt
+     across the line of sight, leg 2 = 17 x sin(327 - 296) =   +8.8 kt
+     change in across = +15.9     change in rate = +4.8 deg/min
+     range = 1.91 x 15.9 / 4.8 = 6,300 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 4 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 229 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 006, speed  6   bearing rate  -1.1 deg/min
+     leg 2   own course 099, speed 20   bearing rate  +0.6 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  C is right -- she is 22,700 yards off.
+
+     across the line of sight, leg 1 =  6 x sin(006 - 229) =   +4.1 kt
+     across the line of sight, leg 2 = 20 x sin(099 - 229) =  -15.3 kt
+     change in across = -19.4     change in rate = -1.7 deg/min
+     range = 1.91 x -19.4 / -1.7 = 21,800 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 5 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 121 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 020, speed 20   bearing rate  +0.5 deg/min
+     leg 2   own course 276, speed  8   bearing rate  -3.6 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  B is right -- she is 10,900 yards off.
+
+     across the line of sight, leg 1 = 20 x sin(020 - 121) =  -19.6 kt
+     across the line of sight, leg 2 =  8 x sin(276 - 121) =   +3.4 kt
+     change in across = +23.0     change in rate = +4.1 deg/min
+     range = 1.91 x 23.0 / 4.1 = 10,700 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 6 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 108 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 043, speed 14   bearing rate  +6.0 deg/min
+     leg 2   own course 209, speed  7   bearing rate  +0.1 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  A is right -- she is 6,300 yards off.
+
+     across the line of sight, leg 1 = 14 x sin(043 - 108) =  -12.7 kt
+     across the line of sight, leg 2 =  7 x sin(209 - 108) =   +6.9 kt
+     change in across = +19.6     change in rate = +5.9 deg/min
+     range = 1.91 x 19.6 / 5.9 = 6,300 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 7 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 021 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 183, speed 12   bearing rate  +0.5 deg/min
+     leg 2   own course 069, speed 19   bearing rate  -0.1 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  D is right -- she is 31,300 yards off.
+
+     across the line of sight, leg 1 = 12 x sin(183 - 021) =   +3.7 kt
+     across the line of sight, leg 2 = 19 x sin(069 - 021) =  +14.1 kt
+     change in across = +10.4     change in rate = +0.6 deg/min
+     range = 1.91 x 10.4 / 0.6 = 33,100 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 8 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 264 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 219, speed 10   bearing rate  +1.2 deg/min
+     leg 2   own course 035, speed  7   bearing rate  -0.9 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  B is right -- she is 11,400 yards off.
+
+     across the line of sight, leg 1 = 10 x sin(219 - 264) =   -7.1 kt
+     across the line of sight, leg 2 =  7 x sin(035 - 264) =   +5.3 kt
+     change in across = +12.4     change in rate = +2.1 deg/min
+     range = 1.91 x 12.4 / 2.1 = 11,200 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 9 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 224 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 329, speed 12   bearing rate  -5.2 deg/min
+     leg 2   own course 062, speed 18   bearing rate  +0.9 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  A is right -- she is 5,400 yards off.
+
+     across the line of sight, leg 1 = 12 x sin(329 - 224) =  +11.6 kt
+     across the line of sight, leg 2 = 18 x sin(062 - 224) =   -5.6 kt
+     change in across = -17.2     change in rate = -6.1 deg/min
+     range = 1.91 x -17.2 / -6.1 = 5,400 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 10 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 081 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 261, speed 10   bearing rate  +0.7 deg/min
+     leg 2   own course 304, speed 16   bearing rate  +1.4 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  D is right -- she is 29,700 yards off.
+
+     across the line of sight, leg 1 = 10 x sin(261 - 081) =   +0.0 kt
+     across the line of sight, leg 2 = 16 x sin(304 - 081) =  -10.9 kt
+     change in across = -10.9     change in rate = -0.7 deg/min
+     range = 1.91 x -10.9 / -0.7 = 29,800 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 11 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 078 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 136, speed 14   bearing rate  -1.7 deg/min
+     leg 2   own course 297, speed 11   bearing rate  +1.0 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  B is right -- she is 13,400 yards off.
+
+     across the line of sight, leg 1 = 14 x sin(136 - 078) =  +11.9 kt
+     across the line of sight, leg 2 = 11 x sin(297 - 078) =   -6.9 kt
+     change in across = -18.8     change in rate = -2.7 deg/min
+     range = 1.91 x -18.8 / -2.7 = 13,300 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 12 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 344 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 338, speed 18   bearing rate  +1.2 deg/min
+     leg 2   own course 116, speed 17   bearing rate  -3.0 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  A is right -- she is 6,600 yards off.
+
+     across the line of sight, leg 1 = 18 x sin(338 - 344) =   -1.9 kt
+     across the line of sight, leg 2 = 17 x sin(116 - 344) =  +12.6 kt
+     change in across = +14.5     change in rate = +4.2 deg/min
+     range = 1.91 x 14.5 / 4.2 = 6,600 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 13 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 319 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 234, speed 19   bearing rate  +1.5 deg/min
+     leg 2   own course 004, speed 17   bearing rate  -0.4 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  D is right -- she is 31,300 yards off.
+
+     across the line of sight, leg 1 = 19 x sin(234 - 319) =  -18.9 kt
+     across the line of sight, leg 2 = 17 x sin(004 - 319) =  +12.0 kt
+     change in across = +30.9     change in rate = +1.9 deg/min
+     range = 1.91 x 30.9 / 1.9 = 31,100 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 14 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 103 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 294, speed 17   bearing rate  -1.2 deg/min
+     leg 2   own course 241, speed 16   bearing rate  -2.8 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  C is right -- she is 16,300 yards off.
+
+     across the line of sight, leg 1 = 17 x sin(294 - 103) =   -3.2 kt
+     across the line of sight, leg 2 = 16 x sin(241 - 103) =  +10.7 kt
+     change in across = +13.9     change in rate = +1.6 deg/min
+     range = 1.91 x 13.9 / 1.6 = 16,700 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 15 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 270 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 186, speed 18   bearing rate  +7.0 deg/min
+     leg 2   own course 340, speed  7   bearing rate  -1.3 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  A is right -- she is 5,600 yards off.
+
+     across the line of sight, leg 1 = 18 x sin(186 - 270) =  -17.9 kt
+     across the line of sight, leg 2 =  7 x sin(340 - 270) =   +6.6 kt
+     change in across = +24.5     change in rate = +8.3 deg/min
+     range = 1.91 x 24.5 / 8.3 = 5,600 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 16 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 091 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 041, speed 17   bearing rate  +1.9 deg/min
+     leg 2   own course 225, speed 13   bearing rate  +0.5 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  D is right -- she is 29,900 yards off.
+
+     across the line of sight, leg 1 = 17 x sin(041 - 091) =  -13.0 kt
+     across the line of sight, leg 2 = 13 x sin(225 - 091) =   +9.4 kt
+     change in across = +22.4     change in rate = +1.4 deg/min
+     range = 1.91 x 22.4 / 1.4 = 30,500 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 17 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 188 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 091, speed 13   bearing rate  +1.5 deg/min
+     leg 2   own course 190, speed 16   bearing rate  +0.0 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  C is right -- she is 16,900 yards off.
+
+     across the line of sight, leg 1 = 13 x sin(091 - 188) =  -12.9 kt
+     across the line of sight, leg 2 = 16 x sin(190 - 188) =   +0.6 kt
+     change in across = +13.5     change in rate = +1.5 deg/min
+     range = 1.91 x 13.5 / 1.5 = 17,100 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 18 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 089 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 298, speed 18   bearing rate  -0.3 deg/min
+     leg 2   own course 125, speed 15   bearing rate  -6.0 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  A is right -- she is 5,900 yards off.
+
+     across the line of sight, leg 1 = 18 x sin(298 - 089) =   -8.7 kt
+     across the line of sight, leg 2 = 15 x sin(125 - 089) =   +8.8 kt
+     change in across = +17.5     change in rate = +5.7 deg/min
+     range = 1.91 x 17.5 / 5.7 = 5,900 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 19 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 103 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 236, speed  6   bearing rate  -0.9 deg/min
+     leg 2   own course 023, speed 17   bearing rate  +0.6 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  D is right -- she is 27,700 yards off.
+
+     across the line of sight, leg 1 =  6 x sin(236 - 103) =   +4.4 kt
+     across the line of sight, leg 2 = 17 x sin(023 - 103) =  -16.7 kt
+     change in across = -21.1     change in rate = -1.5 deg/min
+     range = 1.91 x -21.1 / -1.5 = 26,900 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 20 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 021 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 070, speed 17   bearing rate  +0.0 deg/min
+     leg 2   own course 287, speed 15   bearing rate  +2.7 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  C is right -- she is 19,700 yards off.
+
+     across the line of sight, leg 1 = 17 x sin(070 - 021) =  +12.8 kt
+     across the line of sight, leg 2 = 15 x sin(287 - 021) =  -15.0 kt
+     change in across = -27.8     change in rate = -2.7 deg/min
+     range = 1.91 x -27.8 / -2.7 = 19,700 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 21 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 018 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 152, speed 11   bearing rate  +1.1 deg/min
+     leg 2   own course 194, speed 17   bearing rate  +2.4 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  B is right -- she is 9,800 yards off.
+
+     across the line of sight, leg 1 = 11 x sin(152 - 018) =   +7.9 kt
+     across the line of sight, leg 2 = 17 x sin(194 - 018) =   +1.2 kt
+     change in across = -6.7     change in rate = -1.3 deg/min
+     range = 1.91 x -6.7 / -1.3 = 9,900 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 22 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 125 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 305, speed  8   bearing rate  -0.3 deg/min
+     leg 2   own course 345, speed 20   bearing rate  +0.6 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  D is right -- she is 27,700 yards off.
+
+     across the line of sight, leg 1 =  8 x sin(305 - 125) =   +0.0 kt
+     across the line of sight, leg 2 = 20 x sin(345 - 125) =  -12.9 kt
+     change in across = -12.9     change in rate = -0.9 deg/min
+     range = 1.91 x -12.9 / -0.9 = 27,300 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 23 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 295 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 286, speed  9   bearing rate  +0.5 deg/min
+     leg 2   own course 065, speed 12   bearing rate  -0.5 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  C is right -- she is 19,900 yards off.
+
+     across the line of sight, leg 1 =  9 x sin(286 - 295) =   -1.4 kt
+     across the line of sight, leg 2 = 12 x sin(065 - 295) =   +9.2 kt
+     change in across = +10.6     change in rate = +1.0 deg/min
+     range = 1.91 x 10.6 / 1.0 = 20,200 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 24 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 239 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 055, speed 17   bearing rate  +1.2 deg/min
+     leg 2   own course 276, speed 19   bearing rate  -1.0 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  B is right -- she is 9,100 yards off.
+
+     across the line of sight, leg 1 = 17 x sin(055 - 239) =   +1.2 kt
+     across the line of sight, leg 2 = 19 x sin(276 - 239) =  +11.4 kt
+     change in across = +10.2     change in rate = +2.2 deg/min
+     range = 1.91 x 10.2 / 2.2 = 8,900 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 25 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 058 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 314, speed 20   bearing rate  -0.0 deg/min
+     leg 2   own course 058, speed  8   bearing rate  -1.2 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  D is right -- she is 32,300 yards off.
+
+     across the line of sight, leg 1 = 20 x sin(314 - 058) =  -19.4 kt
+     across the line of sight, leg 2 =  8 x sin(058 - 058) =   +0.0 kt
+     change in across = +19.4     change in rate = +1.2 deg/min
+     range = 1.91 x 19.4 / 1.2 = 30,900 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 26 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 043 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 159, speed  7   bearing rate  +0.9 deg/min
+     leg 2   own course 249, speed 15   bearing rate  +2.3 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  C is right -- she is 16,600 yards off.
+
+     across the line of sight, leg 1 =  7 x sin(159 - 043) =   +6.3 kt
+     across the line of sight, leg 2 = 15 x sin(249 - 043) =   -6.6 kt
+     change in across = -12.9     change in rate = -1.4 deg/min
+     range = 1.91 x -12.9 / -1.4 = 17,600 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 27 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 126 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 195, speed 19   bearing rate  -2.6 deg/min
+     leg 2   own course 043, speed 18   bearing rate  +3.4 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  B is right -- she is 11,200 yards off.
+
+     across the line of sight, leg 1 = 19 x sin(195 - 126) =  +17.7 kt
+     across the line of sight, leg 2 = 18 x sin(043 - 126) =  -17.9 kt
+     change in across = -35.6     change in rate = -6.0 deg/min
+     range = 1.91 x -35.6 / -6.0 = 11,300 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 28 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 010 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 037, speed  8   bearing rate  -0.6 deg/min
+     leg 2   own course 060, speed 18   bearing rate  -3.9 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  A is right -- she is 5,800 yards off.
+
+     across the line of sight, leg 1 =  8 x sin(037 - 010) =   +3.6 kt
+     across the line of sight, leg 2 = 18 x sin(060 - 010) =  +13.8 kt
+     change in across = +10.2     change in rate = +3.3 deg/min
+     range = 1.91 x 10.2 / 3.3 = 5,900 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 29 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 124 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 336, speed 17   bearing rate  +2.0 deg/min
+     leg 2   own course 214, speed  8   bearing rate  -0.0 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  C is right -- she is 16,200 yards off.
+
+     across the line of sight, leg 1 = 17 x sin(336 - 124) =   -9.0 kt
+     across the line of sight, leg 2 =  8 x sin(214 - 124) =   +8.0 kt
+     change in across = +17.0     change in rate = +2.0 deg/min
+     range = 1.91 x 17.0 / 2.0 = 16,200 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+
+=== ekelund 30 ===
+
+  EKELUND -- how far off is she?
+  ----------------------------------------------------------------------
+  She bears 028 and holds her course and speed throughout.
+  You have bearings only. No range.
+
+     leg 1   own course 013, speed 15   bearing rate  +1.2 deg/min
+     leg 2   own course 125, speed 15   bearing rate  -1.7 deg/min
+
+     (a bearing rate is + when the bearing is drawing right)
+  ----------------------------------------------------------------------
+
+  How far off is she?
+     a) under 8,000 yards           b) 8,000 to 15,000 yards
+     c) 15,000 to 25,000 yards      d) over 25,000 yards
+
+
+  Not quite.
+  B is right -- she is 12,300 yards off.
+
+     across the line of sight, leg 1 = 15 x sin(013 - 028) =   -3.9 kt
+     across the line of sight, leg 2 = 15 x sin(125 - 028) =  +14.9 kt
+     change in across = +18.8     change in rate = +2.9 deg/min
+     range = 1.91 x 18.8 / 2.9 = 12,400 yards
+
+  Her motion across your line of sight never changed. All of the
+  change in bearing rate was yours, and you knew exactly how much
+  of it you put in. That is the whole trick.
+

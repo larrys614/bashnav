@@ -1,0 +1,1976 @@
+=== qshape 1 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               \|/
+                                V
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Mine clearance
+   b) Vessel at anchor
+   c) Vessel fishing
+   d) Sailing vessel also under power
+
+  Not right.
+  D is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  D is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  D is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  D is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+=== qshape 2 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Sailing vessel also under power
+   b) Vessel at anchor
+   c) Restricted in her ability to manoeuvre
+   d) Constrained by her draught
+
+  Not right.
+  B is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  B is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  B is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  B is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+=== qshape 3 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               \|/
+                                V
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Sailing vessel also under power
+   b) Not under command
+   c) Vessel at anchor
+   d) Towing, tow over 200 m
+
+  A is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  A is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  A is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  A is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+=== qshape 4 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Mine clearance
+   b) Vessel at anchor
+   c) Sailing vessel also under power
+   d) Towing, tow over 200 m
+
+  Not right.
+  B is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  B is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  B is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  B is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+=== qshape 5 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               \|/
+                                V
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Sailing vessel also under power
+   b) Vessel with divers down
+   c) Mine clearance
+   d) Vessel at anchor
+
+  A is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  A is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  A is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  A is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+=== qshape 6 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                               (O)
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Sailing vessel also under power
+   b) Constrained by her draught
+   c) Vessel fishing
+   d) Vessel aground
+
+  Not right.
+  D is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  Not right.
+  D is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  Not right.
+  D is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  D is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+=== qshape 7 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               \|/
+                                X
+                               /|\
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Sailing vessel also under power
+   b) Vessel aground
+   c) Vessel fishing
+   d) Not under command
+
+  Not right.
+  C is right -- Vessel fishing
+  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+
+  Not right.
+  C is right -- Vessel fishing
+  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+
+  C is right -- Vessel fishing
+  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+
+  Not right.
+  C is right -- Vessel fishing
+  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+
+=== qshape 8 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                               (O)
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Towing, tow over 200 m
+   b) Sailing vessel also under power
+   c) Vessel aground
+   d) Restricted in her ability to manoeuvre
+
+  Not right.
+  C is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  Not right.
+  C is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  C is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  Not right.
+  C is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+=== qshape 9 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               \|/
+                                X
+                               /|\
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Vessel aground
+   b) Sailing vessel also under power
+   c) Vessel fishing
+   d) Vessel with divers down
+
+  Not right.
+  C is right -- Vessel fishing
+  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+
+  Not right.
+  C is right -- Vessel fishing
+  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+
+  C is right -- Vessel fishing
+  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+
+  Not right.
+  C is right -- Vessel fishing
+  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+
+=== qshape 10 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                               (O)
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Vessel with divers down
+   b) Sailing vessel also under power
+   c) Vessel aground
+   d) Towing, tow over 200 m
+
+  Not right.
+  C is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  Not right.
+  C is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  C is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+  Not right.
+  C is right -- Vessel aground
+  Rule 30.  Three balls in a vertical line.
+
+=== qshape 11 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               /|\
+                               \|/
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Mine clearance
+   b) Restricted in her ability to manoeuvre
+   c) Not under command
+   d) Towing, tow over 200 m
+
+  Not right.
+  D is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  Not right.
+  D is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  Not right.
+  D is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  D is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+=== qshape 12 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Not under command
+   b) Towing, tow over 200 m
+   c) Vessel fishing
+   d) Vessel with divers down
+
+  A is right -- Not under command
+  Rule 27.  Two balls in a vertical line.
+
+  Not right.
+  A is right -- Not under command
+  Rule 27.  Two balls in a vertical line.
+
+  Not right.
+  A is right -- Not under command
+  Rule 27.  Two balls in a vertical line.
+
+  Not right.
+  A is right -- Not under command
+  Rule 27.  Two balls in a vertical line.
+
+=== qshape 13 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               /|\
+                               \|/
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Not under command
+   b) Towing, tow over 200 m
+   c) Vessel with divers down
+   d) Restricted in her ability to manoeuvre
+
+  Not right.
+  B is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  B is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  Not right.
+  B is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  Not right.
+  B is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+=== qshape 14 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Vessel at anchor
+   b) Constrained by her draught
+   c) Towing, tow over 200 m
+   d) Not under command
+
+  Not right.
+  D is right -- Not under command
+  Rule 27.  Two balls in a vertical line.
+
+  Not right.
+  D is right -- Not under command
+  Rule 27.  Two balls in a vertical line.
+
+  Not right.
+  D is right -- Not under command
+  Rule 27.  Two balls in a vertical line.
+
+  D is right -- Not under command
+  Rule 27.  Two balls in a vertical line.
+
+=== qshape 15 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               /|\
+                               \|/
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Towing, tow over 200 m
+   b) Mine clearance
+   c) Not under command
+   d) Restricted in her ability to manoeuvre
+
+  A is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  Not right.
+  A is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  Not right.
+  A is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+  Not right.
+  A is right -- Towing, tow over 200 m
+  Rule 24.  A diamond, shown by the towing vessel and by the tow.
+
+=== qshape 16 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                               /|\
+                               \|/
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Constrained by her draught
+   b) Restricted in her ability to manoeuvre
+   c) Vessel aground
+   d) Sailing vessel also under power
+
+  Not right.
+  B is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  B is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  Not right.
+  B is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  Not right.
+  B is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+=== qshape 17 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                          (O)---+---(O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Mine clearance
+   b) Sailing vessel also under power
+   c) Vessel with divers down
+   d) Towing, tow over 200 m
+
+  A is right -- Mine clearance
+  Rule 27.  Three balls: one at the foremast head and one at each end of the fore yard.
+
+  Not right.
+  A is right -- Mine clearance
+  Rule 27.  Three balls: one at the foremast head and one at each end of the fore yard.
+
+  Not right.
+  A is right -- Mine clearance
+  Rule 27.  Three balls: one at the foremast head and one at each end of the fore yard.
+
+  Not right.
+  A is right -- Mine clearance
+  Rule 27.  Three balls: one at the foremast head and one at each end of the fore yard.
+
+=== qshape 18 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                               /|\
+                               \|/
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Constrained by her draught
+   b) Restricted in her ability to manoeuvre
+   c) Vessel aground
+   d) Sailing vessel also under power
+
+  Not right.
+  B is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  B is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  Not right.
+  B is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  Not right.
+  B is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+=== qshape 19 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                          (O)---+---(O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Restricted in her ability to manoeuvre
+   b) Constrained by her draught
+   c) Sailing vessel also under power
+   d) Mine clearance
+
+  Not right.
+  D is right -- Mine clearance
+  Rule 27.  Three balls: one at the foremast head and one at each end of the fore yard.
+
+  Not right.
+  D is right -- Mine clearance
+  Rule 27.  Three balls: one at the foremast head and one at each end of the fore yard.
+
+  Not right.
+  D is right -- Mine clearance
+  Rule 27.  Three balls: one at the foremast head and one at each end of the fore yard.
+
+  D is right -- Mine clearance
+  Rule 27.  Three balls: one at the foremast head and one at each end of the fore yard.
+
+=== qshape 20 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                                |
+                               /|\
+                               \|/
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Restricted in her ability to manoeuvre
+   b) Towing, tow over 200 m
+   c) Vessel at anchor
+   d) Vessel with divers down
+
+  A is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  Not right.
+  A is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  Not right.
+  A is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+  Not right.
+  A is right -- Restricted in her ability to manoeuvre
+  Rule 27.  Ball, diamond, ball. The diamond in the middle is the one to remember.
+
+=== qshape 21 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                              +---\
+                              |   >
+                              +---/
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Not under command
+   b) Vessel with divers down
+   c) Vessel at anchor
+   d) Sailing vessel also under power
+
+  Not right.
+  B is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  B is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  Not right.
+  B is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  Not right.
+  B is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+=== qshape 22 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               [#]
+                               [#]
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Sailing vessel also under power
+   b) Vessel at anchor
+   c) Constrained by her draught
+   d) Vessel aground
+
+  Not right.
+  C is right -- Constrained by her draught
+  Rule 28.  A black cylinder.
+
+  Not right.
+  C is right -- Constrained by her draught
+  Rule 28.  A black cylinder.
+
+  C is right -- Constrained by her draught
+  Rule 28.  A black cylinder.
+
+  Not right.
+  C is right -- Constrained by her draught
+  Rule 28.  A black cylinder.
+
+=== qshape 23 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                              +---\
+                              |   >
+                              +---/
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Mine clearance
+   b) Constrained by her draught
+   c) Vessel with divers down
+   d) Vessel at anchor
+
+  Not right.
+  C is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  Not right.
+  C is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  C is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  Not right.
+  C is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+=== qshape 24 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               [#]
+                               [#]
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Towing, tow over 200 m
+   b) Sailing vessel also under power
+   c) Vessel aground
+   d) Constrained by her draught
+
+  Not right.
+  D is right -- Constrained by her draught
+  Rule 28.  A black cylinder.
+
+  Not right.
+  D is right -- Constrained by her draught
+  Rule 28.  A black cylinder.
+
+  Not right.
+  D is right -- Constrained by her draught
+  Rule 28.  A black cylinder.
+
+  D is right -- Constrained by her draught
+  Rule 28.  A black cylinder.
+
+=== qshape 25 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                              +---\
+                              |   >
+                              +---/
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Vessel at anchor
+   b) Constrained by her draught
+   c) Vessel with divers down
+   d) Sailing vessel also under power
+
+  Not right.
+  C is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  Not right.
+  C is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  C is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+  Not right.
+  C is right -- Vessel with divers down
+  Rule 27.  A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre.
+
+=== qshape 26 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               \|/
+                                V
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Vessel aground
+   b) Vessel at anchor
+   c) Sailing vessel also under power
+   d) Not under command
+
+  Not right.
+  C is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  C is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  C is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  C is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+=== qshape 27 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Vessel fishing
+   b) Vessel aground
+   c) Restricted in her ability to manoeuvre
+   d) Vessel at anchor
+
+  Not right.
+  D is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  D is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  D is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  D is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+=== qshape 28 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               \|/
+                                V
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Vessel with divers down
+   b) Sailing vessel also under power
+   c) Vessel aground
+   d) Towing, tow over 200 m
+
+  Not right.
+  B is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  B is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  B is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  B is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+=== qshape 29 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               (O)
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Vessel at anchor
+   b) Mine clearance
+   c) Towing, tow over 200 m
+   d) Vessel fishing
+
+  A is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  A is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  A is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+  Not right.
+  A is right -- Vessel at anchor
+  Rule 30.  One black ball, forward, where it can best be seen.
+
+=== qshape 30 ===
+
+  WHAT IS SHE SHOWING?
+  ----------------------------------------------------------------------
+                                |
+                               \|/
+                                V
+                         \=============/
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+
+   a) Restricted in her ability to manoeuvre
+   b) Sailing vessel also under power
+   c) Vessel aground
+   d) Vessel with divers down
+
+  Not right.
+  B is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  B is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  B is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+  Not right.
+  B is right -- Sailing vessel also under power
+  Rule 25.  A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing.
+
+=== qsound 1 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####
+        ----
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) Aground
+   b) Power-driven vessel making way through the water
+   c) I am approaching a bend where other vessels may be hidden
+   d) Pilot vessel on duty - identity signal
+
+  Not right.
+  C is right -- I am approaching a bend where other vessels may be hidden
+  Rule 34(e).  Answered by any vessel within hearing round the bend with the same signal.
+
+  Not right.
+  C is right -- I am approaching a bend where other vessels may be hidden
+  Rule 34(e).  Answered by any vessel within hearing round the bend with the same signal.
+
+  C is right -- I am approaching a bend where other vessels may be hidden
+  Rule 34(e).  Answered by any vessel within hearing round the bend with the same signal.
+
+  Not right.
+  C is right -- I am approaching a bend where other vessels may be hidden
+  Rule 34(e).  Answered by any vessel within hearing round the bend with the same signal.
+
+=== qsound 2 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #
+        -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) At anchor
+   b) I am approaching a bend where other vessels may be hidden
+   c) I am altering my course to starboard
+   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+
+  Not right.
+  C is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  Not right.
+  C is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  C is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  Not right.
+  C is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+=== qsound 3 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####
+        ----
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am altering my course to starboard
+   b) Power-driven vessel under way but stopped and making no way
+   c) Aground
+   d) Power-driven vessel making way through the water
+
+  Not right.
+  D is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  Not right.
+  D is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  Not right.
+  D is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  D is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+=== qsound 4 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #   #
+        -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I agree: go ahead and overtake
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   c) Power-driven vessel under way but stopped and making no way
+   d) I am altering my course to port
+
+  Not right.
+  D is right -- I am altering my course to port
+  Rule 34(a).  In sight of one another, power-driven.
+
+  Not right.
+  D is right -- I am altering my course to port
+  Rule 34(a).  In sight of one another, power-driven.
+
+  Not right.
+  D is right -- I am altering my course to port
+  Rule 34(a).  In sight of one another, power-driven.
+
+  D is right -- I am altering my course to port
+  Rule 34(a).  In sight of one another, power-driven.
+
+=== qsound 5 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####
+        ----
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am approaching a bend where other vessels may be hidden
+   b) I do not understand your intentions, or I doubt you are taking sufficient action
+   c) I intend to overtake you on your port side
+   d) Power-driven vessel making way through the water
+
+  Not right.
+  D is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  Not right.
+  D is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  Not right.
+  D is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  D is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+=== qsound 6 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #   #
+        -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am operating astern propulsion
+   b) I am altering my course to starboard
+   c) A vessel being towed, and manned
+   d) I am altering my course to port
+
+  Not right.
+  D is right -- I am altering my course to port
+  Rule 34(a).  In sight of one another, power-driven.
+
+  Not right.
+  D is right -- I am altering my course to port
+  Rule 34(a).  In sight of one another, power-driven.
+
+  Not right.
+  D is right -- I am altering my course to port
+  Rule 34(a).  In sight of one another, power-driven.
+
+  D is right -- I am altering my course to port
+  Rule 34(a).  In sight of one another, power-driven.
+
+=== qsound 7 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   ####
+        ----   ----
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) Pilot vessel on duty - identity signal
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   c) Power-driven vessel under way but stopped and making no way
+   d) I am altering my course to starboard
+
+  Not right.
+  C is right -- Power-driven vessel under way but stopped and making no way
+  Rule 35(b).  Two prolonged blasts, about two seconds apart, every two minutes.
+
+  Not right.
+  C is right -- Power-driven vessel under way but stopped and making no way
+  Rule 35(b).  Two prolonged blasts, about two seconds apart, every two minutes.
+
+  C is right -- Power-driven vessel under way but stopped and making no way
+  Rule 35(b).  Two prolonged blasts, about two seconds apart, every two minutes.
+
+  Not right.
+  C is right -- Power-driven vessel under way but stopped and making no way
+  Rule 35(b).  Two prolonged blasts, about two seconds apart, every two minutes.
+
+=== qsound 8 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #   #   #
+        -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I agree: go ahead and overtake
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   c) I am operating astern propulsion
+   d) A vessel being towed, and manned
+
+  Not right.
+  C is right -- I am operating astern propulsion
+  Rule 34(a).  Note that this says what the engines are doing, not that the vessel is moving astern.
+
+  Not right.
+  C is right -- I am operating astern propulsion
+  Rule 34(a).  Note that this says what the engines are doing, not that the vessel is moving astern.
+
+  C is right -- I am operating astern propulsion
+  Rule 34(a).  Note that this says what the engines are doing, not that the vessel is moving astern.
+
+  Not right.
+  C is right -- I am operating astern propulsion
+  Rule 34(a).  Note that this says what the engines are doing, not that the vessel is moving astern.
+
+=== qsound 9 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   #   #
+        ----   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am approaching a bend where other vessels may be hidden
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   c) I intend to overtake you on your port side
+   d) I am altering my course to port
+
+  Not right.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+
+  Not right.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+
+  Not right.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+
+=== qsound 10 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #   #   #
+        -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am operating astern propulsion
+   b) I intend to overtake you on your starboard side
+   c) Power-driven vessel making way through the water
+   d) I am altering my course to port
+
+  A is right -- I am operating astern propulsion
+  Rule 34(a).  Note that this says what the engines are doing, not that the vessel is moving astern.
+
+  Not right.
+  A is right -- I am operating astern propulsion
+  Rule 34(a).  Note that this says what the engines are doing, not that the vessel is moving astern.
+
+  Not right.
+  A is right -- I am operating astern propulsion
+  Rule 34(a).  Note that this says what the engines are doing, not that the vessel is moving astern.
+
+  Not right.
+  A is right -- I am operating astern propulsion
+  Rule 34(a).  Note that this says what the engines are doing, not that the vessel is moving astern.
+
+=== qsound 11 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   #   #
+        ----   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) Power-driven vessel under way but stopped and making no way
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   c) I intend to overtake you on your starboard side
+   d) Power-driven vessel making way through the water
+
+  Not right.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+
+  Not right.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+
+  Not right.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+
+=== qsound 12 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #   #   #   #   #
+        -   -   -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I do not understand your intentions, or I doubt you are taking sufficient action
+   b) I intend to overtake you on your starboard side
+   c) I am altering my course to starboard
+   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+
+  A is right -- I do not understand your intentions, or I doubt you are taking sufficient action
+  Rule 34(d).  Five or more short and rapid blasts. Use it early and use it loudly; it is the only signal that says something is wrong.
+
+  Not right.
+  A is right -- I do not understand your intentions, or I doubt you are taking sufficient action
+  Rule 34(d).  Five or more short and rapid blasts. Use it early and use it loudly; it is the only signal that says something is wrong.
+
+  Not right.
+  A is right -- I do not understand your intentions, or I doubt you are taking sufficient action
+  Rule 34(d).  Five or more short and rapid blasts. Use it early and use it loudly; it is the only signal that says something is wrong.
+
+  Not right.
+  A is right -- I do not understand your intentions, or I doubt you are taking sufficient action
+  Rule 34(d).  Five or more short and rapid blasts. Use it early and use it loudly; it is the only signal that says something is wrong.
+
+=== qsound 13 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   #   #   #
+        ----   -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) Power-driven vessel under way but stopped and making no way
+   b) I am approaching a bend where other vessels may be hidden
+   c) A vessel being towed, and manned
+   d) I am altering my course to starboard
+
+  Not right.
+  C is right -- A vessel being towed, and manned
+  Rule 35(e).  One prolonged and three short, sounded immediately after the towing vessel's signal.
+
+  Not right.
+  C is right -- A vessel being towed, and manned
+  Rule 35(e).  One prolonged and three short, sounded immediately after the towing vessel's signal.
+
+  C is right -- A vessel being towed, and manned
+  Rule 35(e).  One prolonged and three short, sounded immediately after the towing vessel's signal.
+
+  Not right.
+  C is right -- A vessel being towed, and manned
+  Rule 35(e).  One prolonged and three short, sounded immediately after the towing vessel's signal.
+
+=== qsound 14 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   ####   #
+        ----   ----   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) At anchor
+   b) A vessel being towed, and manned
+   c) I intend to overtake you on your starboard side
+   d) I agree: go ahead and overtake
+
+  Not right.
+  C is right -- I intend to overtake you on your starboard side
+  Rule 34(c).  In a narrow channel or fairway, where overtaking needs the other vessel's cooperation.
+
+  Not right.
+  C is right -- I intend to overtake you on your starboard side
+  Rule 34(c).  In a narrow channel or fairway, where overtaking needs the other vessel's cooperation.
+
+  C is right -- I intend to overtake you on your starboard side
+  Rule 34(c).  In a narrow channel or fairway, where overtaking needs the other vessel's cooperation.
+
+  Not right.
+  C is right -- I intend to overtake you on your starboard side
+  Rule 34(c).  In a narrow channel or fairway, where overtaking needs the other vessel's cooperation.
+
+=== qsound 15 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   #   #   #
+        ----   -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I do not understand your intentions, or I doubt you are taking sufficient action
+   b) I am altering my course to port
+   c) A vessel being towed, and manned
+   d) Aground
+
+  Not right.
+  C is right -- A vessel being towed, and manned
+  Rule 35(e).  One prolonged and three short, sounded immediately after the towing vessel's signal.
+
+  Not right.
+  C is right -- A vessel being towed, and manned
+  Rule 35(e).  One prolonged and three short, sounded immediately after the towing vessel's signal.
+
+  C is right -- A vessel being towed, and manned
+  Rule 35(e).  One prolonged and three short, sounded immediately after the towing vessel's signal.
+
+  Not right.
+  C is right -- A vessel being towed, and manned
+  Rule 35(e).  One prolonged and three short, sounded immediately after the towing vessel's signal.
+
+=== qsound 16 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   ####   #
+        ----   ----   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I intend to overtake you on your starboard side
+   b) I agree: go ahead and overtake
+   c) I do not understand your intentions, or I doubt you are taking sufficient action
+   d) Power-driven vessel making way through the water
+
+  A is right -- I intend to overtake you on your starboard side
+  Rule 34(c).  In a narrow channel or fairway, where overtaking needs the other vessel's cooperation.
+
+  Not right.
+  A is right -- I intend to overtake you on your starboard side
+  Rule 34(c).  In a narrow channel or fairway, where overtaking needs the other vessel's cooperation.
+
+  Not right.
+  A is right -- I intend to overtake you on your starboard side
+  Rule 34(c).  In a narrow channel or fairway, where overtaking needs the other vessel's cooperation.
+
+  Not right.
+  A is right -- I intend to overtake you on your starboard side
+  Rule 34(c).  In a narrow channel or fairway, where overtaking needs the other vessel's cooperation.
+
+=== qsound 17 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        *****
+        -----
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) A vessel being towed, and manned
+   b) Aground
+   c) I am approaching a bend where other vessels may be hidden
+   d) At anchor
+
+  Not right.
+  D is right -- At anchor
+  Rule 35(g).  The bell rung rapidly for about five seconds, every minute. A vessel of 100 m or more also sounds a gong aft, and any vessel may add one short, one prolonged and one short to warn an approaching vessel.
+
+  Not right.
+  D is right -- At anchor
+  Rule 35(g).  The bell rung rapidly for about five seconds, every minute. A vessel of 100 m or more also sounds a gong aft, and any vessel may add one short, one prolonged and one short to warn an approaching vessel.
+
+  Not right.
+  D is right -- At anchor
+  Rule 35(g).  The bell rung rapidly for about five seconds, every minute. A vessel of 100 m or more also sounds a gong aft, and any vessel may add one short, one prolonged and one short to warn an approaching vessel.
+
+  D is right -- At anchor
+  Rule 35(g).  The bell rung rapidly for about five seconds, every minute. A vessel of 100 m or more also sounds a gong aft, and any vessel may add one short, one prolonged and one short to warn an approaching vessel.
+
+=== qsound 18 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   ####   #   #
+        ----   ----   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am approaching a bend where other vessels may be hidden
+   b) I agree: go ahead and overtake
+   c) At anchor
+   d) I intend to overtake you on your port side
+
+  Not right.
+  D is right -- I intend to overtake you on your port side
+  Rule 34(c).  In a narrow channel or fairway.
+
+  Not right.
+  D is right -- I intend to overtake you on your port side
+  Rule 34(c).  In a narrow channel or fairway.
+
+  Not right.
+  D is right -- I intend to overtake you on your port side
+  Rule 34(c).  In a narrow channel or fairway.
+
+  D is right -- I intend to overtake you on your port side
+  Rule 34(c).  In a narrow channel or fairway.
+
+=== qsound 19 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        *   *   *   *****   *   *   *
+        -   -   -   -----   -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am approaching a bend where other vessels may be hidden
+   b) Power-driven vessel making way through the water
+   c) I am altering my course to starboard
+   d) Aground
+
+  Not right.
+  D is right -- Aground
+  Rule 35(h).  Three distinct strokes, the rapid ringing, then three distinct strokes again.
+
+  Not right.
+  D is right -- Aground
+  Rule 35(h).  Three distinct strokes, the rapid ringing, then three distinct strokes again.
+
+  Not right.
+  D is right -- Aground
+  Rule 35(h).  Three distinct strokes, the rapid ringing, then three distinct strokes again.
+
+  D is right -- Aground
+  Rule 35(h).  Three distinct strokes, the rapid ringing, then three distinct strokes again.
+
+=== qsound 20 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   ####   #   #
+        ----   ----   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) Pilot vessel on duty - identity signal
+   b) Power-driven vessel under way but stopped and making no way
+   c) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   d) I intend to overtake you on your port side
+
+  Not right.
+  D is right -- I intend to overtake you on your port side
+  Rule 34(c).  In a narrow channel or fairway.
+
+  Not right.
+  D is right -- I intend to overtake you on your port side
+  Rule 34(c).  In a narrow channel or fairway.
+
+  Not right.
+  D is right -- I intend to overtake you on your port side
+  Rule 34(c).  In a narrow channel or fairway.
+
+  D is right -- I intend to overtake you on your port side
+  Rule 34(c).  In a narrow channel or fairway.
+
+=== qsound 21 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        *   *   *   *****   *   *   *
+        -   -   -   -----   -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) Power-driven vessel making way through the water
+   b) I intend to overtake you on your port side
+   c) Aground
+   d) A vessel being towed, and manned
+
+  Not right.
+  C is right -- Aground
+  Rule 35(h).  Three distinct strokes, the rapid ringing, then three distinct strokes again.
+
+  Not right.
+  C is right -- Aground
+  Rule 35(h).  Three distinct strokes, the rapid ringing, then three distinct strokes again.
+
+  C is right -- Aground
+  Rule 35(h).  Three distinct strokes, the rapid ringing, then three distinct strokes again.
+
+  Not right.
+  C is right -- Aground
+  Rule 35(h).  Three distinct strokes, the rapid ringing, then three distinct strokes again.
+
+=== qsound 22 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   #   ####   #
+        ----   -   ----   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) A vessel being towed, and manned
+   b) I agree: go ahead and overtake
+   c) I intend to overtake you on your port side
+   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+
+  Not right.
+  B is right -- I agree: go ahead and overtake
+  Rule 34(c).  The vessel about to be overtaken answers prolonged, short, prolonged, short.
+
+  B is right -- I agree: go ahead and overtake
+  Rule 34(c).  The vessel about to be overtaken answers prolonged, short, prolonged, short.
+
+  Not right.
+  B is right -- I agree: go ahead and overtake
+  Rule 34(c).  The vessel about to be overtaken answers prolonged, short, prolonged, short.
+
+  Not right.
+  B is right -- I agree: go ahead and overtake
+  Rule 34(c).  The vessel about to be overtaken answers prolonged, short, prolonged, short.
+
+=== qsound 23 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #   #   #   #
+        -   -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) Pilot vessel on duty - identity signal
+   b) I am altering my course to port
+   c) Power-driven vessel making way through the water
+   d) I agree: go ahead and overtake
+
+  A is right -- Pilot vessel on duty - identity signal
+  Rule 35(k).  Four short blasts, in addition to whatever signal her situation requires.
+
+  Not right.
+  A is right -- Pilot vessel on duty - identity signal
+  Rule 35(k).  Four short blasts, in addition to whatever signal her situation requires.
+
+  Not right.
+  A is right -- Pilot vessel on duty - identity signal
+  Rule 35(k).  Four short blasts, in addition to whatever signal her situation requires.
+
+  Not right.
+  A is right -- Pilot vessel on duty - identity signal
+  Rule 35(k).  Four short blasts, in addition to whatever signal her situation requires.
+
+=== qsound 24 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####   #   ####   #
+        ----   -   ----   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am approaching a bend where other vessels may be hidden
+   b) I agree: go ahead and overtake
+   c) I intend to overtake you on your starboard side
+   d) Pilot vessel on duty - identity signal
+
+  Not right.
+  B is right -- I agree: go ahead and overtake
+  Rule 34(c).  The vessel about to be overtaken answers prolonged, short, prolonged, short.
+
+  B is right -- I agree: go ahead and overtake
+  Rule 34(c).  The vessel about to be overtaken answers prolonged, short, prolonged, short.
+
+  Not right.
+  B is right -- I agree: go ahead and overtake
+  Rule 34(c).  The vessel about to be overtaken answers prolonged, short, prolonged, short.
+
+  Not right.
+  B is right -- I agree: go ahead and overtake
+  Rule 34(c).  The vessel about to be overtaken answers prolonged, short, prolonged, short.
+
+=== qsound 25 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #   #   #   #
+        -   -   -   -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) Pilot vessel on duty - identity signal
+   b) Aground
+   c) I intend to overtake you on your port side
+   d) At anchor
+
+  A is right -- Pilot vessel on duty - identity signal
+  Rule 35(k).  Four short blasts, in addition to whatever signal her situation requires.
+
+  Not right.
+  A is right -- Pilot vessel on duty - identity signal
+  Rule 35(k).  Four short blasts, in addition to whatever signal her situation requires.
+
+  Not right.
+  A is right -- Pilot vessel on duty - identity signal
+  Rule 35(k).  Four short blasts, in addition to whatever signal her situation requires.
+
+  Not right.
+  A is right -- Pilot vessel on duty - identity signal
+  Rule 35(k).  Four short blasts, in addition to whatever signal her situation requires.
+
+=== qsound 26 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####
+        ----
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I agree: go ahead and overtake
+   b) I intend to overtake you on your port side
+   c) I am approaching a bend where other vessels may be hidden
+   d) Power-driven vessel making way through the water
+
+  Not right.
+  C is right -- I am approaching a bend where other vessels may be hidden
+  Rule 34(e).  Answered by any vessel within hearing round the bend with the same signal.
+
+  Not right.
+  C is right -- I am approaching a bend where other vessels may be hidden
+  Rule 34(e).  Answered by any vessel within hearing round the bend with the same signal.
+
+  C is right -- I am approaching a bend where other vessels may be hidden
+  Rule 34(e).  Answered by any vessel within hearing round the bend with the same signal.
+
+  Not right.
+  C is right -- I am approaching a bend where other vessels may be hidden
+  Rule 34(e).  Answered by any vessel within hearing round the bend with the same signal.
+
+=== qsound 27 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #
+        -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I agree: go ahead and overtake
+   b) I am altering my course to port
+   c) I am altering my course to starboard
+   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+
+  Not right.
+  C is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  Not right.
+  C is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  C is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  Not right.
+  C is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+=== qsound 28 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####
+        ----
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am approaching a bend where other vessels may be hidden
+   b) I agree: go ahead and overtake
+   c) Power-driven vessel making way through the water
+   d) A vessel being towed, and manned
+
+  Not right.
+  C is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  Not right.
+  C is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  C is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  Not right.
+  C is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+=== qsound 29 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        #
+        -
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am altering my course to starboard
+   b) I am altering my course to port
+   c) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   d) I am approaching a bend where other vessels may be hidden
+
+  A is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  Not right.
+  A is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  Not right.
+  A is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+  Not right.
+  A is right -- I am altering my course to starboard
+  Rule 34(a).  In sight of one another, power-driven, when manoeuvring as authorised or required by these rules.
+
+=== qsound 30 ===
+
+  WHAT IS SHE SAYING?
+  ----------------------------------------------------------------------
+
+        ####
+        ----
+        time ->
+
+  ----------------------------------------------------------------------
+  #  short blast, about one second      ####  prolonged, four to six seconds
+  *  a stroke on the bell               ***** the bell rung rapidly
+
+   a) I am altering my course to starboard
+   b) Power-driven vessel making way through the water
+   c) Pilot vessel on duty - identity signal
+   d) I am altering my course to port
+
+  Not right.
+  B is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  B is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  Not right.
+  B is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+
+  Not right.
+  B is right -- Power-driven vessel making way through the water
+  Rule 35(a).  At intervals of not more than two minutes.
+

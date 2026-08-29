@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="995.6" height="591.8" viewBox="0 0 995.6 591.8" font-family="DejaVu Sans, Helvetica, sans-serif">
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#1f5673"/></marker><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a2542a"/></marker></defs>
+<rect x="0" y="0" width="995.6" height="591.8" fill="#ffffff"/>
+<rect x="176.9" y="0.0" width="587.9" height="531.8" rx="5" fill="#f7fafb" stroke="#bfcdd6" stroke-width="1"/>
+<rect x="430.2" y="46.6" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="438.0" y="243.1" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="445.8" y="194.0" width="34.3" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="438.0" y="128.5" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="555.5" y="259.5" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="516.3" y="177.6" width="34.3" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="477.1" y="259.5" width="42.2" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="218.7" y="488.8" width="386.8" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<g font-family="DejaVu Sans Mono, monospace" font-size="13.00" fill="#16222c" xml:space="preserve">
+<text x="188.9" y="24.4">  SANDBOX -- the navigational triangle</text>
+<text x="188.9" y="40.7">  ----------------------------------------------------------------------</text>
+<text x="188.9" y="57.1">                               N</text>
+<text x="188.9" y="73.5">                        .................</text>
+<text x="188.9" y="89.9">                  ......                 .......</text>
+<text x="188.9" y="106.2">              ....                             ....</text>
+<text x="188.9" y="122.6">           ....                N                  ....</text>
+<text x="188.9" y="139.0">         ...                    P+                   ...</text>
+<text x="188.9" y="155.4">       ...                      &#x27;++++                  ...</text>
+<text x="188.9" y="171.8">      ..                        &#x27;   ++++                 ..</text>
+<text x="188.9" y="188.1">     ..                         &#x27;      +++90-d            ..</text>
+<text x="188.9" y="204.5">    .                           &#x27;90-L    +++                .</text>
+<text x="188.9" y="220.9">   ..                           &#x27;          ++               ..</text>
+<text x="188.9" y="237.3">   .                            &#x27;           +++              .</text>
+<text x="188.9" y="253.7">  W.                            Z``````````````+             .E</text>
+<text x="188.9" y="270.1">   .                                 90-Hc    `*             .</text>
+<text x="188.9" y="286.4">   ..                                                       ..</text>
+<text x="188.9" y="302.8">    .                                                       .</text>
+<text x="188.9" y="319.2">     ..                                                   ..</text>
+<text x="188.9" y="335.6">      ..                                                 ..</text>
+<text x="188.9" y="351.9">       ...                                             ...</text>
+<text x="188.9" y="368.3">         ...                                         ...</text>
+<text x="188.9" y="384.7">           ....                                   ....</text>
+<text x="188.9" y="401.1">              ....                             ....</text>
+<text x="188.9" y="417.5">                  ......                 .......</text>
+<text x="188.9" y="433.9">                        .................</text>
+<text x="188.9" y="450.2">                               S</text>
+<text x="188.9" y="466.6">  ----------------------------------------------------------------------</text>
+<text x="188.9" y="483.0">  latitude    35.0    declination    20.0    LHA   310.0</text>
+<text x="188.9" y="499.4">    computed altitude Hc 43.71      azimuth Zn 95.3 T</text>
+<text x="188.9" y="515.8">  ----------------------------------------------------------------------</text>
+</g>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="163.8" y="42.8">The rim is your horizon,</text>
+<text x="163.8" y="55.8">north at the top.</text>
+</g>
+<path d="M165.3,44.8 L425.7,53.8" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="163.8" y="141.1">Z - your zenith, the point</text>
+<text x="163.8" y="154.1">straight above your head.</text>
+</g>
+<path d="M165.3,143.0 L433.8,248.9" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="end">
+<text x="163.8" y="239.4">Side Z to P: 90 minus your</text>
+<text x="163.8" y="252.4">latitude, the co-latitude.</text>
+</g>
+<path d="M165.3,241.3 L441.4,202.0" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="777.8" y="42.8">P - the elevated pole. Its height</text>
+<text x="777.8" y="55.8">above the horizon is your latitude.</text>
+</g>
+<path d="M776.3,44.8 L453.2,134.7" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="777.8" y="132.9">The body, and the side to it from</text>
+<text x="777.8" y="145.9">the pole: 90 minus the declination.</text>
+</g>
+<path d="M776.3,134.8 L570.1,264.5" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M776.3,134.8 L555.0,184.0" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="777.8" y="224.7">Side Z to the body: 90 minus the</text>
+<text x="777.8" y="237.7">altitude - the zenith distance you</text>
+<text x="777.8" y="250.7">are solving for.</text>
+</g>
+<path d="M776.3,233.1 L523.8,266.3" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="middle">
+<text x="455.2" y="552.7">You know two sides and the angle between them at P - that angle is LHA.</text>
+<text x="455.2" y="565.7">Solving the triangle gives the third side (so Hc) and the angle at Z (so Zn).</text>
+<text x="455.2" y="578.7">In the sandbox you change one number and watch the whole shape move.</text>
+</g>
+<path d="M455.2,539.1 L415.6,506.5" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+</svg>

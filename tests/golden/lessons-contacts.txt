@@ -1,0 +1,344 @@
+=== lesson C1 ===
+
+  C1  Relative motion - the only plot that answers the question
+  ---------------------------------------------------------------
+
+  You cannot steer a ship by watching how a contact moves over the ground.
+  What matters is how she moves relative to YOU, and in relative motion
+  she does something very simple: she travels in a straight line.
+
+  Put yourself at the centre and plot where she is relative to you every
+  three minutes. Those marks fall on a straight line. Extend it. Where it
+  passes you is the CPA, and which side of you it passes is the whole
+  question - ahead, or astern.
+
+  28100 yd across                  |
+                                   |
+                         1.        |
+                          ..       |
+                           2..     |
+                             .3    |
+                              ..   |
+                               ..4 |
+                                 .^^^
+                                  .5
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+  Y = you, head up.  1 to 5 = her, three minutes apart.  * = CPA
+
+  Two things follow, and everything else in this section comes out of them:
+
+    1. Because the line is straight, the bearing sweeps one way and one
+       way only. It can never reverse. Whatever it is doing now, it will
+       go on doing until somebody alters course.
+    2. If the line goes through the centre, the bearing does not change
+       at all - and that is a collision.
+
+=== lesson C2 ===
+
+  C2  Drift toward the bow, and drift away from it
+  --------------------------------------------------
+
+  This is the whole trade, and it is one sentence:
+
+    A bearing drawing AWAY from your bow will pass astern of you.
+    A bearing drawing TOWARD your bow will cross ahead of you.
+
+  On the left, drawing left: she goes down your side and astern.
+  On the left, drawing right: she is going to cross your bow.
+  On the right, drawing right: astern.  On the right, drawing left: ahead.
+
+  This is not a rule of thumb. It is a consequence of the straight line in
+  C1: the bearing sweeps one way, so a contact drawing away from your bow
+  can never come back to it. There are no exceptions and no edge cases.
+
+  Which is why one of the two is a report and the other is a warning.
+  Drawing away, the miss is behind you and it is getting bigger. Drawing
+  toward, the miss is being built in front of your bow - and it shrinks to
+  nothing the moment the drift slows. A contact drawing slowly toward your
+  bow is a collision that has not finished making up its mind.
+
+  Say it as a pair, always, because one word without the other is useless:
+
+    "On the left, drawing left."   "On the left, drawing right."
+
+=== lesson C3 ===
+
+  C3  Constant bearing, decreasing range
+  ----------------------------------------
+
+  Rule 7(d)(i): risk of collision shall be deemed to exist if the compass
+  bearing of an approaching vessel does not appreciably change.
+
+  Deemed. Not estimated, not assessed - deemed. You do not get to argue
+  with it, and you do not wait for the range to confirm it.
+
+  23800 yd across                  |
+                                   |
+                          1.       |
+                           2.      |
+                            ..     |
+                             3..   |
+                               4.  |
+                                .. |
+                                 5^^^
+                                  .*
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+                                   |
+  A steady bearing. The line goes through the middle. That is all a
+  collision is: two ships keeping the same bearing on each other.
+
+  But read the second half of the rule, which is the half that kills people:
+
+    7(d)(ii): such risk may sometimes exist even when an appreciable
+    bearing change is evident, particularly when approaching a very
+    large vessel or a tow, or when approaching a vessel at close range.
+
+  Three reasons, and they are all about the ship being bigger than the dot
+  you are plotting:
+
+    1. A very large vessel. You take the bearing of her bridge.
+       She is 300 metres long. Her bow is a cable and a half from the mark
+       you plotted, and it is the bow that reaches you.
+    2. A tow. The tug draws clear beautifully. The barge 200 metres
+       astern of her on a wire does not, and at night you may not see it.
+    3. Close range. Bearing drift goes as range squared. At two miles a
+       degree a minute is comfortable; at four cables the same drift rate
+       is a miss of a few yards.
+
+=== lesson C4 ===
+
+  C4  The report
+  ----------------
+
+  The report exists so that a man who is not looking at the plot can act on
+  it without asking a question. It has a fixed shape for the same reason a
+  helm order does.
+
+    "Master 2, bearing 311, Red 20, drawing left, range 14,200,
+       CPA 4,100 yards at 18 minutes."
+
+     Master 2     which contact. Numbered so that nobody has to say
+                  "the one on the left" with four of them on the left.
+     bearing 311  where she is. True, and said in three digits,
+                  because that is what goes on the plot and what
+                  agrees with the radar.
+     Red 20       where to LOOK. Twenty degrees off the port bow.
+                  Nobody at the wheel can turn 311 true into a
+                  direction to point his face in, and he should not
+                  have to. See C7 - and note that this half of the
+                  report goes stale the moment you alter course.
+     drawing left what she is DOING. A word, not a number, because
+                  this is the part the OOD acts on and he must not have
+                  to work it out from two bearings in his head.
+     range 14,200 how long you have.
+     CPA and time how bad it gets, and when.
+
+  Bearing before drift, always. The bearing tells him where to look; the
+  drift tells him whether to care. Reversed, he spends the first half of
+  the sentence not knowing which contact you mean.
+
+  And say the drift even when there is not any. "Steady" is the most
+  important word in the report. Silence about the drift reads as "I have
+  not looked", which is the same as "steady" but arrives too late.
+
+  What he does with it: nothing at all, if she is drawing away and the CPA
+  is outside night orders. That is most of them, and the discipline is to
+  report those the same way and in the same voice as the one that is not.
+
+=== lesson C5 ===
+
+  C5  The arithmetic you do in your head
+  ----------------------------------------
+
+  The plot is the truth, but it is always four minutes old. These get you
+  close enough to open your mouth now.
+
+    The three-minute rule
+    Yards in three minutes = speed in knots times 100.
+    12 knots is 1,200 yards in three minutes. That is why marks are taken
+    every three minutes: the range change IS the speed, with two noughts.
+
+    The six-minute rule
+    Miles in six minutes = speed divided by 10. 15 knots, 1.5 miles.
+
+    Time to CPA
+    Range divided by closing rate. Closing rate is the range change per
+    minute - read it straight off two marks, no trigonometry.
+    8,000 yards closing 600 a minute is thirteen minutes. That is the
+    number that decides whether you have time to be polite about it.
+
+    One in sixty, for the CPA itself
+    One degree at one mile is about 35 yards. So:
+
+       CPA  =  range in miles  x  degrees she still has to drift  x  35
+
+    She will drift, from now until CPA, at the rate she is drifting now.
+    So take the drift per minute, multiply by the minutes to CPA, and that
+    is the degrees. Worked: 4 miles, drifting 1.5 degrees a minute, 13
+    minutes to run. 1.5 x 13 = 20 degrees. 4 x 20 x 35 = 2,800 yards.
+
+    It is rough. It is meant to be. It tells you which side of the night
+    orders you are on before the plot can, and that is the whole job.
+
+=== lesson C6 ===
+
+  C6  Ekelund - range out of a course change
+  --------------------------------------------
+
+  On a steady course, bearing rate alone cannot give you range. A slow
+  contact close in and a fast one far out produce exactly the same drift,
+  and no amount of watching will separate them.
+
+  So you change the geometry yourself. Run a leg, note the bearing rate;
+  alter course or speed, settle, run another leg, note it again. Her
+  motion across your line of sight has not changed - she is doing what she
+  was doing. Every bit of the change in bearing rate is YOURS, and it is
+  yours by a known amount. That gives you the range:
+
+    range in kiloyards  =  1.91 x (change in your speed across the
+                            line of sight, knots)
+                            / (change in bearing rate, deg per min)
+
+    Your speed across the line of sight is your speed times the sine of
+    the angle between your course and her bearing. Beam on, all of it;
+    dead ahead, none of it.
+
+    The 1.91 is just units: 2,000 yards to the mile over 60 minutes,
+    times 57.3 degrees to the radian.
+
+  Worked. She bears 040. You are on 000 at 12 knots and her bearing is
+  opening 0.9 degrees a minute. You come round to 090, still 12 knots,
+  and it settles at 2.4 a minute.
+
+    across, leg 1 = 12 x sin(000 - 040) = -7.7 knots
+    across, leg 2 = 12 x sin(090 - 040) =  9.2 knots
+    range = 1.91 x (9.2 - -7.7) / (0.9 - 2.4) = 1.91 x 16.9 / -1.5
+          = -21.5 ... take the size: 21,500 yards.
+
+  Three things will ruin it, and they are worth knowing better than the
+  formula:
+    1. She manoeuvres during the legs. The whole method assumes she did
+       not, and it cannot tell you that she did - it just gives you a
+       confident wrong answer.
+    2. The legs are too short, or you take the rate before the ship has
+       settled on the new course.
+    3. You barely changed your speed across the line of sight. Then the
+       top of the fraction is small, the bottom is smaller, and the noise
+       runs the answer. Turn far enough to matter.
+
+  Which is the real lesson of it: a solution you have not manoeuvred
+  against is a guess wearing a number.
+
+=== lesson C7 ===
+
+  C7  Relative bearings - so he can find her
+  --------------------------------------------
+
+  A true bearing is for the plot. A relative bearing is for the eye.
+
+  Nobody standing at the wheel on a black night can turn 311 degrees
+  true into a direction to look in. He would have to remember the
+  heading, subtract, and work out which side the answer fell on, while
+  steering. Tell him she is fine on the starboard bow and his head is
+  already turning.
+
+                            000 RIGHT AHEAD
+  
+                          ...................
+                     ......        |        ......
+          Red 45 ....//            |            //..Green 45
+               ...    /////        |        /////    ...
+              ..          ////     |     ////          ..
+             ..               //  ^^^  //               ..
+     Red 90  ./////////////////    Y     ////////////////. Green 90
+             ..               //       //               ..
+              ..          ////           ////          ..
+               ...    /////                 /////    ...
+           Red 135...//                         //..Green 135
+                     ......                 ......
+                          ...................
+  
+                           180 RIGHT ASTERN
+
+  Two ways of saying the number, and you will hear both.
+
+    Red and Green. Red 20 is 20 degrees to port, Green 30 is 30
+    to starboard, nought to 180 each side. Royal Navy and British
+    practice, and the reason it sticks is that the colours are the
+    sidelights: your own red light looks out over your port bow, so
+    Red is port. It is unambiguous over a bad intercom because the
+    side is a word, not a number that can be misheard.
+
+    Port and starboard. "Port 20", "Starboard 30". The same thing
+    in plainer words. United States practice also uses the full
+    circle - "bearing 340 relative" - measured clockwise from your
+    own bow, which is neater on a plot and worse in the dark.
+
+  And the words, which need no number at all:
+
+      right ahead                       000
+      fine on the bow         out to about 35
+      broad on the bow                   045
+      on the beam                        090
+      broad on the quarter               135
+      fine on the quarter     in from about 145
+      right astern                       180
+
+  Broad on the bow is four points, and four points is 45 degrees.
+  Broad on the quarter is four points the other way from astern.
+  Everything in the middle is fine, and everything near the beam is
+  the beam. The edges are convention, not law - nobody will correct
+  you for calling 40 degrees fine rather than broad, and nobody will
+  misunderstand you either. That is the point of them.
+
+    Now the trap, and it is a real one.
+
+  A relative bearing changes when SHE moves. It also changes when YOU
+  move, by exactly as much, and it cannot tell you which happened.
+
+  Alter twenty degrees to starboard and every contact on the board
+  draws twenty degrees left, all at once, with nothing at all having
+  changed out in the water. A contact that holds Green 30 through your
+  turn has in fact swung twenty degrees - which is the opposite of the
+  comfort a steady relative bearing seems to offer.
+
+  So: bearing drift is measured in TRUE bearings, or on a steady
+    course, and never across a turn. Everything in C2 and C3
+  assumes it. If you take marks either side of an alteration and read
+  the drift off them, you will get a confident answer that is wholly
+  invented. Take the marks, alter, settle, and start a fresh plot.
+
+  This is also, from the other end, exactly why Ekelund works: the
+  change you put in yourself is known, so it can be subtracted out.
+
+  On a yacht it is the same problem in cheaper equipment. A hand
+  bearing compass gives you a magnetic bearing you can plot. A pair
+  of eyes and a shroud gives you a relative bearing, instantly, in
+  the dark, with no instrument at all - and the shroud stays where it
+  is only while you hold your course. Steer straight for the two
+  minutes you are watching her, or the drift is worthless.
+
+  Which of these this program uses is a setting, because the right
+  answer depends entirely on who is listening.  colregs style, or s
+  from the contacts menu, and it describes each one before you pick.
+
+  Say both, when it matters: the true bearing so it can be plotted,
+  the relative so it can be seen.
+
+    "Master 2, bearing 311, Red 20, drawing left, range 14,200."
+

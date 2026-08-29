@@ -1,0 +1,138 @@
+=== reflights ===
+
+  LIGHTS -- the whole set
+  ----------------------------------------------------------------------
+  power50        Power-driven vessel under 50 m, under way
+                 Rule 23  One masthead light, sidelights, sternlight.
+  power50p       Power-driven vessel of 50 m or more, under way
+                 Rule 23  Two masthead lights, the after one higher.
+  sail           Sailing vessel under way
+                 Rule 25  Sidelights and a sternlight. No masthead light - that is the whole point.
+  sailrg         Sailing vessel, optional all-round pair
+                 Rule 25  Red over green at the masthead, with normal sidelights and sternlight.
+  anchor         Vessel at anchor, under 50 m
+                 Rule 30  A single all-round white light where it can best be seen.
+  anchor50       Vessel at anchor, 50 m or more
+                 Rule 30  Two all-round whites, forward one higher, and the decks lit.
+  aground        Vessel aground
+                 Rule 30  Anchor light or lights, plus two all-round reds in a vertical line.
+  nuc            Not under command, making no way
+                 Rule 27  Two all-round reds. Nothing else if she is not moving through the water.
+  nucway         Not under command, making way
+                 Rule 27  Two all-round reds, and because she is making way, sidelights and sternlight too.
+  ram            Restricted in her ability to manoeuvre
+                 Rule 27  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
+  draught        Constrained by her draught
+                 Rule 28  Three all-round reds in a vertical line, over the ordinary power-driven lights.
+  trawl          Vessel trawling
+                 Rule 26  Green over white. Green for a trawl dragged along the bottom.
+  fishing        Fishing, other than trawling
+                 Rule 26  Red over white. The old rhyme: red over white, fishing at night.
+  pilot          Pilot vessel on duty
+                 Rule 29  White over red: pilot ahead. Sidelights and sternlight when under way.
+  tow200         Towing, tow under 200 m
+                 Rule 24  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
+  tow200p        Towing, tow over 200 m
+                 Rule 24  Three masthead lights in a vertical line - the tow is longer than 200 m.
+  towed          Vessel being towed
+                 Rule 24  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
+  mineclear      Mine clearance vessel
+                 Rule 27  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
+  hover          Air-cushion vessel in non-displacement mode
+                 Rule 23  The ordinary power-driven lights plus an all-round flashing yellow.
+  sail7          Sailing vessel under 7 m, or a vessel under oars
+                 Rule 25  If she carries nothing else she must show a torch or lantern in time to prevent collision.
+  ----------------------------------------------------------------------
+  Show any one from any angle:  colregs light <key> <bearing>
+
+=== refshapes ===
+
+  DAY SHAPES
+  ----------------------------------------------------------------------
+  anchor       Vessel at anchor                           Rule 30
+  aground      Vessel aground                             Rule 30
+  nuc          Not under command                          Rule 27
+  ram          Restricted in her ability to manoeuvre     Rule 27
+  draught      Constrained by her draught                 Rule 28
+  motorsail    Sailing vessel also under power            Rule 25
+  fishing      Vessel fishing                             Rule 26
+  tow200p      Towing, tow over 200 m                     Rule 24
+  mineclear    Mine clearance                             Rule 27
+  divers       Vessel with divers down                    Rule 27
+  ----------------------------------------------------------------------
+  Draw any one:  colregs shape <key>
+
+=== sndtable ===
+
+  SOUND SIGNALS
+  ----------------------------------------------------------------------
+  In sight of one another (Rule 34)
+    #                  I am altering my course to starboard
+    # #                I am altering my course to port
+    # # #              I am operating astern propulsion
+    # # # # #          I do not understand your intentions, or I doubt you are taking sufficient action
+    #### #### #        I intend to overtake you on your starboard side
+    #### #### # #      I intend to overtake you on your port side
+    #### # #### #      I agree: go ahead and overtake
+    ####               I am approaching a bend where other vessels may be hidden
+
+  In or near an area of restricted visibility (Rule 35)
+    ####               Power-driven vessel making way through the water
+    #### ####          Power-driven vessel under way but stopped and making no way
+    #### # #           Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+    #### # # #         A vessel being towed, and manned
+    *****              At anchor
+    * * * ***** * * *  Aground
+    # # # #            Pilot vessel on duty - identity signal
+  ----------------------------------------------------------------------
+  #  short blast (one second)     ####  prolonged blast (four to six seconds)
+  *  stroke on the bell           ***** bell rung rapidly for five seconds
+
+=== colours ===
+
+  COLOUR CHECK
+  ----------------------------------------------------------------------
+  mode        plain
+  the lamps   W white  R red  G green  Y yellow
+  the vessel  hull and sea in the panel text colour
+    faint       masts and droplines, like this
+  ----------------------------------------------------------------------
+  If the four lamps above are not four different colours, your terminal
+  is not showing them. Try 'colregs day' - and note that colour is turned
+  off on purpose whenever output is piped to a file or another program.
+
+=== cref ===
+
+  CONTACTS -- the card
+  ----------------------------------------------------------------------
+  Away from your bow  ->  she passes ASTERN. Always. No exceptions.
+  Toward your bow     ->  she CROSSES AHEAD. The miss is in front
+                          of you, and it shrinks as the drift slows.
+  No drift at all     ->  collision. Rule 7(d)(i). Deemed, not judged.
+
+  On the left, drawing left ... she goes astern.
+  On the left, drawing right ... she crosses your bow.
+  On the right, drawing right ... astern.  Drawing left ... ahead.
+
+  Risk anyway, even with good drift -- Rule 7(d)(ii):
+    a very large vessel   you plotted her bridge, her bow is nearer
+    a tow                 the tug clears, the barge astern does not
+    close range           drift goes as range squared
+
+  Report:  Master 2, bearing 311, Red 20, drawing left,
+           range 14,200, CPA 4,100 yards at 18 minutes.
+           Bearing before drift. Say "steady" out loud.
+           True for the plot, relative for the eye.
+
+  Relative:  Red = port, Green = starboard, 0 to 180 each side.
+    000 right ahead   ~35 fine on the bow   045 broad on the bow
+    090 on the beam   135 broad on the quarter   180 right astern
+  Relative bearings move when YOU turn. Drift is measured in
+  TRUE bearings, or on a steady course. Never across a turn.
+
+  3 min : yards = knots x 100      6 min : miles = knots / 10
+  time to CPA = range / closing rate per minute
+  CPA  =  miles  x  degrees left to drift  x  35
+  Ekelund kyd = 1.91 x change in speed across / change in rate
+  ----------------------------------------------------------------------
+

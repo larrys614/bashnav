@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1022.8" height="559.0" viewBox="0 0 1022.8 559.0" font-family="DejaVu Sans, Helvetica, sans-serif">
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#1f5673"/></marker><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a2542a"/></marker></defs>
+<rect x="0" y="0" width="1022.8" height="559.0" fill="#ffffff"/>
+<rect x="200.8" y="0.0" width="627.1" height="499.0" rx="5" fill="#f7fafb" stroke="#bfcdd6" stroke-width="1"/>
+<rect x="227.0" y="95.7" width="34.3" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="454.1" y="210.4" width="10.8" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="462.0" y="210.4" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="462.0" y="243.1" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="516.8" y="243.1" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="493.3" y="30.2" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="454.1" y="144.8" width="10.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="383.7" y="308.6" width="18.7" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="509.0" y="243.1" width="10.8" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="571.6" y="472.4" width="245.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<g font-family="DejaVu Sans Mono, monospace" font-size="13.00" fill="#16222c" xml:space="preserve">
+<text x="212.8" y="24.4">  INTERCEPT PLOT  (AP at centre, N up)</text>
+<text x="212.8" y="40.7">                               |    N :          //</text>
+<text x="212.8" y="57.1">                               |      :        //</text>
+<text x="212.8" y="73.5">                               |      :      //</text>
+<text x="212.8" y="89.9">  -                            |      :     //</text>
+<text x="212.8" y="106.2">  ----                         |      :   //</text>
+<text x="212.8" y="122.6">      ----                     |      :  //</text>
+<text x="212.8" y="139.0">          ----                 |      ://</text>
+<text x="212.8" y="155.4">              ----             |     ///</text>
+<text x="212.8" y="171.8">                  ----         |    //:</text>
+<text x="212.8" y="188.1">                      ----     |  //  :</text>
+<text x="212.8" y="204.5">                          ---- | //   :</text>
+<text x="212.8" y="220.9">                              -@b-.   :</text>
+<text x="212.8" y="237.3">  W                           /|  ----:                                   E</text>
+<text x="212.8" y="253.7">  ..........................//..c.....+a--.................................</text>
+<text x="212.8" y="270.1">                          //    |     :   ----</text>
+<text x="212.8" y="286.4">                         //     |     :      -----</text>
+<text x="212.8" y="302.8">                       //       |     :          -----</text>
+<text x="212.8" y="319.2">                      //        |     :              -----</text>
+<text x="212.8" y="335.6">                    //          |     :                  -----</text>
+<text x="212.8" y="351.9">                   //           |     :                      -----</text>
+<text x="212.8" y="368.3">                 //             |     :                          -----</text>
+<text x="212.8" y="384.7">               //               |     :                              -----</text>
+<text x="212.8" y="401.1">              //                |     :                                  --</text>
+<text x="212.8" y="417.5">            //                  |     :</text>
+<text x="212.8" y="433.9">           //                   |     :</text>
+<text x="212.8" y="450.2">         //                     |     :</text>
+<text x="212.8" y="466.6">       ///                      |   S :                       5 nm per row</text>
+<text x="212.8" y="483.0">  AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</text>
+</g>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="187.8" y="78.9">Line of position &#x27;a&#x27;, from the</text>
+<text x="187.8" y="91.9">sight of Dubhe. Every LOP is</text>
+<text x="187.8" y="104.9">drawn at right angles to that</text>
+<text x="187.8" y="117.9">body&#x27;s azimuth.</text>
+</g>
+<path d="M189.3,93.9 L222.6,102.0" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="end">
+<text x="187.8" y="198.4">The fix - where the three</text>
+<text x="187.8" y="211.4">lines of position meet.</text>
+</g>
+<path d="M189.3,200.4 L449.6,217.5" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="187.8" y="290.2">Foot of each intercept. The</text>
+<text x="187.8" y="303.2">letter matches the sight in</text>
+<text x="187.8" y="316.2">the table underneath.</text>
+</g>
+<path d="M189.3,298.6 L457.7,219.1" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M189.3,298.6 L457.5,251.3" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M189.3,298.6 L512.3,251.2" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="840.9" y="59.2">North is up, east is right,</text>
+<text x="840.9" y="72.2">just like a plotting sheet.</text>
+</g>
+<path d="M839.5,61.1 L508.6,37.9" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="840.9" y="144.5">LOP &#x27;c&#x27;, from Markab. Markab</text>
+<text x="840.9" y="157.5">bore 269 degrees, almost due</text>
+<text x="840.9" y="170.5">west, so its line of position</text>
+<text x="840.9" y="183.5">runs nearly north and south.</text>
+</g>
+<path d="M839.5,159.4 L469.5,152.3" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="840.9" y="270.4">LOP &#x27;b&#x27;, from Bellatrix.</text>
+</g>
+<path d="M839.5,265.9 L406.8,315.5" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="middle">
+<text x="447.8" y="519.9">The AP: your DR position, at the centre.</text>
+<text x="447.8" y="532.9">The dotted cross through it is the</text>
+<text x="447.8" y="545.9">north-south and east-west grid.</text>
+</g>
+<path d="M447.8,506.4 L513.2,262.3" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="middle">
+<text x="698.4" y="519.9">The scale, chosen automatically to fit</text>
+<text x="698.4" y="532.9">the largest intercept on the sheet.</text>
+</g>
+<path d="M698.4,506.4 L695.4,491.7" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+</svg>

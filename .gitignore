@@ -1,0 +1,7 @@
+*.tmp
+*.swp
+.DS_Store
+/tmp/
+docs/_build.html
+__pycache__/
+*.tar.gz

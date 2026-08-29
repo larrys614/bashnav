@@ -1,0 +1,668 @@
+=== almanac 2026-01-01 00:00:00 ===
+
+  ALMANAC for 2026-01-01 00:00:00 UT   (JD 2461041.50000)
+  Delta-T used: 69.2 s
+  ----------------------------------------------------------------------
+  BODY                     GHA           DEC       SD       HP
+  Aries              100 39.7'
+  Sun                179 09.9'     S23 01.0'    16.3'     0.1'
+  Moon               036 44.4'     N26 24.2'    16.5'    60.7'
+  Venus              180 36.2'     S23 37.3'        -        -
+                 SHA 079 56.5'  mag -4.0
+  Mars               176 46.9'     S23 43.2'        -        -
+                 SHA 076 07.2'  mag 0.7
+  Jupiter            347 32.3'     N21 58.7'        -        -
+                 SHA 246 52.6'  mag -2.2
+  Saturn             103 16.9'     S03 35.8'        -        -
+                 SHA 002 37.1'  mag 0.6
+  Polaris            053 57.3'     N89 22.7'        -        -
+                 SHA 313 17.6'  mag 2.0
+  Sirius             359 04.9'     S16 45.1'        -        -
+                 SHA 258 25.2'  mag -1.4
+  Vega               181 12.8'     N38 48.4'        -        -
+                 SHA 080 33.1'  mag 0.0
+  ----------------------------------------------------------------------
+=== almanac 2026-06-21 12:00:00 ===
+
+  ALMANAC for 2026-06-21 12:00:00 UT   (JD 2461213.00000)
+  Delta-T used: 69.2 s
+  ----------------------------------------------------------------------
+  BODY                     GHA           DEC       SD       HP
+  Aries              089 42.1'
+  Sun                359 32.8'     N23 26.3'    15.7'     0.1'
+  Moon               274 53.5'     N00 03.0'    15.5'    56.8'
+  Venus              317 22.5'     N19 49.8'        -        -
+                 SHA 227 40.5'  mag -4.0
+  Mars               037 11.8'     N18 33.5'        -        -
+                 SHA 307 29.8'  mag 0.7
+  Jupiter            329 21.3'     N20 57.0'        -        -
+                 SHA 239 39.2'  mag -2.2
+  Saturn             076 10.5'     N03 15.1'        -        -
+                 SHA 346 28.5'  mag 0.6
+  Polaris            043 28.7'     N89 22.3'        -        -
+                 SHA 313 46.6'  mag 2.0
+  Sirius             348 07.6'     S16 45.2'        -        -
+                 SHA 258 25.5'  mag -1.4
+  Vega               170 14.1'     N38 48.4'        -        -
+                 SHA 080 32.0'  mag 0.0
+  ----------------------------------------------------------------------
+=== almanac 2027-03-15 18:30:00 ===
+
+  ALMANAC for 2027-03-15 18:30:00 UT   (JD 2461480.27083)
+  Delta-T used: 69.3 s
+  ----------------------------------------------------------------------
+  BODY                     GHA           DEC       SD       HP
+  Aries              090 38.2'
+  Sun                095 16.6'     S02 00.5'    16.1'     0.1'
+  Moon               005 02.9'     N27 35.4'    16.1'    59.0'
+  Venus              130 51.0'     S15 46.5'        -        -
+                 SHA 040 12.8'  mag -4.0
+  Mars               304 13.9'     N17 36.3'        -        -
+                 SHA 213 35.7'  mag 0.7
+  Jupiter            309 37.3'     N16 22.7'        -        -
+                 SHA 218 59.0'  mag -2.2
+  Saturn             076 08.0'     N03 45.8'        -        -
+                 SHA 345 29.7'  mag 0.6
+  Polaris            044 01.0'     N89 23.0'        -        -
+                 SHA 313 22.8'  mag 2.0
+  Sirius             349 02.8'     S16 45.4'        -        -
+                 SHA 258 24.5'  mag -1.4
+  Vega               171 10.3'     N38 48.2'        -        -
+                 SHA 080 32.1'  mag 0.0
+  ----------------------------------------------------------------------
+=== almanac 2030-09-09 06:00:00 ===
+
+  ALMANAC for 2030-09-09 06:00:00 UT   (JD 2462753.75000)
+  Delta-T used: 69.6 s
+  ----------------------------------------------------------------------
+  BODY                     GHA           DEC       SD       HP
+  Aries              078 20.4'
+  Sun                270 39.0'     N05 16.8'    15.9'     0.1'
+  Moon               123 52.8'     S12 35.1'    15.9'    58.4'
+  Venus              280 19.6'     N10 36.8'        -        -
+                 SHA 201 59.2'  mag -4.0
+  Mars               300 00.5'     N17 17.0'        -        -
+                 SHA 221 40.1'  mag 0.7
+  Jupiter            208 24.1'     S17 33.5'        -        -
+                 SHA 130 03.7'  mag -2.2
+  Saturn             010 54.2'     N19 48.3'        -        -
+                 SHA 292 33.8'  mag 0.6
+  Polaris            029 36.2'     N89 23.1'        -        -
+                 SHA 311 15.8'  mag 2.0
+  Sirius             336 42.8'     S16 45.5'        -        -
+                 SHA 258 22.4'  mag -1.4
+  Vega               158 50.4'     N38 49.2'        -        -
+                 SHA 080 30.0'  mag 0.0
+  ----------------------------------------------------------------------
+=== almanac 2045-12-25 03:00:00 ===
+
+  ALMANAC for 2045-12-25 03:00:00 UT   (JD 2468339.62500)
+  Delta-T used: 71.1 s
+  ----------------------------------------------------------------------
+  BODY                     GHA           DEC       SD       HP
+  Aries              139 02.5'
+  Sun                225 00.0'     S23 23.0'    16.3'     0.1'
+  Moon               028 50.4'     N24 24.8'    16.3'    59.9'
+  Venus              212 23.0'     S20 38.7'        -        -
+                 SHA 073 20.5'  mag -4.0
+  Mars               306 35.6'     S03 13.1'        -        -
+                 SHA 167 33.1'  mag 0.7
+  Jupiter            159 17.6'     S09 44.3'        -        -
+                 SHA 020 15.1'  mag -2.2
+  Saturn             243 31.7'     S21 19.4'        -        -
+                 SHA 104 29.2'  mag 0.6
+  Polaris            083 27.3'     N89 26.9'        -        -
+                 SHA 304 24.8'  mag 2.0
+  Sirius             037 14.4'     S16 46.9'        -        -
+                 SHA 258 11.9'  mag -1.4
+  Vega               219 25.4'     N38 49.7'        -        -
+                 SHA 080 22.9'  mag 0.0
+  ----------------------------------------------------------------------
+=== star list ===
+
+  NAVIGATIONAL STARS   2026-06-21 12:00:00 UT
+  ----------------------------------------------------------------------
+   No Name                      SHA          Dec    Mag
+    1 Alpheratz           357 33.5'    N29 14.1'   2.07
+    2 Ankaa               353 06.0'    S42 09.4'   2.40
+    3 Schedar             349 29.8'    N56 40.7'   2.24
+    4 Diphda              348 46.2'    S17 50.3'   2.04
+    5 Achernar            335 19.6'    S57 05.8'   0.45
+    6 Hamal               327 50.0'    N23 35.2'   2.01
+    7 Acamar              315 11.2'    S40 11.7'   2.88
+    8 Menkar              314 05.1'    N04 11.6'   2.54
+    9 Mirfak              308 26.9'    N49 57.2'   1.79
+   10 Aldebaran           290 38.6'    N16 33.7'   0.87
+   11 Rigel               281 03.0'    S08 10.2'   0.18
+   12 Capella             280 20.6'    N46 01.4'   0.08
+   13 Bellatrix           278 21.9'    N06 22.4'   1.64
+   14 Elnath              278 00.7'    N28 37.7'   1.65
+   15 Alnilam             275 36.8'    S01 11.1'   1.69
+   16 Betelgeuse          270 51.1'    N07 24.7'   0.45
+   17 Canopus             263 52.4'    S52 42.6'  -0.62
+   18 Sirius              258 25.5'    S16 45.2'  -1.44
+   19 Adhara              255 05.3'    S29 00.5'   1.50
+   20 Procyon             244 49.9'    N05 09.4'   0.40
+   21 Pollux              243 16.2'    N27 57.8'   1.16
+   22 Avior               234 14.8'    S59 35.8'   1.86
+   23 Suhail              222 45.8'    S43 32.5'   2.23
+   24 Miaplacidus         221 38.7'    S69 49.8'   1.67
+   25 Alphard             217 46.8'    S08 46.5'   1.99
+   26 Regulus             207 33.3'    N11 50.3'   1.36
+   27 Dubhe               193 39.7'    N61 36.7'   1.81
+   28 Denebola            182 23.7'    N14 25.5'   2.14
+   29 Gienah              175 42.3'    S17 41.5'   2.58
+   30 Acrux               172 58.7'    S63 15.1'   0.77
+   31 Gacrux              171 50.2'    S57 16.0'   1.59
+   32 Alioth              166 11.8'    N55 49.2'   1.76
+   33 Spica               158 20.9'    S11 18.1'   0.98
+   34 Alkaid              152 50.8'    N49 11.0'   1.85
+   35 Hadar               148 33.9'    S60 30.3'   0.61
+   36 Menkent             147 56.0'    S36 30.2'   2.06
+   37 Arcturus            145 46.6'    N19 02.7'  -0.05
+   38 Rigil Kentaurus     139 38.2'    S60 56.9'  -0.01
+   39 Zubenelgenubi       136 54.4'    S16 09.2'   2.75
+   40 Kochab              137 19.0'    N74 02.9'   2.07
+   41 Alphecca            126 02.4'    N26 37.6'   2.22
+   42 Antares             112 14.0'    S26 29.5'   1.06
+   43 Atria               107 06.6'    S69 04.6'   1.91
+   44 Sabik               102 01.1'    S15 45.5'   2.43
+   45 Shaula              096 08.3'    S37 07.4'   1.62
+   46 Rasalhague          095 57.1'    N12 32.4'   2.08
+   47 Eltanin             090 41.1'    N51 29.1'   2.24
+   48 Kaus Australis      083 30.5'    S34 22.3'   1.79
+   49 Vega                080 32.0'    N38 48.4'   0.03
+   50 Nunki               075 45.9'    S26 15.8'   2.05
+   51 Altair              061 58.5'    N08 56.3'   0.76
+   52 Peacock             053 03.4'    S56 38.8'   1.94
+   53 Deneb               049 24.6'    N45 22.3'   1.25
+   54 Enif                033 37.4'    N09 59.8'   2.38
+   55 Alnair              027 31.2'    S46 49.7'   1.73
+   56 Fomalhaut           015 13.1'    S29 28.7'   1.17
+   57 Markab              013 28.6'    N15 20.8'   2.49
+   58 Polaris             313 46.6'    N89 22.3'   1.97
+  ----------------------------------------------------------------------
+
+=== fix, three stars ===
+
+  SIGHT REDUCTION  --  3 sights
+  Fix time      2026-08-29 07:38:00 UT
+  DR at fix     35 00.0'N  040 00.0'W
+  ----------------------------------------------------------------------
+  Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre
+    Hs     19 32.1'     GHA   283 41.6'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N61 36.5'     LHA 243 41.6'
+    Dip        -3.0'    SD         -       Hc     19 23.3'
+    Ha     19 27.6'     HP         -       Zn    026 51.9'
+    Ref        -2.8'
+    Ho     19 24.8'                          Intercept    1.5 nm TOWARD
+  ----------------------------------------------------------------------
+  Sight b: Bellatrix  2026-08-29 07:34:00 UT   limb centre
+    Hs     49 37.2'     GHA   009 23.3'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N06 22.5'     LHA 329 23.3'
+    Dip        -3.0'    SD         -       Hc     49 50.8'
+    Ha     49 32.7'     HP         -       Zn    128 17.8'
+    Ref        -0.8'
+    Ho     49 31.8'                          Intercept   19.0 nm AWAY
+  ----------------------------------------------------------------------
+  Sight c: Markab     2026-08-29 07:38:00 UT   limb centre
+    Hs     29 01.3'     GHA   105 30.1'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N15 21.1'     LHA 065 30.1'
+    Dip        -3.0'    SD         -       Hc     28 38.8'
+    Ha     28 56.8'     HP         -       Zn    269 11.1'
+    Ref        -1.8'
+    Ho     28 55.0'                          Intercept   16.2 nm TOWARD
+  ----------------------------------------------------------------------
+
+  FIX   35 09.9'N   040 20.0'W
+  Offset from DR: 9.9 nm N, 16.4 nm W   (19.2 nm on 301 T)
+
+  LOP residuals at the fix (nm):
+    a Dubhe      Zn 027 T   intercept from DR    1.5   residual  +0.01
+    b Bellatrix  Zn 128 T   intercept from DR  -19.0   residual  +0.01
+    c Markab     Zn 269 T   intercept from DR   16.2   residual  +0.01
+    RMS scatter 0.01 nm  -  this is the quality of your sights
+
+  GEOMETRY: 1.0' of sight error puts the fix out by 0.9 nm along 185 T
+            and 0.7 nm across it.  (3 LOPs)
+
+  SKY VIEW  (centre = overhead, rim = horizon, N up, E right)
+                              N
+                       *****************
+                 ******                 ******
+             *****                           *****
+           ***                           a       ***
+         **            .................            **
+       **          ....                 ....          **
+      **        ....                       ....        **
+     *         ..           .......           ..         *
+    *        ...        .....     .....        ...        *
+   **        .         ..             ..         .        **
+   *        ..        .          zenith .        ..        *
+  W*        c         .        +        .         .        *E
+   *        ..        .                 .        ..        *
+   **        .         ..             ..         .        **
+    *        ...        .....     .....  b     ...        *
+     *         ..           .......           ..         *
+      **        ....                       ....        **
+       **          ....                 ....          **
+         **            .................            **
+           ***                                   ***
+             *****                           *****
+                 ******                 ******
+                       *****************
+                              S
+  inner rings = 60 and 30 degrees altitude   zenith = +
+
+  INTERCEPT PLOT  (AP at centre, N up)
+                               |    N :          //
+                               |      :        //
+                               |      :      //
+  -                            |      :     //
+  ----                         |      :   //
+      ----                     |      :  //
+          ----                 |      ://
+              ----             |     ///
+                  ----         |    //:
+                      ----     |  //  :
+                          ---- | //   :
+                              -@b-.   :
+  W                           /|  ----:                                   E
+  ..........................//..c.....+a--.................................
+                          //    |     :   ----
+                         //     |     :      -----
+                       //       |     :          -----
+                      //        |     :              -----
+                    //          |     :                  -----
+                   //           |     :                      -----
+                 //             |     :                          -----
+               //               |     :                              -----
+              //                |     :                                  --
+            //                  |     :
+           //                   |     :
+         //                     |     :
+       ///                      |   S :                       5 nm per row
+  AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm
+
+      body         Zn       intercept  LOP
+  a   Dubhe        027 T       1.5 nm  toward Ho 19 24.8'  Hc 19 23.3'
+  b   Bellatrix    128 T      19.0 nm  away   Ho 49 31.8'  Hc 49 50.8'
+  c   Markab       269 T      16.2 nm  toward Ho 28 55.0'  Hc 28 38.8'
+
+=== fix, same three on the run ===
+
+  SIGHT REDUCTION  --  3 sights
+  Fix time      2026-08-29 07:38:00 UT
+  DR at fix     35 00.0'N  040 00.0'W
+  Run           course 250 T, speed 8.0 kn
+  ----------------------------------------------------------------------
+  Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre
+    Hs     19 32.1'     GHA   283 41.6'     assumed pos 35 00.4'N 039 58.8'W
+    IE         -1.5'    Dec   N61 36.5'     LHA 243 42.8'
+    Dip        -3.0'    SD         -       Hc     19 24.1'
+    Ha     19 27.6'     HP         -       Zn    026 52.3'
+    Ref        -2.8'
+    Ho     19 24.8'                          Intercept    0.7 nm TOWARD
+    LOP advanced 1.1 nm along 250 T to the fix time
+  ----------------------------------------------------------------------
+  Sight b: Bellatrix  2026-08-29 07:34:00 UT   limb centre
+    Hs     49 37.2'     GHA   009 23.3'     assumed pos 35 00.2'N 039 59.4'W
+    IE         -1.5'    Dec   N06 22.5'     LHA 329 23.9'
+    Dip        -3.0'    SD         -       Hc     49 51.1'
+    Ha     49 32.7'     HP         -       Zn    128 18.7'
+    Ref        -0.8'
+    Ho     49 31.8'                          Intercept   19.3 nm AWAY
+    LOP advanced 0.5 nm along 250 T to the fix time
+  ----------------------------------------------------------------------
+  Sight c: Markab     2026-08-29 07:38:00 UT   limb centre
+    Hs     29 01.3'     GHA   105 30.1'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N15 21.1'     LHA 065 30.1'
+    Dip        -3.0'    SD         -       Hc     28 38.8'
+    Ha     28 56.8'     HP         -       Zn    269 11.1'
+    Ref        -1.8'
+    Ho     28 55.0'                          Intercept   16.2 nm TOWARD
+  ----------------------------------------------------------------------
+
+  FIX   35 09.5'N   040 20.4'W
+  Offset from DR: 9.5 nm N, 16.7 nm W   (19.2 nm on 299 T)
+
+  LOP residuals at the fix (nm):
+    a Dubhe      Zn 027 T   intercept from DR    0.7   residual  -0.21
+    b Bellatrix  Zn 128 T   intercept from DR  -19.3   residual  -0.30
+    c Markab     Zn 269 T   intercept from DR   16.2   residual  -0.33
+    RMS scatter 0.28 nm  -  this is the quality of your sights
+
+  GEOMETRY: 1.0' of sight error puts the fix out by 0.9 nm along 185 T
+            and 0.7 nm across it.  (3 LOPs)
+
+  SKY VIEW  (centre = overhead, rim = horizon, N up, E right)
+                              N
+                       *****************
+                 ******                 ******
+             *****                           *****
+           ***                           a       ***
+         **            .................            **
+       **          ....                 ....          **
+      **        ....                       ....        **
+     *         ..           .......           ..         *
+    *        ...        .....     .....        ...        *
+   **        .         ..             ..         .        **
+   *        ..        .          zenith .        ..        *
+  W*        c         .        +        .         .        *E
+   *        ..        .                 .        ..        *
+   **        .         ..             ..         .        **
+    *        ...        .....     .....  b     ...        *
+     *         ..           .......           ..         *
+      **        ....                       ....        **
+       **          ....                 ....          **
+         **            .................            **
+           ***                                   ***
+             *****                           *****
+                 ******                 ******
+                       *****************
+                              S
+  inner rings = 60 and 30 degrees altitude   zenith = +
+
+  INTERCEPT PLOT  (AP at centre, N up)
+                               |    N :         //
+                               |      :       //
+                               |      :      //
+                               |      :    //
+  ----                         |      :   //
+     -----                     |      : //
+         -----                 |      ///
+             -----             |     //
+                 -----         |   // :
+                     -----     |  //  :
+                         ----- |//    :
+                             --@b-.   :
+  W                          //| -----:                                   E
+  .........................///..c....-+a-..................................
+                          //    |     :  ----
+                        //      |     :      ----
+                       //       |     :          ----
+                     //         |     :              ----
+                    //          |     :                  ----
+                  //            |     :                      ----
+                //              |     :                          ----
+               //               |     :                              ----
+             //                 |     :                                  --
+            //                  |     :
+          //                    |     :
+        ///                     |     :
+       //                       |   S :                       5 nm per row
+  AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm
+
+      body         Zn       intercept  LOP
+  a   Dubhe        027 T       0.7 nm  toward Ho 19 24.8'  Hc 19 24.1'
+  b   Bellatrix    128 T      19.3 nm  away   Ho 49 31.8'  Hc 49 51.1'
+  c   Markab       269 T      16.2 nm  toward Ho 28 55.0'  Hc 28 38.8'
+
+=== fix, with a blunder in it ===
+
+  SIGHT REDUCTION  --  3 sights
+  Fix time      2026-08-29 07:38:00 UT
+  DR at fix     35 00.0'N  040 00.0'W
+  ----------------------------------------------------------------------
+  Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre
+    Hs     19 32.1'     GHA   283 41.6'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N61 36.5'     LHA 243 41.6'
+    Dip        -3.0'    SD         -       Hc     19 23.3'
+    Ha     19 27.6'     HP         -       Zn    026 51.9'
+    Ref        -2.8'
+    Ho     19 24.8'                          Intercept    1.5 nm TOWARD
+  ----------------------------------------------------------------------
+  Sight b: Bellatrix  2026-08-29 07:34:00 UT   limb centre
+    Hs     49 37.2'     GHA   009 23.3'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N06 22.5'     LHA 329 23.3'
+    Dip        -3.0'    SD         -       Hc     49 50.8'
+    Ha     49 32.7'     HP         -       Zn    128 17.8'
+    Ref        -0.8'
+    Ho     49 31.8'                          Intercept   19.0 nm AWAY
+  ----------------------------------------------------------------------
+  Sight c: Markab     2026-08-29 07:38:00 UT   limb centre
+    Hs     29 06.3'     GHA   105 30.1'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N15 21.1'     LHA 065 30.1'
+    Dip        -3.0'    SD         -       Hc     28 38.8'
+    Ha     29 01.8'     HP         -       Zn    269 11.1'
+    Ref        -1.8'
+    Ho     29 00.0'                          Intercept   21.2 nm TOWARD
+  ----------------------------------------------------------------------
+
+  FIX   35 09.7'N   040 23.4'W
+  Offset from DR: 9.7 nm N, 19.1 nm W   (21.5 nm on 296 T)
+
+  LOP residuals at the fix (nm):
+    a Dubhe      Zn 027 T   intercept from DR    1.5   residual  +1.45
+    b Bellatrix  Zn 128 T   intercept from DR  -19.0   residual  +2.04
+    c Markab     Zn 269 T   intercept from DR   21.2   residual  +2.26
+    RMS scatter 1.95 nm  -  this is the quality of your sights
+
+  GEOMETRY: 1.0' of sight error puts the fix out by 0.9 nm along 185 T
+            and 0.7 nm across it.  (3 LOPs)
+
+  SKY VIEW  (centre = overhead, rim = horizon, N up, E right)
+                              N
+                       *****************
+                 ******                 ******
+             *****                           *****
+           ***                           a       ***
+         **            .................            **
+       **          ....                 ....          **
+      **        ....                       ....        **
+     *         ..           .......           ..         *
+    *        ...        .....     .....        ...        *
+   **        .         ..             ..         .        **
+   *        ..        .          zenith .        ..        *
+  W*        c         .        +        .         .        *E
+   *        ..        .                 .        ..        *
+   **        .         ..             ..         .        **
+    *        ...        .....     .....  b     ...        *
+     *         ..           .......           ..         *
+      **        ....                       ....        **
+       **          ....                 ....          **
+         **            .................            **
+           ***                                   ***
+             *****                           *****
+                 ******                 ******
+                       *****************
+                              S
+  inner rings = 60 and 30 degrees altitude   zenith = +
+
+  INTERCEPT PLOT  (AP at centre, N up)
+                             |      N :          //
+                             |        :        //
+                             |        :      //
+  -                          |        :     //
+  ----                       |        :   //
+      ----                   |        :  //
+          ----               |        ://
+              ----           |       ///
+                  ----       |      //:
+                      ----   |    //  :
+                          ---|   //   :
+                             |@/b-.   :
+  W                          |//  ----:                                   E
+  ........................../|c.......+a--.................................
+                          //  |       :   ----
+                         //   |       :      -----
+                       //     |       :          -----
+                      //      |       :              -----
+                    //        |       :                  -----
+                   //         |       :                      -----
+                 //           |       :                          -----
+               //             |       :                              -----
+              //              |       :                                  --
+            //                |       :
+           //                 |       :
+         //                   |       :
+       ///                    |     S :                       5 nm per row
+  AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm
+
+      body         Zn       intercept  LOP
+  a   Dubhe        027 T       1.5 nm  toward Ho 19 24.8'  Hc 19 23.3'
+  b   Bellatrix    128 T      19.0 nm  away   Ho 49 31.8'  Hc 49 50.8'
+  c   Markab       269 T      21.2 nm  toward Ho 29 00.0'  Hc 28 38.8'
+
+=== fix, weak cut ===
+
+  SIGHT REDUCTION  --  2 sights
+  Fix time      2026-08-29 07:34:00 UT
+  DR at fix     35 00.0'N  040 00.0'W
+  ----------------------------------------------------------------------
+  Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre
+    Hs     19 32.1'     GHA   283 41.6'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N61 36.5'     LHA 243 41.6'
+    Dip        -3.0'    SD         -       Hc     19 23.3'
+    Ha     19 27.6'     HP         -       Zn    026 51.9'
+    Ref        -2.8'
+    Ho     19 24.8'                          Intercept    1.5 nm TOWARD
+  ----------------------------------------------------------------------
+  Sight b: Dubhe      2026-08-29 07:34:00 UT   limb centre
+    Hs     22 10.0'     GHA   283 41.6'     assumed pos 35 00.0'N 040 00.0'W
+    IE         -1.5'    Dec   N61 36.5'     LHA 243 41.6'
+    Dip        -3.0'    SD         -       Hc     19 23.3'
+    Ha     22 05.5'     HP         -       Zn    026 51.9'
+    Ref        -2.4'
+    Ho     22 03.0'                          Intercept  159.7 nm TOWARD
+  ----------------------------------------------------------------------
+
+  Single line of position only - no fix (2+ sights with different azimuths needed).
+
+  SKY VIEW  (centre = overhead, rim = horizon, N up, E right)
+                              N
+                       *****************
+                 ******                 ******
+             *****                           *****
+           ***                           a       ***
+         **            ................. b          **
+       **          ....                 ....          **
+      **        ....                       ....        **
+     *         ..           .......           ..         *
+    *        ...        .....     .....        ...        *
+   **        .         ..             ..         .        **
+   *        ..        .          zenith .        ..        *
+  W*        .         .        +        .         .        *E
+   *        ..        .                 .        ..        *
+   **        .         ..             ..         .        **
+    *        ...        .....     .....        ...        *
+     *         ..           .......           ..         *
+      **        ....                       ....        **
+       **          ....                 ....          **
+         **            .................            **
+           ***                                   ***
+             *****                           *****
+                 ******                 ******
+                       *****************
+                              S
+  inner rings = 60 and 30 degrees altitude   zenith = +
+
+  INTERCEPT PLOT  (AP at centre, N up)
+                    -----           N :
+                        -----         :
+                            -----     :
+                                ----- :
+  ----                              -----
+     -----                            : -----
+         -----                        :     -b--
+             -----                    :     ..  ----
+                 ----                 :    ..       ----
+                     ----             :   ..            ----
+                         ----         :  ..                 ----
+                             ----     : ..                      ----
+  W                              ---- :..                           ----  E
+  ...................................-+a-...............................---
+                                      :  ----
+                                      :      ----
+                                      :          ----
+                                      :              ----
+                                      :                  ----
+                                      :                     -----
+                                      :                         -----
+                                      :                             -----
+                                      :                                 ---
+                                      :
+                                      :
+                                      :
+                                    S :                      20 nm per row
+  AP = +    LOP = lettered line    fix = @    1 row = 20 nm, 1 column = 10 nm
+
+      body         Zn       intercept  LOP
+  a   Dubhe        027 T       1.5 nm  toward Ho 19 24.8'  Hc 19 23.3'
+  b   Dubhe        027 T     159.7 nm  toward Ho 22 03.0'  Hc 19 23.3'
+
+=== planning, twilight and the best three ===
+
+  SIGHT PLANNING  2026-06-21 21:00:00 UT
+  Position 50 09.0'N  005 04.0'W
+  ----------------------------------------------------------------------
+               MORNING  UT / LMT   EVENING  UT / LMT  
+  Sunrise/set  04:10 / 03:49       20:34 / 20:13      
+  Civil twi    03:25 / 03:04       21:18 / 20:58      
+  Nautical     02:18 / 01:58       22:25 / 22:05      
+  Star horizon is usable between civil and nautical twilight.
+  Moon 50% illuminated, waxing
+  Civil twilight: brightest stars and planets with a sharp horizon - prime time.
+  ----------------------------------------------------------------------
+  BODY                  ALT       Zn    MAG  note
+  Kochab              66.1     1.8    2.1  
+  Schedar             19.6    16.7    2.2  
+  Deneb               32.8    56.7    1.2  
+  Eltanin             59.4    68.1    2.2  
+  Vega                47.3    81.7    0.0  
+  Altair              14.5    93.4    0.8  low - refraction uncertain
+  Rasalhague          38.0   120.5    2.1  
+  Sabik               16.1   141.9    2.4  
+  Alphecca            64.2   150.4    2.2  
+  Antares              9.5   155.0    1.1  low - refraction uncertain
+  Zubenelgenubi       23.6   176.8    2.8  
+  Arcturus            58.6   190.5   -0.1  
+  Spica               26.5   200.2    1.0  
+  Gienah              15.2   215.2    2.6  
+  Moon                27.0   227.3  -12.0  
+  Denebola            40.5   239.2    2.1  
+  Regulus             23.4   260.3    1.4  
+  Alkaid              81.6   268.3    1.9  very high - Zn changes fast
+  Venus               16.7   280.9   -4.0  
+  Jupiter             10.1   290.7   -2.2  low - refraction uncertain
+  Pollux              13.3   298.0    1.2  low - refraction uncertain
+  Alioth              73.4   300.0    1.8  
+  Dubhe               58.9   312.2    1.8  
+  Capella             12.1   333.1    0.1  low - refraction uncertain
+  Mirfak              10.6   352.5    1.8  low - refraction uncertain
+  Polaris             49.5   359.9    2.0  
+
+  Best three for a fix (azimuth spread 119 deg minimum):
+    1  Rasalhague       alt  38.0  Zn 120.5
+    2  Denebola         alt  40.5  Zn 239.2
+    3  Polaris          alt  49.5  Zn 359.9
+
+  SKY VIEW  (centre = overhead, rim = horizon, N up, E right)
+                              N
+                       *****************
+                 ******     *           ******
+             *****                           *****
+           ***      *                *           ***
+         **            .................            **
+       **          ....                 ....          **
+      **        ....           3           ....        **
+     *    *    ..           .......           *.         *
+    *   *    ...        *....  *  .....        ...        *
+   **    *   .         ..             ..         .        **
+   *        ..        .    *     zenith *   *    ..        *
+  W*        .         .     *  +        .         .        *E
+   *       *..        .                 .        ..   *    *
+   **        .         ..             ..         .        **
+    *        ...  2     .....     .*...      1 ...        *
+     *         ..           .*.....           ..         *
+      **        .*..                       ....        **
+       **          ....                 ....          **
+         **       *    .*...............     *      **
+           ***                  *                ***
+             *****                        *  *****
+                 ******                 ******
+                       *****************
+                              S
+  inner rings = 60 and 30 degrees altitude   zenith = +
+  * = usable body    1 2 3 = the suggested set
+

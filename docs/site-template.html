@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bash Navigation Software</title>
+<meta name="description" content="Marine navigation tools written in POSIX shell and awk. Celestial navigation and the rules of the road, offline, in a single file.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Spectral:ital,wght@0,300;0,600;1,300&display=swap">
+<style>
+:root{
+  --ink:#0b1a22; --ink2:#102530; --ink3:#0e202a;
+  --buff:#e7dcc6; --buff2:#a9bac4; --buff3:#72868f;
+  --magenta:#e2589a; --magenta-dim:#8d3560;
+  --green:#5cbf94; --red:#e8695c; --amber:#e3b862;
+  --rule:#1d3a49;
+  --serif:'Spectral',Georgia,'Times New Roman',serif;
+  --sans:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
+  --mono:'IBM Plex Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ink); color:var(--buff);
+  font-family:var(--sans); font-size:17px; line-height:1.6;
+  font-feature-settings:"kern" 1;
+}
+/* the chart graticule, very faint */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    repeating-linear-gradient(0deg, rgba(226,88,154,.055) 0 1px, transparent 1px 84px),
+    repeating-linear-gradient(90deg, rgba(226,88,154,.055) 0 1px, transparent 1px 84px),
+    radial-gradient(circle at 78% 6%, rgba(226,88,154,.10) 0 1px, transparent 1px),
+    radial-gradient(650px 650px at 78% 6%, rgba(226,88,154,.05), transparent 62%);
+}
+.wrap{position:relative; z-index:1; max-width:960px; margin:0 auto; padding:0 24px}
+a{color:var(--magenta); text-decoration:none; border-bottom:1px solid var(--magenta-dim)}
+a:hover{border-bottom-color:var(--magenta)}
+a:focus-visible{outline:2px solid var(--magenta); outline-offset:3px; border-radius:2px}
+
+/* ---- masthead ---- */
+header{padding:88px 0 44px}
+.eyebrow{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--magenta); margin:0 0 20px
+}
+h1{
+  font-family:var(--serif); font-weight:300; font-size:clamp(42px,7.5vw,76px);
+  line-height:1.02; letter-spacing:-.015em; margin:0 0 22px; text-wrap:balance;
+}
+h1 em{font-style:italic; color:var(--buff2)}
+.lede{
+  font-family:var(--serif); font-weight:300; font-size:clamp(19px,2.4vw,23px);
+  line-height:1.5; color:var(--buff2); max-width:62ch; margin:0 0 30px;
+}
+.lede strong{color:var(--buff); font-weight:600}
+
+/* ---- sections ---- */
+section{padding:52px 0; border-top:1px solid var(--rule)}
+h2{
+  font-family:var(--serif); font-weight:600; font-size:30px; line-height:1.15;
+  margin:0 0 6px; letter-spacing:-.01em;
+}
+h2 .rule{font-family:var(--mono); font-weight:400; font-size:13px; color:var(--buff3); letter-spacing:.04em}
+h3{
+  font-family:var(--sans); font-weight:500; font-size:15px; margin:36px 0 10px;
+  color:var(--buff); letter-spacing:.02em; padding-top:14px;
+  border-top:1px solid var(--rule); max-width:66ch;
+}
+p{max-width:66ch; margin:0 0 16px}
+.dim{color:var(--buff2)}
+.small{font-size:15px}
+
+/* ---- plates: real output, framed like a chart figure ---- */
+figure{margin:26px 0 8px}
+.plate{
+  background:var(--ink3); border:1px solid var(--rule); border-left:2px solid var(--magenta-dim);
+  overflow-x:auto; padding:16px 18px;
+}
+.plate pre{
+  margin:0; font-family:var(--mono); font-size:11.5px; line-height:1.28;
+  color:var(--buff); white-space:pre; letter-spacing:0;
+}
+.plate pre b{font-weight:500; color:var(--magenta)}
+.plate pre .g{color:var(--green)} .plate pre .r{color:var(--red)}
+.plate pre .w{color:#fff} .plate pre .y{color:var(--amber)}
+.plate pre .d{color:var(--buff3)}
+figcaption{
+  font-family:var(--mono); font-size:11.5px; color:var(--buff3);
+  letter-spacing:.03em; margin-top:10px; max-width:74ch;
+}
+figcaption b{color:var(--buff2); font-weight:500}
+
+/* ---- two tools ---- */
+.tools{display:grid; grid-template-columns:1fr 1fr; gap:2px; margin:8px 0 0; background:var(--rule)}
+.tool{background:var(--ink); padding:22px 22px 24px}
+.tool h3{margin:0 0 6px; font-family:var(--mono); font-size:15px; letter-spacing:.02em; color:var(--magenta)}
+.tool p{margin:0; font-size:15.5px; color:var(--buff2); max-width:none}
+@media (max-width:720px){ .tools{grid-template-columns:1fr} }
+
+/* ---- lists ---- */
+ul{margin:0 0 16px; padding-left:0; list-style:none; max-width:66ch}
+ul li{padding-left:22px; position:relative; margin-bottom:9px}
+ul li::before{
+  content:"\2014"; position:absolute; left:0; color:var(--magenta-dim);
+}
+ul li b{font-weight:500}
+
+/* ---- code ---- */
+pre.cmd{
+  font-family:var(--mono); font-size:13.5px; line-height:1.7; background:var(--ink2);
+  border:1px solid var(--rule); padding:14px 16px; overflow-x:auto; margin:0 0 16px;
+  color:var(--buff);
+}
+pre.cmd .c{color:var(--buff3)}
+code{font-family:var(--mono); font-size:.9em; color:var(--buff); background:var(--ink2); padding:1px 5px; border:1px solid var(--rule)}
+a code{color:var(--magenta)}
+
+/* ---- table ---- */
+table{border-collapse:collapse; width:100%; max-width:640px; margin:8px 0 18px; font-size:15px}
+th{
+  text-align:left; font-family:var(--mono); font-weight:500; font-size:11.5px;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--magenta);
+  border-bottom:1px solid var(--rule); padding:0 14px 8px 0;
+}
+td{padding:7px 14px 7px 0; border-bottom:1px solid var(--rule); color:var(--buff2); font-variant-numeric:tabular-nums}
+td:first-child{color:var(--buff)}
+
+/* ---- cautionary note: charts print these in magenta ---- */
+.caution{
+  border:1px solid var(--magenta-dim); background:rgba(226,88,154,.05);
+  padding:20px 22px; margin:24px 0; max-width:70ch;
+}
+.caution .eyebrow{margin-bottom:10px}
+.caution p:last-child{margin-bottom:0}
+
+ol.needs{max-width:70ch;padding-left:1.2em;margin:18px 0}
+ol.needs li{margin:0 0 12px;color:var(--buff2)}
+ol.needs li b{color:var(--buff)}
+ol.needs li em{color:var(--magenta);font-style:normal}
+footer{
+  border-top:1px solid var(--rule); padding:34px 0 70px; color:var(--buff3);
+  font-size:14.5px;
+}
+footer p{max-width:70ch}
+@media (prefers-reduced-motion:no-preference){
+  a{transition:border-color .15s ease}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Bash Navigation Software</p>
+  <h1>Navigation tools that need<br><em>nothing but a shell</em></h1>
+  <p class="lede">Celestial navigation and the rules of the road, written in POSIX <strong>sh</strong> and <strong>awk</strong>. No dependencies, no network, no almanac that expires. Each tool is <strong>one file</strong> you can copy onto anything with a terminal — including an iPad in the middle of an ocean.</p>
+  <pre class="cmd"><span class="c"># three star sights, taken at morning twilight</span>
+celnav sight "2026-08-29 07:30:00" Dubhe     C "19 32.1"
+celnav sight "2026-08-29 07:34:00" Bellatrix C "49 37.2"
+celnav sight "2026-08-29 07:38:00" Markab    C "29 01.3"
+celnav fix</pre>
+  <figure>
+    <div class="plate"><pre>{{PLOT}}</pre></div>
+    <figcaption><b>A plotting sheet, drawn in characters.</b> Your dead reckoning at the centre, one lettered line of position for each sight, and the fix where they cross — about ten miles north and sixteen west of where you thought you were.</figcaption>
+  </figure>
+  <div class="tools">
+    <div class="tool">
+      <h3>celnav</h3>
+      <p>A computed almanac, sight reduction with the full working shown, the fix, the running fix — and a training mode that teaches the whole subject from first principles.</p>
+    </div>
+    <div class="tool">
+      <h3>colregs</h3>
+      <p>The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, and fifteen lessons on the rules themselves.</p>
+    </div>
+  </div>
+</header>
+
+<section id="why">
+  <p class="eyebrow">Design</p>
+  <h2>Why it is built this way</h2>
+  <p>Four constraints shaped both tools, and each one has a consequence worth knowing.</p>
+  <ul>
+    <li><b>It has to work when nothing else does.</b> No internet, no app store, no almanac to buy, nothing that runs out at the end of the year. The almanac is computed from orbital theory built into the script.</li>
+    <li><b>It has to run on whatever shell you can get.</b> POSIX <code>sh</code> plus <code>awk</code> is the largest common denominator across iSH and a-Shell on iOS, Termux on Android, macOS, Linux and the BSDs. There is no build step and nothing to install.</li>
+    <li><b>One file per tool.</b> Each program carries its own engine inside it as text and writes it out on first run. Moving a tool to a new device is moving one file.</li>
+    <li><b>The working is visible.</b> Every intermediate value is printed. If an answer looks wrong you can see where it went wrong, and continue by hand from any line of the output. These are assistants, not black boxes.</li>
+  </ul>
+</section>
+
+<section id="celnav">
+  <p class="eyebrow">Tool one</p>
+  <h2>celnav <span class="rule">— celestial navigation, offline</span></h2>
+  <p>You give it a sextant altitude, a time and a rough position. It gives you a line of position, a fix, and every number in between.</p>
+  <ul>
+    <li><b>Sight reduction</b> with the full working: GHA, declination, LHA, dip, refraction, parallax, semi-diameter, Hc, Zn, intercept.</li>
+    <li><b>The fix</b> by least squares from any number of sights, then re-reduced from its own answer until the position stops moving — so the intercept method's straight-line approximation never becomes a source of error, however far out your DR was.</li>
+    <li><b>Running fix.</b> Set course and speed and every line of position is advanced to the fix time for you.</li>
+    <li><b>Sight planning:</b> twilight times in UT and local, what is above the horizon, and the best three bodies to shoot.</li>
+    <li><b>Fix geometry in miles,</b> so a weak cut is named as weak before you steer on it.</li>
+  </ul>
+  <figure>
+    <div class="plate"><pre>{{WORKING}}</pre></div>
+    <figcaption><b>Nothing is hidden.</b> The left column is the sextant chain, the middle is the almanac, the right is the navigational triangle solved at the assumed position.</figcaption>
+  </figure>
+
+  <h3>Accuracy, measured rather than claimed</h3>
+  <p>Checked against an independent high-precision ephemeris over 1990–2076, sampling every 11 days. The figures are total angular error in apparent position.</p>
+  <table>
+    <thead><tr><th>Body</th><th>RMS</th><th>Worst</th></tr></thead>
+    <tbody>
+      <tr><td>57 navigational stars and Polaris</td><td>0.005&prime;</td><td>0.011&prime;</td></tr>
+      <tr><td>Sun</td><td>0.06&prime;</td><td>0.22&prime;</td></tr>
+      <tr><td>Moon</td><td>0.11&prime;</td><td>0.33&prime;</td></tr>
+      <tr><td>Venus, Mars</td><td>0.06–0.09&prime;</td><td>0.42&prime;</td></tr>
+      <tr><td>Jupiter, Saturn</td><td>0.01–0.03&prime;</td><td>0.06&prime;</td></tr>
+    </tbody>
+  </table>
+  <p class="small dim">One arcminute is one nautical mile. The almanac contributes well under half a mile everywhere, which puts it comfortably below a good sextant observation from a small vessel — your instrument and your clock stay the limiting factors, as they should be. The fix arithmetic was checked separately against 200 randomised worldwide cases with exact synthetic sights: every one with sound geometry recovered the true position within 0.11&nbsp;nm.</p>
+
+  <h3>It teaches, as well as computes</h3>
+  <p>Twenty lessons from first principles, an annotated walkthrough of one real sight, six kinds of drill generated from the real almanac and marked, and a sandbox where you change one number and watch the navigational triangle move.</p>
+  <figure>
+    <div class="plate"><pre>{{TRIANGLE}}</pre></div>
+    <figcaption><b>The navigational triangle, on your own sky.</b> Centre is straight overhead, the rim is your horizon. Change your latitude, the declination or the hour angle and the shape moves with it.</figcaption>
+  </figure>
+</section>
+
+<section id="colregs">
+  <p class="eyebrow">Tool two</p>
+  <h2>colregs <span class="rule">— the rules of the road, in characters</span></h2>
+  <p>The lights are not drawings. Each one is described by its position on the vessel, its height, and its arc of visibility, and the program works out what you can see from where you are standing. Shoot her from astern and the masthead lights correctly disappear.</p>
+  <figure>
+    <div class="plate"><pre>{{LIGHTS}}</pre></div>
+    <figcaption><b>Red over white over red, and a sternlight:</b> a vessel restricted in her ability to manoeuvre, seen from her starboard bow. Every light also carries its colour as a letter, so the pattern is unambiguous in night mode, in plain text, and for anyone who does not see red and green.</figcaption>
+  </figure>
+  <ul>
+    <li><b>Lights</b> — twenty vessel types, drawable from any bearing.</li>
+    <li><b>Day shapes</b> — ball, diamond, cone, cylinder, and what each of them means.</li>
+    <li><b>Encounters</b> — a head-up plan view and the question that matters: who keeps out of the way, and what do you actually do. Fourteen scenarios, each with the rule that governs it.</li>
+    <li><b>Sound signals</b> drawn as timelines, since a script cannot make a noise.</li>
+    <li><b>Fifteen lessons</b> on the rules themselves, each ending with a question.</li>
+  </ul>
+  <figure>
+    <div class="plate"><pre>{{ENCOUNTER}}</pre></div>
+    <figcaption><b>Head up, you in the middle.</b> She is crossing from your starboard side, so you are the give-way vessel — and Rule 15 says avoid crossing ahead of her, which means altering to starboard and passing under her stern.</figcaption>
+  </figure>
+  <h3>Plotting a developing situation</h3>
+  <p>The snapshot asks who gives way. This asks the harder question: is there a risk at all, how close will she come, and does your action actually open the distance? Three observations six minutes apart, with the scatter a hand bearing compass really gives you.</p>
+  <figure>
+    <div class="plate"><pre>{{SCENARIO}}</pre></div>
+    <figcaption><b>A steady bearing and a closing range.</b> Answer the three questions and it works the solution: the CPA, the time to it, and her true course and speed from the vector triangle — then replays both tracks under the action <em>you</em> chose, and tells you the CPA that action actually produced.</figcaption>
+  </figure>
+  <figure>
+    <div class="plate"><pre>{{SOUND}}</pre></div>
+    <figcaption><b>A short blast is about a second; a prolonged blast four to six.</b> The distinction that matters is not the pattern but the context: Rule 34 signals are for vessels in sight of one another and say what you are doing; Rule 35 signals are for restricted visibility and say what kind of vessel you are.</figcaption>
+  </figure>
+</section>
+
+<section id="colour">
+  <p class="eyebrow">Detail</p>
+  <h2>Colour, and night vision</h2>
+  <p>Three modes, remembered between sessions: <code>day</code>, <code>night</code>, <code>plain</code>.</p>
+  <p>Night mode is deep red on black, with highlights in a brighter red, and contains no green at all. Rebuilding dark adaptation takes about twenty minutes, and a bright screen at 0300 costs you every one of them. Whatever colour marks the assumed position and the fix on the plot marks the matching symbol in the key underneath, so the legend reads as a colour match rather than a list.</p>
+  <p>Plain mode emits no escape sequences, and is selected automatically whenever output is not a terminal — so a redirected fix is always clean text.</p>
+  <pre class="cmd">celnav night
+colregs night</pre>
+</section>
+
+<section id="install">
+  <p class="eyebrow">Getting it</p>
+  <h2>Install</h2>
+  <p>Copy the file, make it executable, run it. That is the whole procedure.</p>
+  <pre class="cmd">git clone https://github.com/{{GH}}/bashnav.git
+cd bashnav
+./bin/celnav doctor        <span class="c"># checks your awk, your clock, the data folder</span>
+./bin/colregs about</pre>
+  <p class="small dim">On macOS, Linux and the BSDs there is nothing to install — the system awk already has what the tools need.</p>
+  <h3>On an iPad</h3>
+  <p>Both tools run under <a href="https://ish.app">iSH</a> and <a href="https://holzschu.github.io/a-Shell_iOS/">a-Shell</a>. Under iSH <em>only</em>, install an awk with the maths library first — the BusyBox one is sometimes built without it:</p>
+  <pre class="cmd">apk add gawk        <span class="c"># iSH only: apk is Alpine's package manager</span>
+                    <span class="c"># and does not exist on macOS.</span></pre>
+  <p class="small dim">a-Shell already has a suitable awk. <code>celnav doctor</code> will tell you either way, and names the fix if something is missing.</p>
+  <h3>Documentation</h3>
+  <p><a href="celnav-manual.pdf">celnav manual</a> (PDF, 11 pages) &middot; <a href="celnav-quickref.pdf">quick reference card</a> (PDF) &middot; <a href="https://github.com/{{GH}}/bashnav">source on GitHub</a></p>
+</section>
+
+<section id="safety">
+  <div class="caution">
+    <p class="eyebrow">Cautionary note</p>
+    <p><b>These are training and cross-checking tools, not certified navigation equipment.</b></p>
+    <p class="small">The accuracy figures above describe the arithmetic, not your fix. A fix is only as good as the sight, the horizon and above all the time — four seconds of clock error is one nautical mile of longitude. Carry the tables, and know how to use them.</p>
+    <p class="small"><code>colregs</code> is a training aid. It is not the rules and carries no authority. The COLREGs as published by the IMO are what govern at sea; where this program and the Convention differ, the Convention is right and the program is wrong. Nothing here relieves any vessel, owner, master or crew of the consequences of neglecting to comply with the rules, of neglecting a proper look-out, or of neglecting any precaution required by the ordinary practice of seamen.</p>
+  </div>
+</section>
+
+<section id="tested">
+  <p class="eyebrow">How it is checked</p>
+  <h2>What the tests cover, and what they cannot</h2>
+  <p>Two suites run on every change, under four awk implementations and two shells. They check the invariants — every drill marks its own correct answer as correct; every lights question has exactly one right answer, six hundred of them checked; the light tables satisfy Annex&nbsp;I wherever Annex&nbsp;I is geometry; a bearing drawing away from your bow never crosses ahead, four hundred fresh geometries a run; the almanac agrees with an independent reference ephemeris; three star sights from a known position resolve back to it. Alongside them, about twenty-six thousand lines of golden files capture every screen the tools can produce, so any change to what you see becomes a diff somebody has to accept on purpose.</p>
+  <p><b>None of that can tell you whether Rule 27 says what the program says it says.</b> A test can check that a quiz marks answer C as correct; it cannot check that C is right. It can check that a light table is geometrically consistent; it cannot check that a mine clearance vessel shows those lights. Those are judgements against a document, and they need a person holding the document.</p>
+  <p>So if you are going to send one thing, send one of these — in the order of how much damage a wrong one would do:</p>
+  <ol class="needs">
+    <li><b>Who gives way, and what to do.</b> The twenty-eight encounters and the sixty-five distinct give-way calls the lights quiz can make. A wrong light table makes you misname a ship; a wrong verdict here makes you <em>turn the wrong way</em>. This logic was written backwards once during development and caught by a reader, not by a test. Rules&nbsp;12–18.</li>
+    <li><b>The light tables.</b> Twenty vessels, and every picture, question and answer is computed from them. Two errors have already been found — both by somebody looking at a picture, trying to account for every light in it, and failing. Rules&nbsp;20–31 and Annex&nbsp;I.</li>
+    <li><b>The teaching.</b> The lessons paraphrase the rules rather than quote them, and a paraphrase that is nearly right is worse than one that is obviously wrong.</li>
+    <li><b>Distractors that are also correct.</b> The lights questions are proved to have a single right answer. The encounters are not — an option that is also defensible would mark you wrong for being right.</li>
+    <li><b>What is missing.</b> No test notices an absent vessel, an absent rule, or an exception that goes unmentioned.</li>
+  </ol>
+  <p class="small">Both tools carry the same list: <code>colregs about</code>, then 3 and 5. A fix that disagrees with your own worked sight, or an almanac value that disagrees with a printed Nautical Almanac, is the most valuable thing you can send about <code>celnav</code> — it has been validated against a computed reference, never against the book.</p>
+</section>
+
+<footer>
+  <p>Bash Navigation Software &middot; Apache 2.0 &middot; no warranty of any kind.</p>
+  <p>Corrections to the astronomy and to the rules are especially welcome — please say which source or edition you are working from.</p>
+</footer>
+
+</div>
+</body>
+</html>

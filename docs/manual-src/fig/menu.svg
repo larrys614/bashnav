@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="958.3" height="287.6" viewBox="0 0 958.3 287.6" font-family="DejaVu Sans, Helvetica, sans-serif">
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#1f5673"/></marker><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a2542a"/></marker></defs>
+<rect x="0" y="0" width="958.3" height="287.6" fill="#ffffff"/>
+<rect x="206.8" y="3.6" width="556.6" height="236.9" rx="5" fill="#f7fafb" stroke="#bfcdd6" stroke-width="1"/>
+<rect x="240.8" y="66.6" width="159.6" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="240.8" y="82.9" width="222.3" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="248.7" y="115.7" width="128.3" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="248.7" y="132.1" width="183.1" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="248.7" y="148.5" width="198.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="444.5" y="66.6" width="198.8" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="608.9" y="82.9" width="128.3" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="483.6" y="164.8" width="245.8" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="483.6" y="197.6" width="112.6" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="233.0" y="214.0" width="26.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<g font-family="DejaVu Sans Mono, monospace" font-size="13.00" fill="#16222c" xml:space="preserve">
+<text x="218.8" y="28.0">  ===============================================================</text>
+<text x="218.8" y="44.4">   CELNAV 1.0   celestial navigation, no internet needed</text>
+<text x="218.8" y="60.7">  ===============================================================</text>
+<text x="218.8" y="77.1">   DR 35 00 N  040 00 W      course 000 T   speed 0 kn</text>
+<text x="218.8" y="93.5">   eye 2.5 m   index error 0.0&#x27;   10 C  1010 mb   sights logged: 3</text>
+<text x="218.8" y="109.9">  ---------------------------------------------------------------</text>
+<text x="218.8" y="126.2">    1  Enter a sight              5  Compass check</text>
+<text x="218.8" y="142.6">    2  Reduce sights -&gt; FIX       6  Set DR, course and speed</text>
+<text x="218.8" y="159.0">    3  Sight planning / stars     7  Sight log</text>
+<text x="218.8" y="175.4">    4  Almanac for a time         8  Sextant and weather settings</text>
+<text x="218.8" y="191.8"></text>
+<text x="218.8" y="208.1">    s  Star list   t  Self test   d  Check setup   h  Help   q  Quit</text>
+<text x="218.8" y="224.5">  &gt; 2</text>
+</g>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="193.8" y="30.0">The position the sights</text>
+<text x="193.8" y="43.0">are reduced from.</text>
+</g>
+<path d="M195.3,32.0 L237.5,70.9" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="end">
+<text x="193.8" y="85.7">The sextant and weather</text>
+<text x="193.8" y="98.7">figures now in force.</text>
+</g>
+<path d="M195.3,87.7 L236.3,90.1" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="193.8" y="131.7">The working cycle: enter each</text>
+<text x="193.8" y="144.7">sight as you take it, then</text>
+<text x="193.8" y="157.7">reduce the whole round at once.</text>
+</g>
+<path d="M195.3,140.1 L244.4,124.5" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M195.3,140.1 L244.2,139.5" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="193.8" y="187.3">Run before twilight - what is</text>
+<text x="193.8" y="200.3">up, how high, and the best</text>
+<text x="193.8" y="213.3">three to shoot.</text>
+</g>
+<path d="M195.3,195.8 L245.1,158.6" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="776.4" y="17.0">Course made good and speed.</text>
+<text x="776.4" y="30.1">With these set, every line of</text>
+<text x="776.4" y="43.1">position is advanced to the</text>
+<text x="776.4" y="56.1">fix time for you.</text>
+</g>
+<path d="M775.0,32.0 L647.6,72.6" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a">
+<text x="776.4" y="95.5">Sights waiting to be reduced.</text>
+</g>
+<path d="M775.0,91.0 L741.7,90.4" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a">
+<text x="776.4" y="138.2">Sets the two figures</text>
+<text x="776.4" y="151.2">highlighted above.</text>
+</g>
+<path d="M775.0,140.1 L733.1,169.7" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="middle">
+<text x="554.4" y="261.5">Checks your awk, your clock and the data folder,</text>
+<text x="554.4" y="274.5">then runs the built-in self test.</text>
+</g>
+<path d="M554.4,247.9 L541.6,216.6" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673" text-anchor="middle">
+<text x="250.2" y="261.5">Type a number</text>
+<text x="250.2" y="274.5">and press return.</text>
+</g>
+<path d="M250.2,247.9 L247.2,233.2" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+</svg>

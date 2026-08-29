@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1073.5" height="548.2" viewBox="0 0 1073.5 548.2" font-family="DejaVu Sans, Helvetica, sans-serif">
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#1f5673"/></marker><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a2542a"/></marker></defs>
+<rect x="0" y="0" width="1073.5" height="548.2" fill="#ffffff"/>
+<rect x="224.8" y="0.0" width="587.9" height="548.2" rx="5" fill="#f7fafb" stroke="#bfcdd6" stroke-width="1"/>
+<rect x="258.8" y="79.3" width="26.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="258.8" y="95.7" width="26.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="258.8" y="112.1" width="26.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="251.0" y="62.9" width="89.2" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="587.8" y="521.6" width="50.0" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="251.0" y="406.9" width="167.5" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<g font-family="DejaVu Sans Mono, monospace" font-size="13.00" fill="#16222c" xml:space="preserve">
+<text x="236.8" y="24.4">  LEARN -- the syllabus</text>
+<text x="236.8" y="40.7">  ----------------------------------------------------------------------</text>
+<text x="236.8" y="57.1"></text>
+<text x="236.8" y="73.5">  FOUNDATIONS</text>
+<text x="236.8" y="89.9">   [x]  F1   What a sight actually measures</text>
+<text x="236.8" y="106.2">   [x]  F2   The geographical position</text>
+<text x="236.8" y="122.6">   [x]  F3   Your altitude puts you on a circle</text>
+<text x="236.8" y="139.0">   [ ]  F4   Two circles give a fix</text>
+<text x="236.8" y="155.4">   [ ]  F5   Why we never draw the circles</text>
+<text x="236.8" y="171.8"></text>
+<text x="236.8" y="188.1">  TIME AND THE ALMANAC</text>
+<text x="236.8" y="204.5">   [x]  T1   Universal Time, and why the clock rules</text>
+<text x="236.8" y="220.9">   [ ]  T2   GHA and declination</text>
+<text x="236.8" y="237.3">   [ ]  T3   Aries and SHA: why the stars are different</text>
+<text x="236.8" y="253.7">   [ ]  T4   LHA: the angle at the pole</text>
+<text x="236.8" y="270.1">   [ ]  T5   Using the almanac in CELNAV</text>
+<text x="236.8" y="286.4"></text>
+<text x="236.8" y="302.8">  SEXTANT AND CORRECTIONS</text>
+<text x="236.8" y="319.2">   [ ]  S1   Taking a sight</text>
+<text x="236.8" y="335.6">   [ ]  S2   Index error and dip</text>
+<text x="236.8" y="351.9">   [ ]  S3   Refraction</text>
+<text x="236.8" y="368.3">   [ ]  S4   Semi-diameter and parallax</text>
+<text x="236.8" y="384.7">   [ ]  S5   The whole chain, and the size of each part</text>
+<text x="236.8" y="401.1"></text>
+<text x="236.8" y="417.5">  REDUCTION AND THE FIX</text>
+<text x="236.8" y="433.9">   [ ]  R1   The assumed position and the triangle</text>
+<text x="236.8" y="450.2">   [ ]  R2   Hc and Zn</text>
+<text x="236.8" y="466.6">   [ ]  R3   The intercept: toward or away</text>
+<text x="236.8" y="483.0">   [ ]  R4   Plotting the line of position</text>
+<text x="236.8" y="499.4">   [ ]  R5   Crossing, running, and knowing when to doubt it</text>
+<text x="236.8" y="515.8">  ----------------------------------------------------------------------</text>
+<text x="236.8" y="532.1">  4 of 20 lessons done.  Type a lesson code (F1, R3 ...) to open it.</text>
+</g>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="211.8" y="108.3">Lessons you have</text>
+<text x="211.8" y="121.3">finished.</text>
+</g>
+<path d="M213.3,110.3 L254.8,88.8" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M213.3,110.3 L254.4,103.8" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M213.3,110.3 L254.4,118.6" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="825.7" y="52.7">Four modules, five lessons each:</text>
+<text x="825.7" y="65.7">foundations, time and the almanac,</text>
+<text x="825.7" y="78.7">the sextant, then reduction and the fix.</text>
+</g>
+<path d="M824.3,61.1 L344.6,70.3" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a">
+<text x="825.7" y="370.4">Jump to any lesson by code, or</text>
+<text x="825.7" y="383.4">press n for the next unfinished one.</text>
+</g>
+<path d="M824.3,372.4 L641.2,526.1" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="end">
+<text x="211.8" y="265.6">Each lesson ends with a question.</text>
+<text x="211.8" y="278.6">Answer it correctly and the lesson</text>
+<text x="211.8" y="291.6">is ticked off.</text>
+</g>
+<path d="M213.3,274.1 L249.8,410.0" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+</svg>

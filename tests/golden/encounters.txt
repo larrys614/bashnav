@@ -1,0 +1,1484 @@
+=== encounter 1 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......          :      .......
+               ....                :            ....
+            ...                    : HER            ...
+          ..                       v                   ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a power-driven vessel, both her sidelights and two masthead lights in line, bearing 006 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: keep your course and speed.
+   b) Give way: alter to port and pass down her starboard side.
+   c) Sound one short blast and hold on.
+   d) Alter course to starboard, and expect her to do the same.
+
+  Not right.
+  D is right -- Rule 14
+  Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.
+
+  Not right.
+  D is right -- Rule 14
+  Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.
+
+  Not right.
+  D is right -- Rule 14
+  Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.
+
+  D is right -- Rule 14
+  Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.
+
+=== encounter 2 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .     <::      .
+    ..             ..                         ..       HER   ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a power-driven vessel showing her red sidelight, bearing 095 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she must keep clear of you.
+   b) Give way: alter to starboard and pass under her stern.
+   c) Give way: alter to port to cut across ahead of her.
+   d) Slow down and let her decide.
+
+  Not right.
+  B is right -- Rule 15
+  She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
+
+  B is right -- Rule 15
+  She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
+
+  Not right.
+  B is right -- Rule 15
+  She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
+
+  Not right.
+  B is right -- Rule 15
+  She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.
+
+=== encounter 3 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..            HER                            ..
+        ...          :>                                 ...
+       ..         :::    .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a power-driven vessel showing her green sidelight, bearing 325 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: keep your course and speed, and watch her.
+   b) Give way: alter to starboard.
+   c) Give way: alter to port.
+   d) Stop your engines at once.
+
+  A is right -- Rule 17
+  She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.
+
+  Not right.
+  A is right -- Rule 17
+  She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.
+
+  Not right.
+  A is right -- Rule 17
+  She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.
+
+  Not right.
+  A is right -- Rule 17
+  She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.
+
+=== encounter 4 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                       HER           ...
+          ..                        ^                  ..
+        ...                         :                   ...
+       ..                .................                ..
+      ..              ...           :     ...              ..
+     .              ...             :       ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel making 18 knots.
+  You see a power-driven vessel dead ahead making 8 knots, showing only her sternlight, bearing 008 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: you are the faster vessel.
+   b) Give way: you are overtaking, so keep clear until you are finally past and clear.
+   c) Sound two short blasts and pass down her port side.
+   d) Alter to starboard only if she alters first.
+
+  Not right.
+  B is right -- Rule 13
+  You are coming up on her from more than 22.5 degrees abaft her beam - you can see only her sternlight, which is the test. Any subsequent alteration of bearing does not make you a crossing vessel: you remain the give-way vessel until finally past and clear.
+
+  B is right -- Rule 13
+  You are coming up on her from more than 22.5 degrees abaft her beam - you can see only her sternlight, which is the test. Any subsequent alteration of bearing does not make you a crossing vessel: you remain the give-way vessel until finally past and clear.
+
+  Not right.
+  B is right -- Rule 13
+  You are coming up on her from more than 22.5 degrees abaft her beam - you can see only her sternlight, which is the test. Any subsequent alteration of bearing does not make you a crossing vessel: you remain the give-way vessel until finally past and clear.
+
+  Not right.
+  B is right -- Rule 13
+  You are coming up on her from more than 22.5 degrees abaft her beam - you can see only her sternlight, which is the test. Any subsequent alteration of bearing does not make you a crossing vessel: you remain the give-way vessel until finally past and clear.
+
+=== encounter 5 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..               ^                           ..
+            ...            : HER                    ...
+               ....        :                    ....
+                  .......  :              .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel making 8 knots.
+  You see a large power-driven vessel coming up astern, fine on your port quarter, bearing 198 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: keep your course and speed.
+   b) Give way: alter to starboard.
+   c) Give way: slow down and let her pass.
+   d) Alter to port to open the distance.
+
+  A is right -- Rule 13
+  She is overtaking you, so she must keep out of your way. You are the stand-on vessel and should hold your course and speed so that she can plan around you.
+
+  Not right.
+  A is right -- Rule 13
+  She is overtaking you, so she must keep out of your way. You are the stand-on vessel and should hold your course and speed so that she can plan around you.
+
+  Not right.
+  A is right -- Rule 13
+  She is overtaking you, so she must keep out of your way. You are the stand-on vessel and should hold your course and speed so that she can plan around you.
+
+  Not right.
+  A is right -- Rule 13
+  She is overtaking you, so she must keep out of your way. You are the stand-on vessel and should hold your course and speed so that she can plan around you.
+
+=== encounter 6 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...       HER    .
+    ..             ..                         ..    \        ..
+    .              .             ^             .     ::       .
+    .              .             |             ..      :      .
+    .              .            YOU            .        :     .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a sailing vessel under sail alone, on your starboard bow, bearing 076 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she is smaller than you.
+   b) Give way: keep out of her way.
+   c) Give way only if she is on your starboard side.
+   d) Sound five short blasts.
+
+  Not right.
+  B is right -- Rule 18
+  A power-driven vessel under way keeps out of the way of a sailing vessel. Which side she is on does not come into it, and neither does her size.
+
+  B is right -- Rule 18
+  A power-driven vessel under way keeps out of the way of a sailing vessel. Which side she is on does not come into it, and neither does her size.
+
+  Not right.
+  B is right -- Rule 18
+  A power-driven vessel under way keeps out of the way of a sailing vessel. Which side she is on does not come into it, and neither does her size.
+
+  Not right.
+  B is right -- Rule 18
+  A power-driven vessel under way keeps out of the way of a sailing vessel. Which side she is on does not come into it, and neither does her size.
+
+=== encounter 7 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...               HER                   ...
+          ..            ::::>                          ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a sailing vessel under sail alone.
+  You see a power-driven vessel on your port bow, bearing 346 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she must keep out of your way.
+   b) Give way: alter to starboard.
+   c) Give way: tack away.
+   d) Bear away and pass under her stern.
+
+  A is right -- Rule 18
+  She is a power-driven vessel and you are under sail, so she keeps clear. Stand on - but keep watching, and be ready to act under Rule 17 if she does nothing.
+
+  Not right.
+  A is right -- Rule 18
+  She is a power-driven vessel and you are under sail, so she keeps clear. Stand on - but keep watching, and be ready to act under Rule 17 if she does nothing.
+
+  Not right.
+  A is right -- Rule 18
+  She is a power-driven vessel and you are under sail, so she keeps clear. Stand on - but keep watching, and be ready to act under Rule 17 if she does nothing.
+
+  Not right.
+  A is right -- Rule 18
+  She is a power-driven vessel and you are under sail, so she keeps clear. Stand on - but keep watching, and be ready to act under Rule 17 if she does nothing.
+
+=== encounter 8 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                           : ....
+            ...                                :    ...
+          ..                                    :      ..
+        ...                                     :  HER  ...
+       ..                .................       \        ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a vessel showing red over white all-round lights, with sidelights, bearing 052 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she is fishing and must keep clear.
+   b) Give way: keep well out of her way.
+   c) Give way only if she is on your starboard side.
+   d) Pass close ahead to give her room astern.
+
+  Not right.
+  B is right -- Rule 18
+  Red over white means a vessel engaged in fishing other than trawling. A power-driven vessel keeps out of the way of a vessel engaged in fishing, and you should also expect gear to be streamed a long way astern of her.
+
+  B is right -- Rule 18
+  Red over white means a vessel engaged in fishing other than trawling. A power-driven vessel keeps out of the way of a vessel engaged in fishing, and you should also expect gear to be streamed a long way astern of her.
+
+  Not right.
+  B is right -- Rule 18
+  Red over white means a vessel engaged in fishing other than trawling. A power-driven vessel keeps out of the way of a vessel engaged in fishing, and you should also expect gear to be streamed a long way astern of her.
+
+  Not right.
+  B is right -- Rule 18
+  Red over white means a vessel engaged in fishing other than trawling. A power-driven vessel keeps out of the way of a vessel engaged in fishing, and you should also expect gear to be streamed a long way astern of her.
+
+=== encounter 9 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                       :   ..
+        ...                                        :    ...
+       ..                .................         :      ..
+      ..              ...                 ...      :  HER  ..
+     .              ...                     ...     v        .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a vessel showing red, white, red in a vertical line, bearing 069 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she is the give-way vessel.
+   b) Give way: keep well out of her way.
+   c) Sound one short blast and alter to starboard.
+   d) Stand on but sound five short blasts.
+
+  Not right.
+  B is right -- Rule 18
+  Red over white over red: restricted in her ability to manoeuvre. She may be dredging, laying cable or transferring stores, and she cannot get out of your way. Everything keeps clear of her except a vessel not under command.
+
+  B is right -- Rule 18
+  Red over white over red: restricted in her ability to manoeuvre. She may be dredging, laying cable or transferring stores, and she cannot get out of your way. Everything keeps clear of her except a vessel not under command.
+
+  Not right.
+  B is right -- Rule 18
+  Red over white over red: restricted in her ability to manoeuvre. She may be dredging, laying cable or transferring stores, and she cannot get out of your way. Everything keeps clear of her except a vessel not under command.
+
+  Not right.
+  B is right -- Rule 18
+  Red over white over red: restricted in her ability to manoeuvre. She may be dredging, laying cable or transferring stores, and she cannot get out of your way. Everything keeps clear of her except a vessel not under command.
+
+=== encounter 10 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                 :   ...
+          ..                                    :      ..
+        ...                                      : HER  ...
+       ..                .................       v        ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel in a deep-water channel.
+  You see a vessel showing three all-round red lights in a vertical line, bearing 052 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: a constrained vessel has no special status.
+   b) Give way: avoid impeding her safe passage.
+   c) Overtake her quickly on her starboard side.
+   d) Anchor until she has passed.
+
+  Not right.
+  B is right -- Rule 18(d)
+  Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.
+
+  B is right -- Rule 18(d)
+  Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.
+
+  Not right.
+  B is right -- Rule 18(d)
+  Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.
+
+  Not right.
+  B is right -- Rule 18(d)
+  Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.
+
+=== encounter 11 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...        HER   ..
+     .              ...                     ...    \         .
+    ..             ..                         ..    ::       ..
+    .              .             ^             .      ::      .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a sailing vessel on the port tack.
+  You see a sailing vessel on the starboard tack, on your starboard bow, bearing 066 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: you were there first.
+   b) Give way: keep out of her way.
+   c) Give way only if she is to windward.
+   d) Tack immediately.
+
+  Not right.
+  B is right -- Rule 12
+  When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.
+
+  B is right -- Rule 12
+  When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.
+
+  Not right.
+  B is right -- Rule 12
+  When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.
+
+  Not right.
+  B is right -- Rule 12
+  When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.
+
+=== encounter 12 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .          ^           ...
+          ..                                : HER      ..
+            ...                            :        ...
+               ....                        :    ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a sailing vessel to windward.
+  You see a sailing vessel to leeward, both of you on the same tack, bearing 146 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: windward has right of way.
+   b) Give way: the windward vessel keeps clear of the leeward vessel.
+   c) Give way only in a narrow channel.
+   d) Both alter to starboard.
+
+  Not right.
+  B is right -- Rule 12
+  With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
+
+  B is right -- Rule 12
+  With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
+
+  Not right.
+  B is right -- Rule 12
+  With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
+
+  Not right.
+  B is right -- Rule 12
+  With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.
+
+=== encounter 13 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...         HER  ..
+     .              ...                     ...     ^        .
+    ..             ..                         ..    :        ..
+    .              .             ^             .    :         .
+    .              .             |             ..   :         .
+    .              .            YOU            .    :         .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a vessel showing two all-round red lights and no sidelights, bearing 069 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she is not moving.
+   b) Give way: keep well out of her way - she is not under command.
+   c) Sound five short blasts and hold on.
+   d) Pass close ahead - she cannot move.
+
+  Not right.
+  B is right -- Rule 18
+  Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.
+
+  B is right -- Rule 18
+  Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.
+
+  Not right.
+  B is right -- Rule 18
+  Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.
+
+  Not right.
+  B is right -- Rule 18
+  Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.
+
+=== encounter 14 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                 :   ...
+          ..                                    :      ..
+        ...                                      : HER  ...
+       ..                .................       v        ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way in fog, hearing but not seeing her.
+  You see a fog signal of one prolonged blast followed by two short, forward of your beam, bearing 052 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: the signal tells you she will keep clear.
+   b) Reduce to bare steerage way - she may be a vessel restricted in her ability to manoeuvre, fishing, towing or under sail.
+   c) Alter boldly to port.
+   d) Sound five short blasts and continue.
+
+  Not right.
+  B is right -- Rule 19
+  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
+
+  B is right -- Rule 19
+  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
+
+  Not right.
+  B is right -- Rule 19
+  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
+
+  Not right.
+  B is right -- Rule 19
+  One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.
+
+=== encounter 15 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..       HER   ..
+    .              .             ^             .     \        .
+    .              .             |             ..     :       .
+    .              .            YOU            .       ::     .
+    ..             ..                         ..         :   ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a yacht of 11 m, under power, crossing a narrow buoyed channel.
+  You see a laden bulk carrier coming down the channel, which she cannot leave, bearing 085 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: you are crossing and she is on your starboard side, so Rule 15 applies.
+   b) Keep clear early: do not impede a vessel that can only navigate within the channel.
+   c) Cross ahead quickly to get out of her way.
+   d) Anchor in the channel until she has passed.
+
+  Not right.
+  B is right -- Rule 9
+  Rule 9(b): a vessel of less than 20 metres or a sailing vessel shall not impede the passage of a vessel which can safely navigate only within a narrow channel. Shall not impede is stronger than give way - keep clear early enough that the question never arises.
+
+  B is right -- Rule 9
+  Rule 9(b): a vessel of less than 20 metres or a sailing vessel shall not impede the passage of a vessel which can safely navigate only within a narrow channel. Shall not impede is stronger than give way - keep clear early enough that the question never arises.
+
+  Not right.
+  B is right -- Rule 9
+  Rule 9(b): a vessel of less than 20 metres or a sailing vessel shall not impede the passage of a vessel which can safely navigate only within a narrow channel. Shall not impede is stronger than give way - keep clear early enough that the question never arises.
+
+  Not right.
+  B is right -- Rule 9
+  Rule 9(b): a vessel of less than 20 metres or a sailing vessel shall not impede the passage of a vessel which can safely navigate only within a narrow channel. Shall not impede is stronger than give way - keep clear early enough that the question never arises.
+
+=== encounter 16 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...       HER    .
+    ..             ..                         ..    \        ..
+    .              .             ^             .     ::       .
+    .              .             |             ..      :      .
+    .              .            YOU            .        :     .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a 12 m yacht under sail, crossing a traffic separation scheme.
+  You see a container ship following the lane, fine on your starboard bow, bearing 076 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: you are under sail, so power keeps clear of you.
+   b) Keep clear: a sailing vessel shall not impede a power-driven vessel following a lane, and cross on a heading at right angles to the flow.
+   c) Motor along the lane until there is a gap.
+   d) Cross at a shallow angle to spend less time in the lane.
+
+  Not right.
+  B is right -- Rule 10
+  Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede the safe passage of a power-driven vessel following a traffic lane. And Rule 10(c) says cross on a heading as nearly as practicable at right angles to the flow - heading, not ground track, because a beam-on aspect is what makes you visible and predictable.
+
+  B is right -- Rule 10
+  Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede the safe passage of a power-driven vessel following a traffic lane. And Rule 10(c) says cross on a heading as nearly as practicable at right angles to the flow - heading, not ground track, because a beam-on aspect is what makes you visible and predictable.
+
+  Not right.
+  B is right -- Rule 10
+  Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede the safe passage of a power-driven vessel following a traffic lane. And Rule 10(c) says cross on a heading as nearly as practicable at right angles to the flow - heading, not ground track, because a beam-on aspect is what makes you visible and predictable.
+
+  Not right.
+  B is right -- Rule 10
+  Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede the safe passage of a power-driven vessel following a traffic lane. And Rule 10(c) says cross on a heading as nearly as practicable at right angles to the flow - heading, not ground track, because a beam-on aspect is what makes you visible and predictable.
+
+=== encounter 17 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                       HER           ...
+          ..                        ^                  ..
+        ...                         :                   ...
+       ..                .................                ..
+      ..              ...           :     ...              ..
+     .              ...             :       ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a coaster overtaking a slower vessel in a narrow channel.
+  You see the vessel ahead, whose agreement you need before you pass, bearing 008 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Alter to starboard and pass, sounding one short blast.
+   b) Pass on whichever side has more water, without signalling.
+   c) Sound two prolonged and one short - I intend to overtake you on your starboard side - and wait for her answer.
+   d) Call her on VHF and pass when she does not object.
+
+  Not right.
+  C is right -- Rule 9(e)
+  Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
+
+  Not right.
+  C is right -- Rule 9(e)
+  Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
+
+  C is right -- Rule 9(e)
+  Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
+
+  Not right.
+  C is right -- Rule 9(e)
+  Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.
+
+=== encounter 18 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                      HER            ...
+          ..                       ^                   ..
+        ...                        :                    ...
+       ..                .................                ..
+      ..              ...          :      ...              ..
+     .              ...            :        ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel in thick fog, hearing but not seeing her.
+  You see two prolonged blasts, about two seconds apart, from fine on the port bow, bearing 005 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: two prolonged means she is stopped, so she is no danger.
+   b) Reduce to the least speed at which you can be kept on course, and be ready to take all way off.
+   c) Alter boldly to port and pass down her starboard side.
+   d) Sound five short blasts and hold your speed.
+
+  Not right.
+  B is right -- Rule 19
+  Two prolonged blasts is a power-driven vessel under way but stopped and making no way. In restricted visibility there is no stand-on vessel: Rule 19(e) requires you to reduce to bare steerage way on hearing a fog signal apparently forward of the beam, and if necessary take all your way off.
+
+  B is right -- Rule 19
+  Two prolonged blasts is a power-driven vessel under way but stopped and making no way. In restricted visibility there is no stand-on vessel: Rule 19(e) requires you to reduce to bare steerage way on hearing a fog signal apparently forward of the beam, and if necessary take all your way off.
+
+  Not right.
+  B is right -- Rule 19
+  Two prolonged blasts is a power-driven vessel under way but stopped and making no way. In restricted visibility there is no stand-on vessel: Rule 19(e) requires you to reduce to bare steerage way on hearing a fog signal apparently forward of the beam, and if necessary take all your way off.
+
+  Not right.
+  B is right -- Rule 19
+  Two prolonged blasts is a power-driven vessel under way but stopped and making no way. In restricted visibility there is no stand-on vessel: Rule 19(e) requires you to reduce to bare steerage way on hearing a fog signal apparently forward of the beam, and if necessary take all your way off.
+
+=== encounter 19 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...         HER  ..
+     .              ...                     ...     ^        .
+    ..             ..                         ..    :        ..
+    .              .             ^             .    :         .
+    .              .             |             ..   :         .
+    .              .            YOU            .    :         .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a yacht under sail alone.
+  You see a vessel showing two all-round red lights and nothing else, bearing 069 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: you are under sail, so everything keeps clear of you.
+   b) Keep well out of her way: she is not under command and cannot manoeuvre at all.
+   c) Pass close under her stern to see what is wrong.
+   d) Sound five short blasts.
+
+  Not right.
+  B is right -- Rule 18(b)
+  Being under sail does not put you at the top of the order. Rule 18(b): a sailing vessel keeps out of the way of a vessel not under command, of one restricted in her ability to manoeuvre, and of one engaged in fishing.
+
+  B is right -- Rule 18(b)
+  Being under sail does not put you at the top of the order. Rule 18(b): a sailing vessel keeps out of the way of a vessel not under command, of one restricted in her ability to manoeuvre, and of one engaged in fishing.
+
+  Not right.
+  B is right -- Rule 18(b)
+  Being under sail does not put you at the top of the order. Rule 18(b): a sailing vessel keeps out of the way of a vessel not under command, of one restricted in her ability to manoeuvre, and of one engaged in fishing.
+
+  Not right.
+  B is right -- Rule 18(b)
+  Being under sail does not put you at the top of the order. Rule 18(b): a sailing vessel keeps out of the way of a vessel not under command, of one restricted in her ability to manoeuvre, and of one engaged in fishing.
+
+=== encounter 20 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...       HER    .
+    ..             ..                         ..    \        ..
+    .              .             ^             .     ::       .
+    .              .             |             ..      :      .
+    .              .            YOU            .        :     .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a sailing vessel, and the vessel to windward is on the same tack.
+  You see another sailing vessel to windward, converging, bearing 076 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: the windward vessel keeps clear of the leeward vessel.
+   b) Give way: you are the leeward vessel and must bear away.
+   c) Give way: tack immediately.
+   d) Both alter to starboard.
+
+  A is right -- Rule 12
+  Rule 12(a)(ii): when two sailing vessels have the wind on the same side, the vessel which is to windward keeps out of the way of the vessel to leeward. You are to leeward, so you stand on.
+
+  Not right.
+  A is right -- Rule 12
+  Rule 12(a)(ii): when two sailing vessels have the wind on the same side, the vessel which is to windward keeps out of the way of the vessel to leeward. You are to leeward, so you stand on.
+
+  Not right.
+  A is right -- Rule 12
+  Rule 12(a)(ii): when two sailing vessels have the wind on the same side, the vessel which is to windward keeps out of the way of the vessel to leeward. You are to leeward, so you stand on.
+
+  Not right.
+  A is right -- Rule 12
+  Rule 12(a)(ii): when two sailing vessels have the wind on the same side, the vessel which is to windward keeps out of the way of the vessel to leeward. You are to leeward, so you stand on.
+
+=== encounter 21 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                 :   ...
+          ..                                    :      ..
+        ...                                      : HER  ...
+       ..                .................       v        ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel in a deep-water route.
+  You see a loaded tanker showing three all-round red lights in a vertical line, bearing 052 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she has no special status under Rule 18.
+   b) Avoid impeding her safe passage - she may have very little water under her keel.
+   c) Overtake her briskly on her starboard side.
+   d) Cross close ahead of her to clear the route.
+
+  Not right.
+  B is right -- Rule 18(d)
+  Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.
+
+  B is right -- Rule 18(d)
+  Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.
+
+  Not right.
+  B is right -- Rule 18(d)
+  Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.
+
+  Not right.
+  B is right -- Rule 18(d)
+  Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.
+
+=== encounter 22 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...        HER   ..
+     .              ...                     ...    <::       .
+    ..             ..                         ..      ::     ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a seaplane on the water, ahead and to starboard, bearing 066 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: a seaplane on the water keeps well clear of all vessels.
+   b) Give way: an aircraft has right of way.
+   c) Give way: alter to starboard and pass astern of her.
+   d) Stop your engines.
+
+  A is right -- Rule 18(e)
+  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.
+
+  Not right.
+  A is right -- Rule 18(e)
+  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.
+
+  Not right.
+  A is right -- Rule 18(e)
+  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.
+
+  Not right.
+  A is right -- Rule 18(e)
+  Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.
+
+=== encounter 23 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                 :   ...
+          ..                                    :      ..
+        ...                                      : HER  ...
+       ..                .................       v        ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel under way.
+  You see a vessel showing three all-round green lights, one at the masthead and one at each yardarm, bearing 052 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: green lights mean she is under way and keeping clear.
+   b) Give way: alter to starboard and pass a cable astern of her.
+   c) Keep at least 1000 metres clear of her: she is engaged in mine clearance.
+   d) Sound one short blast and pass close ahead.
+
+  Not right.
+  C is right -- Rule 27(f)
+  Rule 27(f): three all-round greens marks a vessel engaged in mine clearance operations. Other vessels shall keep at least 1000 metres clear of her - much further than ordinary avoiding action.
+
+  Not right.
+  C is right -- Rule 27(f)
+  Rule 27(f): three all-round greens marks a vessel engaged in mine clearance operations. Other vessels shall keep at least 1000 metres clear of her - much further than ordinary avoiding action.
+
+  C is right -- Rule 27(f)
+  Rule 27(f): three all-round greens marks a vessel engaged in mine clearance operations. Other vessels shall keep at least 1000 metres clear of her - much further than ordinary avoiding action.
+
+  Not right.
+  C is right -- Rule 27(f)
+  Rule 27(f): three all-round greens marks a vessel engaged in mine clearance operations. Other vessels shall keep at least 1000 metres clear of her - much further than ordinary avoiding action.
+
+=== encounter 24 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                        HER  ...
+       ..                .................       ^        ..
+      ..              ...                 ...    :         ..
+     .              ...                     ...  :           .
+    ..             ..                         .. :           ..
+    .              .             ^             . :            .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel closing the coast at night.
+  You see two all-round red lights in a line, with a white light below and forward, and no sidelights, bearing 052 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she is showing red over red, so she is not under command and under way.
+   b) Keep clear: anchor lights with two all-round reds means she is aground, so there is shoal water where she sits.
+   c) Close her to offer assistance without altering course.
+   d) Sound one prolonged blast and hold on.
+
+  Not right.
+  B is right -- Rule 30(d)
+  Rule 30(d): a vessel aground shows the anchor lights plus two all-round reds in a vertical line. The important part is not only that she cannot move - it is that you now know exactly where the shoal is.
+
+  B is right -- Rule 30(d)
+  Rule 30(d): a vessel aground shows the anchor lights plus two all-round reds in a vertical line. The important part is not only that she cannot move - it is that you now know exactly where the shoal is.
+
+  Not right.
+  B is right -- Rule 30(d)
+  Rule 30(d): a vessel aground shows the anchor lights plus two all-round reds in a vertical line. The important part is not only that she cannot move - it is that you now know exactly where the shoal is.
+
+  Not right.
+  B is right -- Rule 30(d)
+  Rule 30(d): a vessel aground shows the anchor lights plus two all-round reds in a vertical line. The important part is not only that she cannot move - it is that you now know exactly where the shoal is.
+
+=== encounter 25 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                             HER     ...
+          ..                              ^            ..
+        ...                               :             ...
+       ..                .................:               ..
+      ..              ...                 ...              ..
+     .              ...                   : ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are entering a busy anchorage after dark.
+  You see a single all-round white light, low down, not moving, fine on the starboard bow, bearing 027 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: a single white light is a sternlight, so she is going away from you.
+   b) Treat her as a vessel at anchor and pass well clear: she is not under way and cannot get out of your way.
+   c) Assume it is a small boat under oars and hold your course.
+   d) Sound two short blasts and pass down her port side.
+
+  Not right.
+  B is right -- Rule 30
+  One all-round white is a vessel of under 50 metres at anchor. A single white light is genuinely ambiguous at first sight - it may be a sternlight, an anchor light or a small craft - so the answer is to keep watching the bearing and pass well clear until you know which.
+
+  B is right -- Rule 30
+  One all-round white is a vessel of under 50 metres at anchor. A single white light is genuinely ambiguous at first sight - it may be a sternlight, an anchor light or a small craft - so the answer is to keep watching the bearing and pass well clear until you know which.
+
+  Not right.
+  B is right -- Rule 30
+  One all-round white is a vessel of under 50 metres at anchor. A single white light is genuinely ambiguous at first sight - it may be a sternlight, an anchor light or a small craft - so the answer is to keep watching the bearing and pass well clear until you know which.
+
+  Not right.
+  B is right -- Rule 30
+  One all-round white is a vessel of under 50 metres at anchor. A single white light is genuinely ambiguous at first sight - it may be a sternlight, an anchor light or a small craft - so the answer is to keep watching the bearing and pass well clear until you know which.
+
+=== encounter 26 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...            HER                      ...
+          ..            :>                             ..
+        ...           ::                                ...
+       ..            :   .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel approaching a pilot station.
+  You see a pilot vessel showing white over red, with sidelights and a sternlight, crossing from your port side, bearing 336 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: she is crossing from your port side, and being a pilot vessel gives her no special status.
+   b) Give way: pilot vessels always have right of way.
+   c) Give way: sound one short blast and alter to starboard.
+   d) Stop and let her cross.
+
+  A is right -- Rule 29
+  White over red - pilot ahead. Rule 29 says what a pilot vessel shows, not that she is privileged. Unless she is also restricted in her ability to manoeuvre, the ordinary steering rules apply, and here she is on your port side crossing.
+
+  Not right.
+  A is right -- Rule 29
+  White over red - pilot ahead. Rule 29 says what a pilot vessel shows, not that she is privileged. Unless she is also restricted in her ability to manoeuvre, the ordinary steering rules apply, and here she is on your port side crossing.
+
+  Not right.
+  A is right -- Rule 29
+  White over red - pilot ahead. Rule 29 says what a pilot vessel shows, not that she is privileged. Unless she is also restricted in her ability to manoeuvre, the ordinary steering rules apply, and here she is on your port side crossing.
+
+  Not right.
+  A is right -- Rule 29
+  White over red - pilot ahead. Rule 29 says what a pilot vessel shows, not that she is privileged. Unless she is also restricted in her ability to manoeuvre, the ordinary steering rules apply, and here she is on your port side crossing.
+
+=== encounter 27 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                       HER           ...
+          ..                        ^                  ..
+        ...                         :                   ...
+       ..                .................                ..
+      ..              ...           :     ...              ..
+     .              ...             :       ...              .
+    ..             ..                         ..             ..
+    .              .             ^             .              .
+    .              .             |             ..             .
+    .              .            YOU            .              .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a yacht under sail alone, overhauling a fishing boat that is under way and making 5 knots.
+  You see the vessel ahead, showing only her sternlight, bearing 008 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: you are under sail, so she keeps clear of you.
+   b) Give way: you are overtaking, and Rule 13 overrides the order of Rule 18.
+   c) Give way only if she starts fishing.
+   d) Sound one short blast and pass to starboard.
+
+  Not right.
+  B is right -- Rule 13
+  Rule 13 applies notwithstanding anything contained in Rules 4 to 18 - so an overtaking vessel keeps clear whatever the two vessels are. Sailing does not help you here, and you only see her sternlight, which is the test for overtaking.
+
+  B is right -- Rule 13
+  Rule 13 applies notwithstanding anything contained in Rules 4 to 18 - so an overtaking vessel keeps clear whatever the two vessels are. Sailing does not help you here, and you only see her sternlight, which is the test for overtaking.
+
+  Not right.
+  B is right -- Rule 13
+  Rule 13 applies notwithstanding anything contained in Rules 4 to 18 - so an overtaking vessel keeps clear whatever the two vessels are. Sailing does not help you here, and you only see her sternlight, which is the test for overtaking.
+
+  Not right.
+  B is right -- Rule 13
+  Rule 13 applies notwithstanding anything contained in Rules 4 to 18 - so an overtaking vessel keeps clear whatever the two vessels are. Sailing does not help you here, and you only see her sternlight, which is the test for overtaking.
+
+=== encounter 28 ===
+
+  WHAT DO YOU DO?
+  ----------------------------------------------------------------------
+                           HEAD  UP
+                         .................
+                  .......                 .......
+               ....                             ....
+            ...                                     ...
+          ..                                           ..
+        ...                                             ...
+       ..                .................                ..
+      ..              ...                 ...              ..
+     .              ...                     ...       HER    .
+    ..             ..                         ..    \        ..
+    .              .             ^             .     ::       .
+    .              .             |             ..      :      .
+    .              .            YOU            .        :     .
+    ..             ..                         ..             ..
+     .              ...                     ...              .
+      ..              ...                 ...              ..
+       ..                .................                ..
+        ...                      .                      ...
+          ..                                           ..
+            ...                                     ...
+               ....                             ....
+                  .......                 .......
+                         .................
+  
+  ----------------------------------------------------------------------
+  You are a power-driven vessel crossing ahead of a tug and her tow at night.
+  You see three masthead lights in a vertical line, sidelights and a yellow light above her sternlight, bearing 076 relative, heading as drawn.
+  ----------------------------------------------------------------------
+   a) Stand on: the tug is restricted and will keep clear of you.
+   b) Give way: alter to port and pass between the tug and her tow.
+   c) Give way: alter to starboard and pass well astern of the whole tow - it is more than 200 metres long.
+   d) Cross close ahead of the tug to stay clear of the tow.
+
+  Not right.
+  C is right -- Rule 24
+  Three masthead lights in a vertical line means the tow exceeds 200 metres. The tow itself may show only sidelights and a sternlight and is easy to miss, and the towline between them is not lit at all. Never pass between a tug and her tow.
+
+  Not right.
+  C is right -- Rule 24
+  Three masthead lights in a vertical line means the tow exceeds 200 metres. The tow itself may show only sidelights and a sternlight and is easy to miss, and the towline between them is not lit at all. Never pass between a tug and her tow.
+
+  C is right -- Rule 24
+  Three masthead lights in a vertical line means the tow exceeds 200 metres. The tow itself may show only sidelights and a sternlight and is easy to miss, and the towline between them is not lit at all. Never pass between a tug and her tow.
+
+  Not right.
+  C is right -- Rule 24
+  Three masthead lights in a vertical line means the tow exceeds 200 metres. The tow itself may show only sidelights and a sternlight and is easy to miss, and the towline between them is not lit at all. Never pass between a tug and her tow.
+

@@ -1,0 +1,35 @@
+WHAT DO YOU DO?
+----------------------------------------------------------------------
+                         HEAD  UP
+                       .................
+                .......                 .......
+             ....                             ....
+          ...                                     ...
+        ..                                           ..
+      ...                                             ...
+     ..                .................                ..
+    ..              ...                 ...              ..
+   .              ...                     ...    HER       .
+  ..             ..                         .. \           ..
+  .              .             ^             .  :           .
+  .              .             |             ..  ::         .
+  .              .            YOU            .     :        .
+  ..             ..                         ..             ..
+   .              ...                     ...              .
+    ..              ...                 ...              ..
+     ..                .................                ..
+      ...                      .                      ...
+        ..                                           ..
+          ...                                     ...
+             ....                             ....
+                .......                 .......
+                       .................
+
+----------------------------------------------------------------------
+You are a power-driven vessel under way.
+You see a power-driven vessel showing her red sidelight, bearing 073 relative, heading as drawn.
+----------------------------------------------------------------------
+ a) Stand on: she must keep clear of you.
+ b) Give way: alter to starboard and pass under her stern.
+ c) Give way: alter to port to cut across ahead of her.
+ d) Slow down and let her decide.

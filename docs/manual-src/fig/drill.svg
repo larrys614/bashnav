@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1066.6" height="236.9" viewBox="0 0 1066.6 236.9" font-family="DejaVu Sans, Helvetica, sans-serif">
+<defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#1f5673"/></marker><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#a2542a"/></marker></defs>
+<rect x="0" y="0" width="1066.6" height="236.9" fill="#ffffff"/>
+<rect x="212.8" y="0.0" width="634.9" height="236.9" rx="5" fill="#f7fafb" stroke="#bfcdd6" stroke-width="1"/>
+<rect x="395.6" y="46.6" width="175.3" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="395.6" y="62.9" width="73.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="395.6" y="79.3" width="73.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<rect x="434.8" y="128.5" width="57.8" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="434.8" y="144.8" width="57.8" height="14.8" rx="2.5" fill="#a2542a" fill-opacity="0.11" stroke="#a2542a" stroke-width="0.9"/>
+<rect x="239.0" y="177.6" width="167.5" height="14.8" rx="2.5" fill="#1f5673" fill-opacity="0.11" stroke="#1f5673" stroke-width="0.9"/>
+<g font-family="DejaVu Sans Mono, monospace" font-size="13.00" fill="#16222c" xml:space="preserve">
+<text x="224.8" y="24.4">  DRILL -- sight reduction</text>
+<text x="224.8" y="40.7">  ----------------------------------------------------------------------</text>
+<text x="224.8" y="57.1">  Assumed position    11 36.0&#x27;S   011 48.0&#x27;W</text>
+<text x="224.8" y="73.5">  GHA of the body     314 51.8&#x27;</text>
+<text x="224.8" y="89.9">  Declination         N05 59.2&#x27;</text>
+<text x="224.8" y="106.2">  ----------------------------------------------------------------------</text>
+<text x="224.8" y="122.6">  Work out LHA, then Hc and Zn.</text>
+<text x="224.8" y="139.0">  Your Hc   30 42.0&#x27;       CORRECT</text>
+<text x="224.8" y="155.4">  Your Zn   75.8 T         CORRECT</text>
+<text x="224.8" y="171.8">  ----------------------------------------------------------------------</text>
+<text x="224.8" y="188.1">  LHA = GHA + longitude = 314 51.8&#x27; + (011 48.0&#x27;W) = 303 03.8&#x27;</text>
+<text x="224.8" y="204.5">  sin Hc = sin(-11.6000) sin(5.9874) + cos(-11.6000) cos(5.9874) cos(303.0636)</text>
+<text x="224.8" y="220.9">  Hc = 30 42.0&#x27;          Zn = 75.8 T</text>
+</g>
+<g font-size="11.0" fill="#1f5673" text-anchor="end">
+<text x="199.8" y="44.5">Real figures, generated from the</text>
+<text x="199.8" y="57.5">built-in almanac - a different</text>
+<text x="199.8" y="70.5">problem every time.</text>
+</g>
+<path d="M201.3,52.9 L391.1,53.9" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M201.3,52.9 L391.2,70.0" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<path d="M201.3,52.9 L391.2,86.0" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+<g font-size="11.0" fill="#a2542a" text-anchor="end">
+<text x="199.8" y="134.6">Your answers, marked to a</text>
+<text x="199.8" y="147.6">tolerance of 0.3&#x27; and half</text>
+<text x="199.8" y="160.6">a degree.</text>
+</g>
+<path d="M201.3,143.0 L430.3,136.0" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<path d="M201.3,143.0 L430.3,152.1" stroke="#a2542a" stroke-width="1.15" fill="none" marker-end="url(#ah2)" opacity="0.9"/>
+<g font-size="11.0" fill="#1f5673">
+<text x="860.7" y="183.7">Right or wrong, it then shows the</text>
+<text x="860.7" y="196.7">whole working, so a mistake tells</text>
+<text x="860.7" y="209.7">you where you went astray.</text>
+</g>
+<path d="M859.3,192.2 L411.0,185.1" stroke="#1f5673" stroke-width="1.15" fill="none" marker-end="url(#ah)" opacity="0.9"/>
+</svg>

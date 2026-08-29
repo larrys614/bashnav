@@ -1,0 +1,51 @@
+name: tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shells and awks
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq dash mawk gawk busybox shellcheck
+
+      - name: Build
+        run: ./build.sh
+
+      - name: Test matrix (dash and bash, mawk and gawk)
+        run: SHELLS="dash bash" AWKS="mawk gawk" ./tests/run-tests.sh
+
+      - name: BusyBox awk
+        run: |
+          if busybox awk 'BEGIN{ if (sin(1)>0) exit 0; exit 1 }' 2>/dev/null; then
+            SHELLS="dash" AWKS="busybox awk" ./tests/run-tests.sh
+          else
+            echo "this busybox was built without the maths library; skipping"
+          fi
+
+      - name: Golden files - has any output changed?
+        run: |
+          #  Fails if a screen a user sees has changed. If the change was
+          #  meant, run tests/golden.sh --update and commit the diff, so
+          #  the change is reviewed rather than noticed later.
+          GOLDEN_AWK=gawk ./tests/golden.sh
+
+      - name: shellcheck
+        run: shellcheck -s sh build.sh tests/run-tests.sh tests/golden.sh src/*/10-head.sh || true
+
+      - name: Confirm bin/ matches src/
+        run: |
+          ./build.sh
+          if ! git diff --quiet -- bin/; then
+            echo "bin/ is out of date. Run ./build.sh and commit the result."
+            git diff --stat -- bin/
+            exit 1
+          fi
