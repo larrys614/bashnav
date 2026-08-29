@@ -60,6 +60,33 @@ build_colregs() {
   chmod +x "$out"
 }
 
+
+build_tides() {
+  out=bin/tides
+  {
+    cat src/tides/10-head.sh
+    echo ''
+    echo '# ---- data extraction (written once, then reused) -------------------'
+    echo 'extract_data() {'
+    echo '  cat > "$TABLES" <<'"'"'__TIDES_TABLES__'"'"''
+    cat src/tides/tables.awk
+    echo '__TIDES_TABLES__'
+    echo '  cat > "$ENGINE" <<'"'"'__TIDES_ENGINE__'"'"''
+    cat src/tides/engine.awk
+    echo '__TIDES_ENGINE__'
+    echo '  [ "$ISTTY" = 1 ] && printf "extracting the station data, once ... " >&2'
+    echo '  cat > "$STATIONS" <<'"'"'__TIDES_STATIONS__'"'"''
+    cat src/tides/stations.dat
+    echo '__TIDES_STATIONS__'
+    echo '  [ "$ISTTY" = 1 ] && echo "done" >&2'
+    echo '  return 0'
+    echo '}'
+    cat src/tides/30-ui.sh
+  } > "$out"
+  chmod +x "$out"
+}
+
 build_celnav
 build_colregs
+build_tides
 ls -l bin/

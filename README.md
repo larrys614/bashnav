@@ -4,14 +4,15 @@ Marine navigation tools written in POSIX shell and awk. No dependencies, no
 network, no data files that expire. Each tool is a single file you can copy onto
 anything with a shell — including an iPad.
 
-Two of them so far:
+Three of them:
 
 | | |
 |---|---|
 | **[celnav](#celnav)** | Celestial navigation: a computed almanac, sight reduction, the fix, and a training mode that teaches the whole subject from first principles. |
-| **[colregs](#colregs)** | The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, and lessons on the rules themselves. |
+| **[colregs](#colregs)** | The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
+| **[tides](#tides)** | Harmonic tide prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the two questions a tide table is actually for &mdash; is there enough water, and does the mast clear the bridge. |
 
-<img src="docs/img/plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
+<img src="docs/img/celnav-plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
 
 <details>
 <summary>the same thing as text, to copy</summary>
@@ -218,13 +219,68 @@ Bearing drift, the report, and the tracking watch — the method a fire
 control tracking party uses, written down. Five marks three minutes apart,
 and you call the drift, where she goes, and her CPA before the plot can.
 
-<img src="docs/img/contacts.svg" alt="The relative-motion plot: own ship at the centre head up, the contact's successive positions, and the closest point of approach marked" width="633">
+<img src="docs/img/colregs-contacts.svg" alt="The relative-motion plot: own ship at the centre head up, the contact's successive positions, and the closest point of approach marked" width="633">
 
 A bearing drawing **away** from your bow passes astern of you. A bearing
 drawing **toward** it crosses ahead. That is not a rule of thumb: relative
 motion is a straight line, so the bearing sweeps one way and can never come
 back. The test suite re-checks it against four hundred fresh geometries on
 every run.
+
+---
+
+## tides
+
+Harmonic prediction from constants measured at each station. **8,334
+stations**: 6,090 with their own harmonic constants and 2,244 that offset
+from a neighbour, which is exactly how a printed tide table is built.
+
+```sh
+tides near 41.2333 -72.0833     # stations nearest a position
+tides find "new london"         # or by name
+tides use noaa/8461490          # choose one
+tides today                     # the table, the curve, and where you are on it
+tides sky                       # the same, with the moon and the sun
+```
+
+<img src="docs/img/tides-day.svg" alt="A day's tide table and curve for New London: four turns, the curve drawn across 24 hours with the highs and lows marked" width="600">
+
+**A tide cannot be computed from a position.** It depends on the shape of
+the coast and the depth and resonance of the basin, so every place needs
+constants somebody measured there over a year or more. That is why you
+pick a station rather than a place &mdash; and why the nearest one by
+straight line can be on the wrong side of a headland and behave nothing
+like you.
+
+### Accuracy
+
+Checked against **NOAA's own published tables**, not against another
+implementation of the same theory. Twenty-four high and low waters at six
+stations spanning small and large ranges, mixed and diurnal regimes:
+
+| | |
+|---|---|
+| mean error in time | **2.4 minutes** |
+| worst | 5.9 minutes |
+| mean error in height | **1.0 cm** |
+| worst | 2.0 cm |
+
+The fixture is committed, so the check runs with no network like everything
+else here.
+
+**What it does not know is the weather.** A deep low can raise the sea half
+a metre above prediction and a hard high can drop it as far; wind piles
+water onto a lee shore and drains a weather one. A prediction is the
+astronomical tide and nothing else.
+
+Times are the station's own standard time &mdash; no summer time, exactly
+like a printed table, because that is what the offsets in the data are
+referenced to.
+
+Data: NOAA harmonic constants (public domain) and TICON-4 (CC BY 4.0),
+assembled by way of the [neaps tide-database](https://github.com/neaps/tide-database)
+project. That attribution travels with the data; see [NOTICE](NOTICE).
+
 
 ## Colour and night vision
 
@@ -240,7 +296,7 @@ output is not a terminal — so redirected output is always clean text.
 ```sh
 celnav night
 colregs night
-<img src="docs/img/lights.svg" alt="A vessel restricted in her ability to manoeuvre, drawn from 040: red over white over red, with her sidelights" width="633">
+<img src="docs/img/colregs-lights.svg" alt="A vessel restricted in her ability to manoeuvre, drawn from 040: red over white over red, with her sidelights" width="633">
 
 <details>
 <summary>the same thing as text, to copy</summary>

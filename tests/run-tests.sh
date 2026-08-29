@@ -334,6 +334,47 @@ for SH in $SHELLS; do
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
 
+  # ---- the tides tool ----------------------------------------------
+  TH="$tmp/tides-$SH-$AW"; rm -rf "$TH"
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides version 2>/dev/null)
+  case "$o" in tides\ *) ok "tides reports its version" ;; *) bad "tides version: $o" ;; esac
+  TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides use noaa/8461490 >/dev/null 2>&1
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides today 2026-08-30 2>&1)
+  n=$(echo "$o" | grep -c -E '^  (HIGH|low) ' || true)
+  check "tides prints four turns for the day" "4" "$n"
+  case "$o" in *"NEW LONDON"*) ;; *) bad "tides does not name the station" ;; esac
+  case "$o" in *"heights above MLLW"*) ;; *) bad "tides does not name the datum" ;; esac
+  #  a secondary port must work too, and say what it is
+  TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides use noaa/8510884 >/dev/null 2>&1
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides today 2026-08-30 2>&1)
+  case "$o" in *"secondary port"*) ;; *) bad "a subordinate station is not marked as one" ;; esac
+  n=$(echo "$o" | grep -c -E '^  (HIGH|low) ' || true)
+  [ "$n" -ge 3 ] || bad "a secondary port gave $n turns"
+  #  station search, by name and by position
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides near 41.2333 -72.0833 5 </dev/null 2>&1)
+  case "$o" in *"Little Gull"*) ;; *) bad "nearest-station search missed Little Gull Island" ;; esac
+  case "$o" in *"straight line"*) ;; *) bad "the nearest-station warning is missing" ;; esac
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides find "new london" </dev/null 2>&1)
+  case "$o" in *"NEW LONDON"*) ;; *) bad "name search missed New London" ;; esac
+  ok "tides finds stations by name and by position"
+  #  the curve and the sky panel must render
+  TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides use noaa/8461490 >/dev/null 2>&1
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides sky 2026-08-30 2>&1)
+  case "$o" in *"SUN AND MOON"*) ;; *) bad "the sun and moon panel is missing" ;; esac
+  case "$o" in *"lit,"*) ;; *) bad "the moon phase is missing" ;; esac
+  n=$(echo "$o" | grep -c '#' || true)
+  [ "$n" -ge 5 ] || bad "the moon disc did not draw"
+  ok "tides draws the curve, the moon and the sun"
+  #  the depth helper must answer the two questions it exists for
+  o=$(printf '4\n2.0\n1.6\n0.5\n\nq\n' | TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides 2>&1 || true)
+  case "$o" in *"enough water"*) ;; *) bad "the depth helper gave no window" ;; esac
+  case "$o" in *"under the surface now"*) ;; *) bad "the depth helper did not add the tide to the charted depth" ;; esac
+  ok "the depth helper works out when there is water"
+
+  #  and it must be clean when piped, like the others
+  e=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides today 2026-08-30 | cat -v | grep -c '\^\[' || true)
+  check "tides is clean when piped" "0" "$e"
+
   # ---- tides against NOAA's own published predictions ---------------
   r=$($AW -f src/tides/tables.awk -f src/tides/engine.awk -f tests/tides-check.awk \
         -v SF=src/tides/stations.dat -v REF=tests/tides-noaa.dat </dev/null | grep '^RESULT')

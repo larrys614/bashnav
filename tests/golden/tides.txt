@@ -1,0 +1,929 @@
+=== tides noaa/8461490 2026-08-30 ===
+
+  NEW LONDON  State Pier
+  CT, United States   41.3717 -72.0956   heights above MLLW
+  2026-08-30   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  low    04:29     0.08 m
+  HIGH   10:30     0.94 m
+  low    17:03     0.09 m
+  HIGH   22:50     0.88 m
+  ----------------------------------------------------------------------
+
+                               **H**                                     
+                             **     *                             ***H** 
+                           **        **                          *      *
+  *                       *            *                       **        
+   *                     *              *                     *          
+    *                                    *                   *           
+     *                  *                 *                 *            
+      *                *                                                 
+       *              *                    *               *             
+        *                                   *             *              
+         *           *                       *           *               
+          *         *                         **        *                
+           *       *                            *      *                 
+            **    *                              **   *                  
+              *L**                                 *L*                   
+  00       03       06      09       12       15       18      21      00
+  0.94 m at the top, 0.08 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 05:13   sets 18:24 
+  civil twilight begins 04:44   ends 18:53 
+  Moon    rises 19:33   sets 07:41 
+  waning gibbous  93% lit, 17.2 days old
+
+                   #         
+              ###########    
+            ##############.  
+           ################. 
+          #################..
+           ################. 
+            ##############.  
+              ###########    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is springs of springs.
+
+=== tides noaa/8461490 2027-02-28 ===
+
+  NEW LONDON  State Pier
+  CT, United States   41.3717 -72.0956   heights above MLLW
+  2027-02-28   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   02:54     0.74 m
+  low    09:55     0.08 m
+  HIGH   15:37     0.52 m
+  low    21:53     0.17 m
+  ----------------------------------------------------------------------
+
+         *H**                                                            
+       **    **                                                          
+      *        **                                                        
+     *           *                                                       
+    *             *                                                      
+   *               **                        ***H**                      
+  *                  *                     **      ***                   
+                      *                   *           ***                
+                       *                 *               **              
+                        *              **                  *            *
+                         *            *                     **        ** 
+                          *          *                        **     *   
+                           *       **                           **L**    
+                            *     *                                      
+                             **L**                                       
+  00       03       06      09       12       15       18      21      00
+  0.74 m at the top, 0.08 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 06:25   sets 17:38 
+  civil twilight begins 05:57   ends 18:06 
+  Moon    rises 01:09   sets 10:50 
+  waning crescent  45% lit, 22.6 days old
+
+                   #         
+              #####......    
+            #######........  
+           ########......... 
+          #########..........
+           ########......... 
+            #######........  
+              #####......    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/8461490 2030-06-21 ===
+
+  NEW LONDON  State Pier
+  CT, United States   41.3717 -72.0956   heights above MLLW
+  2030-06-21   Fri   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   01:18     0.88 m
+  low    07:57     0.06 m
+  HIGH   14:00     0.89 m
+  low    20:37     0.16 m
+  ----------------------------------------------------------------------
+
+     *H*                                 **H**                           
+   **   **                             **     **                         
+  *       *                           *         *                        
+           *                         *           **                      
+            **                      *              *                     
+              *                    *                **                  *
+               *                  *                   *                * 
+                *                *                     *              *  
+                 *                                      *            *   
+                  *             *                        *          *    
+                   *           *                          *        *     
+                    *         *                            *     **      
+                     *       *                              **L**        
+                      **    *                                            
+                        *L**                                             
+  00       03       06      09       12       15       18      21      00
+  0.89 m at the top, 0.06 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 04:15   sets 19:25 
+  civil twilight begins 03:41   ends 19:59 
+  Moon    rises 23:29   sets 10:48 
+  waning gibbous  61% lit, 21.1 days old
+
+                   #         
+              #######....    
+            #########......  
+           ##########....... 
+          ###########........
+           ##########....... 
+            #########......  
+              #######....    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/8510884 2026-08-30 ===
+
+  Little Gull Island
+  CT, United States   41.2067 -72.1017   heights above MLLW
+  a secondary port: +13/-22 min and x0.85/0.85 on NEW LONDON  State Pier
+  2026-08-30   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  low    04:07     0.07 m
+  HIGH   10:43     0.80 m
+  low    16:41     0.08 m
+  HIGH   23:03     0.75 m
+  ----------------------------------------------------------------------
+
+                               **H**                                     
+                              *     *                              **H** 
+                            **       **                           *     *
+  *                        *           *                        **       
+   *                      *                                    *         
+    *                    *              *                     *          
+     *                                   *                   *           
+                        *                 *                 *            
+      *                *                   *               *             
+       *              *                     *             *              
+        *            *                                   *               
+         *          *                        *          *                
+          *        *                          **       *                 
+           *     **                             *    **                  
+            **L**                                **L*                    
+  00       03       06      09       12       15       18      21      00
+  0.80 m at the top, 0.07 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 05:13   sets 18:24 
+  civil twilight begins 04:44   ends 18:53 
+  Moon    rises 19:33   sets 07:41 
+  waning gibbous  93% lit, 17.2 days old
+
+                   #         
+              ###########    
+            ##############.  
+           ################. 
+          #################..
+           ################. 
+            ##############.  
+              ###########    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is springs of springs.
+
+=== tides noaa/8510884 2027-02-28 ===
+
+  Little Gull Island
+  CT, United States   41.2067 -72.1017   heights above MLLW
+  a secondary port: +13/-22 min and x0.85/0.85 on NEW LONDON  State Pier
+  2027-02-28   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   03:07     0.63 m
+  low    09:33     0.07 m
+  HIGH   15:50     0.44 m
+  low    21:31     0.14 m
+  ----------------------------------------------------------------------
+
+         **H**                                                           
+       **     **                                                         
+      *         *                                                        
+     *           *                                                       
+    *             *                                                      
+   *               *                         ***H***                     
+  *                 *                      **       **                   
+                                          *           **                 
+                     *                   *              *                
+                      *                **                *             **
+                       *              *                   **          *  
+                        *            *                      **      **   
+                         *         **                         ***L**     
+                          **     **                                      
+                            **L**                                        
+  00       03       06      09       12       15       18      21      00
+  0.63 m at the top, 0.07 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 06:25   sets 17:38 
+  civil twilight begins 05:57   ends 18:06 
+  Moon    rises 01:09   sets 10:51 
+  waning crescent  45% lit, 22.6 days old
+
+                   #         
+              #####......    
+            #######........  
+           ########......... 
+          #########..........
+           ########......... 
+            #######........  
+              #####......    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/8510884 2030-06-21 ===
+
+  Little Gull Island
+  CT, United States   41.2067 -72.1017   heights above MLLW
+  a secondary port: +13/-22 min and x0.85/0.85 on NEW LONDON  State Pier
+  2030-06-21   Fri   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   01:31     0.75 m
+  low    07:35     0.05 m
+  HIGH   14:13     0.75 m
+  low    20:15     0.13 m
+  ----------------------------------------------------------------------
+
+     *H**                                 *H**                           
+   **    **                             **    **                         
+  *        *                           *        *                        
+            *                         *          *                       
+             *                       *            *                      
+                                    *              *                    *
+              *                    *                *                  * 
+               *                  *                  *                *  
+                *                *                    *              *   
+                 *              *                      *            *    
+                  *            *                        *          *     
+                   *          *                          *       **      
+                    *        *                            ***L***        
+                     *     **                                            
+                      **L**                                              
+  00       03       06      09       12       15       18      21      00
+  0.75 m at the top, 0.05 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 04:16   sets 19:25 
+  civil twilight begins 03:42   ends 19:59 
+  Moon    rises 23:29   sets 10:49 
+  waning gibbous  61% lit, 21.1 days old
+
+                   #         
+              #######....    
+            #########......  
+           ##########....... 
+          ###########........
+           ##########....... 
+            #########......  
+              #######....    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/9414290 2026-08-30 ===
+
+  SAN FRANCISCO (Golden Gate)
+  CA, United States   37.8063 -122.4659   heights above MLLW
+  2026-08-30   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   00:06     1.66 m
+  low    06:06     0.23 m
+  HIGH   12:52     1.73 m
+  low    18:38     0.35 m
+  ----------------------------------------------------------------------
+
+                                      **H*                               
+  H***                              **    **                             
+      *                            *        *                           *
+       *                          *          *                        ** 
+        *                        *            *                      *   
+         *                      *              *                    *    
+          *                    *                                   *     
+           *                  *                 *                 *      
+            *                *                   *               *       
+                            *                     *            **        
+             *             *                       *          *          
+              *           *                         *        *           
+               *        **                           **    **            
+                **     *                               *L**              
+                  **L**                                                  
+  00       03       06      09       12       15       18      21      00
+  1.73 m at the top, 0.23 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 05:38   sets 18:42 
+  civil twilight begins 05:11   ends 19:09 
+  Moon    rises 20:00   sets 08:11 
+  waning gibbous  93% lit, 17.3 days old
+
+                   #         
+              ###########    
+            ##############.  
+           ################. 
+          #################..
+           ################. 
+            ##############.  
+              ###########    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is springs of springs.
+
+=== tides noaa/9414290 2027-02-28 ===
+
+  SAN FRANCISCO (Golden Gate)
+  CA, United States   37.8063 -122.4659   heights above MLLW
+  2027-02-28   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   04:29     1.61 m
+  low    12:02     0.15 m
+  HIGH   19:54     1.20 m
+  low    23:39     1.05 m
+  ----------------------------------------------------------------------
+
+            ***H**                                                       
+          **      **                                                     
+        **          **                                                   
+      **              *                                                  
+    **                 *                                 ***H****        
+  **                    *                             ***        ******L*
+                         *                          **                   
+                          *                        *                     
+                           *                     **                      
+                            *                   *                        
+                             *                **                         
+                              *              *                           
+                               **          **                            
+                                 **     ***                              
+                                   **L**                                 
+  00       03       06      09       12       15       18      21      00
+  1.61 m at the top, 0.15 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 06:43   sets 18:02 
+  civil twilight begins 06:16   ends 18:29 
+  Moon    rises 01:28   sets 11:29 
+  waning crescent  44% lit, 22.8 days old
+
+                   #         
+              #####......    
+            #######........  
+           #######.......... 
+          ########...........
+           #######.......... 
+            #######........  
+              #####......    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/9414290 2030-06-21 ===
+
+  SAN FRANCISCO (Golden Gate)
+  CA, United States   37.8063 -122.4659   heights above MLLW
+  2030-06-21   Fri   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   03:13     1.40 m
+  low    09:30     0.12 m
+  HIGH   16:37     1.70 m
+  low    22:45     0.51 m
+  ----------------------------------------------------------------------
+
+                                                 *H**                    
+                                               **    **                  
+                                             **        *                 
+        ***H***                             *           **               
+      **       **                          *              *              
+     *           *                        *                *             
+   **             *                      *                  *            
+  *                *                    *                    *           
+                    *                  *                      *          
+                     *                *                        **        
+                      *              *                           ********
+                       *            *                               L    
+                        **         *                                     
+                          **     **                                      
+                            **L**                                        
+  00       03       06      09       12       15       18      21      00
+  1.70 m at the top, 0.12 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 04:48   sets 19:35 
+  civil twilight begins 04:17   ends 20:07 
+  Moon    rises 23:54   sets 11:21 
+  waning gibbous  59% lit, 21.3 days old
+
+                   #         
+              #######....    
+            #########......  
+           ##########....... 
+          ###########........
+           ##########....... 
+            #########......  
+              #######....    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/8443970 2026-08-30 ===
+
+  BOSTON
+  MA, United States   42.3539 -71.0503   heights above MLLW
+  2026-08-30   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   00:04     3.14 m
+  low    06:17     0.03 m
+  HIGH   12:25     3.09 m
+  low    18:35     0.04 m
+  ----------------------------------------------------------------------
+
+  H**                                *H*                                 
+     **                            **   **                             **
+       *                          *       **                          *  
+        *                        *          *                        *   
+         *                      *            *                      *    
+          *                    *              *                    *     
+           *                  *                                   *      
+            *                *                 *                 *       
+                            *                   *               *        
+             *             *                     *             *         
+              *           *                       *           *          
+               *         *                         *         *           
+                *       *                           *       *            
+                 **    *                             **    *             
+                   *L**                                *L**              
+  00       03       06      09       12       15       18      21      00
+  3.14 m at the top, 0.03 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 05:07   sets 18:21 
+  civil twilight begins 04:38   ends 18:50 
+  Moon    rises 19:28   sets 07:37 
+  waning gibbous  93% lit, 17.2 days old
+
+                   #         
+              ###########    
+            ##############.  
+           ################. 
+          #################..
+           ################. 
+            ##############.  
+              ###########    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is springs of springs.
+
+=== tides noaa/8443970 2027-02-28 ===
+
+  BOSTON
+  MA, United States   42.3539 -71.0503   heights above MLLW
+  2027-02-28   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   04:32     2.80 m
+  low    11:00     0.32 m
+  HIGH   17:17     2.37 m
+  low    23:12     0.60 m
+  ----------------------------------------------------------------------
+
+             **H**                                                       
+            *     **                                                     
+           *        *                               H*                   
+          *          *                           ***  ***                
+         *            *                         *        *               
+        *              *                       *          **             
+       *                *                     *             *            
+      *                  *                   *               *           
+     *                    *                 *                 *          
+    *                      *               *                   **        
+   *                        *             *                      *       
+  *                          *          **                        *      
+                              *        *                           ***L**
+                               *     **                                  
+                                **L**                                    
+  00       03       06      09       12       15       18      21      00
+  2.80 m at the top, 0.32 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 06:21   sets 17:33 
+  civil twilight begins 05:53   ends 18:01 
+  Moon    rises 01:08   sets 10:43 
+  waning crescent  45% lit, 22.6 days old
+
+                   #         
+              #####......    
+            #######........  
+           ########......... 
+          #########..........
+           ########......... 
+            #######........  
+              #####......    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/8443970 2030-06-21 ===
+
+  BOSTON
+  MA, United States   42.3539 -71.0503   heights above MLLW
+  2030-06-21   Fri   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   03:10     3.16 m
+  low    09:25    -0.00 m
+  HIGH   15:47     3.06 m
+  low    21:52     0.25 m
+  ----------------------------------------------------------------------
+
+         **H**                                  H                        
+        *     **                             *** ***                     
+       *        *                           *       **                   
+      *          *                         *          *                  
+     *            *                       *            *                 
+    *              *                     *              *                
+   *                *                   *                *               
+  *                  *                 *                  *              
+                      *               *                    *             
+                       *             *                      *            
+                                    *                        *          *
+                        *          *                          *       ** 
+                         *        *                            *    **   
+                          **    **                              **L*     
+  0.........................*L**.........................................
+  00       03       06      09       12       15       18      21      00
+  3.16 m at the top, -0.00 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 04:08   sets 19:25 
+  civil twilight begins 03:33   ends 19:59 
+  Moon    rises 23:25   sets 10:43 
+  waning gibbous  61% lit, 21.1 days old
+
+                   #         
+              #######....    
+            #########......  
+           ##########....... 
+          ###########........
+           ##########....... 
+            #########......  
+              #######....    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/8770570 2026-08-30 ===
+
+  Sabine Pass
+  TX, United States   29.7284 -93.8701   heights above MLLW
+  2026-08-30   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  HIGH   04:52     0.45 m
+  low    10:46     0.21 m
+  HIGH   17:10     0.48 m
+  low    22:35     0.25 m
+  ----------------------------------------------------------------------
+
+                                                  **H**                  
+                                                **     *                 
+             ***H***                           *        **               
+           **       **                        *           *              
+          *           *                      *                           
+         *             *                    *              *             
+        *               *                  *                *            
+       *                 *                *                  *           
+      *                   *                                   *          
+     *                                   *                     *         
+    *                      *            *                       *       *
+   *                        *          *                         *     * 
+  *                          *        *                           **L**  
+                              **    **                                   
+                                *L**                                     
+  00       03       06      09       12       15       18      21      00
+  0.48 m at the top, 0.21 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 05:52   sets 18:40 
+  civil twilight begins 05:27   ends 19:04 
+  Moon    rises 20:08   sets 08:09 
+  waning gibbous  93% lit, 17.2 days old
+
+                   #         
+              ###########    
+            ##############.  
+           ################. 
+          #################..
+           ################. 
+            ##############.  
+              ###########    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is springs of springs.
+
+=== tides noaa/8770570 2027-02-28 ===
+
+  Sabine Pass
+  TX, United States   29.7284 -93.8701   heights above MLLW
+  2027-02-28   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  low    03:21    -0.11 m
+  HIGH   13:20     0.37 m
+  ----------------------------------------------------------------------
+
+                                     ****H****                           
+                                  ***         *****                      
+                                **                 *********             
+                              **                            ****         
+                             *                                  ***      
+                           **                                      **    
+                          *                                          **  
+                        **                                             **
+                       *                                                 
+                      *                                                  
+  **                **                                                   
+  0.*..............*.....................................................
+     **          **                                                      
+       **      **                                                        
+         ***L**                                                          
+  00       03       06      09       12       15       18      21      00
+  0.37 m at the top, -0.11 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 06:42   sets 18:14 
+  civil twilight begins 06:18   ends 18:38 
+  Moon    rises 01:09   sets 11:51 
+  waning crescent  44% lit, 22.7 days old
+
+                   #         
+              #####......    
+            #######........  
+           ########......... 
+          ########...........
+           ########......... 
+            #######........  
+              #####......    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/8770570 2030-06-21 ===
+
+  Sabine Pass
+  TX, United States   29.7284 -93.8701   heights above MLLW
+  2030-06-21   Fri   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  low    01:17     0.15 m
+  HIGH   08:49     0.43 m
+  low    15:19     0.21 m
+  HIGH   20:46     0.36 m
+  ----------------------------------------------------------------------
+
+                          **H**                                          
+                        **     **                                        
+                      **         **                                      
+                     *             *                                     
+                    *               *                       ***H**       
+                   *                 *                    **      ***    
+                  *                   *                  *           **  
+                 *                     *               **              **
+               **                       *             *                  
+              *                          **         **                   
+             *                             **     **                     
+            *                                **L**                       
+           *                                                             
+  **     **                                                              
+    **L**                                                                
+  00       03       06      09       12       15       18      21      00
+  0.43 m at the top, 0.15 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 05:16   sets 19:19 
+  civil twilight begins 04:48   ends 19:46 
+  Moon    rises 23:56   sets 11:25 
+  waning gibbous  60% lit, 21.2 days old
+
+                   #         
+              #######....    
+            #########......  
+           ##########....... 
+          ###########........
+           ##########....... 
+            #########......  
+              #######....    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/9447130 2026-08-30 ===
+
+  SEATTLE (Madison St.)  Elliott Bay
+  WA, United States   47.6026 -122.3393   heights above MLLW
+  2026-08-30   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  low    00:01     0.87 m
+  HIGH   05:42     3.07 m
+  low    11:47     0.47 m
+  HIGH   18:15     3.48 m
+  ----------------------------------------------------------------------
+
+                                                     **H**               
+                                                    *     **             
+                 **H**                            **        *            
+               **     *                          *           *           
+              *        **                       *             *          
+            **           *                     *               *         
+           *              *                   *                 *        
+          *                *                                     *       
+         *                  *                *                    *      
+        *                    *              *                      *     
+       *                      *            *                        *    
+     **                        *          *                          *   
+  L**                           *        *                            *  
+                                 **    **                              **
+                                   *L**                                  
+  00       03       06      09       12       15       18      21      00
+  3.48 m at the top, 0.47 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 05:26   sets 18:53 
+  civil twilight begins 04:53   ends 19:25 
+  Moon    rises 19:52   sets 08:15 
+  waning gibbous  93% lit, 17.3 days old
+
+                   #         
+              ###########    
+            ##############.  
+           ################. 
+          #################..
+           ################. 
+            ##############.  
+              ###########    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is springs of springs.
+
+=== tides noaa/9447130 2027-02-28 ===
+
+  SEATTLE (Madison St.)  Elliott Bay
+  WA, United States   47.6026 -122.3393   heights above MLLW
+  2027-02-28   Sun   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  low    04:21     2.43 m
+  HIGH   09:15     2.93 m
+  low    16:53     0.31 m
+  ----------------------------------------------------------------------
+
+  ***                     ***H***                                      **
+     ****             ****       **                                  **  
+         ****     ****             *                                *    
+             **L**                  **                            **     
+                                      *                          *       
+                                       *                        *        
+                                        *                      *         
+                                         *                    *          
+                                          *                  *           
+                                           *                *            
+                                            *              *             
+                                             *            *              
+                                              *         **               
+                                               **     **                 
+                                                 **L**                   
+  00       03       06      09       12       15       18      21      00
+  2.93 m at the top, 0.31 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 06:52   sets 17:53 
+  civil twilight begins 06:21   ends 18:24 
+  Moon    rises 02:01   sets 10:55 
+  waning crescent  44% lit, 22.8 days old
+
+                   #         
+              #####......    
+            #######........  
+           #######.......... 
+          ########...........
+           #######.......... 
+            #######........  
+              #####......    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides noaa/9447130 2030-06-21 ===
+
+  SEATTLE (Madison St.)  Elliott Bay
+  WA, United States   47.6026 -122.3393   heights above MLLW
+  2030-06-21   Fri   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  low    03:39     1.18 m
+  HIGH   08:45     2.44 m
+  low    14:43     0.55 m
+  HIGH   21:53     3.63 m
+  ----------------------------------------------------------------------
+
+                                                                **H**    
+                                                              **     **  
+                                                            **         * 
+                                                           *            *
+  *                                                       *              
+   *                       H*                            *               
+    *                   ***  ***                        *                
+     *                **        **                     *                 
+      *             **            **                  *                  
+       *          **                *                *                   
+        **      **                   *              *                    
+          ***L**                      **           *                     
+                                        *         *                      
+                                         **     **                       
+                                           **L**                         
+  00       03       06      09       12       15       18      21      00
+  3.63 m at the top, 0.55 m at the foot
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 04:12   sets 20:11 
+  civil twilight begins 03:31   ends 20:52 
+  Moon    rises 23:55   sets 11:16 
+  waning gibbous  59% lit, 21.3 days old
+
+                   #         
+              #######....    
+            #########......  
+           ##########....... 
+          ###########........
+           ##########....... 
+            #########......  
+              #######....    
+                   #         
+  Springs follow new and full by a day or two; neaps follow the quarters.
+  This moon is neaps of springs.
+
+=== tides near the Race ===
+
+  STATIONS NEAREST 41.2333 -72.0833
+  ----------------------------------------------------------------------
+   1    1.8 nm Little Gull Island                 sec United States  noaa/8510884
+   2    2.8 nm Silver Eel Pond  Fishers Island  N     United States  noaa/8510719
+   3    2.8 nm Silver Eel Pond                        United States  ticon/silver_eel_pond-8510719-usa-noaa
+   4    6.6 nm Plum Gut Harbor  Plum Island           United States  noaa/8511236
+   5    6.6 nm Plum Island Plum Gut Harbor            United States  ticon/plum_island_plum_gut_harbor-8511236-usa-noaa
+   6    7.2 nm Niantic  Niantic River             sec United States  noaa/8461925
+   7    7.3 nm New London CT                          United States  ticon/new_london_ct-744a-usa-uhslc_rq
+   8    7.7 nm New London                             United States  ticon/new_london-8461490-usa-noaa
+   9    8.2 nm WEST MYSTIC  MYSTIC RIVER              United States  noaa/8460751
+  10    8.3 nm NEW LONDON  State Pier                 United States  noaa/8461490
+  11    8.9 nm Mystic River at Route 1 Bridge at      United States  ticon/mystic_river_at_route_1_bridge_at_mystic_ct-412117071580800-usa-usgs
+  12   11.0 nm Watch Hill Point                   sec United States  noaa/8458694
+  ----------------------------------------------------------------------
+  Distance is a straight line. The nearest station can be on
+  the other side of a headland and behave nothing like you.
+
+=== tides find falmouth ===
+
+  STATIONS MATCHING 'falmouth'
+  ----------------------------------------------------------------------
+   1          Falmouth Foreside                  sec United States  noaa/8418015
+   2          Chappaquoit Point  West Falmouth H     United States  noaa/8447685
+   3          Falmouth Heights                   sec United States  noaa/8447865
+  ----------------------------------------------------------------------
+

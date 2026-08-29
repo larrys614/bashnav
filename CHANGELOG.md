@@ -1,5 +1,44 @@
 # Changelog
 
+## tides 1.0 - 2026-08-29
+
+The third tool. Harmonic tide prediction with no network and no
+subscription: 8,334 stations, 6,090 with their own harmonic constants and
+2,244 that offset from a neighbour, which is exactly how a printed tide
+table is built.
+
+    tides near 41.2333 -72.0833     the stations nearest a position
+    tides find "new london"         or by name
+    tides use noaa/8461490          choose one
+    tides today                     the table, the curve, and now
+    tides sky                       the same, with the moon and the sun
+
+- **The day's table** in the station's own standard time, no summer time,
+  exactly like a printed table - that is what the offsets in the data are
+  referenced to.
+- **The curve**, 24 hours across with the turns marked and now shown.
+- **The moon and the sun**: rise, set, civil twilight, the phase drawn
+  from its terminator, and whether this moon is springs or neaps.
+- **Depth and clearance** - the two questions a tide table is actually
+  for. Charted depth plus tide against your draught and the water you want
+  under the keel, reported as the stretches of the day when there is
+  enough; and a bridge's charted height minus the tide against your air
+  draught.
+
+Checked against NOAA's own published tables rather than against another
+implementation of the same theory: 24 turns at six stations spanning small
+and large ranges, mixed and diurnal regimes. Mean 2.4 minutes and 1.0 cm,
+worst 5.9 minutes and 2.0 cm. The fixture is committed, so it runs offline.
+
+Three bugs found by that comparison, all invisible to a test that only
+checked the code against itself: a rate variable named RS (awk's record
+separator, which made the next getline swallow the whole station file),
+shallow-water constituents left with a speed of zero (every overtide
+became a DC offset that drifted with the date), and SA carrying Foreman's
+Doodson numbers while the constants are referenced to h alone - a phase
+thrown by 283 degrees, worth 8 cm in August and -6 cm in February.
+
+
 ## celnav 1.6 - 2026-08-29
 
 Added

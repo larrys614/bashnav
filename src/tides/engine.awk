@@ -412,3 +412,426 @@ function tide_height(jd,   i,a,b,x){
   #  half a cosine: the right height and a flat top at each turn
   return (a+b)/2 + (a-b)/2*cos(3.14159265358979*x)
 }
+
+# =====================================================================
+#  Drawing.  The same canvas the other two tools use.
+# =====================================================================
+function col_init(   e){
+  if(COL_READY) return
+  e=sprintf("%c",27)
+  if(cmode=="night"){ C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"; C_HDR=e "[1;31m" }
+  else if(cmode=="day"){ C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"; C_HDR=e "[1;36m" }
+  else { C_BASE=""; C_ACC=""; C_DIM=""; C_HDR="" }
+  C_RST=C_BASE
+  if(cmode=="night"){ C_PANEL=e "[40m" e "[31m"; C_EOL=e "[K" C_BASE }
+  else if(cmode=="day"){ C_PANEL=e "[40m" e "[37m"; C_EOL=e "[K" C_BASE }
+  else { C_PANEL=""; C_EOL="" }
+  COL_READY=1
+  return 0
+}
+function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
+function hr(){ print "  ----------------------------------------------------------------------" }
+function gclear(w,h,   r,c){ col_init(); PW=w; PH=h
+  for(r=0;r<h;r++) for(c=0;c<w;c++){ G[r,c]=" "; GC[r,c]="" } }
+function gput(r,c,ch){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW){ G[r,c]=ch; GC[r,c]="" } }
+function gputc(r,c,ch,col){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW){ G[r,c]=ch; GC[r,c]=col } }
+function gputw(r,c,ch){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW&&G[r,c]==" "){ G[r,c]=ch; GC[r,c]="" } }
+function gputwc(r,c,ch,col){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW&&G[r,c]==" "){ G[r,c]=ch; GC[r,c]=col } }
+function gputs(r,c,s,   i){ for(i=1;i<=length(s);i++) gput(r,c+i-1,substr(s,i,1)) }
+function gputsc(r,c,s,col,   i){ for(i=1;i<=length(s);i++) gputc(r,c+i-1,substr(s,i,1),col) }
+function gshow(   r,c,line,cur,cc){
+  col_init()
+  for(r=0;r<PH;r++){
+    line=""; cur=""
+    for(c=0;c<PW;c++){
+      cc=GC[r,c]
+      if(cc!=cur){ line=line (cc==""? C_PANEL : cc); cur=cc }
+      line=line G[r,c]
+    }
+    print "  " C_PANEL line C_EOL
+  }
+  return 0
+}
+# ---- time formatting, in the station's standard time ----------------
+function tz_jd(jd){ return jd + ST_TZOFF/1440.0 }
+function fmt_hm(jd,   fr,hh,mm){
+  jd2cal(jd); fr=CAL_FRAC*24
+  hh=int(fr); mm=int((fr-hh)*60+0.5)
+  if(mm>=60){ mm-=60; hh++ }
+  if(hh>=24) hh-=24
+  return sprintf("%02d:%02d",hh,mm)
+}
+function fmt_date(jd){ jd2cal(jd); return sprintf("%04d-%02d-%02d",CAL_Y,CAL_M,CAL_D) }
+
+# =====================================================================
+#  The moon and the sun.
+#
+#  Low-precision series, which is all a tide panel needs: the phase to a
+#  few hours and the times of rise and set to a minute or two. celnav is
+#  the tool for anything that has to be accurate.
+# =====================================================================
+function sun_lon(jd,   n,L,g){
+  n=jd-2451545.0
+  L=nrm360(280.460 + 0.9856474*n)
+  g=nrm360(357.528 + 0.9856003*n)
+  return nrm360(L + 1.915*sind(g) + 0.020*sind(2*g))
+}
+function moon_lon(jd,   T,L,M,Mm,D,F){
+  T=(jd-2451545.0)/36525.0
+  L =nrm360(218.316 + 481267.881*T)
+  M =nrm360(357.529 +  35999.050*T)
+  Mm=nrm360(134.963 + 477198.867*T)
+  D =nrm360(297.850 + 445267.115*T)
+  F =nrm360( 93.272 + 483202.018*T)
+  return nrm360(L + 6.289*sind(Mm) - 1.274*sind(Mm-2*D) - 0.658*sind(2*D) \
+                  - 0.214*sind(2*Mm) - 0.186*sind(M) - 0.114*sind(2*F))
+}
+#  Age in days since the new moon, and the illuminated fraction.
+function moon_phase(jd,   d){
+  d = nrm360(moon_lon(jd) - sun_lon(jd))
+  MP_ELONG = d
+  MP_AGE   = d/360.0*29.530589
+  MP_ILLUM = (1 - cosd(d))/2.0
+  if(d<  1.5 || d>358.5) MP_NAME="new"
+  else if(d< 88.5) MP_NAME="waxing crescent"
+  else if(d< 91.5) MP_NAME="first quarter"
+  else if(d<178.5) MP_NAME="waxing gibbous"
+  else if(d<181.5) MP_NAME="full"
+  else if(d<268.5) MP_NAME="waning gibbous"
+  else if(d<271.5) MP_NAME="last quarter"
+  else MP_NAME="waning crescent"
+  #  Springs follow new and full by a day or two; neaps follow the
+  #  quarters. The tide does not care which of the two syzygies it is.
+  if(d<45 || d>315 || (d>135 && d<225)) MP_TIDE="springs"
+  else if((d>67.5 && d<112.5) || (d>247.5 && d<292.5)) MP_TIDE="neaps"
+  else MP_TIDE="between"
+  return MP_AGE
+}
+#  A body's altitude, from its ecliptic longitude. Good enough to find a
+#  rising and a setting to a minute or two.
+function body_alt(lam,beta,jd,lat,lon,   eps,ra,dec,gst,ha,T){
+  T=(jd-2451545.0)/36525.0
+  eps=23.439291 - 0.0130042*T
+  ra = nrm360(atan2d(sind(lam)*cosd(eps) - tand(beta)*sind(eps), cosd(lam)))
+  dec= asind(sind(beta)*cosd(eps) + cosd(beta)*sind(eps)*sind(lam))
+  gst= nrm360(280.46061837 + 360.98564736629*(jd-2451545.0))
+  ha = nrm360(gst + lon - ra)
+  return asind(sind(lat)*sind(dec) + cosd(lat)*cosd(dec)*cosd(ha))
+}
+function tand(x){ return sind(x)/cosd(x) }
+function asind(x){ if(x>=1) return 90; if(x<=-1) return -90
+  return atan2d(x, sqrt(1-x*x)) }
+#  One function for either body, so no call site has to choose inside an
+#  expression - a ternary split over two lines is something gawk accepts
+#  in some places and mawk in none.
+function alt_of(which,jd,lat,lon){
+  if(which=="sun") return body_alt(sun_lon(jd),0,jd,lat,lon)
+  return body_alt(moon_lon(jd),0,jd,lat,lon)
+}
+#  Scan a day for a body crossing an altitude, either way. h0 is the
+#  altitude that counts as the event: -0.833 for the upper limb of the
+#  sun or moon allowing for refraction, -6 for civil twilight.
+function rise_set(jd0,lat,lon,which,h0,   t,a,b,lo,hi,i,mid,step,up){
+  RS_RISE=""; RS_SET=""
+  step=1/144.0
+  a = alt_of(which,jd0,lat,lon)
+  for(t=step; t<=1.0+1e-9; t+=step){
+    b = alt_of(which,jd0+t,lat,lon)
+    if((a<h0 && b>=h0) || (a>h0 && b<=h0)){
+      up=(a<h0)
+      lo=jd0+t-step; hi=jd0+t
+      for(i=0;i<30;i++){
+        mid=(lo+hi)/2
+        if((alt_of(which,mid,lat,lon) < h0) == up) lo=mid
+        else hi=mid
+      }
+      if(up){ if(RS_RISE=="") RS_RISE=(lo+hi)/2 }
+      else  { if(RS_SET=="")  RS_SET=(lo+hi)/2 }
+    }
+    a=b
+  }
+  return 0
+}
+
+# =====================================================================
+#  The day's tide table.
+# =====================================================================
+function td_head(   k){
+  print ""
+  printf "  %s\n", cw(TD_NAME, C_HDR)
+  k = sprintf("%s, %s   %.4f %.4f   heights above %s",
+        TD_REGION, TD_COUNTRY, TD_LAT, TD_LON, TD_DATUM)
+  printf "  %s\n", cwd(k)
+  #  No ternary spanning a line anywhere in this file: gawk accepts it
+  #  in some positions and mawk in none, and the failure is a parse error
+  #  on a file the tool cannot then load at all.
+  if(TD_KIND=="S"){
+    if(TD_TYPE=="ratio") k=sprintf("x%.2f/%.2f", TD_HHI, TD_HLO)
+    else                 k=sprintf("%+.2f/%+.2f m", TD_HHI, TD_HLO)
+    printf "  %s\n", cwd(sprintf("a secondary port: %+d/%+d min and %s on %s",
+       TD_THI, TD_TLO, k, TD_REFNAME))
+  }
+  return 0
+}
+function td_table(jdA,jdB,   i,n,k){
+  n = tide_table(jdA,jdB)
+  hr()
+  printf "  %-6s %-6s %8s\n", "", "time", "height"
+  for(i=1;i<=n;i++){
+    k = (HL_K[i]=="H") ? "HIGH" : "low"
+    printf "  %-6s %-6s %7.2f m\n",
+       cw(k, (HL_K[i]=="H") ? C_ACC : ""), fmt_hm(tz_jd(HL_T[i])), HL_H[i]
+  }
+  hr()
+  return n
+}
+# =====================================================================
+#  The curve.  Twenty-four hours across, the range up, with the turns
+#  marked and now shown if now is inside the day.
+# =====================================================================
+function td_curve(jdA,jdB,jdnow,   w,h,i,j,t,v,lo,hi,r,c,n,col,lab,mark){
+  w=71; h=15
+  lo=1e9; hi=-1e9
+  for(i=0;i<=w*2;i++){
+    t=jdA+(jdB-jdA)*i/(w*2.0)
+    v=tide_height(t)
+    if(v<lo) lo=v
+    if(v>hi) hi=v
+  }
+  if(hi-lo < 0.2){ hi=hi+0.1; lo=lo-0.1 }
+  r=hi-lo
+  gclear(w,h)
+  #  the datum, if it falls inside the picture
+  if(lo<0 && hi>0){
+    j = (h-1) - (0 - lo)/r*(h-1)
+    for(i=0;i<w;i++) gputwc(j,i,".",C_DIM)
+    gputsc(j, 0, "0", C_DIM)
+  }
+  for(i=0;i<w;i++){
+    t=jdA+(jdB-jdA)*i/(w-1.0)
+    v=tide_height(t)
+    j=(h-1) - (v-lo)/r*(h-1)
+    gputc(j,i,"*","")
+  }
+  #  the turns
+  n=tide_table(jdA,jdB)
+  for(i=1;i<=n;i++){
+    c=(HL_T[i]-jdA)/(jdB-jdA)*(w-1)
+    j=(h-1) - (HL_H[i]-lo)/r*(h-1)
+    gputc(j,c,(HL_K[i]=="H")?"H":"L", C_ACC)
+  }
+  if(jdnow>=jdA && jdnow<=jdB){
+    c=(jdnow-jdA)/(jdB-jdA)*(w-1)
+    for(j=0;j<h;j++) gputwc(j,c,"|",C_HDR)
+    v=tide_height(jdnow)
+    j=(h-1)-(v-lo)/r*(h-1)
+    gputc(j,c,"@",C_HDR)
+  }
+  print ""
+  gshow()
+  #  the hour scale, positioned rather than padded: 24 hours across w
+  #  columns does not divide evenly, and a label that drifts from its
+  #  own tick is worse than no label
+  for(i=0;i<w;i++) SC_[i]=" "
+  for(i=0;i<=24;i+=3){
+    c=int(i/24.0*(w-1)+0.5)
+    lab=sprintf("%02d",i%24)
+    if(c+1>=w) c=w-2
+    SC_[c]=substr(lab,1,1); SC_[c+1]=substr(lab,2,1)
+  }
+  lab=""
+  for(i=0;i<w;i++) lab=lab SC_[i]
+  printf "  %s\n", cwd(lab)
+  mark=""
+  if(jdnow>=jdA && jdnow<=jdB) mark="   @ = now"
+  printf "  %s\n", cwd(sprintf("%.2f m at the top, %.2f m at the foot%s", hi, lo, mark))
+  return 0
+}
+
+# =====================================================================
+#  The moon and sun panel.
+# =====================================================================
+function td_sky(jd0,   a,r,s,ph,i,disc,row,col,x,y,rr,lit,ch){
+  moon_phase(jd0+0.5)
+  print ""
+  printf "  %s\n", cw("SUN AND MOON", C_HDR)
+  hr()
+  rise_set(jd0,TD_LAT,TD_LON,"sun",-0.833)
+  printf "  Sun     rises %-6s  sets %-6s\n",
+     (RS_RISE==""?"--":fmt_hm(tz_jd(RS_RISE))), (RS_SET==""?"--":fmt_hm(tz_jd(RS_SET)))
+  rise_set(jd0,TD_LAT,TD_LON,"sun",-6)
+  printf "  %s\n", cwd(sprintf("civil twilight begins %-6s  ends %-6s",
+     (RS_RISE==""?"--":fmt_hm(tz_jd(RS_RISE))), (RS_SET==""?"--":fmt_hm(tz_jd(RS_SET)))))
+  rise_set(jd0,TD_LAT,TD_LON,"moon",-0.833)
+  printf "  Moon    rises %-6s  sets %-6s\n",
+     (RS_RISE==""?"--":fmt_hm(tz_jd(RS_RISE))), (RS_SET==""?"--":fmt_hm(tz_jd(RS_SET)))
+  printf "  %s  %.0f%% lit, %.1f days old\n", cw(MP_NAME,C_ACC), MP_ILLUM*100, MP_AGE
+  #  the disc, drawn from the terminator
+  print ""
+  for(row=-4;row<=4;row++){
+    line="        "
+    for(col=-9;col<=9;col++){
+      x=col/9.0; y=row/4.0
+      if(x*x+y*y > 1.0){ line=line " "; continue }
+      #  the lit limb: the terminator is an ellipse whose width is the
+      #  cosine of the elongation
+      lit = 0
+      rr = sqrt(1 - y*y)
+      if(MP_ELONG<=180){ if(x >= -rr*cosd(MP_ELONG)) lit=1 }
+      else             { if(x <= -rr*cosd(MP_ELONG)) lit=1 }
+      if(lit) ch="#"; else ch="."
+      line=line ch
+    }
+    printf "  %s\n", line
+  }
+  printf "  %s\n", cwd(sprintf("Springs follow new and full by a day or two; neaps follow the quarters."))
+  printf "  %s\n", cwd(sprintf("This moon is %s of springs.", MP_TIDE))
+  return 0
+}
+# =====================================================================
+#  Depth and clearance.  The two questions a tide table is actually for.
+# =====================================================================
+function td_depth(jdA,jdB,jdnow,charted,draft,clear,air,mast,   i,n,v,ok,t,step,best,worst){
+  print ""
+  printf "  %s\n", cw("DEPTH AND CLEARANCE", C_HDR)
+  hr()
+  if(charted!=""){
+    v=tide_height(jdnow)
+    printf "  charted depth %.1f m + tide %.2f m = %s under the surface now\n",
+       charted, v, cw(sprintf("%.2f m", charted+v), C_ACC)
+    if(draft!=""){
+      printf "  your draught %.1f m", draft
+      if(clear!="") printf " and %.1f m under the keel wanted", clear
+      print ""
+      #  when is there enough water?
+      step=1/288.0; ok=0
+      for(t=jdA;t<=jdB;t+=step){
+        v=charted+tide_height(t)
+        if(v >= draft + (clear==""?0:clear)){ ok++ }
+      }
+      if(ok==0) printf "  %s\n", cw("Never enough water here today.", C_ACC)
+      else td_windows(jdA,jdB,charted,draft+(clear==""?0:clear))
+    }
+  }
+  if(air!="" && mast!=""){
+    print ""
+    v=tide_height(jdnow)
+    printf "  charted height of the bridge %.1f m - tide %.2f m = %s clear now\n",
+       air, v, cw(sprintf("%.2f m", air-v), C_ACC)
+    printf "  %s\n", cwd("charted heights are above HAT, so the tide takes it away")
+    printf "  your air draught %.1f m\n", mast
+    td_airwindows(jdA,jdB,air,mast)
+  }
+  hr()
+  return 0
+}
+#  Report the stretches of the day when the water is deep enough.
+function td_windows(jdA,jdB,charted,need,   t,step,inw,st,v,n){
+  step=1/288.0; inw=0; n=0
+  for(t=jdA;t<=jdB+step/2;t+=step){
+    v=charted+tide_height(t)
+    if(v>=need && !inw){ inw=1; st=t }
+    else if(v<need && inw){
+      inw=0; n++
+      printf "  enough water   %s to %s\n", fmt_hm(tz_jd(st)), fmt_hm(tz_jd(t))
+    }
+  }
+  if(inw){ n++; printf "  enough water   %s to %s\n", fmt_hm(tz_jd(st)), fmt_hm(tz_jd(jdB)) }
+  if(n==0) printf "  %s\n", cw("Never enough water today.", C_ACC)
+  return n
+}
+function td_airwindows(jdA,jdB,air,mast,   t,step,inw,st,v,n){
+  step=1/288.0; inw=0; n=0
+  for(t=jdA;t<=jdB+step/2;t+=step){
+    v=air-tide_height(t)
+    if(v>=mast && !inw){ inw=1; st=t }
+    else if(v<mast && inw){
+      inw=0; n++
+      printf "  clears the bridge  %s to %s\n", fmt_hm(tz_jd(st)), fmt_hm(tz_jd(t))
+    }
+  }
+  if(inw){ n++; printf "  clears the bridge  %s to %s\n", fmt_hm(tz_jd(st)), fmt_hm(tz_jd(jdB)) }
+  if(n==0) printf "  %s\n", cw("It never clears today.", C_ACC)
+  return n
+}
+
+# =====================================================================
+#  Station lists
+# =====================================================================
+function td_showlist(   i,d){
+  hr()
+  for(i=1;i<=SR_N;i++){
+    if(SR_D[i]>0) d=sprintf("%6.1f nm", SR_D[i]); else d="        "
+    printf "  %2d %s %-34s %-3s %-14s %s\n", i, d, substr(SR_NM[i],1,34),
+       (SR_KD[i]=="R" ? "" : "sec"), substr(SR_CY[i],1,14), SR_ID[i]
+  }
+  hr()
+  return SR_N
+}
+BEGIN{
+  col_init()
+  ST_TZOFF = (tzoff=="") ? 0 : tzoff+0
+  if(cmd=="near"){
+    st_near(SF, lat+0, lon+0, (k==""?10:k+0))
+    print ""
+    printf "  %s\n", cw(sprintf("STATIONS NEAREST %.4f %.4f", lat+0, lon+0), C_HDR)
+    td_showlist()
+    printf "  %s\n", cwd("Distance is a straight line. The nearest station can be on")
+    printf "  %s\n", cwd("the other side of a headland and behave nothing like you.")
+    print ""
+  }
+  else if(cmd=="search"){
+    st_search(SF, q, (k==""?20:k+0))
+    print ""
+    printf "  %s\n", cw(sprintf("STATIONS MATCHING '%s'", q), C_HDR)
+    td_showlist()
+    if(SR_TOTAL>SR_N) printf "  %s\n", cwd(sprintf("%d matched; showing the first %d.", SR_TOTAL, SR_N))
+    print ""
+  }
+  else if(cmd=="day"){
+    jd0 = jdate(yy+0, mm+0, dd+0)
+    if(!tide_open(SF, id, jd0+0.5)){ printf "  tides: %s\n", TD_ERR; exit 2 }
+    ST_TZOFF = TD_TZ
+    #  the day is the station's own standard day, so work in UT from its
+    #  midnight - a tide table has always been in local standard time
+    jdA = jd0 - TD_TZ/1440.0
+    jdB = jdA + 1
+    td_head()
+    printf "  %s   %s\n", cw(fmt_date(tz_jd(jdA+0.5)),C_ACC), cwd(dow(jd0) "   times in the station's standard time")
+    td_table(jdA,jdB)
+    tide_curve_prep(jdA,jdB)
+    jdnow=-1
+    if(nowdate!=""){
+      split(nowdate,ND,"-"); split(nowtime,NT,":")
+      jdnow = jdate(ND[1]+0,ND[2]+0,ND[3]+0) + (NT[1]+0)/24.0 + (NT[2]+0)/1440.0
+    }
+    td_curve(jdA,jdB,jdnow)
+    if(sky=="1") td_sky(jdA)
+    if(charted!="" || air!=""){
+      jdref=jdnow
+      if(jdref<jdA || jdref>jdB) jdref=jdA+0.5
+      td_depth(jdA,jdB,jdref,charted,draft,clear,air,mast)
+    }
+    print ""
+  }
+  else if(cmd=="height"){
+    jd0 = jdate(yy+0, mm+0, dd+0)
+    if(!tide_open(SF, id, jd0+0.5)){ printf "  tides: %s\n", TD_ERR; exit 2 }
+    ST_TZOFF = TD_TZ
+    jdA = jd0 - TD_TZ/1440.0
+    tide_curve_prep(jdA, jdA+1)
+    printf "%.3f\n", tide_height(jdA + (hh+0)/24.0 + (mi+0)/1440.0)
+  }
+  else if(cmd=="info"){
+    jd0 = jdate(yy+0, mm+0, dd+0)
+    if(!tide_open(SF, id, jd0+0.5)){ printf "  tides: %s\n", TD_ERR; exit 2 }
+    printf "%s|%s|%s|%s|%.5f|%.5f|%d|%s\n",
+      TD_ID, TD_NAME, TD_REGION, TD_COUNTRY, TD_LAT, TD_LON, TD_TZ, TD_KIND
+  }
+  else if(cmd!=""){ print "tides: unknown cmd " cmd; exit 2 }
+}

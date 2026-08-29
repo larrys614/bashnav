@@ -99,28 +99,34 @@ awk -f "$CENG" -v cmode=day -v cmd=reduce -v sfile="$CH/sights.txt" \
     -v drlat="35 00 N" -v drlon="040 00 W" -v course=0 -v speed=0 </dev/null \
   | sed -n '/INTERCEPT PLOT/,/1 column/p' \
   | awk -f docs/ansi2svg.awk -v title="celnav: the intercept plot, three star sights and the fix" \
-  > docs/img/plot.svg
+  > docs/img/celnav-plot.svg
 
 awk -f "$CENG" -v cmode=day -v cmd=plan -v utc="2026-08-29 07:34:00" \
     -v drlat="35 00 N" -v drlon="040 00 W" </dev/null \
   | sed -n '/SKY VIEW/,/suggested set/p' \
   | awk -f docs/ansi2svg.awk -v title="celnav: the sky, with the best three bodies marked" \
-  > docs/img/sky.svg
+  > docs/img/celnav-sky.svg
 
 awk $REN -v cmode=day -v cmd=light -v key=ram -v th=40 </dev/null \
   | sed -n '/WHAT DO YOU SEE/,/yellow/p' \
   | awk -f docs/ansi2svg.awk -v title="colregs: a vessel restricted in her ability to manoeuvre, seen from 040" \
-  > docs/img/lights.svg
+  > docs/img/colregs-lights.svg
 
 awk $REN -v cmode=day -v cmd=light -v key=mineclear -v th=310 </dev/null \
   | sed -n '/WHAT DO YOU SEE/,/yellow/p' \
   | awk -f docs/ansi2svg.awk -v title="colregs: a mine clearance vessel, three green lights on one yard" \
-  > docs/img/lights-mineclear.svg
+  > docs/img/colregs-mineclear.svg
 
 awk $REN -v cmode=day -v cmd=trackm -v seed=7 -v a1=b -v a2=b -v a3=c </dev/null \
   | sed -n '/yd across/,/whole question/p' \
   | awk -f docs/ansi2svg.awk -v title="colregs: the relative-motion plot from the tracking watch" \
-  > docs/img/contacts.svg
+  > docs/img/colregs-contacts.svg
+
+TENG="-f src/tides/tables.awk -f src/tides/engine.awk -v SF=src/tides/stations.dat"
+awk $TENG -v cmode=day -v cmd=day -v id=noaa/8461490 -v yy=2026 -v mm=8 -v dd=30 </dev/null \
+  | sed -n '/NEW LONDON/,/at the foot/p' \
+  | awk -f docs/ansi2svg.awk -v title="tides: a day at New London - the table, and the curve with the turns marked" \
+  > docs/img/tides-day.svg
 
 echo "docs/img: $(ls docs/img/*.svg | wc -l) coloured pictures"
 

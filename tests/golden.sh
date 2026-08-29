@@ -195,6 +195,22 @@ emit() {   # emit <name> ; program output on stdin
      -v drlat="50 09.0 N" -v drlon="005 04.0 W" </dev/null
 } | emit celnav-almanac.txt
 
+# ---- tides: the deterministic screens ---------------------------------
+TD="-f src/tides/tables.awk -f src/tides/engine.awk -v SF=src/tides/stations.dat"
+{
+  for st in noaa/8461490 noaa/8510884 noaa/9414290 noaa/8443970 noaa/8770570 noaa/9447130; do
+    for d in "2026-08-30" "2027-02-28" "2030-06-21"; do
+      y=${d%%-*}; r=${d#*-}; m=${r%%-*}; dd=${r#*-}
+      echo "=== tides $st $d ==="
+      $AW $TD -v cmode=plain -v cmd=day -v id="$st" -v yy=$y -v mm=$m -v dd=$dd -v sky=1 </dev/null
+    done
+  done
+  echo "=== tides near the Race ==="
+  $AW $TD -v cmode=plain -v cmd=near -v lat=41.2333 -v lon=-72.0833 -v k=12 </dev/null
+  echo "=== tides find falmouth ==="
+  $AW $TD -v cmode=plain -v cmd=search -v q=falmouth -v k=12 </dev/null
+} | emit tides.txt
+
 # ---- compare or update ------------------------------------------------
 mkdir -p "$G"
 fail=0

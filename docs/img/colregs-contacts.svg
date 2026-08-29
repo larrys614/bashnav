@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="532" height="402" viewBox="0 0 532 402">
+<title>colregs: the relative-motion plot from the tracking watch</title>
+<rect width="532" height="402" fill="#0b1a22"/>
+<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="13">
+<text x="30.0 38.0 46.0 54.0 62.0" y="27.0" fill="#72868f">27000</text>
+<text x="78.0 86.0" y="27.0" fill="#72868f">yd</text>
+<text x="102.0 110.0 118.0 126.0 134.0 142.0" y="27.0" fill="#72868f">across</text>
+<text x="294.0" y="27.0" fill="#72868f">|</text>
+<text x="294.0" y="44.0" fill="#72868f">|</text>
+<text x="294.0" y="61.0" fill="#72868f">|</text>
+<text x="294.0" y="78.0" fill="#72868f">|</text>
+<text x="294.0" y="95.0" fill="#72868f">|</text>
+<text x="414.0" y="95.0" fill="#c9d6dc">1</text>
+<text x="294.0" y="112.0" fill="#72868f">|</text>
+<text x="398.0" y="112.0" fill="#c9d6dc">2</text>
+<text x="406.0 414.0" y="112.0" fill="#72868f">..</text>
+<text x="294.0" y="129.0" fill="#72868f">|</text>
+<text x="382.0" y="129.0" fill="#72868f">.</text>
+<text x="390.0" y="129.0" fill="#c9d6dc">3</text>
+<text x="398.0" y="129.0" fill="#72868f">.</text>
+<text x="294.0" y="146.0" fill="#72868f">|</text>
+<text x="374.0" y="146.0" fill="#72868f">.</text>
+<text x="382.0" y="146.0" fill="#c9d6dc">4</text>
+<text x="286.0 294.0 302.0" y="163.0" fill="#5cbf94">^^^</text>
+<text x="358.0" y="163.0" fill="#72868f">.</text>
+<text x="366.0" y="163.0" fill="#c9d6dc">5</text>
+<text x="374.0" y="163.0" fill="#72868f">.</text>
+<text x="294.0" y="180.0" fill="#5cbf94">Y</text>
+<text x="350.0 358.0" y="180.0" fill="#72868f">..</text>
+<text x="294.0" y="197.0" fill="#72868f">|</text>
+<text x="334.0 342.0 350.0" y="197.0" fill="#72868f">...</text>
+<text x="294.0" y="214.0" fill="#72868f">|</text>
+<text x="326.0" y="214.0" fill="#5cbf94">*</text>
+<text x="334.0" y="214.0" fill="#72868f">.</text>
+<text x="294.0" y="231.0" fill="#72868f">|</text>
+<text x="294.0" y="248.0" fill="#72868f">|</text>
+<text x="294.0" y="265.0" fill="#72868f">|</text>
+<text x="294.0" y="282.0" fill="#72868f">|</text>
+<text x="294.0" y="299.0" fill="#72868f">|</text>
+<text x="294.0" y="316.0" fill="#72868f">|</text>
+<text x="294.0" y="333.0" fill="#72868f">|</text>
+<text x="30.0" y="350.0" fill="#72868f">Y</text>
+<text x="46.0" y="350.0" fill="#72868f">=</text>
+<text x="62.0 70.0 78.0 86.0" y="350.0" fill="#72868f">you,</text>
+<text x="102.0 110.0 118.0 126.0" y="350.0" fill="#72868f">head</text>
+<text x="142.0 150.0 158.0" y="350.0" fill="#72868f">up.</text>
+<text x="174.0" y="350.0" fill="#72868f">1</text>
+<text x="190.0 198.0" y="350.0" fill="#72868f">to</text>
+<text x="214.0" y="350.0" fill="#72868f">5</text>
+<text x="230.0" y="350.0" fill="#72868f">=</text>
+<text x="246.0 254.0 262.0 270.0" y="350.0" fill="#72868f">her,</text>
+<text x="286.0 294.0 302.0 310.0 318.0" y="350.0" fill="#72868f">three</text>
+<text x="334.0 342.0 350.0 358.0 366.0 374.0 382.0" y="350.0" fill="#72868f">minutes</text>
+<text x="398.0 406.0 414.0 422.0 430.0 438.0" y="350.0" fill="#72868f">apart.</text>
+<text x="454.0" y="350.0" fill="#72868f">*</text>
+<text x="470.0" y="350.0" fill="#72868f">=</text>
+<text x="486.0 494.0 502.0 510.0" y="350.0" fill="#72868f">CPA.</text>
+<text x="30.0 38.0 46.0" y="367.0" fill="#72868f">The</text>
+<text x="62.0 70.0 78.0 86.0 94.0 102.0 110.0" y="367.0" fill="#72868f">upright</text>
+<text x="126.0 134.0 142.0 150.0" y="367.0" fill="#72868f">line</text>
+<text x="166.0 174.0" y="367.0" fill="#72868f">is</text>
+<text x="190.0 198.0 206.0 214.0" y="367.0" fill="#72868f">your</text>
+<text x="230.0 238.0 246.0" y="367.0" fill="#72868f">own</text>
+<text x="262.0 270.0 278.0 286.0 294.0 302.0" y="367.0" fill="#72868f">track.</text>
+<text x="318.0 326.0 334.0 342.0 350.0" y="367.0" fill="#72868f">Which</text>
+<text x="366.0 374.0 382.0 390.0" y="367.0" fill="#72868f">side</text>
+<text x="406.0 414.0" y="367.0" fill="#72868f">of</text>
+<text x="430.0 438.0 446.0" y="367.0" fill="#72868f">you</text>
+<text x="462.0 470.0 478.0" y="367.0" fill="#72868f">she</text>
+<text x="30.0 38.0 46.0 54.0 62.0 70.0 78.0" y="384.0" fill="#72868f">crosses</text>
+<text x="94.0 102.0" y="384.0" fill="#72868f">it</text>
+<text x="118.0 126.0" y="384.0" fill="#72868f">is</text>
+<text x="142.0 150.0 158.0" y="384.0" fill="#72868f">the</text>
+<text x="174.0 182.0 190.0 198.0 206.0" y="384.0" fill="#72868f">whole</text>
+<text x="222.0 230.0 238.0 246.0 254.0 262.0 270.0 278.0 286.0" y="384.0" fill="#72868f">question.</text>
+</g>
+</svg>
