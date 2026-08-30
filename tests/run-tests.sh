@@ -327,6 +327,38 @@ for SH in $SHELLS; do
        bad "the README's markup is broken - see the lines above" ;;
   esac
 
+  # ---- deck-log: the record layer -----------------------------------
+  #  The log is append-only, so a record written today has to parse in
+  #  five years. These are the tests that protect that; everything else
+  #  in the tool can be rewritten, a record on somebody's iPad cannot.
+  r=$($AW -f src/decklog/log.awk -f tests/log-check.awk </dev/null | tail -1)
+  case "$r" in
+    "LOGRESULT "*" 0") ok "the log record layer round-trips and rejects the malformed ($r)" ;;
+    *) bad "log record layer: $r" ;;
+  esac
+  if o=$(sh tests/log-trunc.sh "$AW" 2>&1); then
+    ok "a half-written record never parses as a whole one"
+  else
+    printf '%s\n' "$o" | head -4
+    bad "an interrupted write is not handled safely"
+  fi
+
+  r=$($AW -f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk \
+        -f tests/wx-check.awk </dev/null | tail -1)
+  case "$r" in
+    "WXRESULT "*" 0") ok "the weather rules hold over their whole range ($r)" ;;
+    *) bad "weather rules: $r" ;;
+  esac
+
+  #  deck-log end to end: the registry, a job, the derived holding, the
+  #  shopping list, and append-only across every write path
+  if o=$(sh tests/decklog-check.sh "$AW" "$SH" 2>&1); then
+    ok "deck-log records, derives its holdings, and never rewrites a line"
+  else
+    printf '%s\n' "$o" | head -6
+    bad "deck-log"
+  fi
+
   # ---- a function name used as a variable ---------------------------
   #  awk will not let a function's name be used as a variable or a
   #  parameter. gawk lets it pass; mawk refuses to parse the file, but

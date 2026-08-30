@@ -60,6 +60,26 @@ Break the line before the `?` or use an `if`. `rv_colour()` and `rv_arc()` in
 No arrays, no `[[ ]]`, no `local`, no `$'...'`, no `${var,,}`, no `function`
 keyword. It must run under `dash` and under a-Shell.
 
+### `-f file` and an inline program do not mix — and it fails silently
+
+    awk -f lib.awk 'BEGIN{ print "hi" }'        # prints NOTHING, exits 0
+
+Once you use `-f`, **all** program text must come through `-f`. The inline
+`'BEGIN{...}'` is taken as a **filename**, awk looks for a file called
+`BEGIN{ print "hi" }`, does not find it, has no main rule to run, and exits
+successfully having done nothing at all.
+
+No error, no warning, exit status 0.
+
+This is not a curiosity. A truncation test written this way reported success
+across eighty-six offsets while executing no test code whatsoever, and the real
+bug it was meant to find — a half-written record parsing as a whole one — sat
+there undetected until the harness was fixed.
+
+**So: probe code goes in a file and is passed with `-f`.** And any harness whose
+probe can produce no output must fail loudly on an empty result rather than
+skipping it.
+
 ### Do not seed `rand()` and expect it to be reproducible
 
 **mawk re-seeds `srand()` from the clock even when handed an explicit seed.**

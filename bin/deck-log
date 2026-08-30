@@ -1,0 +1,1332 @@
+#!/bin/sh
+# =====================================================================
+#  deck-log -- the boat's records: deck, engine, provisions.
+#  Part of Bash Navigation Software.  Pure POSIX sh + awk, no network.
+#
+#  A LOG IS A RECORD.  It has standing after an incident and is read by
+#  people who were not there.  So: append only, never edited in place,
+#  corrections are new entries that reference the old one, and every
+#  timestamp is UTC.  See docs/DECK-LOG.md.
+# =====================================================================
+DECKLOG_VERSION=1.0
+
+: "${DECKLOG_HOME:=$HOME/.bashnav}"
+LOG="$DECKLOG_HOME/log"
+BOAT="$DECKLOG_HOME/boat"
+CONF="$DECKLOG_HOME/decklog.conf"
+ENGINE="$DECKLOG_HOME/decklog-$DECKLOG_VERSION.awk"
+
+cmode=day
+#  [ -t 1 ] must be tested HERE and not inside cmode_now: inside a
+#  command substitution stdout is a pipe, the test is always false, and
+#  every terminal gets told it is plain.  See docs/HACKING.md.
+ISTTY=0; [ -t 1 ] && ISTTY=1
+units=metric
+who=""
+
+awk_has_math() {
+  $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
+}
+pick_awk() {
+  if [ -n "$DECKLOG_AWK" ]; then AWK="$DECKLOG_AWK"; return 0; fi
+  for a in awk gawk mawk nawk original-awk "busybox awk"; do
+    if awk_has_math "$a"; then AWK="$a"; return 0; fi
+  done
+  AWK=awk
+  echo "deck-log: no usable awk found." >&2
+  return 1
+}
+load_conf() {
+  [ -f "$CONF" ] || return 0
+  while IFS='=' read -r k v; do
+    case "$k" in cmode) cmode="$v" ;; units) units="$v" ;; who) who="$v" ;; esac
+  done < "$CONF"
+}
+save_conf() {
+  mkdir -p "$DECKLOG_HOME"
+  { echo "cmode=$cmode"; echo "units=$units"; echo "who=$who"; } > "$CONF"
+}
+paint() {
+  [ "$cmode" = plain ] && return 0
+  [ "$ISTTY" = 1 ] || return 0
+  case "$cmode" in
+    night) printf '\033[40m\033[31m\033[2J\033[H' ;;
+    day)   printf '\033[40m\033[37m\033[2J\033[H' ;;
+  esac
+}
+unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
+cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
+
+eng() {
+  $AWK -f "$ENGINE" -v cmode="$(cmode_now)" -v LOG="$LOG" -v BOAT="$BOAT" \
+       -v units="$units" -v who="$who" -v now="$(utcstamp)" "$@" </dev/null
+}
+utcstamp() { date -u '+%Y-%m-%dT%H:%MZ'; }
+utcday()   { date -u '+%Y-%m-%d'; }
+
+# ---------------------------------------------------------------------
+#  Appending.
+#
+#  awk BUILDS and VALIDATES the record; the shell appends it with a
+#  single >> of one line.  Two reasons.  One append of a short line is
+#  as close to atomic as this platform gets, which matters when iOS can
+#  suspend the app mid-write.  And there is then exactly one place that
+#  knows the format, which is the awk record layer.
+#
+#  Fields are handed over in a temp file as  key<TAB>value  so a value
+#  may contain anything a person can type, including | and =.
+# ---------------------------------------------------------------------
+FIELDS=""
+fld_start() {
+  FIELDS="${TMPDIR:-/tmp}/dl.$$.fields"
+  : > "$FIELDS"
+}
+#  fld k v   - skip nothing: an empty value is a DECLINED field and is
+#  recorded as such.  Callers pass "-" for declined and "/" for not
+#  observable, and both are real answers.
+fld() { printf '%s\t%s\n' "$1" "$2" >> "$FIELDS"; }
+fld_commit() {
+  type=$1
+  mkdir -p "$DECKLOG_HOME"
+  rec=$(eng -v cmd=mkrec -v type="$type" -v fields="$FIELDS")
+  rm -f "$FIELDS"; FIELDS=""
+  [ -n "$rec" ] || { echo "  deck-log: refused to write a malformed record" >&2; return 1; }
+  printf '%s\n' "$rec" >> "$LOG" || return 1
+  return 0
+}
+
+# ---- engine extraction (written once, then reused) -----------------
+install_engine() {
+  if [ -f "$ENGINE" ]; then
+    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
+  fi
+  mkdir -p "$DECKLOG_HOME" 2>/dev/null || {
+    echo "deck-log: cannot create $DECKLOG_HOME" >&2; exit 1; }
+  cat > "$ENGINE" <<'__DECKLOG_ENGINE__'
+# =====================================================================
+#  deck-log -- the record layer.
+#
+#  This file is the one irreversible decision in the whole tool.  The log
+#  is append-only, so every record written today has to still parse in
+#  five years, in a version nobody has written yet.  Adding a key later
+#  is free - a reader ignores keys it does not know.  Changing the SHAPE
+#  is not, ever.
+#
+#  Format, one record per line:
+#
+#      YYYY-MM-DDThh:mmZ|type|key=value|key=value|...|~
+#
+#  THE TRAILING ~ IS A COMPLETENESS MARKER, and it is there because of a
+#  bug this format had before the truncation test found it.
+#
+#  Kill the app mid-write and the half-line left on disk is STRUCTURALLY
+#  PERFECT: right timestamp, right type, every field a well-formed
+#  key=value.  Nothing distinguishes it from a finished record, so a
+#  reader accepts it and you silently lose the fields that never made it
+#  to disk - an engine entry with the part but not the hours, and no
+#  indication anything is missing.  In an append-only log that is
+#  permanent, and it is exactly the failure that would matter in an
+#  inquiry.
+#
+#  So a record is complete only if its last field is a bare ~.  A
+#  truncation cannot forge one: | is percent-encoded inside values, so
+#  the sequence |~ appears nowhere else.  One character of noise, and
+#  ANY reader in any language in any decade can tell a whole record from
+#  half of one without knowing anything about our software.
+#
+#  - the timestamp is UTC.  Always.  Display in whatever the user likes.
+#  - `type` is three characters or fewer: nav wx eng pro inv cel tid con
+#    cor chart.  A reader that does not know a type skips the record.
+#  - keys are [a-z0-9_] only, so they never need encoding
+#  - VALUES ARE PERCENT-ENCODED for the four characters that can hurt.
+#
+#  POSIX awk only.  See docs/HACKING.md.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+#  Encoding.
+#
+#  Free text goes in this log - a note typed at 0400, the verbatim text
+#  off an engine plate - and it will contain the delimiters:
+#
+#      note=belt squeals, replaced 30 Aug|check again at 1300hrs
+#      plate=4JH4-TE  S/N E12345  E/G 3TNV88=B
+#
+#  Unescaped, those still LOOK like records.  They just have the wrong
+#  number of fields and the tail is gone, and in an append-only log that
+#  damage is permanent and silent.
+#
+#  Only four characters are encoded, so ordinary text stays literal and
+#  the log is still readable by eye and by grep - which matters for a
+#  file somebody may have to interpret after an incident with no
+#  software to hand.
+# ---------------------------------------------------------------------
+function lg_enc(s){
+  gsub(/%/,  "%25", s)      # first, or it would double-encode the rest
+  gsub(/\|/, "%7C", s)
+  gsub(/=/,  "%3D", s)
+  gsub(/\n/, "%0A", s)
+  return s
+}
+function lg_dec(s){
+  #  %25 last, for the same reason in reverse
+  gsub(/%0A/, "\n", s)
+  gsub(/%3D/, "=",  s)
+  gsub(/%7C/, "|",  s)
+  gsub(/%25/, "%",  s)
+  return s
+}
+
+# ---------------------------------------------------------------------
+#  Building a record.
+#
+#  Callers hand over parallel arrays of keys and values rather than a
+#  formatted string, so there is exactly one place that knows the
+#  delimiters and exactly one place that encodes.
+# ---------------------------------------------------------------------
+function lg_make(ts, type, k, v, n,   i, out){
+  out = ts "|" type
+  for(i=1; i<=n; i++){
+    if(k[i]=="") continue
+    out = out "|" k[i] "=" lg_enc(v[i])
+  }
+  return out "|~"                     # the completeness marker
+}
+
+# ---------------------------------------------------------------------
+#  Parsing.
+#
+#  Fills LG[key] with decoded values, sets LG_TS and LG_TYPE, and
+#  returns 1 for a good record.  Returns 0 and sets LG_ERR otherwise -
+#  it never aborts, because a damaged tail must not take the whole log
+#  with it.
+# ---------------------------------------------------------------------
+function lg_parse(line,   n, f, i, p, key, val){
+  for(key in LG) delete LG[key]
+  LG_TS=""; LG_TYPE=""; LG_ERR=""; LG_NF=0
+  if(line=="" || substr(line,1,1)=="#"){ LG_ERR="blank or comment"; return 0 }
+  n = split(line, f, "|")
+  if(n < 3){ LG_ERR="too few fields"; return 0 }
+  if(!lg_ts_ok(f[1])){ LG_ERR="bad timestamp: " f[1]; return 0 }
+  if(f[2] !~ /^[a-z][a-z0-9]{0,4}$/){ LG_ERR="bad type: " f[2]; return 0 }
+  #  The record must be COMPLETE.  Without this a half-written line
+  #  parses cleanly and quietly loses whatever never reached the disk.
+  if(f[n] != "~"){ LG_ERR="incomplete record (no terminator)"; return 0 }
+  LG_TS = f[1]; LG_TYPE = f[2]
+  for(i=3; i<n; i++){
+    p = index(f[i], "=")
+    if(p < 2){ LG_ERR="field " i " is not key=value: " f[i]; return 0 }
+    key = substr(f[i], 1, p-1)
+    val = substr(f[i], p+1)
+    if(key !~ /^[a-z0-9_]+$/){ LG_ERR="bad key: " key; return 0 }
+    LG[key] = lg_dec(val)
+    LG_NF++
+  }
+  return 1
+}
+
+#  A timestamp this reader will accept for ever: YYYY-MM-DDThh:mmZ
+function lg_ts_ok(s){
+  if(length(s)!=17) return 0
+  return (s ~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]Z$/)
+}
+
+# ---------------------------------------------------------------------
+#  Reading a whole log.
+#
+#  A record that will not parse is COUNTED and SKIPPED, never fatal.
+#  The app is suspended by iOS, the battery dies, a-Shell is killed
+#  mid-write - a half-written last line must not make the log
+#  unreadable, and it must not silently swallow the good records above
+#  it either.  So: LG_GOOD and LG_BAD, and the caller decides what to
+#  say about it.
+# ---------------------------------------------------------------------
+function lg_read(file, want,   line, i){
+  LG_N=0; LG_GOOD=0; LG_BAD=0; LG_BADLINE=""
+  while((getline line < file) > 0){
+    if(line=="" || substr(line,1,1)=="#") continue
+    if(!lg_parse(line)){
+      LG_BAD++
+      if(LG_BADLINE=="") LG_BADLINE = line
+      continue
+    }
+    LG_GOOD++
+    if(want!="" && LG_TYPE!=want) continue
+    LG_N++
+    LR_TS[LG_N]   = LG_TS
+    LR_TYPE[LG_N] = LG_TYPE
+    LR_LINE[LG_N] = line
+  }
+  close(file)
+  return LG_N
+}
+
+#  Re-parse the nth record kept by lg_read, so LG[] refers to it.
+function lg_at(i){
+  if(i<1 || i>LG_N) return 0
+  return lg_parse(LR_LINE[i])
+}
+# =====================================================================
+#  deck-log -- registry, derived views, and the entry helpers.
+#
+#  THE THREE LAYERS, and it matters that they stay separate:
+#
+#    registry   facts about the boat.  Equipment, parts, minimums,
+#               stowage.  Changes rarely.  Lives in BOAT.
+#    log        events.  What happened.  Append only.  Lives in LOG.
+#    views      holdings, open defects, what is due, the shopping list.
+#               COMPUTED, NEVER STORED.
+#
+#  So there is no stored inventory.  The catalogue is registry; the
+#  count is derived by replaying the log.  A stored count is the obvious
+#  design and it is the one that goes wrong: it drifts from the log, and
+#  then you have two numbers and no way to know which one lied.
+# =====================================================================
+
+function col_init(   e){
+  if(COL_READY) return
+  e=sprintf("%c",27)
+  if(cmode=="night"){ C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"
+                      C_WARN=e "[1;31m" }
+  else if(cmode=="day"){ C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"
+                         C_WARN=e "[1;91m" }
+  else { C_BASE=""; C_ACC=""; C_DIM=""; C_WARN="" }
+  C_RST=C_BASE; COL_READY=1
+  return 0
+}
+function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
+function hr(){ print "  ----------------------------------------------------------------------" }
+
+# ---------------------------------------------------------------------
+#  The registry.  Same encoding as the log so there is one escaping
+#  rule in the tool, not two.
+#
+#      eq|id=eng.main|make=Yanmar|model=4JH4-TE|serial=E12345|...|~
+#      pt|id=impeller|number=Jabsco 17937-0001|fits=eng.main|min=2|...|~
+# ---------------------------------------------------------------------
+function bt_read(file,   line, id){
+  EQ_N=0; PT_N=0
+  while((getline line < file) > 0){
+    if(line=="" || substr(line,1,1)=="#") continue
+    if(!lg_parse("2000-01-01T00:00Z|" line)) continue
+    id = LG["id"]
+    if(id=="") continue
+    if(LG_TYPE=="eq"){
+      EQ_N++; EQ_ID[EQ_N]=id
+      EQ_MAKE[EQ_N]=LG["make"]; EQ_MODEL[EQ_N]=LG["model"]
+      EQ_SER[EQ_N]=LG["serial"]; EQ_NAME[EQ_N]=LG["name"]
+      EQ_PLATE[EQ_N]=LG["plate"]; EQ_IDX[id]=EQ_N
+    } else if(LG_TYPE=="pt"){
+      PT_N++; PT_ID[PT_N]=id
+      PT_NUM[PT_N]=LG["number"]; PT_FITS[PT_N]=LG["fits"]
+      PT_MIN[PT_N]=LG["min"]+0; PT_STOW[PT_N]=LG["stow"]
+      PT_NAME[PT_N]=LG["name"]; PT_IDX[id]=PT_N
+    }
+  }
+  close(file)
+  return EQ_N + PT_N
+}
+function bt_make(type, k, v, n,   rec){
+  #  the registry line is a record without a timestamp
+  rec = lg_make("2000-01-01T00:00Z", type, k, v, n)
+  sub(/^[^|]*\|/, "", rec)
+  return rec
+}
+
+# ---------------------------------------------------------------------
+#  Inventory, derived.
+#
+#  Replay the log: a stocktake SETS the holding, a use subtracts, a
+#  restock adds.  `fits` is honoured, so a part consumed against the
+#  main engine does not move the generator's holding of the same part.
+# ---------------------------------------------------------------------
+#  KEYED BY PART ALONE, and that is a correction.
+#
+#  The first version keyed the holding by part AND by the equipment the
+#  job recorded, which looks careful and is wrong.  A spare belongs to
+#  the locker, not to a machine.  The moment somebody cannibalises the
+#  main engine's impeller for the generator in an emergency - which is
+#  exactly when a boat does that - the job records fits=gen, a second
+#  bucket appears from nowhere, the main engine's holding never goes
+#  down, and the shopping list quietly stops asking for the part you
+#  just used.
+#
+#  So: `fits` in the REGISTRY says what a part is for, and `eq`/`fits`
+#  on a JOB says where it went - useful history, both of them.  Neither
+#  divides the stock.  Two engines needing different impellers are two
+#  parts with two ids, which is what they are in the locker.
+function inv_build(logfile,   i, part, q){
+  for(part in HOLD) delete HOLD[part]
+  lg_read(logfile, "")
+  for(i=1; i<=LG_N; i++){
+    if(!lg_at(i)) continue
+    part = LG["part"]
+    if(part=="") continue
+    q = LG["qty"]
+    if(LG_TYPE=="inv" && LG["action"]=="stocktake"){ HOLD[part] = LG["count"]+0; continue }
+    if(LG_TYPE=="inv" && LG["action"]=="restock"){   HOLD[part] += q+0; continue }
+    if(LG_TYPE=="eng" || LG_TYPE=="pro"){
+      if(q!="") HOLD[part] -= q+0
+    }
+  }
+  return 0
+}
+function inv_hold(part, fits){
+  if(part in HOLD) return HOLD[part]
+  return 0
+}
+
+# ---------------------------------------------------------------------
+#  Open defects.  An inspection that finds something opens an item; it
+#  stays open until a job records closes=<timestamp>.  This is the piece
+#  the log alone does not give you: a finding is not an event that is
+#  over when it is written.
+# ---------------------------------------------------------------------
+function def_build(logfile,   i, ts, c){
+  DEF_N=0
+  for(i in CLOSED) delete CLOSED[i]
+  lg_read(logfile, "")
+  for(i=1; i<=LG_N; i++){
+    if(!lg_at(i)) continue
+    c = LG["closes"]
+    if(c!="") CLOSED[c]=LG_TS
+  }
+  for(i=1; i<=LG_N; i++){
+    if(!lg_at(i)) continue
+    if(LG["state"]!="a") continue
+    ts = LG_TS
+    if(ts in CLOSED) continue
+    DEF_N++
+    DEF_TS[DEF_N]=ts; DEF_EQ[DEF_N]=LG["eq"]
+    DEF_ITEM[DEF_N]=LG["insp"]; DEF_NOTE[DEF_N]=LG["note"]
+  }
+  return DEF_N
+}
+# =====================================================================
+#  deck-log -- the weather reasoning.
+#
+#  EVERY RULE SHOWS ITS WORKING.  A forecast handed over without its
+#  reasoning teaches nothing; the explanation is the product.
+#
+#  And it can only ever be as good as the log behind it: this reasons
+#  from observations the user made, and says so.  With no network there
+#  is no model, no GRIB and no chart.  What there is, is the one
+#  category of weather data that is never wrong.
+# =====================================================================
+
+function wx_num(s){ if(s=="" || s=="-" || s=="/") return -9999; return s+0 }
+function wx_has(x){ return (x>-9000) }
+
+#  Angle difference on the circle.  350 against 010 is 20 degrees, not
+#  340, and getting this wrong would misreport every veer near north.
+function wx_d180(a){ while(a>180) a-=360; while(a<-180) a+=360; return a }
+
+#  Minutes between two of our timestamps.  Days from a civil date, so
+#  month ends and leap years come out right without a date library.
+function wx_mins(ts,   y,mo,d,h,mi,a,jd){
+  y=substr(ts,1,4)+0; mo=substr(ts,6,2)+0; d=substr(ts,9,2)+0
+  h=substr(ts,12,2)+0; mi=substr(ts,15,2)+0
+  a = int((14-mo)/12); y2 = y + 4800 - a; m2 = mo + 12*a - 3
+  jd = d + int((153*m2+2)/5) + 365*y2 + int(y2/4) - int(y2/100) + int(y2/400) - 32045
+  return jd*1440 + h*60 + mi
+}
+
+#  Load the observation history: the nav and wx records, newest last.
+function wx_load(logfile,   i, n){
+  WN=0
+  lg_read(logfile, "")
+  for(i=1;i<=LG_N;i++){
+    if(!lg_at(i)) continue
+    if(LG_TYPE!="nav" && LG_TYPE!="wx") continue
+    #  merge records that share a timestamp: a nav entry and the wx
+    #  entry taken with it are one observation
+    if(WN>0 && WT[WN]==LG_TS) n=WN; else { WN++; n=WN; WT[n]=LG_TS
+      WDIR[n]=-9999; WSPD[n]=-9999; WP[n]=-9999; WTEND[n]=""
+      WAIR[n]=-9999; WDEW[n]=-9999; WSEA[n]=-9999; WCLD[n]=-9999
+      WSWP[n]=-9999; WSWD[n]=-9999; WLAT[n]="" }
+    if(LG["wdir"]!="") WDIR[n]=wx_num(LG["wdir"])
+    if(LG["wspd"]!="") WSPD[n]=wx_num(LG["wspd"])
+    if(LG["mslp"]!="") WP[n]  =wx_num(LG["mslp"])
+    if(LG["ptend"]!="" && LG["ptend"]!="-") WTEND[n]=LG["ptend"]
+    if(LG["airt"]!="") WAIR[n]=wx_num(LG["airt"])
+    if(LG["dewp"]!="") WDEW[n]=wx_num(LG["dewp"])
+    if(LG["seat"]!="") WSEA[n]=wx_num(LG["seat"])
+    if(LG["cloud"]!="") WCLD[n]=wx_num(LG["cloud"])
+    if(LG["swper"]!="") WSWP[n]=wx_num(LG["swper"])
+    if(LG["swdir"]!="") WSWD[n]=wx_num(LG["swdir"])
+    if(LG["lat"]!="") WLAT[n]=LG["lat"]
+  }
+  return WN
+}
+
+#  Northern or southern, from a latitude written as "41 14.0N" or "-33.9"
+function wx_north(s){
+  if(s=="") return 1
+  if(s ~ /[Ss]$/) return 0
+  if(substr(s,1,1)=="-") return 0
+  return 1
+}
+function wx_latdeg(s,   x){
+  x = s+0; if(x<0) x=-x
+  return x
+}
+
+# ---------------------------------------------------------------------
+#  The atmospheric tide.
+#
+#  Solar heating drives a wave that travels westward with the sun, and
+#  it is on every barometer.  In the tropics the glass falls two to
+#  three millibars between mid-morning and mid-afternoon EVERY DAY IN
+#  PERFECT WEATHER, and a sailor who does not know that reads a routine
+#  afternoon fall as a system approaching.
+#
+#  Dominantly SEMIdiurnal - twice a day, not once.  Maxima near 1000
+#  and 2200 local, minima near 0400 and 1600.  Amplitude about 1.4 hPa
+#  in the tropics, falling steeply with latitude.
+#
+#  So the correction is applied BEFORE anything is said about tendency,
+#  and it is said out loud.
+# ---------------------------------------------------------------------
+function wx_tide(ts, lon, lat,   utch, solar, amp, la){
+  utch = substr(ts,12,2)+0 + (substr(ts,15,2)+0)/60.0
+  solar = utch + (lon+0)/15.0
+  while(solar<0) solar+=24; while(solar>=24) solar-=24
+  la = wx_latdeg(lat)
+  amp = 1.4 * cos(la*3.14159265/180.0)^3
+  if(amp<0) amp = -amp
+  #  maxima near 1000 and 2200 local: a cosine of period 12 h peaking there
+  return amp * cos(2*3.14159265*(solar-10.0)/12.0)
+}
+
+# ---------------------------------------------------------------------
+#  Buys Ballot.
+#
+#  Wind direction is where it comes FROM, so with your back to it you
+#  face wdir+180.  The low is 90 degrees to your left in the northern
+#  hemisphere, which is (wdir+180) - 90 = wdir + 90.  To your right in
+#  the southern: wdir + 270.
+#
+#  The first version added and subtracted the 90 the other way round and
+#  pointed at the exact opposite side of the sky - 080 for a low that
+#  was at 260.  Plausible-looking, completely wrong, and the sort of
+#  thing that survives a read-through and not a test.  Sanity check:
+#  a westerly in the northern hemisphere (270) gives 000, and a low to
+#  the north with a westerly is what a mid-latitude depression does.
+function wx_bb(wdir, north,   b){
+  b = north ? wdir + 90 : wdir + 270
+  while(b>=360) b-=360
+  while(b<0)    b+=360
+  return int(b+0.5)%360
+}
+
+# ---------------------------------------------------------------------
+#  The report
+# ---------------------------------------------------------------------
+function wx_say(s){ printf "  %s\n", s; return 0 }
+function wx_why(s){ printf "  %s\n", cwd("   " s); return 0 }
+
+function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k)
+{
+  n = wx_load(logfile)
+  print ""
+  printf "  %s\n", cw("WHAT THE LOG SAYS", C_ACC)
+  hr()
+  if(n < 2){
+    wx_say("Not enough observations yet.")
+    wx_why("Almost every rule here needs history, not a snapshot: a tendency")
+    wx_why("is a rate, backing is a change, a front is a sequence. Log a few")
+    wx_why("three-hourly entries and this page starts working.")
+    print ""
+    return 0
+  }
+  j = n
+  #  the most recent earlier observation with a pressure, for the trend
+  for(i=n-1; i>=1; i--) if(wx_has(WP[i]) && wx_has(WP[n])) break
+  k = i
+
+  # ---- pressure -----------------------------------------------------
+  if(k>=1 && wx_has(WP[n]) && wx_has(WP[k])){
+    dt = (wx_mins(WT[n]) - wx_mins(WT[k]))/60.0
+    dp = WP[n] - WP[k]
+    tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
+    corr = dp - (tide2 - tide1)
+    wx_say(sprintf("Pressure %.1f, %+.1f hPa in %.1f hours.", WP[n], dp, dt))
+    if(lon!=""){
+      wx_say(sprintf("Allowing for the daily atmospheric tide: %+.1f hPa.", corr))
+      wx_why(sprintf("the tide alone accounts for %+.1f of that. It is semidiurnal,", tide2-tide1))
+      wx_why("about 1.4 hPa in the tropics and much less in high latitudes,")
+      wx_why("and in the tropics it falls 2-3 mb every afternoon in fine weather.")
+    } else corr = dp
+    if(dt>0){
+      if(corr <= -3.0*(dt/3.0))      wx_say(cw("That is a serious fall. Expect a deepening system and a rising wind.", C_WARN))
+      else if(corr <= -1.5*(dt/3.0)) wx_say("A definite fall. Something is coming.")
+      else if(corr >=  1.5*(dt/3.0)) wx_say("Rising. The gradient is easing or a ridge is building.")
+      else                           wx_say("Near steady.")
+      wx_why("a rate matters more than a level: 1000 hPa steady is a quiet day,")
+      wx_why("1015 falling fast is not.")
+    }
+  } else {
+    wx_say("No pressure trend - fewer than two entries carry a pressure.")
+  }
+
+  # ---- wind: backing or veering, and Buys Ballot --------------------
+  if(k>=1 && wx_has(WDIR[n]) && wx_has(WDIR[k])){
+    dw = wx_d180(WDIR[n] - WDIR[k])
+    print ""
+    if(dw > 10)       wx_say(sprintf("Wind has VEERED %d degrees, %03d to %03d.", int(dw+0.5), WDIR[k], WDIR[n]))
+    else if(dw < -10) wx_say(sprintf("Wind has BACKED %d degrees, %03d to %03d.", int(-dw+0.5), WDIR[k], WDIR[n]))
+    else              wx_say(sprintf("Wind steady in direction, about %03d.", WDIR[n]))
+    if(wx_north(WLAT[n])){
+      if(dw > 10)       wx_why("northern hemisphere: veering with a rising glass usually means the")
+      if(dw > 10)       wx_why("centre has passed to the north of you and the cold front is through.")
+      if(dw < -10)      wx_why("northern hemisphere: backing with a falling glass puts the centre")
+      if(dw < -10)      wx_why("to your north and closing. This is the one to take seriously.")
+    } else {
+      wx_why("southern hemisphere: the sense of all of this reverses.")
+    }
+  }
+  #  Buys Ballot
+  if(wx_has(WDIR[n])){
+    print ""
+    wx_say(sprintf("Back to the wind: the low is roughly %03d from you.",
+           wx_bb(WDIR[n], wx_north(WLAT[n]))))
+    wx_why("Buys Ballot. Stand with your back to the wind: in the northern")
+    wx_why("hemisphere the low is on your left, in the southern, on your right.")
+  }
+
+  # ---- fog -----------------------------------------------------------
+  if(wx_has(WDEW[n]) && wx_has(WSEA[n])){
+    print ""
+    if(WDEW[n] >= WSEA[n] - 0.5){
+      wx_say(cw("Fog is likely: the dew point is at or above the sea temperature.", C_WARN))
+      wx_why("air moving over water colder than its own dew point condenses.")
+    } else {
+      wx_say(sprintf("Fog unlikely: dew point %.1f, sea %.1f, a margin of %.1f.",
+             WDEW[n], WSEA[n], WSEA[n]-WDEW[n]))
+    }
+  }
+
+  # ---- cloud base ----------------------------------------------------
+  if(wx_has(WAIR[n]) && wx_has(WDEW[n])){
+    print ""
+    wx_say(sprintf("Cloud base about %d ft (%d m).",
+           int((WAIR[n]-WDEW[n])*400), int((WAIR[n]-WDEW[n])*125)))
+    wx_why("the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,")
+    wx_why("its dew point falls at 0.5, and the difference is what counts. Not")
+    wx_why("the lapse rate alone: that would put the base a fifth too low.")
+  }
+
+  # ---- swell, the earliest warning there is --------------------------
+  if(wx_has(WSWP[n]) && WSWP[n] >= 12){
+    print ""
+    wx_say(cw(sprintf("A %d-second swell from %03d.", int(WSWP[n]), WSWD[n]), C_ACC))
+    wx_why("long-period swell outruns the storm that made it. This can be the")
+    wx_why("first news of a system, with a steady glass and a clear sky.")
+  }
+  hr()
+  wx_say(cwd("This reasons only from what you logged. It is not a forecast:"))
+  wx_say(cwd("no model, no chart, no GRIB. It is you, reading your own barometer."))
+  print ""
+  return 0
+}
+# =====================================================================
+#  deck-log -- the screens, and the command dispatch.
+# =====================================================================
+
+#  The VOS menus.  These are 0-9 codes because that is what they are in
+#  the standard, so a menu here is the standard and not a coarsening of
+#  it.  The codes a human estimates by eye are menus; the numbers an
+#  instrument reads are typed.
+function menus_init(){
+  if(MEN_READY) return
+  m("cloud", "TOTAL CLOUD, eighths of sky",
+    "0=clear;1=1/8;2=2/8;3=3/8;4=4/8;5=5/8;6=6/8;7=7/8;8=overcast")
+  m("sea",   "SEA STATE, Douglas",
+    "0=glassy;1=rippled;2=smooth, wavelets;3=slight;4=moderate;5=rough;6=very rough;7=high;8=very high;9=phenomenal")
+  m("vis",   "VISIBILITY",
+    "0=under 50 m;1=50-200 m;2=200-500 m;3=500 m - 1 km;4=1-2 km;5=2-4 km;6=4-10 km;7=10-20 km;8=20-50 km;9=over 50 km")
+  m("ptend", "PRESSURE over the last 3 hours - the SHAPE, not the amount",
+    "0=rising, then steady;1=rising, then rising faster;2=rising steadily;3=falling or steady, then rising;4=steady;5=falling, then steady;6=falling, then falling faster;7=falling steadily;8=steady or rising, then falling")
+  m("cl",    "LOW CLOUD",
+    "0=none;1=cumulus, fair;2=cumulus, towering;3=cumulonimbus, no anvil;4=stratocumulus from cumulus;5=stratocumulus;6=stratus;7=ragged stratus, bad weather;8=cumulus and stratocumulus;9=cumulonimbus with anvil")
+  m("cm",    "MIDDLE CLOUD",
+    "0=none;1=altostratus, thin;2=altostratus, thick;3=altocumulus, thin;4=altocumulus, patches;5=altocumulus, bands thickening;6=altocumulus from cumulus;7=altocumulus in layers;8=altocumulus, turrets;9=altocumulus, chaotic")
+  m("ch",    "HIGH CLOUD",
+    "0=none;1=cirrus, wisps;2=cirrus, dense;3=cirrus from anvil;4=cirrus, thickening;5=cirrus and cirrostratus below 45 deg;6=cirrus and cirrostratus above 45 deg;7=cirrostratus, whole sky;8=cirrostratus, part sky;9=cirrocumulus")
+  MEN_READY=1
+  return 0
+}
+function m(k,t,o){ MN_K[++MN_N]=k; MN_T[k]=t; MN_O[k]=o; return 0 }
+
+function menu_show(key,   n, a, i, p, code, txt, cols, half){
+  menus_init()
+  if(!(key in MN_T)) return 0
+  print ""
+  printf "  %s\n", cw(MN_T[key], C_ACC)
+  n = split(MN_O[key], a, ";")
+  half = int((n+1)/2)
+  for(i=1; i<=half; i++){
+    p = index(a[i], "="); code=substr(a[i],1,p-1); txt=substr(a[i],p+1)
+    printf "    %s  %-34s", code, txt
+    if(i+half<=n){
+      p = index(a[i+half], "="); code=substr(a[i+half],1,p-1); txt=substr(a[i+half],p+1)
+      printf "  %s  %s", code, txt
+    }
+    print ""
+  }
+  printf "    %s  %-34s  %s  %s\n", "/", "cannot be seen from here", "-", "not observed"
+  return n
+}
+function menu_ok(key, ans,   n, a, i, p){
+  menus_init()
+  if(ans=="-" || ans=="/") return 1
+  n = split(MN_O[key], a, ";")
+  for(i=1;i<=n;i++){ p=index(a[i],"="); if(substr(a[i],1,p-1)==ans) return 1 }
+  return 0
+}
+
+#  Plausibility, as a question rather than a rejection.  An instrument
+#  reading wrongly is itself worth logging, so "no, that is what I read"
+#  has to be accepted.
+function implausible(key, val,   x){
+  if(val=="-" || val=="/" || val=="") return ""
+  x = val+0
+  if(key=="mslp"){ if(x<870 || x>1090) return sprintf("%.1f hPa is outside anything recorded on earth", x) }
+  if(key=="wspd"){ if(x<0  || x>250)   return sprintf("%g knots", x) }
+  if(key=="wdir"){ if(x<0  || x>360)   return sprintf("%g is not a compass direction", x) }
+  if(key=="airt" || key=="seat" || key=="dewp"){
+    if(x<-60 || x>60) return sprintf("%g degrees", x) }
+  if(key=="sog"){ if(x<0 || x>60) return sprintf("%g knots", x) }
+  if(key=="crs"){ if(x<0 || x>360) return sprintf("%g is not a course", x) }
+  return ""
+}
+
+# =====================================================================
+#  Dispatch
+# =====================================================================
+BEGIN{
+  col_init()
+
+  # ---- build a record from a key<TAB>value file --------------------
+  if(cmd=="mkrec"){
+    n=0
+    while((getline line < fields) > 0){
+      p = index(line, "\t")
+      if(p<2) continue
+      K[++n] = substr(line,1,p-1)
+      V[n]   = substr(line,p+1)
+    }
+    close(fields)
+    rec = lg_make(now, type, K, V, n)
+    #  never write a record this reader cannot read back
+    if(!lg_parse(rec)){ exit 2 }
+    print rec
+    exit 0
+  }
+
+  else if(cmd=="wx"){ wx_report(LOG, lon) }
+  else if(cmd=="menu"){ menu_show(what) }
+  else if(cmd=="menuok"){ exit (menu_ok(what, ans) ? 0 : 1) }
+  else if(cmd=="check"){ s=implausible(what, ans); if(s!=""){ print s; exit 1 } exit 0 }
+
+  # ---- the log, most recent last ----------------------------------
+  else if(cmd=="recent"){
+    k = (n=="" ? 12 : n+0)
+    lg_read(LOG, "")
+    print ""
+    printf "  %s\n", cw("THE LOG", C_ACC)
+    hr()
+    if(LG_N==0) printf "  %s\n", cwd("nothing logged yet")
+    for(i = (LG_N>k ? LG_N-k+1 : 1); i<=LG_N; i++){
+      if(!lg_at(i)) continue
+      line = ""
+      if(LG_TYPE=="nav") line = sprintf("crs %-4s %5s kn  wind %-8s sea %s",
+            LG["crs"], LG["sog"], LG["wind"], LG["sea"])
+      else if(LG_TYPE=="wx") line = sprintf("%s hPa  tend %-2s cloud %-2s vis %s",
+            LG["mslp"], LG["ptend"], LG["cloud"], LG["vis"])
+      else if(LG_TYPE=="eng") line = sprintf("%s %s %s", LG["eq"],
+            (LG["job"]!="" ? "job " LG["job"] : "insp " LG["insp"] " = " LG["state"]),
+            (LG["note"]!="" ? "- " LG["note"] : ""))
+      else if(LG_TYPE=="pro") line = sprintf("%s %s", LG["item"], LG["qty"])
+      else if(LG_TYPE=="inv") line = sprintf("%s %s %s", LG["action"], LG["part"], LG["count"] LG["qty"])
+      else if(LG_TYPE=="cor") line = sprintf("correction to %s", LG["ref"])
+      else line = "-"
+      printf "  %s %-4s %s\n", cwd(substr(LG_TS,1,16)), LG_TYPE, line
+    }
+    hr()
+    if(LG_BAD>0) printf "  %s\n", cw(sprintf("%d damaged record(s) skipped - the log is still readable", LG_BAD), C_WARN)
+    printf "  %s\n", cwd(sprintf("%d records", LG_GOOD))
+    print ""
+  }
+
+  # ---- what is aboard, derived ------------------------------------
+  else if(cmd=="holdings"){
+    bt_read(BOAT); inv_build(LOG)
+    print ""
+    printf "  %s\n", cw("SPARES ABOARD", C_ACC)
+    hr()
+    if(PT_N==0) printf "  %s\n", cwd("no parts in the registry yet - deck-log part add")
+    for(i=1;i<=PT_N;i++){
+      h = inv_hold(PT_ID[i], PT_FITS[i])
+      short = PT_MIN[i] - h
+      printf "  %-22s %3d  %s\n", substr(PT_NAME[i]!=""?PT_NAME[i]:PT_ID[i],1,22), h,
+        (short>0 ? cw(sprintf("%d short of %d", short, PT_MIN[i]), C_WARN) : cwd(sprintf("min %d", PT_MIN[i])))
+      if(PT_NUM[i]!="")  printf "    %s\n", cwd(PT_NUM[i] (PT_FITS[i]!="" ? "   fits " PT_FITS[i] : ""))
+      if(PT_STOW[i]!="") printf "    %s\n", cwd("stowed: " PT_STOW[i])
+    }
+    hr()
+    print ""
+  }
+
+  #  the same numbers with nothing drawn, for the shell and for tests.
+  #  Parsing the drawn screen breaks the first time a part is called
+  #  "raw water impeller" instead of "impeller" - which it is.
+  else if(cmd=="holdraw"){
+    bt_read(BOAT); inv_build(LOG)
+    for(i=1;i<=PT_N;i++)
+      printf "%s|%d|%d|%d\n", PT_ID[i], inv_hold(PT_ID[i], PT_FITS[i]),
+             PT_MIN[i], (PT_MIN[i] - inv_hold(PT_ID[i], PT_FITS[i]))
+  }
+
+  # ---- the screen for the chandlery -------------------------------
+  else if(cmd=="shopping"){
+    bt_read(BOAT); inv_build(LOG)
+    print ""
+    printf "  %s%s\n", cw("SHOPPING LIST", C_ACC), (port!="" ? "                     " port : "")
+    hr()
+    any=0
+    for(i=1;i<=PT_N;i++){
+      h = inv_hold(PT_ID[i], PT_FITS[i]); short = PT_MIN[i] - h
+      if(short<=0) continue
+      any++
+      printf "  %-24s x%d   %s\n", substr(PT_NAME[i]!=""?PT_NAME[i]:PT_ID[i],1,24), short,
+             cwd(sprintf("have %d, want %d", h, PT_MIN[i]))
+      if(PT_NUM[i]!="") printf "    %s\n", PT_NUM[i]
+      if(PT_FITS[i]!="" && (PT_FITS[i] in EQ_IDX)){
+        j = EQ_IDX[PT_FITS[i]]
+        printf "    %s\n", cwd(sprintf("fits: %s %s  s/n %s", EQ_MAKE[j], EQ_MODEL[j], EQ_SER[j]))
+      }
+      if(PT_STOW[i]!="") printf "    %s\n", cwd("stow: " PT_STOW[i])
+      print ""
+    }
+    if(!any) printf "  %s\n", cwd("nothing short of its minimum")
+    hr()
+    printf "  %s\n", cwd("Everything the chandler will ask, on one screen, with no signal.")
+    print ""
+  }
+
+  # ---- open defects ------------------------------------------------
+  else if(cmd=="defects"){
+    bt_read(BOAT); n=def_build(LOG)
+    print ""
+    printf "  %s\n", cw("OPEN ITEMS", C_ACC)
+    hr()
+    if(n==0) printf "  %s\n", cwd("nothing outstanding")
+    for(i=1;i<=n;i++){
+      printf "  %-14s %-12s %s\n", DEF_ITEM[i], DEF_EQ[i], cwd("found " substr(DEF_TS[i],1,10))
+      if(DEF_NOTE[i]!="") printf "    %s\n", DEF_NOTE[i]
+    }
+    hr()
+    printf "  %s\n", cwd("An item stays here until a job records that it closed it.")
+    print ""
+  }
+
+  # ---- the registry ------------------------------------------------
+  else if(cmd=="equip"){
+    bt_read(BOAT)
+    print ""
+    printf "  %s\n", cw("EQUIPMENT", C_ACC)
+    hr()
+    if(EQ_N==0) printf "  %s\n", cwd("nothing yet - deck-log equip add")
+    for(i=1;i<=EQ_N;i++){
+      printf "  %-12s %s %s\n", EQ_ID[i], EQ_MAKE[i], EQ_MODEL[i]
+      if(EQ_SER[i]!="")   printf "    %s\n", cwd("serial " EQ_SER[i])
+      if(EQ_PLATE[i]!="") printf "    %s\n", cwd("plate: " EQ_PLATE[i])
+    }
+    hr(); print ""
+  }
+  else if(cmd=="equiplist"){ bt_read(BOAT); for(i=1;i<=EQ_N;i++) print EQ_ID[i] }
+  else if(cmd=="partlist"){  bt_read(BOAT); for(i=1;i<=PT_N;i++) print PT_ID[i] }
+  else if(cmd=="mkeq"){
+    n=0
+    while((getline line < fields) > 0){
+      p=index(line,"\t"); if(p<2) continue
+      K[++n]=substr(line,1,p-1); V[n]=substr(line,p+1)
+    }
+    close(fields)
+    print bt_make(type, K, V, n)
+  }
+
+  # ---- how long since the last entry -------------------------------
+  else if(cmd=="since"){
+    lg_read(LOG, "")
+    if(LG_N==0){ print "" ; exit 0 }
+    print LR_TS[LG_N]
+  }
+
+  else { printf "  deck-log: unknown cmd %s\n", cmd; exit 2 }
+}
+__DECKLOG_ENGINE__
+}
+
+about_text() {
+  cat <<'ABOUT'
+
+  ===============================================================
+   DECK-LOG -- the boat's records
+  ===============================================================
+
+  WHAT THIS IS
+
+  The deck log, the engine log and the provisions list, kept in one
+  place because they are the same book with different tabs, written by
+  the same person at the same moment.
+
+  A LOG IS A RECORD
+
+  It has standing after an incident, and it is read by people who were
+  not there. So:
+
+    - it is APPEND ONLY. Nothing is ever edited or deleted.
+    - a CORRECTION is a new entry that references the old one, and both
+      stay visible for ever. That is the electronic version of lining
+      through and initialling, which is how it has always been done.
+    - every timestamp is UTC. Display is another matter; the record is
+      UTC, so nobody has to argue later about whose local time it was.
+
+  DECLINING IS AN ANSWER
+
+  Return records "-", meaning asked and not taken. "/" means it could
+  not be observed - dark, fog, behind something. Both are true entries
+  and both are better than a guess. A form that punishes blanks gets
+  invented numbers, and an invented number in a log is worse than a
+  gap, because it looks like data.
+
+  Zero is a reading. "Cloud nil" and "cloud not observed" are different
+  facts and this log can tell them apart.
+
+  WHAT IS DERIVED, AND WHAT IS STORED
+
+  There is no stored inventory. What an impeller IS - its number, what
+  it fits, how many to carry - is registry. How many you HAVE is worked
+  out by replaying the log. So the count can never disagree with the
+  log, because it is the log.
+
+  THE OBSERVATION FOLLOWS THE VOS STANDARD
+
+  NOAA's Voluntary Observing Ship programme defines what a ship
+  observes and how it is coded, so the coded fields here are theirs,
+  not ours. Learn this form and you have learned the professional one,
+  and your log is comparable with every other marine observation ever
+  taken.
+
+  WHO WROTE IT
+
+  M. Larry Sherman had the ideas and the sea time. Claude wrote the
+  code. Part of Bash Navigation Software, with celnav, colregs and
+  tides.
+
+  https://github.com/larrys614/bashnav
+
+  Apache License 2.0.
+
+ABOUT
+}
+
+#  ask_menu <key> <fieldname>   - a coded field: one keypress, no return
+ask_menu() {
+  eng -v cmd=menu -v what="$1"
+  while :; do
+    printf "  > "; IFS= read -r a || { fld "$2" "-"; return 0; }
+    [ -z "$a" ] && { fld "$2" "-"; return 0; }
+    if eng -v cmd=menuok -v what="$1" -v ans="$a" >/dev/null 2>&1; then
+      fld "$2" "$a"; return 0
+    fi
+    echo "  ?"
+  done
+}
+
+#  ask_num <fieldname> <prompt> [last]
+#
+#  A MEASUREMENT GETS NO DEFAULT.  The pressure at 1800 is not the 1500
+#  reading unless changed - it is a new reading or it is nothing.  `last`
+#  is shown for orientation only; return declines and records "-".
+ask_num() {
+  k=$1; prompt=$2; last=$3
+  while :; do
+    if [ -n "$last" ]; then printf "  %-34s %s\n" "$prompt" "$(printf '\033[90mlast: %s\033[0m' "$last" 2>/dev/null || echo "last: $last")"
+    else printf "  %s\n" "$prompt"; fi
+    printf "  > "; IFS= read -r a || { fld "$k" "-"; return 0; }
+    case "$a" in
+      "")  fld "$k" "-"; return 0 ;;
+      "/") fld "$k" "/"; return 0 ;;
+    esac
+    if msg=$(eng -v cmd=check -v what="$k" -v ans="$a"); then
+      fld "$k" "$a"; return 0
+    fi
+    #  a question, not a rejection: an instrument reading wrongly is
+    #  itself worth logging
+    printf "  %s\n" "$msg"
+    printf "  is that really what you read? [y] yes, log it  [n] type it again  > "
+    IFS= read -r y || return 0
+    case "$y" in y|Y) fld "$k" "$a"; return 0 ;; esac
+  done
+}
+
+#  ask_state <fieldname> <prompt> [carried]
+#
+#  STATE CARRIES FORWARD, because it genuinely persists: at 1800 the
+#  course really is what it was at 1500 unless somebody changed it.
+#  Return ACCEPTS the carried value here - the opposite of ask_num, and
+#  the screen makes clear which you are looking at.
+ask_state() {
+  k=$1; prompt=$2; carried=$3
+  if [ -n "$carried" ]; then printf "  %-34s [%s] " "$prompt" "$carried"
+  else printf "  %-34s " "$prompt"; fi
+  IFS= read -r a || { fld "$k" "${carried:--}"; return 0; }
+  [ -z "$a" ] && a="$carried"
+  [ -z "$a" ] && a="-"
+  fld "$k" "$a"
+}
+ask_text() {
+  printf "  %s " "$2"; IFS= read -r a || a=""
+  [ -z "$a" ] && a="-"
+  fld "$1" "$a"
+}
+
+last_of() { eng -v cmd=recent -v n=40 2>/dev/null | $AWK -v k="$1" '$0 ~ k {print}' | tail -1; }
+
+# ---------------------------------------------------------------------
+#  The three-hourly entry.
+# ---------------------------------------------------------------------
+do_entry() {
+  load_conf
+  echo
+  echo "  ==============================================================="
+  printf "   %s   %s\n" "$(utcstamp)" "deck log entry"
+  echo "  ==============================================================="
+  echo
+  fld_start
+  ask_state lat "latitude  (e.g. 41 14.0N)"  "$LAST_LAT"
+  ask_state lon "longitude (e.g. 072 05.0W)" "$LAST_LON"
+  ask_state crs "course steered, true"       "$LAST_CRS"
+  ask_state sog "speed over ground, knots"   "$LAST_SOG"
+  echo
+  printf "  %s\n" "TRUE wind - not apparent. Apparent changes on every tack."
+  ask_num wdir "wind direction, degrees true" ""
+  ask_num wspd "wind speed, knots" ""
+  ask_menu sea sea
+  ask_text note "anything worth recording:"
+  fld who "${who:--}"
+  fld_commit nav || return 1
+  echo
+  echo "  logged."
+  echo
+  printf "  weather observation as well? [Y/n] "; IFS= read -r a || a=n
+  case "$a" in n|N) ;; *) do_wx ;; esac
+  return 0
+}
+
+do_wx() {
+  echo
+  printf "  %s\n" "  ---- weather ----"
+  fld_start
+  ask_num mslp "sea level pressure, hPa" "$LAST_MSLP"
+  ask_menu ptend ptend
+  ask_num pchg "pressure change over 3 h, hPa (+/-)" ""
+  ask_num airt "air temperature, C" ""
+  ask_num dewp "dew point, C  (or wet bulb)" ""
+  ask_num seat "sea temperature, C" ""
+  ask_menu cloud cloud
+  ask_menu cl cl
+  ask_menu cm cm
+  ask_menu ch ch
+  ask_menu vis vis
+  echo
+  printf "  %s\n" "  swell - separate from the wind sea. Period is the important one."
+  ask_num swdir "swell from, degrees true" ""
+  ask_num swper "swell period, seconds" ""
+  ask_num swht  "swell height, metres" ""
+  fld who "${who:--}"
+  fld_commit wx || return 1
+  echo; echo "  weather logged."; echo
+}
+
+# ---------------------------------------------------------------------
+#  Engine
+# ---------------------------------------------------------------------
+CHECKLIST="oil_filter:oil and filter;fuel_pri:primary fuel filter;fuel_sec:secondary fuel filter;fuel_leaks:fuel system, leaks and damage;hoses:hoses and fittings;air:air filter;strainer:sea water strainer;impeller:water pump impeller;cooling:cooling system, leaks;coolant:antifreeze level and strength;hx:heat exchanger and coolers;anodes:sacrificial anodes;trans:transmission fluid;cables:throttle and shift cables;belts:belt tension and wear;batt:battery condition and connections;mounts:engine and motor mounts;sump:sump and oil pad"
+
+pick_equip() {
+  list=$(eng -v cmd=equiplist)
+  [ -z "$list" ] && { echo "  no equipment in the registry yet - deck-log equip add"; return 1; }
+  echo
+  i=1; for e in $list; do echo "    $i  $e"; i=$((i+1)); done
+  printf "  > "; IFS= read -r n || return 1
+  case "$n" in *[!0-9]*|"") return 1 ;; esac
+  EQ=$(printf '%s\n' $list | $AWK -v n="$n" 'NR==n{print}')
+  [ -n "$EQ" ] || return 1
+  return 0
+}
+
+do_inspect() {
+  pick_equip || return 1
+  echo
+  echo "  $EQ - inspection.   o = ok   a = needs attention   - = not checked   / = could not reach"
+  echo
+  IFS=';'
+  for item in $CHECKLIST; do
+    key=${item%%:*}; label=${item#*:}
+    printf "  %-38s " "$label"
+    IFS= read -r s </dev/tty 2>/dev/null || s="-"
+    case "$s" in o|O) s=o ;; a|A) s=a ;; /) s=/ ;; *) s=- ;; esac
+    note=""
+    if [ "$s" = a ]; then printf "    what is wrong? "; IFS= read -r note </dev/tty 2>/dev/null || note=""; fi
+    fld_start
+    fld eq "$EQ"; fld insp "$key"; fld state "$s"; fld note "${note:--}"; fld who "${who:--}"
+    fld_commit eng || true
+    IFS=';'
+  done
+  unset IFS
+  echo
+  echo "  inspection logged."
+  eng -v cmd=defects
+}
+
+do_job() {
+  pick_equip || return 1
+  echo
+  printf "  what was done? (e.g. oil and filter, impeller) "; IFS= read -r job || return 1
+  [ -z "$job" ] && return 0
+  parts=$(eng -v cmd=partlist)
+  part=""; qty=""
+  if [ -n "$parts" ]; then
+    echo
+    echo "  part used?"
+    i=1; for p in $parts; do echo "    $i  $p"; i=$((i+1)); done
+    echo  "    return  none"
+    printf "  > "; IFS= read -r n || n=""
+    case "$n" in
+      ''|*[!0-9]*) ;;
+      *) part=$(printf '%s\n' $parts | $AWK -v n="$n" 'NR==n{print}')
+         [ -n "$part" ] && { printf "  how many? [1] "; IFS= read -r qty; [ -z "$qty" ] && qty=1; } ;;
+    esac
+  fi
+  printf "  engine hours now? "; IFS= read -r hrs || hrs=""
+  printf "  does this close an open item? [y/N] "; IFS= read -r c || c=n
+  closes=""
+  case "$c" in
+    y|Y) eng -v cmd=defects
+         printf "  paste the date-time of the item it closes (YYYY-MM-DDTHH:MMZ): "
+         IFS= read -r closes || closes="" ;;
+  esac
+  fld_start
+  fld eq "$EQ"; fld job "$job"
+  [ -n "$part" ] && { fld part "$part"; fld qty "${qty:-1}"; fld fits "$EQ"; }
+  fld hrs "${hrs:--}"; fld who "${who:--}"
+  [ -n "$closes" ] && fld closes "$closes"
+  fld_commit eng || return 1
+  echo
+  echo "  logged."
+  #  the one line that matters, said while they are still standing there
+  if [ -n "$part" ]; then eng -v cmd=holdings | grep -A2 -i "$part" | head -4; fi
+  echo
+}
+
+# ---------------------------------------------------------------------
+#  Registry
+# ---------------------------------------------------------------------
+add_equip() {
+  echo
+  printf "  short id (e.g. eng.main, gen, watermaker): "; IFS= read -r id || return 1
+  [ -z "$id" ] && return 0
+  printf "  make: ";   IFS= read -r make
+  printf "  model: ";  IFS= read -r model
+  printf "  serial: "; IFS= read -r ser
+  echo "  now the WHOLE plate, verbatim - every number on it, including"
+  echo "  the ones neither of us understands. It is the one the chandler"
+  echo "  asks for that a tidy form leaves out."
+  printf "  plate: "; IFS= read -r plate
+  fld_start
+  fld id "$id"; fld make "$make"; fld model "$model"; fld serial "$ser"; fld plate "$plate"
+  mkdir -p "$DECKLOG_HOME"
+  line=$(eng -v cmd=mkeq -v type=eq -v fields="$FIELDS"); rm -f "$FIELDS"; FIELDS=""
+  [ -n "$line" ] && printf '%s\n' "$line" >> "$BOAT"
+  echo "  added."
+}
+add_part() {
+  echo
+  printf "  short id (e.g. impeller): "; IFS= read -r id || return 1
+  [ -z "$id" ] && return 0
+  printf "  name: ";                       IFS= read -r name
+  printf "  manufacturer's number: ";      IFS= read -r num
+  printf "  fits which equipment id: ";    IFS= read -r fits
+  printf "  minimum to carry: ";           IFS= read -r min
+  printf "  stowed where: ";               IFS= read -r stow
+  printf "  how many aboard right now: ";  IFS= read -r have
+  fld_start
+  fld id "$id"; fld name "$name"; fld number "$num"; fld fits "$fits"
+  fld min "${min:-1}"; fld stow "$stow"
+  mkdir -p "$DECKLOG_HOME"
+  line=$(eng -v cmd=mkeq -v type=pt -v fields="$FIELDS"); rm -f "$FIELDS"; FIELDS=""
+  [ -n "$line" ] && printf '%s\n' "$line" >> "$BOAT"
+  #  the opening holding is a STOCKTAKE EVENT in the log, not a number
+  #  in the registry - so the count is always derived and can never
+  #  disagree with the log
+  if [ -n "$have" ]; then
+    fld_start
+    fld part "$id"; fld fits "$fits"; fld count "$have"; fld action stocktake
+    fld_commit inv || true
+  fi
+  echo "  added."
+}
+do_stocktake() {
+  parts=$(eng -v cmd=partlist)
+  [ -z "$parts" ] && { echo "  no parts in the registry yet"; return 0; }
+  echo
+  echo "  count the locker. Return to skip an item."
+  for p in $parts; do
+    printf "  %-24s " "$p"; IFS= read -r c || c=""
+    [ -z "$c" ] && continue
+    case "$c" in *[!0-9]*) continue ;; esac
+    fld_start; fld part "$p"; fld count "$c"; fld action stocktake; fld who "${who:--}"
+    fld_commit inv || true
+  done
+  echo "  counted."
+}
+
+do_provision() {
+  echo
+  printf "  item (water, fuel, gas, food): "; IFS= read -r item || return 1
+  [ -z "$item" ] && return 0
+  printf "  used or remaining? [u/r] "; IFS= read -r ur
+  printf "  how much: "; IFS= read -r amt
+  printf "  units (l, kg, %%): "; IFS= read -r u
+  fld_start
+  fld item "$item"; fld who "${who:--}"
+  case "$ur" in r|R) fld remain "$amt" ;; *) fld used "$amt" ;; esac
+  fld unit "${u:--}"
+  fld_commit pro || return 1
+  echo "  logged."
+}
+
+do_correct() {
+  eng -v cmd=recent -v n=10
+  echo
+  echo "  A log is never edited. A correction is a NEW entry that points"
+  echo "  at the old one, and both stay visible for ever - the electronic"
+  echo "  version of lining through and initialling."
+  printf "  date-time of the entry to correct (YYYY-MM-DDTHH:MMZ): "; IFS= read -r ref || return 1
+  [ -z "$ref" ] && return 0
+  printf "  which field: "; IFS= read -r k
+  printf "  correct value: "; IFS= read -r v
+  printf "  why: "; IFS= read -r why
+  fld_start
+  fld ref "$ref"; fld field "$k"; fld value "$v"; fld why "${why:--}"; fld who "${who:--}"
+  fld_commit cor || return 1
+  echo "  correction logged. The original entry is untouched."
+}
+
+help_text() {
+  cat <<'HLP'
+
+  DECK-LOG -- the boat's records: deck, engine, provisions
+
+  deck-log                 the menu
+  deck-log entry           a deck log entry (the three-hourly one)
+  deck-log wx              a weather observation on its own
+  deck-log log [n]         the last n entries
+  deck-log inspect         run the engine checklist
+  deck-log job             record work done, and the part it used
+  deck-log open            what is outstanding
+  deck-log what [lon]      what the log says about the weather
+  deck-log spares          what is aboard
+  deck-log shopping        the list for the next port
+  deck-log equip | part    the registry
+  deck-log stocktake       count the locker
+  deck-log correct         correct an earlier entry, properly
+  deck-log day|night|plain colour mode
+  deck-log about | version
+
+  Every timestamp is UTC. The log is append only: nothing is ever
+  edited or deleted, and a correction is a new entry that references
+  the old one. Both stay visible for ever.
+
+HLP
+}
+
+menu() {
+  while :; do
+    load_conf
+    last=$(eng -v cmd=since)
+    echo
+    echo "  ==============================================================="
+    echo "   DECK-LOG $DECKLOG_VERSION                             $(utcstamp)"
+    echo "  ==============================================================="
+    if [ -n "$last" ]; then echo "   last entry: $last"; else echo "   nothing logged yet"; fi
+    cat <<'M'
+
+    1  Log an entry            5  Spares aboard
+    2  Weather only            6  Shopping list
+    3  Engine inspection       7  The log
+    4  Work done               8  What is outstanding
+
+    w  What the log says (the weather reasoning)
+
+    p  Provisions   s  Stocktake   e  Equipment   n  New part
+    x  Correct an entry
+
+    c  Colour   a  About   h  Help   q  Quit
+M
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) do_entry ;;      2) do_wx ;;
+      3) do_inspect ;;    4) do_job ;;
+      5) eng -v cmd=holdings ;;
+      6) printf "  which port (return for none): "; IFS= read -r p
+         eng -v cmd=shopping -v port="$p" ;;
+      7) eng -v cmd=recent -v n=20 ;;
+      w|W) printf "  your longitude in degrees, E positive (return to skip the\n  daily pressure-tide correction): "; IFS= read -r lo
+           eng -v cmd=wx -v lon="$lo" ;;
+      8) eng -v cmd=defects ;;
+      p|P) do_provision ;;  s|S) do_stocktake ;;
+      e|E) eng -v cmd=equip; printf "  add one? [y/N] "; IFS= read -r y
+           case "$y" in y|Y) add_equip ;; esac ;;
+      n|N) add_part ;;
+      x|X) do_correct ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      a|A) about_text ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk || true
+load_conf
+install_engine
+case "${1:-}" in
+  "")         paint; menu ;;
+  entry)      do_entry ;;
+  wx)         do_wx ;;
+  log)        shift; eng -v cmd=recent -v n="${1:-20}" ;;
+  inspect)    do_inspect ;;
+  job)        do_job ;;
+  open)       eng -v cmd=defects ;;
+  what|reason) shift; eng -v cmd=wx -v lon="${1:-}" ;;
+  spares)     eng -v cmd=holdings ;;
+  shopping)   shift; eng -v cmd=shopping -v port="${1:-}" ;;
+  equip)      eng -v cmd=equip ;;
+  part)       add_part ;;
+  stocktake)  do_stocktake ;;
+  correct)    do_correct ;;
+  day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
+  about)      about_text ;;
+  help|-h|--help) help_text ;;
+  version)    echo "deck-log $DECKLOG_VERSION" ;;
+  *) echo "  deck-log: no such command: $1"; help_text; exit 2 ;;
+esac

@@ -4,6 +4,31 @@ set -e
 cd "$(dirname "$0")"
 mkdir -p bin
 
+build_decklog() {
+  out=bin/deck-log
+  {
+    cat src/decklog/10-head.sh
+    echo ''
+    echo '# ---- engine extraction (written once, then reused) -----------------'
+    echo 'install_engine() {'
+    echo '  if [ -f "$ENGINE" ]; then'
+    echo '    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0'
+    echo '  fi'
+    echo '  mkdir -p "$DECKLOG_HOME" 2>/dev/null || {'
+    echo '    echo "deck-log: cannot create $DECKLOG_HOME" >&2; exit 1; }'
+    echo '  cat > "$ENGINE" <<'"'"'__DECKLOG_ENGINE__'"'"''
+    cat src/decklog/log.awk
+    cat src/decklog/views.awk
+    cat src/decklog/wx.awk
+    cat src/decklog/screens.awk
+    echo '__DECKLOG_ENGINE__'
+    echo '}'
+    cat src/decklog/25-about.sh
+    cat src/decklog/30-ui.sh
+  } > "$out"
+  chmod +x "$out"
+}
+
 build_celnav() {
   out=bin/celnav
   {
@@ -89,4 +114,5 @@ build_tides() {
 build_celnav
 build_colregs
 build_tides
+build_decklog
 ls -l bin/

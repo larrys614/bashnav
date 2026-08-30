@@ -1,0 +1,152 @@
+=== deck-log recent ===
+
+  THE LOG
+  ----------------------------------------------------------------------
+  2026-08-30T06:00 inv  stocktake impeller 2
+  2026-08-30T06:00 nav  crs 096    8.5 kn  wind          sea 3
+  2026-08-30T06:00 wx   1016.4 hPa  tend 4  cloud 2  vis 
+  2026-08-30T09:00 eng  eng.main insp belts = a - glazed, squeals at start
+  2026-08-30T12:00 nav  crs 096    8.1 kn  wind          sea 4
+  2026-08-30T12:00 wx   1010.1 hPa  tend 7  cloud 7  vis 
+  2026-08-30T15:00 eng  eng.main job impeller 
+  ----------------------------------------------------------------------
+  7 records
+
+=== deck-log holdings ===
+
+  SPARES ABOARD
+  ----------------------------------------------------------------------
+  raw water impeller       1  1 short of 2
+    Jabsco 17937-0001   fits eng.main
+    stowed: port bilge, box 3
+  ----------------------------------------------------------------------
+
+=== deck-log shopping ===
+
+  SHOPPING LIST
+  ----------------------------------------------------------------------
+  raw water impeller       x1   have 1, want 2
+    Jabsco 17937-0001
+    fits: Yanmar 4JH4-TE  s/n E12345
+    stow: port bilge, box 3
+
+  ----------------------------------------------------------------------
+  Everything the chandler will ask, on one screen, with no signal.
+
+=== deck-log defects ===
+
+  OPEN ITEMS
+  ----------------------------------------------------------------------
+  belts          eng.main     found 2026-08-30
+    glazed, squeals at start
+  ----------------------------------------------------------------------
+  An item stays here until a job records that it closed it.
+
+=== deck-log equip ===
+
+  EQUIPMENT
+  ----------------------------------------------------------------------
+  eng.main     Yanmar 4JH4-TE
+    serial E12345
+    plate: 4JH4-TE S/N E12345
+  ----------------------------------------------------------------------
+
+=== deck-log what the log says ===
+
+  WHAT THE LOG SAYS
+  ----------------------------------------------------------------------
+  Pressure 1010.1, -6.3 hPa in 6.0 hours.
+  Allowing for the daily atmospheric tide: -6.4 hPa.
+     the tide alone accounts for +0.1 of that. It is semidiurnal,
+     about 1.4 hPa in the tropics and much less in high latitudes,
+     and in the tropics it falls 2-3 mb every afternoon in fine weather.
+  That is a serious fall. Expect a deepening system and a rising wind.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
+
+  Wind has BACKED 40 degrees, 210 to 170.
+     northern hemisphere: backing with a falling glass puts the centre
+     to your north and closing. This is the one to take seriously.
+
+  Back to the wind: the low is roughly 260 from you.
+     Buys Ballot. Stand with your back to the wind: in the northern
+     hemisphere the low is on your left, in the southern, on your right.
+
+  Fog is likely: the dew point is at or above the sea temperature.
+     air moving over water colder than its own dew point condenses.
+
+  Cloud base about 159 ft (49 m).
+     the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,
+     its dew point falls at 0.5, and the difference is what counts. Not
+     the lapse rate alone: that would put the base a fifth too low.
+
+  A 14-second swell from 230.
+     long-period swell outruns the storm that made it. This can be the
+     first news of a system, with a steady glass and a clear sky.
+  ----------------------------------------------------------------------
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
+
+=== deck-log menu cloud ===
+
+  TOTAL CLOUD, eighths of sky
+    0  clear                               5  5/8
+    1  1/8                                 6  6/8
+    2  2/8                                 7  7/8
+    3  3/8                                 8  overcast
+    4  4/8                               
+    /  cannot be seen from here            -  not observed
+=== deck-log menu sea ===
+
+  SEA STATE, Douglas
+    0  glassy                              5  rough
+    1  rippled                             6  very rough
+    2  smooth, wavelets                    7  high
+    3  slight                              8  very high
+    4  moderate                            9  phenomenal
+    /  cannot be seen from here            -  not observed
+=== deck-log menu vis ===
+
+  VISIBILITY
+    0  under 50 m                          5  2-4 km
+    1  50-200 m                            6  4-10 km
+    2  200-500 m                           7  10-20 km
+    3  500 m - 1 km                        8  20-50 km
+    4  1-2 km                              9  over 50 km
+    /  cannot be seen from here            -  not observed
+=== deck-log menu ptend ===
+
+  PRESSURE over the last 3 hours - the SHAPE, not the amount
+    0  rising, then steady                 5  falling, then steady
+    1  rising, then rising faster          6  falling, then falling faster
+    2  rising steadily                     7  falling steadily
+    3  falling or steady, then rising      8  steady or rising, then falling
+    4  steady                            
+    /  cannot be seen from here            -  not observed
+=== deck-log menu cl ===
+
+  LOW CLOUD
+    0  none                                5  stratocumulus
+    1  cumulus, fair                       6  stratus
+    2  cumulus, towering                   7  ragged stratus, bad weather
+    3  cumulonimbus, no anvil              8  cumulus and stratocumulus
+    4  stratocumulus from cumulus          9  cumulonimbus with anvil
+    /  cannot be seen from here            -  not observed
+=== deck-log menu cm ===
+
+  MIDDLE CLOUD
+    0  none                                5  altocumulus, bands thickening
+    1  altostratus, thin                   6  altocumulus from cumulus
+    2  altostratus, thick                  7  altocumulus in layers
+    3  altocumulus, thin                   8  altocumulus, turrets
+    4  altocumulus, patches                9  altocumulus, chaotic
+    /  cannot be seen from here            -  not observed
+=== deck-log menu ch ===
+
+  HIGH CLOUD
+    0  none                                5  cirrus and cirrostratus below 45 deg
+    1  cirrus, wisps                       6  cirrus and cirrostratus above 45 deg
+    2  cirrus, dense                       7  cirrostratus, whole sky
+    3  cirrus from anvil                   8  cirrostratus, part sky
+    4  cirrus, thickening                  9  cirrocumulus
+    /  cannot be seen from here            -  not observed

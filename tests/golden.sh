@@ -218,6 +218,36 @@ TD="-f src/tides/tables.awk -f src/tides/engine.awk -v SF=src/tides/stations.dat
   done
 } | emit tides.txt
 
+# ---- deck-log: the deterministic screens ------------------------------
+DLD=$(mktemp -d)
+cat > "$DLD/boat" <<'BOAT'
+eq|id=eng.main|make=Yanmar|model=4JH4-TE|serial=E12345|plate=4JH4-TE S/N E12345|~
+pt|id=impeller|name=raw water impeller|number=Jabsco 17937-0001|fits=eng.main|min=2|stow=port bilge, box 3|~
+BOAT
+cat > "$DLD/log" <<'DLOG'
+2026-08-30T06:00Z|inv|part=impeller|count=2|action=stocktake|~
+2026-08-30T06:00Z|nav|lat=41 14.0N|lon=072 05.0W|crs=096|sog=8.5|wdir=210|wspd=14|sea=3|~
+2026-08-30T06:00Z|wx|mslp=1016.4|ptend=4|airt=18.0|dewp=14.0|seat=17.5|cloud=2|swper=7|swdir=200|~
+2026-08-30T09:00Z|eng|eq=eng.main|insp=belts|state=a|note=glazed, squeals at start|~
+2026-08-30T12:00Z|nav|lat=41 20.0N|lon=072 20.0W|crs=096|sog=8.1|wdir=170|wspd=22|sea=4|~
+2026-08-30T12:00Z|wx|mslp=1010.1|ptend=7|airt=17.2|dewp=16.8|seat=16.9|cloud=7|swper=14|swdir=230|~
+2026-08-30T15:00Z|eng|eq=eng.main|job=impeller|part=impeller|qty=1|hrs=1234.5|~
+DLOG
+DL="-f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk -f src/decklog/screens.awk"
+{
+  for c in recent holdings shopping defects equip; do
+    echo "=== deck-log $c ==="
+    $AW $DL -v cmode=plain -v cmd="$c" -v LOG="$DLD/log" -v BOAT="$DLD/boat" -v n=20 </dev/null
+  done
+  echo "=== deck-log what the log says ==="
+  $AW $DL -v cmode=plain -v cmd=wx -v LOG="$DLD/log" -v BOAT="$DLD/boat" -v lon=-72 </dev/null
+  for m in cloud sea vis ptend cl cm ch; do
+    echo "=== deck-log menu $m ==="
+    $AW $DL -v cmode=plain -v cmd=menu -v what="$m" </dev/null
+  done
+} | emit decklog.txt
+rm -rf "$DLD"
+
 # ---- compare or update ------------------------------------------------
 mkdir -p "$G"
 fail=0

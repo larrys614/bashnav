@@ -340,6 +340,79 @@ Data: NOAA harmonic constants (public domain) and TICON-4 (CC BY 4.0),
 assembled by way of the [neaps tide-database](https://github.com/neaps/tide-database)
 project. That attribution travels with the data; see [NOTICE](NOTICE).
 
+---
+
+---
+
+## deck-log
+
+The boat's records &mdash; deck, engine, provisions &mdash; in one place,
+because they are the same book with different tabs, written by the same person
+at the same moment.
+
+```sh
+deck-log                   # the menu; the three-hourly entry
+deck-log inspect           # the engine checklist
+deck-log job               # work done, and the part it used
+deck-log shopping          # the list for the next port
+deck-log what -72          # what the log says about the weather
+```
+
+**A log is a record.** It has standing after an incident and is read by people
+who were not there. So it is **append only** &mdash; nothing is ever edited or
+deleted &mdash; a **correction is a new entry** that references the old one with
+both visible for ever, which is the electronic version of lining through and
+initialling, and **every timestamp is UTC**.
+
+**Declining is an answer.** Return records `-`, meaning asked and not taken;
+`/` means it could not be observed. Both are true entries, and both beat a
+guess. A form that punishes blanks gets invented numbers, and an invented
+number in a log is worse than a gap because it looks like data. Zero is a
+reading: "cloud nil" and "cloud not observed" are different facts and this log
+tells them apart.
+
+**Nothing is stored twice.** What an impeller *is* &mdash; its number, what it
+fits, how many to carry &mdash; is registry. How many you *have* is worked out
+by replaying the log, so the count can never disagree with the log, because it
+is the log.
+
+<details>
+<summary>the shopping list, which is the screen it is really for</summary>
+
+```
+
+  SHOPPING LIST                     Cape Town
+  ----------------------------------------------------------------------
+  raw water impeller       x1   have 1, want 2
+    Jabsco 17937-0001
+    fits: Yanmar 4JH4-TE  s/n E12345
+    stow: port bilge, box 3
+
+  ----------------------------------------------------------------------
+  Everything the chandler will ask, on one screen, with no signal.
+```
+
+Everything the chandler will ask, on one screen, with no signal.
+
+</details>
+
+### What the log says
+
+Given a few three-hourly observations it reasons about what is coming and
+**shows its working**, because a forecast handed over without its reasoning
+teaches nothing. Barometric tendency corrected for the daily atmospheric tide;
+backing and veering; Buys Ballot; fog from dew point against sea temperature;
+cloud base from the spread; and a long-period swell from a new direction, which
+outruns the storm that made it.
+
+It is **not a forecast**: no model, no chart, no GRIB. It is you, reading your
+own barometer &mdash; which is the one category of weather data that is never
+wrong, and the only one still available when the antenna comes down.
+
+The observation form follows NOAA's **Voluntary Observing Ship** standard, so
+learning it is learning the professional one.
+
+---
 
 ## Colour and night vision
 
