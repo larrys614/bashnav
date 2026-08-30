@@ -1,5 +1,31 @@
 # Changelog
 
+## The installer now knows how big it should be
+
+Larry hit a 404 on the `curl` line. The file was fine and the push had landed —
+he was using the URL from an earlier message, the `releases/latest/download/…`
+one that never existed. The repository copy answers 200 at 3,404,214 bytes.
+
+Nothing to fix in the code, but the question exposed something worth fixing on
+sight: **a short download of a self-extracting script installs half a tool and
+says nothing.** `sh` treats end-of-file as the end of an unterminated heredoc,
+so the last payload is written out truncated, no error is raised, and the exit
+status is 0. Same shape as the truncated log record that took a full byte-offset
+sweep to find.
+
+`bashnav-ipad.sh` now carries its own byte count and checks it before touching
+anything, reporting a short download and an over-long one differently — a file
+that grew has usually had its line endings rewritten in transit. The stamp is
+fixed width (`__BYTES__` is nine characters, the number zero-padded to nine)
+because a substitution that changed the file's length would falsify the number
+it was writing; `make-ipad.sh` re-measures afterwards and fails the build if the
+size moved. It caught that on the first attempt — a ten-digit pad into a
+nine-character slot.
+
+Covered in `tests/ipad-install-check.sh`: the stamp must equal the real size, a
+truncated installer must refuse and install nothing, and an over-long one must
+refuse too. Watched failing with the guard removed.
+
 ## The iPad installer is committed, not gitignored
 
 Larry: *"lets fix it and push it."*

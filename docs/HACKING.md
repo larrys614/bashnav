@@ -172,6 +172,24 @@ it works on the machine you wrote it on.
 `tests/ipad-install-check.sh` probes this directly, at the shell level, as well
 as through the installer.
 
+### A self-extracting script must carry its own length
+
+`bashnav-ipad.sh` is 3.4 MB fetched over whatever link a boat has. **sh treats
+end-of-file as the end of an unterminated heredoc**, so a short download writes
+the last tool out half-finished, raises nothing, and exits successfully. That is
+the same shape as the truncated log record above: a fragment that is
+structurally perfect and simply wrong.
+
+The file therefore carries its own byte count and checks it before doing
+anything. The stamp is a fixed-width placeholder — `__BYTES__` is nine
+characters, the number is zero-padded to nine — because a substitution that
+changed the file's length would make the number it just wrote untrue.
+`release/make-ipad.sh` re-measures after stamping and fails the build if the size
+moved.
+
+Longer than expected is reported differently from shorter: a file that grew has
+usually had its line endings rewritten in transit.
+
 ### Declining is not failing
 
 `tides near` used to exit non-zero when the user pressed return instead of

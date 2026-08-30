@@ -36,6 +36,19 @@ mkdir -p "$(dirname "$OUT")"
   done
   cat src/release/install-tail.sh
 } > "$OUT"
+
+#  Stamp the file's own length into it.  The placeholder is exactly ten
+#  __BYTES__ placeholder is nine characters and the number is zero
+#  padded to nine, so the file
+#  does not change size when the number goes in -- which is the only
+#  reason the number can be right.
+n=$(wc -c < "$OUT" | tr -d ' ')
+pad=$(printf '%09d' "$n")   # __BYTES__ is nine characters wide
+sed "s/^BASHNAV_BYTES=__BYTES__$/BASHNAV_BYTES=$pad/" "$OUT" > "$OUT.tmp"
+mv "$OUT.tmp" "$OUT"
+m=$(wc -c < "$OUT" | tr -d ' ')
+[ "$m" = "$n" ] || { echo "make-ipad: stamping changed the size ($n -> $m)" >&2; exit 1; }
+grep -q "^BASHNAV_BYTES=$pad\$" "$OUT" || { echo "make-ipad: the byte count was not stamped" >&2; exit 1; }
 chmod +x "$OUT"
 
 sh -n "$OUT" || { echo "make-ipad: the installer does not parse" >&2; exit 1; }

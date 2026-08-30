@@ -73,6 +73,26 @@ else
   [ -f "$h/Documents/.profile.bashnav-backup" ] || say "no backup of the .profile it first found"
 fi
 
+#  ---- 3b. a short download must be refused, not half-installed -----
+#  3.4 MB over a boat's link. sh treats end-of-file as the end of an
+#  unterminated heredoc, so a truncated installer writes the last tool
+#  out half-finished and raises nothing -- the same shape as the
+#  truncated log record in docs/HACKING.md. The file carries its own
+#  length; check that the length is true and that it is acted on.
+stamp=$(sed -n 's/^BASHNAV_BYTES=//p' "$INST" | sed 's/^0*//')
+real=$(wc -c < "$INST" | tr -d ' ')
+[ "$stamp" = "$real" ] || say "the stamped length is $stamp, the file is $real"
+
+t="$d/trunc"; mkdir -p "$t"
+head -c 3000000 "$INST" > "$t/short.sh"
+o=$(cd "$t" && HOME="$t" $SH ./short.sh 2>&1) && say "a truncated installer exited 0"
+case "$o" in *"stopped early"*) ;; *) say "a truncated installer did not say so: [$o]" ;; esac
+[ -e "$t/Documents" ] && say "a truncated installer wrote something anyway"
+
+cp "$INST" "$t/long.sh"; printf '\n# extra\n' >> "$t/long.sh"
+o=$(cd "$t" && HOME="$t" $SH ./long.sh 2>&1) && say "an over-long installer exited 0"
+case "$o" in *"LONGER than expected"*) ;; *) say "an over-long installer did not say so" ;; esac
+
 #  ---- 4. the write probe, on its own, at the shell level ------------
 #  This is the check that would have caught it. A probe of a directory
 #  that exists and cannot be written must be silent and must not kill

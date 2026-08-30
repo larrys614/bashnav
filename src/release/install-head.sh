@@ -20,6 +20,11 @@
 # =====================================================================
 set -u
 BASHNAV_RELEASE=__RELEASE__
+#  Nine digits, filled in by release/make-ipad.sh after the file is
+#  assembled.  The placeholder __BYTES__ is nine characters and the
+#  number is zero padded to nine, so substituting it does not change the
+#  file's length -- which is the only reason the number can be true.
+BASHNAV_BYTES=__BYTES__
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -43,6 +48,39 @@ say "  ==================================================================="
 say "   BASH NAVIGATION SOFTWARE -- release $BASHNAV_RELEASE"
 say "  ==================================================================="
 say ""
+
+# ---------------------------------------------------------------------
+#  0. Am I all here?
+#
+#  This file is 3.4 MB fetched over whatever link a boat has.  A short
+#  download leaves a script that still runs: sh treats end-of-file as
+#  the end of an unterminated heredoc, so the last tool is written out
+#  half-finished and no error is raised.  That is the same shape as the
+#  truncated log record in docs/HACKING.md -- a fragment that is
+#  structurally perfect and simply wrong.
+#
+#  So the file carries its own length and checks it before doing
+#  anything.  Skipped when there is no file to measure, which is what
+#  piping the script into sh looks like.
+# ---------------------------------------------------------------------
+if [ -f "$0" ]; then
+  have=$(wc -c < "$0" 2>/dev/null | tr -d ' ')
+  want=$(printf '%s' "$BASHNAV_BYTES" | sed 's/^0*//')
+  if [ -n "$have" ] && [ -n "$want" ] && [ "$have" != "$want" ]; then
+    say "  This file is $have bytes and should be $want."
+    say ""
+    if [ "$have" -lt "$want" ] 2>/dev/null; then
+      say "  The download stopped early. Nothing has been installed."
+      say "  Fetch it again -- a short copy would install half a tool"
+      say "  and say nothing about it."
+    else
+      say "  It is LONGER than expected, which usually means the transfer"
+      say "  changed the line endings. Fetch it again as a binary file."
+    fi
+    say ""
+    exit 1
+  fi
+fi
 
 # ---------------------------------------------------------------------
 #  1. Where the tools go.
