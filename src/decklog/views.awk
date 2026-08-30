@@ -15,20 +15,6 @@
 #  then you have two numbers and no way to know which one lied.
 # =====================================================================
 
-function col_init(   e){
-  if(COL_READY) return
-  e=sprintf("%c",27)
-  if(cmode=="night"){ C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"
-                      C_WARN=e "[1;31m" }
-  else if(cmode=="day"){ C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"
-                         C_WARN=e "[1;91m" }
-  else { C_BASE=""; C_ACC=""; C_DIM=""; C_WARN="" }
-  C_RST=C_BASE; COL_READY=1
-  return 0
-}
-function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
-function cwd(s){ col_init(); return cw(s,C_DIM) }
-function hr(){ print "  ----------------------------------------------------------------------" }
 
 # ---------------------------------------------------------------------
 #  The registry.  Same encoding as the log so there is one escaping

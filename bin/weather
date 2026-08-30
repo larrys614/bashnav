@@ -1,0 +1,1534 @@
+#!/bin/sh
+# =====================================================================
+#  weather -- read your own barometer.
+#  Part of Bash Navigation Software.  Pure POSIX sh + awk, no network.
+#
+#  It reasons over the observations in the deck log and it TEACHES the
+#  physics underneath, which is why it is its own tool and not part of
+#  deck-log.  A log records what happened on this boat; a teacher is a
+#  different animal, and trying to be both is how the teaching material
+#  got left out of the first attempt.
+#
+#  IT CANNOT FORECAST, and says so.  No model, no GRIB, no chart it did
+#  not get from you.  What it works from is the one category of weather
+#  data that is never wrong - what you measured yourself - and the only
+#  one still available when the antenna comes down.
+# =====================================================================
+WEATHER_VERSION=1.0
+
+#  the log belongs to deck-log; weather only ever READS it
+: "${DECKLOG_HOME:=$HOME/.bashnav}"
+LOG="$DECKLOG_HOME/log"
+: "${WEATHER_HOME:=$DECKLOG_HOME}"
+CONF="$WEATHER_HOME/weather.conf"
+PROG="$WEATHER_HOME/weather.progress"
+ENGINE="$WEATHER_HOME/weather-$WEATHER_VERSION.awk"
+
+cmode=day
+#  [ -t 1 ] at the top level, never inside cmode_now: in a command
+#  substitution stdout is a pipe and every terminal is told it is plain.
+ISTTY=0; [ -t 1 ] && ISTTY=1
+lessons=""; lon=""
+
+awk_has_math() {
+  $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
+}
+pick_awk() {
+  if [ -n "$WEATHER_AWK" ]; then AWK="$WEATHER_AWK"; return 0; fi
+  for a in awk gawk mawk nawk original-awk "busybox awk"; do
+    if awk_has_math "$a"; then AWK="$a"; return 0; fi
+  done
+  AWK=awk; echo "weather: no usable awk found." >&2; return 1
+}
+load_conf() {
+  [ -f "$CONF" ] || return 0
+  while IFS='=' read -r k v; do
+    case "$k" in cmode) cmode="$v" ;; lon) lon="$v" ;; esac
+  done < "$CONF"
+}
+save_conf() { mkdir -p "$WEATHER_HOME"; { echo "cmode=$cmode"; echo "lon=$lon"; } > "$CONF"; }
+load_prog() {
+  [ -f "$PROG" ] || return 0
+  while IFS='=' read -r k v; do case "$k" in lessons) lessons="$v" ;; esac; done < "$PROG"
+}
+save_prog() { mkdir -p "$WEATHER_HOME"; echo "lessons=$lessons" > "$PROG"; }
+mark_done() {
+  case ",$lessons," in *,"$1",*) return 0 ;; esac
+  if [ -z "$lessons" ]; then lessons="$1"; else lessons="$lessons,$1"; fi
+  save_prog
+}
+paint() {
+  [ "$cmode" = plain ] && return 0
+  [ "$ISTTY" = 1 ] || return 0
+  case "$cmode" in
+    night) printf '\033[40m\033[31m\033[2J\033[H' ;;
+    day)   printf '\033[40m\033[37m\033[2J\033[H' ;;
+  esac
+}
+unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
+cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
+eng() {
+  $AWK -f "$ENGINE" -v cmode="$(cmode_now)" -v LOG="$LOG" -v lon="$lon" \
+       -v now="$(date -u '+%Y-%m-%dT%H:%MZ')" "$@" </dev/null
+}
+
+# ---- engine extraction (written once, then reused) -----------------
+install_engine() {
+  if [ -f "$ENGINE" ]; then
+    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
+  fi
+  mkdir -p "$WEATHER_HOME" 2>/dev/null || {
+    echo "weather: cannot create $WEATHER_HOME" >&2; exit 1; }
+  cat > "$ENGINE" <<'__WEATHER_ENGINE__'
+# =====================================================================
+#  deck-log -- the record layer.
+#
+#  This file is the one irreversible decision in the whole tool.  The log
+#  is append-only, so every record written today has to still parse in
+#  five years, in a version nobody has written yet.  Adding a key later
+#  is free - a reader ignores keys it does not know.  Changing the SHAPE
+#  is not, ever.
+#
+#  Format, one record per line:
+#
+#      YYYY-MM-DDThh:mmZ|type|key=value|key=value|...|~
+#
+#  THE TRAILING ~ IS A COMPLETENESS MARKER, and it is there because of a
+#  bug this format had before the truncation test found it.
+#
+#  Kill the app mid-write and the half-line left on disk is STRUCTURALLY
+#  PERFECT: right timestamp, right type, every field a well-formed
+#  key=value.  Nothing distinguishes it from a finished record, so a
+#  reader accepts it and you silently lose the fields that never made it
+#  to disk - an engine entry with the part but not the hours, and no
+#  indication anything is missing.  In an append-only log that is
+#  permanent, and it is exactly the failure that would matter in an
+#  inquiry.
+#
+#  So a record is complete only if its last field is a bare ~.  A
+#  truncation cannot forge one: | is percent-encoded inside values, so
+#  the sequence |~ appears nowhere else.  One character of noise, and
+#  ANY reader in any language in any decade can tell a whole record from
+#  half of one without knowing anything about our software.
+#
+#  - the timestamp is UTC.  Always.  Display in whatever the user likes.
+#  - `type` is three characters or fewer: nav wx eng pro inv cel tid con
+#    cor chart.  A reader that does not know a type skips the record.
+#  - keys are [a-z0-9_] only, so they never need encoding
+#  - VALUES ARE PERCENT-ENCODED for the four characters that can hurt.
+#
+#  POSIX awk only.  See docs/HACKING.md.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+#  Encoding.
+#
+#  Free text goes in this log - a note typed at 0400, the verbatim text
+#  off an engine plate - and it will contain the delimiters:
+#
+#      note=belt squeals, replaced 30 Aug|check again at 1300hrs
+#      plate=4JH4-TE  S/N E12345  E/G 3TNV88=B
+#
+#  Unescaped, those still LOOK like records.  They just have the wrong
+#  number of fields and the tail is gone, and in an append-only log that
+#  damage is permanent and silent.
+#
+#  Only four characters are encoded, so ordinary text stays literal and
+#  the log is still readable by eye and by grep - which matters for a
+#  file somebody may have to interpret after an incident with no
+#  software to hand.
+# ---------------------------------------------------------------------
+function lg_enc(s){
+  gsub(/%/,  "%25", s)      # first, or it would double-encode the rest
+  gsub(/\|/, "%7C", s)
+  gsub(/=/,  "%3D", s)
+  gsub(/\n/, "%0A", s)
+  return s
+}
+function lg_dec(s){
+  #  %25 last, for the same reason in reverse
+  gsub(/%0A/, "\n", s)
+  gsub(/%3D/, "=",  s)
+  gsub(/%7C/, "|",  s)
+  gsub(/%25/, "%",  s)
+  return s
+}
+
+# ---------------------------------------------------------------------
+#  Building a record.
+#
+#  Callers hand over parallel arrays of keys and values rather than a
+#  formatted string, so there is exactly one place that knows the
+#  delimiters and exactly one place that encodes.
+# ---------------------------------------------------------------------
+function lg_make(ts, type, k, v, n,   i, out){
+  out = ts "|" type
+  for(i=1; i<=n; i++){
+    if(k[i]=="") continue
+    out = out "|" k[i] "=" lg_enc(v[i])
+  }
+  return out "|~"                     # the completeness marker
+}
+
+# ---------------------------------------------------------------------
+#  Parsing.
+#
+#  Fills LG[key] with decoded values, sets LG_TS and LG_TYPE, and
+#  returns 1 for a good record.  Returns 0 and sets LG_ERR otherwise -
+#  it never aborts, because a damaged tail must not take the whole log
+#  with it.
+# ---------------------------------------------------------------------
+function lg_parse(line,   n, f, i, p, key, val){
+  for(key in LG) delete LG[key]
+  LG_TS=""; LG_TYPE=""; LG_ERR=""; LG_NF=0
+  if(line=="" || substr(line,1,1)=="#"){ LG_ERR="blank or comment"; return 0 }
+  n = split(line, f, "|")
+  if(n < 3){ LG_ERR="too few fields"; return 0 }
+  if(!lg_ts_ok(f[1])){ LG_ERR="bad timestamp: " f[1]; return 0 }
+  if(f[2] !~ /^[a-z][a-z0-9]{0,4}$/){ LG_ERR="bad type: " f[2]; return 0 }
+  #  The record must be COMPLETE.  Without this a half-written line
+  #  parses cleanly and quietly loses whatever never reached the disk.
+  if(f[n] != "~"){ LG_ERR="incomplete record (no terminator)"; return 0 }
+  LG_TS = f[1]; LG_TYPE = f[2]
+  for(i=3; i<n; i++){
+    p = index(f[i], "=")
+    if(p < 2){ LG_ERR="field " i " is not key=value: " f[i]; return 0 }
+    key = substr(f[i], 1, p-1)
+    val = substr(f[i], p+1)
+    if(key !~ /^[a-z0-9_]+$/){ LG_ERR="bad key: " key; return 0 }
+    LG[key] = lg_dec(val)
+    LG_NF++
+  }
+  return 1
+}
+
+#  A timestamp this reader will accept for ever: YYYY-MM-DDThh:mmZ
+function lg_ts_ok(s){
+  if(length(s)!=17) return 0
+  return (s ~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]Z$/)
+}
+
+# ---------------------------------------------------------------------
+#  Reading a whole log.
+#
+#  A record that will not parse is COUNTED and SKIPPED, never fatal.
+#  The app is suspended by iOS, the battery dies, a-Shell is killed
+#  mid-write - a half-written last line must not make the log
+#  unreadable, and it must not silently swallow the good records above
+#  it either.  So: LG_GOOD and LG_BAD, and the caller decides what to
+#  say about it.
+# ---------------------------------------------------------------------
+function lg_read(file, want,   line, i){
+  LG_N=0; LG_GOOD=0; LG_BAD=0; LG_BADLINE=""
+  while((getline line < file) > 0){
+    if(line=="" || substr(line,1,1)=="#") continue
+    if(!lg_parse(line)){
+      LG_BAD++
+      if(LG_BADLINE=="") LG_BADLINE = line
+      continue
+    }
+    LG_GOOD++
+    if(want!="" && LG_TYPE!=want) continue
+    LG_N++
+    LR_TS[LG_N]   = LG_TS
+    LR_TYPE[LG_N] = LG_TYPE
+    LR_LINE[LG_N] = line
+  }
+  close(file)
+  return LG_N
+}
+
+#  Re-parse the nth record kept by lg_read, so LG[] refers to it.
+function lg_at(i){
+  if(i<1 || i>LG_N) return 0
+  return lg_parse(LR_LINE[i])
+}
+# =====================================================================
+#  Colour, shared.
+#
+#  day    light text on a black panel
+#  night  deep red on black, no green at all, because rebuilding dark
+#         adaptation takes twenty minutes and a bright screen costs
+#         every one of them
+#  plain  no escape sequences whatsoever - chosen automatically when
+#         stdout is not a terminal, so redirected output is clean text
+#
+#  The panel is painted rather than only setting a foreground colour:
+#  a user on a light terminal profile otherwise gets white on white.
+# =====================================================================
+function col_init(   e){
+  if(COL_READY) return
+  e=sprintf("%c",27)
+  if(cmode=="night"){
+    C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"
+    C_WARN=e "[1;31m"; C_NO=e "[1;31m"; C_OK=e "[1;31m"
+  } else if(cmode=="day"){
+    C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"
+    C_WARN=e "[1;91m"; C_NO=e "[1;91m"; C_OK=e "[1;92m"
+  } else {
+    C_BASE=""; C_ACC=""; C_DIM=""; C_WARN=""; C_NO=""; C_OK=""
+  }
+  C_RST=C_BASE; COL_READY=1
+  return 0
+}
+function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
+function hr(){ print "  ----------------------------------------------------------------------" }
+# =====================================================================
+#  deck-log -- the weather reasoning.
+#
+#  EVERY RULE SHOWS ITS WORKING.  A forecast handed over without its
+#  reasoning teaches nothing; the explanation is the product.
+#
+#  And it can only ever be as good as the log behind it: this reasons
+#  from observations the user made, and says so.  With no network there
+#  is no model, no GRIB and no chart.  What there is, is the one
+#  category of weather data that is never wrong.
+# =====================================================================
+
+function wx_num(s){ if(s=="" || s=="-" || s=="/") return -9999; return s+0 }
+function wx_has(x){ return (x>-9000) }
+
+#  Angle difference on the circle.  350 against 010 is 20 degrees, not
+#  340, and getting this wrong would misreport every veer near north.
+function wx_d180(a){ while(a>180) a-=360; while(a<-180) a+=360; return a }
+
+#  Minutes between two of our timestamps.  Days from a civil date, so
+#  month ends and leap years come out right without a date library.
+function wx_mins(ts,   y,mo,d,h,mi,a,jd){
+  y=substr(ts,1,4)+0; mo=substr(ts,6,2)+0; d=substr(ts,9,2)+0
+  h=substr(ts,12,2)+0; mi=substr(ts,15,2)+0
+  a = int((14-mo)/12); y2 = y + 4800 - a; m2 = mo + 12*a - 3
+  jd = d + int((153*m2+2)/5) + 365*y2 + int(y2/4) - int(y2/100) + int(y2/400) - 32045
+  return jd*1440 + h*60 + mi
+}
+
+#  Load the observation history: the nav and wx records, newest last.
+function wx_load(logfile,   i, n){
+  WN=0
+  lg_read(logfile, "")
+  for(i=1;i<=LG_N;i++){
+    if(!lg_at(i)) continue
+    if(LG_TYPE!="nav" && LG_TYPE!="wx") continue
+    #  merge records that share a timestamp: a nav entry and the wx
+    #  entry taken with it are one observation
+    if(WN>0 && WT[WN]==LG_TS) n=WN; else { WN++; n=WN; WT[n]=LG_TS
+      WDIR[n]=-9999; WSPD[n]=-9999; WP[n]=-9999; WTEND[n]=""
+      WAIR[n]=-9999; WDEW[n]=-9999; WSEA[n]=-9999; WCLD[n]=-9999
+      WSWP[n]=-9999; WSWD[n]=-9999; WLAT[n]=""
+      WCL[n]=-1; WCM[n]=-1; WCH[n]=-1; WVIS[n]=-1 }
+    if(LG["wdir"]!="") WDIR[n]=wx_num(LG["wdir"])
+    if(LG["wspd"]!="") WSPD[n]=wx_num(LG["wspd"])
+    if(LG["mslp"]!="") WP[n]  =wx_num(LG["mslp"])
+    if(LG["ptend"]!="" && LG["ptend"]!="-") WTEND[n]=LG["ptend"]
+    if(LG["airt"]!="") WAIR[n]=wx_num(LG["airt"])
+    if(LG["dewp"]!="") WDEW[n]=wx_num(LG["dewp"])
+    if(LG["seat"]!="") WSEA[n]=wx_num(LG["seat"])
+    if(LG["cloud"]!="") WCLD[n]=wx_num(LG["cloud"])
+    if(LG["swper"]!="") WSWP[n]=wx_num(LG["swper"])
+    if(LG["swdir"]!="") WSWD[n]=wx_num(LG["swdir"])
+    if(LG["cl"]!="" && LG["cl"]!="-" && LG["cl"]!="/") WCL[n]=LG["cl"]+0
+    if(LG["cm"]!="" && LG["cm"]!="-" && LG["cm"]!="/") WCM[n]=LG["cm"]+0
+    if(LG["ch"]!="" && LG["ch"]!="-" && LG["ch"]!="/") WCH[n]=LG["ch"]+0
+    if(LG["vis"]!="" && LG["vis"]!="-" && LG["vis"]!="/") WVIS[n]=LG["vis"]+0
+    if(LG["lat"]!="") WLAT[n]=LG["lat"]
+  }
+  return WN
+}
+
+#  Northern or southern, from a latitude written as "41 14.0N" or "-33.9"
+function wx_north(s){
+  if(s=="") return 1
+  if(s ~ /[Ss]$/) return 0
+  if(substr(s,1,1)=="-") return 0
+  return 1
+}
+function wx_latdeg(s,   x){
+  x = s+0; if(x<0) x=-x
+  return x
+}
+
+# ---------------------------------------------------------------------
+#  The atmospheric tide.
+#
+#  Solar heating drives a wave that travels westward with the sun, and
+#  it is on every barometer.  In the tropics the glass falls two to
+#  three millibars between mid-morning and mid-afternoon EVERY DAY IN
+#  PERFECT WEATHER, and a sailor who does not know that reads a routine
+#  afternoon fall as a system approaching.
+#
+#  Dominantly SEMIdiurnal - twice a day, not once.  Maxima near 1000
+#  and 2200 local, minima near 0400 and 1600.  Amplitude about 1.4 hPa
+#  in the tropics, falling steeply with latitude.
+#
+#  So the correction is applied BEFORE anything is said about tendency,
+#  and it is said out loud.
+# ---------------------------------------------------------------------
+function wx_tide(ts, lon, lat,   utch, solar, amp, la){
+  utch = substr(ts,12,2)+0 + (substr(ts,15,2)+0)/60.0
+  solar = utch + (lon+0)/15.0
+  while(solar<0) solar+=24; while(solar>=24) solar-=24
+  la = wx_latdeg(lat)
+  amp = 1.4 * cos(la*3.14159265/180.0)^3
+  if(amp<0) amp = -amp
+  #  maxima near 1000 and 2200 local: a cosine of period 12 h peaking there
+  return amp * cos(2*3.14159265*(solar-10.0)/12.0)
+}
+
+# ---------------------------------------------------------------------
+#  Buys Ballot.
+#
+#  Wind direction is where it comes FROM, so with your back to it you
+#  face wdir+180.  The low is 90 degrees to your left in the northern
+#  hemisphere, which is (wdir+180) - 90 = wdir + 90.  To your right in
+#  the southern: wdir + 270.
+#
+#  The first version added and subtracted the 90 the other way round and
+#  pointed at the exact opposite side of the sky - 080 for a low that
+#  was at 260.  Plausible-looking, completely wrong, and the sort of
+#  thing that survives a read-through and not a test.  Sanity check:
+#  a westerly in the northern hemisphere (270) gives 000, and a low to
+#  the north with a westerly is what a mid-latitude depression does.
+function wx_bb(wdir, north,   b){
+  b = north ? wdir + 90 : wdir + 270
+  while(b>=360) b-=360
+  while(b<0)    b+=360
+  return int(b+0.5)%360
+}
+
+# ---------------------------------------------------------------------
+#  The report
+# ---------------------------------------------------------------------
+function wx_say(s){ printf "  %s\n", s; return 0 }
+function wx_why(s){ printf "  %s\n", cwd("   " s); return 0 }
+
+function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k)
+{
+  n = wx_load(logfile)
+  print ""
+  printf "  %s\n", cw("WHAT THE LOG SAYS", C_ACC)
+  hr()
+  if(n < 2){
+    wx_say("Not enough observations yet.")
+    wx_why("Almost every rule here needs history, not a snapshot: a tendency")
+    wx_why("is a rate, backing is a change, a front is a sequence. Log a few")
+    wx_why("three-hourly entries and this page starts working.")
+    print ""
+    return 0
+  }
+  j = n
+  #  the most recent earlier observation with a pressure, for the trend
+  for(i=n-1; i>=1; i--) if(wx_has(WP[i]) && wx_has(WP[n])) break
+  k = i
+
+  # ---- pressure -----------------------------------------------------
+  if(k>=1 && wx_has(WP[n]) && wx_has(WP[k])){
+    dt = (wx_mins(WT[n]) - wx_mins(WT[k]))/60.0
+    dp = WP[n] - WP[k]
+    tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
+    corr = dp - (tide2 - tide1)
+    wx_say(sprintf("Pressure %.1f, %+.1f hPa in %.1f hours.", WP[n], dp, dt))
+    if(lon!=""){
+      wx_say(sprintf("Allowing for the daily atmospheric tide: %+.1f hPa.", corr))
+      wx_why(sprintf("the tide alone accounts for %+.1f of that. It is semidiurnal,", tide2-tide1))
+      wx_why("about 1.4 hPa in the tropics and much less in high latitudes,")
+      wx_why("and in the tropics it falls 2-3 mb every afternoon in fine weather.")
+    } else corr = dp
+    if(dt>0){
+      if(corr <= -3.0*(dt/3.0))      wx_say(cw("That is a serious fall. Expect a deepening system and a rising wind.", C_WARN))
+      else if(corr <= -1.5*(dt/3.0)) wx_say("A definite fall. Something is coming.")
+      else if(corr >=  1.5*(dt/3.0)) wx_say("Rising. The gradient is easing or a ridge is building.")
+      else                           wx_say("Near steady.")
+      wx_why("a rate matters more than a level: 1000 hPa steady is a quiet day,")
+      wx_why("1015 falling fast is not.")
+    }
+  } else {
+    wx_say("No pressure trend - fewer than two entries carry a pressure.")
+  }
+
+  # ---- wind: backing or veering, and Buys Ballot --------------------
+  if(k>=1 && wx_has(WDIR[n]) && wx_has(WDIR[k])){
+    dw = wx_d180(WDIR[n] - WDIR[k])
+    print ""
+    if(dw > 10)       wx_say(sprintf("Wind has VEERED %d degrees, %03d to %03d.", int(dw+0.5), WDIR[k], WDIR[n]))
+    else if(dw < -10) wx_say(sprintf("Wind has BACKED %d degrees, %03d to %03d.", int(-dw+0.5), WDIR[k], WDIR[n]))
+    else              wx_say(sprintf("Wind steady in direction, about %03d.", WDIR[n]))
+    if(wx_north(WLAT[n])){
+      if(dw > 10)       wx_why("northern hemisphere: veering with a rising glass usually means the")
+      if(dw > 10)       wx_why("centre has passed to the north of you and the cold front is through.")
+      if(dw < -10)      wx_why("northern hemisphere: backing with a falling glass puts the centre")
+      if(dw < -10)      wx_why("to your north and closing. This is the one to take seriously.")
+    } else {
+      wx_why("southern hemisphere: the sense of all of this reverses.")
+    }
+  }
+  #  Buys Ballot
+  if(wx_has(WDIR[n])){
+    print ""
+    wx_say(sprintf("Back to the wind: the low is roughly %03d from you.",
+           wx_bb(WDIR[n], wx_north(WLAT[n]))))
+    wx_why("Buys Ballot. Stand with your back to the wind: in the northern")
+    wx_why("hemisphere the low is on your left, in the southern, on your right.")
+  }
+
+  # ---- fog -----------------------------------------------------------
+  if(wx_has(WDEW[n]) && wx_has(WSEA[n])){
+    print ""
+    if(WDEW[n] >= WSEA[n] - 0.5){
+      wx_say(cw("Fog is likely: the dew point is at or above the sea temperature.", C_WARN))
+      wx_why("air moving over water colder than its own dew point condenses.")
+    } else {
+      wx_say(sprintf("Fog unlikely: dew point %.1f, sea %.1f, a margin of %.1f.",
+             WDEW[n], WSEA[n], WSEA[n]-WDEW[n]))
+    }
+  }
+
+  # ---- cloud base ----------------------------------------------------
+  if(wx_has(WAIR[n]) && wx_has(WDEW[n])){
+    print ""
+    wx_say(sprintf("Cloud base about %d ft (%d m).",
+           int((WAIR[n]-WDEW[n])*400), int((WAIR[n]-WDEW[n])*125)))
+    wx_why("the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,")
+    wx_why("its dew point falls at 0.5, and the difference is what counts. Not")
+    wx_why("the lapse rate alone: that would put the base a fifth too low.")
+  }
+
+  # ---- the cloud sequence -------------------------------------------
+  wx_cloud(logfile)
+
+  # ---- visibility, which we also used to ask for and ignore ---------
+  if(WVIS[n]>=0 && k>=1 && WVIS[k]>=0 && WVIS[n]!=WVIS[k]){
+    print ""
+    if(WVIS[n] < WVIS[k]){
+      wx_say(sprintf("Visibility is closing in: code %d down to %d.", WVIS[k], WVIS[n]))
+      wx_why("with a falling glass that is usually rain arriving ahead of a front;")
+      wx_why("with the dew point near the sea temperature it is fog.")
+    } else {
+      wx_say(sprintf("Visibility improving: code %d up to %d.", WVIS[k], WVIS[n]))
+    }
+  }
+
+  # ---- swell, the earliest warning there is --------------------------
+  if(wx_has(WSWP[n]) && WSWP[n] >= 12){
+    print ""
+    wx_say(cw(sprintf("A %d-second swell from %03d.", int(WSWP[n]), WSWD[n]), C_ACC))
+    wx_why("long-period swell outruns the storm that made it. This can be the")
+    wx_why("first news of a system, with a steady glass and a clear sky.")
+  }
+  hr()
+  wx_say(cwd("This reasons only from what you logged. It is not a forecast:"))
+  wx_say(cwd("no model, no chart, no GRIB. It is you, reading your own barometer."))
+  print ""
+  return 0
+}
+
+# ---------------------------------------------------------------------
+#  The cloud sequence - the rule those three cloud codes are FOR.
+#
+#  A warm front announces itself hours ahead, in order: cirrus, then
+#  cirrostratus thickening and lowering, then altostratus, then rain.
+#  Reading it needs cloud TYPE over time, which is why the observation
+#  asks for CL, CM and CH separately and why total cover cannot do it.
+#
+#  In the first build we asked for all three and never used them, which
+#  is how you teach somebody to stop filling in a form.
+# ---------------------------------------------------------------------
+function wx_cloud(logfile,   n, i, j, hi, mid, lo, seq, prev){
+  n = WN
+  if(n<2) return 0
+  print ""
+  #  did high cloud appear and then middle cloud follow it?
+  hi=0; mid=0; lo=0
+  for(i=1;i<=n;i++){
+    if(WCH[i]>0) hi=i
+    if(WCM[i]>0 && i>=hi && hi>0) mid=i
+    if(WCL[i]>=6 && mid>0 && i>=mid) lo=i
+  }
+  if(lo>0){
+    printf "  %s\n", cw("The cloud has run the whole warm-front sequence: high, then", C_WARN)
+    printf "  %s\n", cw("middle, and now low stratus. The front is on you or past.", C_WARN)
+  } else if(mid>0 && mid>hi-1){
+    printf "  %s\n", cw("Cirrus has thickened to middle cloud - the classic warm front", C_ACC)
+    printf "  %s\n", cw("sequence, and it is well under way.", C_ACC)
+    printf "  %s\n", cwd("   expect the glass to keep falling, the wind to back, and rain")
+  } else if(hi>0 && WCH[n]>0){
+    printf "  %s\n", "High cloud is in. On its own it means very little -"
+    printf "  %s\n", "but if it thickens and lowers over the next watches, that is a"
+    printf "  %s\n", "warm front announcing itself hours ahead."
+  } else return 0
+  printf "  %s\n", cwd("   cirrus -> cirrostratus -> altostratus -> nimbostratus and rain")
+  return 1
+}
+# =====================================================================
+#  deck-log -- forecast, verify, score.
+#
+#  THE ORDER IS THE POINT.  The user's forecast is committed to the log
+#  BEFORE the app shows any of its own reasoning.  Print the guess first
+#  and the person has not forecast anything - they have read an answer
+#  and agreed with it.  It feels like learning and is not.  Same bug as
+#  the colregs lights quiz telling you the aspect and then asking for
+#  it; house rule now: never tell before you ask.
+#
+#  AND THREE ARE SCORED, not one.  Scoring only the user would make this
+#  an oracle and it is not one: every rule in it is a rule of thumb.
+#  Scoring the rules too keeps it honest, teaches calibration, and lets
+#  the user eventually win - which is the point, because a training tool
+#  that cannot be outgrown is badly built.
+#
+#  The third is PERSISTENCE: "in twelve hours it will be much as it is
+#  now."  It is the honest floor.  Hard to beat at short range, and a
+#  forecast that does not beat it has shown no skill at all.  Standard
+#  practice in operational meteorology, and free.
+# =====================================================================
+
+#  Error points, taken from the WxChallenge: weighted, continuous, low
+#  score wins.  A near miss should score like a near miss, which one
+#  right/wrong verdict per forecast cannot express.
+function sc_pts(field, a, b,   d){
+  if(a<=-9000 || b<=-9000) return -1          # not comparable
+  if(field=="wdir"){ d = wx_d180(a-b); if(d<0) d=-d; return d * 0.1 }
+  d = a-b; if(d<0) d=-d
+  if(field=="wspd") return d * 0.5
+  if(field=="mslp") return d * 1.0
+  if(field=="sea")  return d * 2.0
+  return d
+}
+function sc_label(f){
+  if(f=="wdir") return "wind direction"
+  if(f=="wspd") return "wind speed"
+  if(f=="mslp") return "pressure"
+  if(f=="sea")  return "sea state"
+  return f
+}
+#  distinct short names: truncating the long ones gives "wind" twice,
+#  which is a column of numbers nobody can read
+function sc_short(f){
+  if(f=="wdir") return "dir"
+  if(f=="wspd") return "spd"
+  if(f=="mslp") return "hPa"
+  if(f=="sea")  return "sea"
+  return f
+}
+
+#  A fully developed sea for a given wind, roughly.  Used only to turn a
+#  forecast wind into a forecast sea state; it is a rule of thumb and is
+#  scored like everything else.
+function sc_sea(kt){
+  if(kt<1)  return 0
+  if(kt<7)  return 1
+  if(kt<13) return 2
+  if(kt<19) return 3
+  if(kt<25) return 4
+  if(kt<34) return 5
+  if(kt<41) return 6
+  if(kt<48) return 7
+  if(kt<56) return 8
+  return 9
+}
+
+# ---------------------------------------------------------------------
+#  The two machine forecasters.
+#
+#  Both are deliberately simple and both are honest about it.  The whole
+#  reason they are scored is that nobody, including whoever wrote them,
+#  knows how good they are until a season of observations says so.
+# ---------------------------------------------------------------------
+function sc_persist(n){
+  F_WDIR = WDIR[n]; F_WSPD = WSPD[n]; F_MSLP = WP[n]
+  F_SEA  = (wx_has(WSPD[n]) ? sc_sea(WSPD[n]) : -9999)
+  F_WHY  = "nothing changes"
+  return 0
+}
+function sc_rules(n, k, hours, lon,   dt, dp, dw, rate, damp, p, w, d, tide1, tide2){
+  F_WDIR=-9999; F_WSPD=-9999; F_MSLP=-9999; F_SEA=-9999; F_WHY=""
+  if(k<1){ sc_persist(n); F_WHY="only one observation - nothing but persistence to offer"; return 0 }
+  dt = (wx_mins(WT[n]) - wx_mins(WT[k]))/60.0
+  if(dt<=0){ sc_persist(n); return 0 }
+  #  a trend does not continue for ever: damp it
+  damp = 0.7
+
+  if(wx_has(WP[n]) && wx_has(WP[k])){
+    dp = WP[n] - WP[k]
+    if(lon!=""){
+      tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
+      dp = dp - (tide2 - tide1)
+    }
+    rate = dp/dt
+    F_MSLP = WP[n] + rate*hours*damp
+    F_WHY = sprintf("pressure trend %+.2f hPa/h, damped, carried %g h", rate, hours)
+    #  a falling glass is a rising wind: the classic rule, crudely
+    if(wx_has(WSPD[n])){
+      w = WSPD[n] - rate*hours*2.0
+      if(w<0) w=0
+      F_WSPD = w
+    }
+  } else if(wx_has(WSPD[n])) F_WSPD = WSPD[n]
+
+  if(wx_has(WDIR[n]) && wx_has(WDIR[k])){
+    dw = wx_d180(WDIR[n]-WDIR[k])/dt
+    d = WDIR[n] + dw*hours*damp
+    while(d<0) d+=360
+    while(d>=360) d-=360
+    F_WDIR = d
+    if(F_WHY!="") F_WHY = F_WHY sprintf("; turning %+.1f deg/h, damped", dw)
+  } else F_WDIR = WDIR[n]
+
+  if(wx_has(F_WSPD)) F_SEA = sc_sea(F_WSPD)
+  return 0
+}
+
+#  Find the observation nearest a valid time, within a tolerance.
+function sc_nearest(target, tolmin,   i, d, best, bd){
+  best=0; bd=999999
+  for(i=1;i<=WN;i++){
+    d = wx_mins(WT[i]) - wx_mins(target); if(d<0) d=-d
+    if(d<bd){ bd=d; best=i }
+  }
+  if(best==0 || bd>tolmin) return 0
+  return best
+}
+
+# ---------------------------------------------------------------------
+#  Verify and score.  Reads the fc records out of the log, finds the
+#  observation each was made for, and scores every forecaster on every
+#  field it offered.
+# ---------------------------------------------------------------------
+function sc_verify(logfile,   i, j, by, fo, o, f, p, nf, any, tot, cnt, fields, nfld){
+  wx_load(logfile)
+  nfld = split("wdir wspd mslp sea", fields, " ")
+  for(i in TOT) delete TOT[i]
+  for(i in CNT) delete CNT[i]
+  for(i in FTOT) delete FTOT[i]
+  for(i in FCNT) delete FCNT[i]
+  VN=0
+  lg_read(logfile, "fc")
+  for(i=1;i<=LG_N;i++){
+    if(!lg_at(i)) continue
+    fo = LG["for"]; by = LG["by"]
+    if(fo=="" || by=="") continue
+    o = sc_nearest(fo, 180)
+    if(o==0) continue                       # nothing observed yet
+    VN++
+    VBY[VN]=by; VFOR[VN]=fo; VMADE[VN]=LG_TS; VWHY[VN]=LG["why"]
+    for(j=1;j<=nfld;j++){
+      f = fields[j]
+      if(LG[f]=="" || LG[f]=="-") continue
+      if(f=="wdir") p = sc_pts(f, LG[f]+0, WDIR[o])
+      else if(f=="wspd") p = sc_pts(f, LG[f]+0, WSPD[o])
+      else if(f=="mslp") p = sc_pts(f, LG[f]+0, WP[o])
+      else p = -1
+      if(p<0) continue
+      TOT[by] += p; CNT[by]++
+      FTOT[by SUBSEP f] += p; FCNT[by SUBSEP f]++
+      any=1
+    }
+  }
+  return VN
+}
+
+function sc_report(logfile,   n, by, i, f, fields, nfld, j, names, nn){
+  n = sc_verify(logfile)
+  print ""
+  printf "  %s\n", cw("THE SCORE", C_ACC)
+  hr()
+  if(n==0){
+    printf "  %s\n", cwd("No forecast has reached its valid time yet, or no observation")
+    printf "  %s\n", cwd("has been logged near one. Make a forecast, then log the")
+    printf "  %s\n", cwd("observation it was for, and this page fills in.")
+    print ""
+    return 0
+  }
+  nn = split("you rules persist", names, " ")
+  nfld = split("wdir wspd mslp", fields, " ")
+  printf "  %-10s %8s  %s\n", "", "points", "per field, points per forecast"
+  for(i=1;i<=nn;i++){
+    by = names[i]
+    if(!(by in CNT)) continue
+    printf "  %-10s %8.1f ", by, TOT[by]
+    for(j=1;j<=nfld;j++){
+      f = fields[j]
+      if((by SUBSEP f) in FCNT)
+        printf "  %s %.1f", sc_short(f), FTOT[by SUBSEP f]/FCNT[by SUBSEP f]
+    }
+    print ""
+  }
+  hr()
+  printf "  %s\n", cwd("Lower is better. Half a point per knot, one per millibar, a tenth")
+  printf "  %s\n", cwd("per degree of wind direction - so a near miss scores like one.")
+  print ""
+  if(("persist" in CNT) && ("rules" in CNT)){
+    if(TOT["rules"]/CNT["rules"] > TOT["persist"]/CNT["persist"])
+      printf "  %s\n", cw("The rules are not beating persistence. That is the honest result", C_WARN)
+    if(TOT["rules"]/CNT["rules"] > TOT["persist"]/CNT["persist"])
+      printf "  %s\n", cw("so far, and it is worth knowing.", C_WARN)
+  }
+  if(("you" in CNT) && ("rules" in CNT)){
+    if(TOT["you"]/CNT["you"] < TOT["rules"]/CNT["rules"])
+      printf "  %s\n", cw("You are beating the rule set. Trust yourself over it here.", C_ACC)
+  }
+  print ""
+  return n
+}
+
+#  Round a time forward to the next multiple of 3 hours, <hours> ahead.
+#  Forecasts are made FOR a synoptic hour, so the observation that
+#  verifies one is an entry somebody would have made anyway.
+#
+#  The first version of the inverse conversion below returned the year
+#  4600 for a date in 2026.  Date arithmetic written from memory is a
+#  reliable way to be confidently wrong, which is why there is now a
+#  test that round-trips every day for forty years.
+function sc_jdn(y, mo, d,   a, y2, m2){
+  a = int((14-mo)/12); y2 = y + 4800 - a; m2 = mo + 12*a - 3
+  return d + int((153*m2+2)/5) + 365*y2 + int(y2/4) - int(y2/100) + int(y2/400) - 32045
+}
+#  Fliegel and Van Flandern, the standard inverse.  Sets SC_Y/SC_M/SC_D.
+function sc_civil(jd,   a, b, c, dd, e, m){
+  a = jd + 32044
+  b = int((4*a+3)/146097)
+  c = a - int(146097*b/4)
+  dd = int((4*c+3)/1461)
+  e = c - int(1461*dd/4)
+  m = int((5*e+2)/153)
+  SC_D = e - int((153*m+2)/5) + 1
+  SC_M = m + 3 - 12*int(m/10)
+  SC_Y = 100*b + dd - 4800 + int(m/10)
+  return 0
+}
+function sc_validtime(ts, hours,   y,mo,d,h,tot,jd,rh){
+  y=substr(ts,1,4)+0; mo=substr(ts,6,2)+0; d=substr(ts,9,2)+0
+  h=substr(ts,12,2)+0
+  jd = sc_jdn(y, mo, d)
+  tot = jd*24 + h + hours
+  rh = tot % 3
+  if(rh!=0) tot += (3-rh)
+  jd = int(tot/24); h = tot - jd*24
+  sc_civil(jd)
+  return sprintf("%04d-%02d-%02dT%02d:00Z", SC_Y, SC_M, SC_D, h)
+}
+# =====================================================================
+#  weather -- reasoning over a 500 mb chart the user is holding.
+#
+#  The app cannot fetch a chart and never will.  But a 500 mb chart
+#  arrives by HF RADIOFAX, on an SSB receiver, at sea, with no
+#  connectivity at all - which is exactly the situation the rest of
+#  bashnav is built for.  So this is the reasoning layer over a fax:
+#  read three numbers off it and the rules do the rest, showing every
+#  step.
+#
+#  Rules from Sienkiewicz & Chesneau, Mariner's Guide to the
+#  500-Millibar Chart, NOAA - public domain.  See docs/SOURCES.md.
+# =====================================================================
+function ch_say(s){ printf "  %s\n", s; return 0 }
+function ch_why(s){ printf "  %s\n", cwd("   " s); return 0 }
+
+#  brg    bearing FROM you TO the nearest point of the 564 line
+#  dist   its distance in nm
+#  orient the line's own orientation, as a bearing (either end)
+#  w500   the 500 mb wind speed there, knots
+#  north  1 northern hemisphere, 0 southern
+function ch_report(brg, dist, orient, w500, north,   pole, side, mn, mx, smn, smx){
+  print ""
+  printf "  %s\n", cw("FROM THE 500 MILLIBAR CHART", C_ACC)
+  hr()
+  pole = north ? "north" : "south"
+
+  if(dist=="" || brg==""){
+    ch_say("Give me where the 564 line runs and I will walk the rules.")
+    print ""
+    return 0
+  }
+  ch_say(sprintf("The 5640 m contour is %g nm away, bearing %03d, lying %03d/%03d.",
+         dist+0, brg+0, orient+0, (orient+180)%360))
+  print ""
+
+  # ---- 1. the storm track -------------------------------------------
+  ch_say(cw("The surface storm track", C_ACC) sprintf(" runs parallel to that line, %s of it,", pole))
+  ch_say("between 300 and 600 nm away from it.")
+  ch_why("so the depressions are travelling along " sprintf("%03d/%03d", orient+0, (orient+180)%360) ", not toward you")
+
+  # ---- 2. the gale boundary, which is the one that matters ----------
+  print ""
+  ch_say(cw("All the gale force winds are on the " pole " side of the 564 line.", C_WARN))
+  if(ch_poleward(brg, north)){
+    ch_say(cw("You are on the equatorward side of it. That is the right side.", C_OK))
+    ch_why("stay there and you stay out of the gales - that is the routing rule,")
+    ch_why("and it is why the standard book on this is called Heavy Weather Avoidance")
+  } else {
+    ch_say(cw("The line is equatorward of you, so you are on the gale side of it.", C_WARN))
+    ch_why("getting equatorward of the 564 line is the single most useful thing")
+    ch_why("you can do about the weather from here")
+  }
+
+  # ---- 3 and 4. speed and strength, if the wind was read ------------
+  if(w500!=""){
+    print ""
+    mn = (w500+0)/3.0; mx = (w500+0)/2.0
+    ch_say(sprintf("At %g knots aloft, systems below move at %.0f to %.0f knots.",
+           w500+0, mn, mx))
+    ch_why("a surface low or front travels at a third to a half of the 500 mb wind")
+    if(dist+0 > 0){
+      ch_say(sprintf("So a system 300 nm off would be on you in %.0f to %.0f hours.",
+             300.0/mx, 300.0/mn))
+    }
+    print ""
+    ch_say(sprintf("Behind it, in the cold air, expect about %.0f knots on deck.", (w500+0)/2.0))
+    ch_why("surface wind in the west-to-southwest quadrant is about half the 500 mb")
+    ch_why("wind - which is the number that decides what sail you are carrying")
+  }
+  hr()
+  printf "  %s\n", cwd("Rules from Sienkiewicz and Chesneau, Mariner's Guide to the")
+  printf "  %s\n", cwd("500-Millibar Chart, NOAA. They are rules of thumb: good ones,")
+  printf "  %s\n", cwd("and still rules of thumb.")
+  print ""
+  return 0
+}
+#  Is the 564 line on my POLEWARD side?  If it bears north of me in the
+#  northern hemisphere, I am equatorward of it, which is where I want
+#  to be.
+function ch_poleward(brg, north,   b){
+  b = brg+0
+  while(b<0) b+=360
+  while(b>=360) b-=360
+  if(north) return (b < 90 || b > 270)     # the line lies to my north
+  return (b > 90 && b < 270)               # southern: to my south
+}
+# =====================================================================
+#  weather -- the lessons.
+#
+#  THE ORGANISING RULE, and it is the reason this file is not longer:
+#
+#     Every piece of physics has to earn its place by changing what the
+#     app says or what you would do.  Otherwise it is a lecture with a
+#     barometer attached.
+#
+#  Ordered from what you can see today outward to why the planet works
+#  this way.  Each lesson ends with a question, as in colregs.
+#  Sources are in docs/SOURCES.md; nothing here is copied from anywhere.
+# =====================================================================
+
+function les_init(){
+  if(LES_READY) return
+  LS_N=0
+  les("fluid",    "Air is a fluid, and moist air is lighter")
+  les("data",     "The three kinds of weather data, and which one you have")
+  les("tide",     "The atmospheric tide: why the glass falls every afternoon")
+  les("coriolis", "Coriolis, which is not a force")
+  les("gradient", "Gradient wind, surface wind, and friction")
+  les("lapse",    "Lapse rates, stability, and where the cloud base is")
+  les("cells",    "The heat engine, and the three cells")
+  les("h500",     "The 500 millibar chart and the 564 line")
+  les("cyclone",  "How a tropical cyclone is made, and how to keep away")
+  les("seasons",  "The tilt, the seasons, and an honest boundary")
+  LES_READY=1
+  return 0
+}
+function les(k,t){ LS_N++; LS_K[LS_N]=k; LS_T[LS_N]=t; return 0 }
+
+function lp(s){ printf "  %s\n", s; return 0 }
+function lpd(s){ printf "  %s\n", cwd(s); return 0 }
+function lph(s){ print ""; printf "  %s\n", cw(s,C_ACC); hr(); return 0 }
+
+function lesson_body(k){
+  # ------------------------------------------------------------------
+  if(k=="fluid"){
+    lph("AIR IS A FLUID, AND MOIST AIR IS LIGHTER")
+    lp("Air is a fluid. At the speeds anything on a boat moves it barely")
+    lp("compresses, so it behaves very much like water - and the weather is")
+    lp("fluid dynamics happening to a very large, very thin bath.")
+    print ""
+    lp(cw("And here is the counterintuitive one:",C_ACC))
+    print ""
+    lp("  " cw("Warm MOIST air is LIGHTER than warm DRY air.",C_ACC))
+    print ""
+    lp("Humid air feels heavy. It is not. At the same temperature and pressure")
+    lp("a given volume holds a fixed NUMBER of molecules - so water vapour does")
+    lp("not add molecules to the box, it " cw("replaces",C_ACC) " them:")
+    print ""
+    lp("       H2O  18      pushing out      N2  28")
+    lp("                                     O2  32")
+    print ""
+    lp("Every water molecule that goes in evicts something heavier. Same count,")
+    lp("less mass, lower density.")
+    print ""
+    lp(cw("This is the engine of everything else.",C_ACC) " Warm moist air is buoyant")
+    lp("twice over - once for being warm, once for being wet - which is why the")
+    lp("tropics convect so violently, and why a thunderstorm is a heat engine")
+    lp("rather than a wind event.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="data"){
+    lph("THE THREE KINDS OF WEATHER DATA")
+    lp("Most sailors never learn this, and it decides how much to believe.")
+    print ""
+    lp(cw("OBSERVATION",C_ACC) "   an instrument reading of what is happening now.")
+    lp("               Not a forecast - but it is " cw("true",C_ACC) ".")
+    print ""
+    lp(cw("ANALYSIS",C_ACC) "      a chart drawn from observations and then edited and")
+    lp("               verified " cw("by a human forecaster",C_ACC) ". A surface analysis,")
+    lp("               most national weather service products. The best")
+    lp("               available picture of NOW.")
+    print ""
+    lp(cw("MODEL OUTPUT",C_ACC) "  a computer's projection. What sailors call a GRIB.")
+    lp("               " cw("Nobody has looked at it.",C_NO))
+    print ""
+    lp("The trap is the third. A GRIB arrives in colour, at high resolution, out")
+    lp("to seven days, looking authoritative - and it is a machine's")
+    lp("extrapolation with no human in the loop. Sailors treat it as gospel.")
+    lp("The rule: check you are looking at an analysis, not a model run.")
+    print ""
+    lp(cw("And it places this tool honestly.",C_ACC) " It works entirely in the first")
+    lp("column. Every number in it is something you measured. It cannot")
+    lp("forecast - but what it reasons FROM is the one category that is never")
+    lp("wrong, and the only one still there when the antenna comes down.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="tide"){
+    lph("THE ATMOSPHERIC TIDE")
+    lp("The sun heats the air, the earth turns under it, and a pressure wave")
+    lp("travels westward with the sun. It is on your barometer, every day.")
+    print ""
+    lp("The odd part: the dominant component is " cw("SEMIdiurnal - twice a day",C_ACC) ",")
+    lp("not once. Why once-a-day heating produces a twice-a-day pressure signal")
+    lp("is a genuine puzzle in meteorology.")
+    print ""
+    lp("  amplitude in the tropics     about 1.4 hPa")
+    lp("  maxima                       about 1000 and 2200 local")
+    lp("  minima                       about 0400 and " cw("1600",C_ACC) " local")
+    lp("  and it falls off steeply    ~1.2 hPa at the equator, ~0.2 at 45 deg")
+    print ""
+    lp(cw("Which is a trap worth knowing about.",C_WARN) " In the tropics the glass")
+    lp("falls two to three millibars between mid-morning and mid-afternoon")
+    lp(cw("every single day, in perfect weather.",C_ACC) " A sailor who does not know")
+    lp("that reads a routine afternoon fall as a system approaching.")
+    print ""
+    lpd("This app corrects for it before saying anything about tendency, and")
+    lpd("tells you how much of the change was the tide. Give it your longitude")
+    lpd("- it needs local solar time to know where in the cycle you are.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="coriolis"){
+    lph("CORIOLIS, WHICH IS NOT A FORCE")
+    lp("The earth turns underneath you. Describe anything's motion relative to")
+    lp("the ground and it appears to curve. The \"force\" is the bookkeeping")
+    lp("entry for having chosen a rotating frame - nothing is pushing.")
+    print ""
+    lp("Its size goes as " cw("sin(latitude)",C_ACC) ":")
+    print ""
+    lp("  at the poles     full strength")
+    lp("  at 45 degrees    about 0.7 of it")
+    lp("  " cw("at the equator   ZERO",C_ACC))
+    print ""
+    lp(cw("Two things it buys you.",C_ACC))
+    print ""
+    lp("First: " cw("no tropical cyclone forms within about 5 degrees of the",C_ACC))
+    lp(cw("equator",C_ACC) ", because there is nothing there to spin it up. All that heat")
+    lp("and moisture and no rotation.")
+    print ""
+    lp("Second: it is half of Buys Ballot, which is the most useful rule this")
+    lp("app has. Stand with your back to the wind and the low is on your left")
+    lp("in the northern hemisphere - and on your right in the southern, because")
+    lp("the sense of the rotation reverses.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="gradient"){
+    lph("GRADIENT WIND, SURFACE WIND, AND FRICTION")
+    lp("Well above the sea the wind balances the pressure gradient against")
+    lp("Coriolis and runs " cw("along",C_ACC) " the isobars. That is the gradient wind, and")
+    lp("it is what a weather chart draws.")
+    print ""
+    lp("Down where you are, friction slows the air. Slower air feels less")
+    lp("Coriolis. So pressure wins a little, and the surface wind blows")
+    lp(cw("across",C_ACC) " the isobars, toward the low:")
+    print ""
+    lp("  over water   backed 10-20 degrees, and about 2/3 of gradient speed")
+    lp("  over land    backed 30-40 degrees, and slower still")
+    lp("  " cw("southern hemisphere: veered, not backed",C_ACC))
+    print ""
+    lp(cw("This is the chart-to-deck translation",C_ACC) " - what the isobars mean for")
+    lp("what you will actually get on the wind instrument.")
+    print ""
+    lp("And the same boundary layer does something else you already know about.")
+    lp("Friction slows the lowest air, so wind speed climbs with height, and")
+    lp("the apparent wind aloft is stronger and further aft than at the boom.")
+    lp("That is why a sail is " cw("twisted",C_ACC) ". One piece of physics, two apps.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="lapse"){
+    lph("LAPSE RATES, STABILITY, AND THE CLOUD BASE")
+    lp("Air cools as it rises, because it expands. How fast is the whole game.")
+    print ""
+    lp("  " cw("dry adiabatic",C_ACC) "     about 3.0 C per 1000 ft   an unsaturated parcel")
+    lp("  " cw("saturated",C_ACC) "         about 1.5 C per 1000 ft   condensing gives heat back")
+    lp("  " cw("environmental",C_ACC) "     whatever the air actually does - measured")
+    print ""
+    lp("Compare the environmental rate with the adiabatic and you have")
+    lp(cw("stability",C_ACC) ". If the surrounding air cools FASTER with height than the")
+    lp("parcel does, the parcel stays warmer than its surroundings, keeps")
+    lp("rising, and you get towering cloud. That is instability, and it is why")
+    lp("a saturated parcel can keep going where a dry one would have stopped.")
+    print ""
+    lp(cw("THE CLOUD BASE",C_ACC) " falls straight out of it, and the arithmetic is")
+    lp("something you can do on deck:")
+    print ""
+    lp("  a rising parcel cools at         3.0 C / 1000 ft")
+    lp("  its dew point falls at           0.5 C / 1000 ft")
+    lp("  " cw("so the spread closes at          2.5 C / 1000 ft",C_ACC))
+    print ""
+    lp("  " cw("height (ft) = (air temp - dew point, in C) x 400",C_ACC))
+    print ""
+    lp("400, not 333. " cw("It is not the lapse rate, it is the DIFFERENCE",C_WARN) " between")
+    lp("two of them. Divide by the lapse rate alone and you put the base a")
+    lp("fifth too low. And it is " cw("air",C_ACC) " temperature, not sea temperature - the")
+    lp("sea is a fair proxy offshore and badly wrong near a front.")
+    print ""
+    lp("A field of cumulus with flat bases all at one height IS that level made")
+    lp("visible. Above it, the " cw("trade inversion",C_ACC) " caps the marine layer, and the")
+    lp("flat tops are you looking at the underside of the lid.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="cells"){
+    lph("THE HEAT ENGINE, AND THE THREE CELLS")
+    lp("The tropics take in more energy from the sun than they radiate away.")
+    lp("The poles do the reverse. The atmosphere and the ocean exist, as far as")
+    lp("weather is concerned, to move the difference poleward.")
+    print ""
+    lp("Most of the atmosphere's share travels as " cw("latent heat",C_ACC) " - water")
+    lp("evaporated in the tropics and released as rain somewhere else. The")
+    lp("water cycle is not a side effect of the weather. It is the working")
+    lp("fluid.")
+    print ""
+    lp("  " cw("Hadley",C_ACC) "    rises at the equator, descends near 30 degrees")
+    lp("  " cw("Ferrel",C_ACC) "    30 to 60, and the one you probably sail in")
+    lp("  " cw("Polar",C_ACC) "     60 to the pole")
+    print ""
+    lp("The air descending at 30 degrees has already rained out everything it")
+    lp("had, so it arrives warm and dry. That gives you the subtropical highs,")
+    lp("the horse latitudes, the trade winds on their equatorward side - and")
+    lp("most of the world's deserts sit at that latitude for this reason.")
+    print ""
+    lp(cw("And it closes the loop with the last lesson:",C_ACC) " that same descending")
+    lp("warm air is the inversion capping the marine layer. The lid over your")
+    lp("flat-topped cumulus is the far end of a circulation that started as")
+    lp("thunderstorms on the equator.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="h500"){
+    lph("THE 500 MILLIBAR CHART, AND THE 564 LINE")
+    lp("A 500 mb chart is a " cw("topographic map of a pressure surface",C_ACC) ": the")
+    lp("contours are the HEIGHT at which the pressure is 500 millibars, drawn")
+    lp("in decametres. So \"564\" means the 5,640 metre contour. Low heights are")
+    lp("cold air, high heights are warm.")
+    print ""
+    lp("It is around 18,000 feet, with about half the atmosphere's mass above")
+    lp("and half below - which is why its flow is a fair proxy for where a")
+    lp("whole system gets carried. The " cw("steering level",C_ACC) ".")
+    print ""
+    lp(cw("Five rules a mariner can use from one chart:",C_ACC))
+    print ""
+    lp("  " cw("1.",C_ACC) " The surface storm track lies " cw("300 to 600 nm poleward",C_ACC) " of the")
+    lp("     5640 m contour, and runs " cw("parallel",C_ACC) " to it.")
+    print ""
+    lp("  " cw("2.",C_ACC) " " cw("All the gale force winds are poleward of the 564 line.",C_WARN))
+    lp("     Stay on its equatorward side and you stay out of the gales. This")
+    lp("     is the routing rule, and it is why the standard book on the")
+    lp("     subject is called Heavy Weather Avoidance.")
+    print ""
+    lp("  " cw("3.",C_ACC) " Surface lows and fronts move at " cw("a third to a half",C_ACC) " of the")
+    lp("     500 mb wind speed above them.")
+    print ""
+    lp("  " cw("4.",C_ACC) " Surface wind behind the system, in the cold air to the west")
+    lp("     and southwest, is about " cw("half",C_ACC) " the 500 mb wind speed.")
+    print ""
+    lp("  " cw("5.",C_ACC) " Tighter contours mean stronger wind - the upper-air version of")
+    lp("     close isobars. And the " cw("588",C_ACC) " contour marks the subtropical ridge,")
+    lp("     which is what steers tropical systems.")
+    print ""
+    lp(cw("You do not need the internet for this.",C_ACC) " A 500 mb chart comes in by HF")
+    lp("radiofax, on an SSB receiver, at sea, with no connectivity at all. Read")
+    lp("three numbers off it and " cw("weather chart",C_ACC) " will walk the rules with you.")
+    print ""
+    lpd("From the Mariner's Guide to the 500-Millibar Chart, by Joe Sienkiewicz")
+    lpd("of NOAA's Ocean Prediction Center and Lee Chesneau - US Navy, then OPC,")
+    lpd("who spent his retirement teaching this to sailors. See docs/SOURCES.md.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="cyclone"){
+    lph("HOW A TROPICAL CYCLONE IS MADE, AND HOW TO KEEP AWAY")
+    lp("This is the payoff for the other lessons: it needs all of them.")
+    print ""
+    lp("  " cw("warm deep water",C_ACC) "    about 26.5 C, and 50 m deep, or the storm")
+    lp("                     stirs up cold water and kills itself")
+    lp("  " cw("enough Coriolis",C_ACC) "    so not within ~5 degrees of the equator")
+    lp("  " cw("a moist unstable column",C_ACC) "  moist air is buoyant twice over")
+    lp("  " cw("weak wind shear",C_ACC) "    or the tower is torn apart before it organises")
+    lp("  " cw("something to start it",C_ACC) "  a wave, a trough, an old front")
+    print ""
+    lp("Take any one away and you get a lot of rain and no cyclone. Which is")
+    lp("useful: it tells you which conditions to worry about.")
+    print ""
+    lp(cw("AND AVOIDANCE IS A PROBLEM YOU ALREADY KNOW.",C_ACC))
+    print ""
+    lp("A storm centre has a position, a course and a speed. So do you. You")
+    lp("want the largest possible closest point of approach. " cw("That is exactly",C_ACC))
+    lp(cw("the relative-motion problem from colregs",C_ACC) " - the same vector triangle,")
+    lp("the same bearing drift, the same answer. The dangerous semicircle is")
+    lp("just the half where the storm's own motion adds to its wind.")
+    print ""
+    lpd("Which is why the tools in this suite keep turning out to be the same")
+    lpd("few ideas wearing different hats.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="seasons"){
+    lph("THE TILT, THE SEASONS, AND AN HONEST BOUNDARY")
+    lp("The earth's axis leans " cw("23.5 degrees",C_ACC) " and keeps pointing the same way")
+    lp("as it goes round. So each hemisphere leans toward the sun for half the")
+    lp("year. That is the whole of the seasons - not distance from the sun,")
+    lp("which barely varies and is at its smallest in northern winter.")
+    print ""
+    lp("What it buys you at sea: the whole belt of weather migrates north and")
+    lp("south with it. The equatorial convergence, the subtropical ridge, the")
+    lp("storm tracks. " cw("A cyclone season is a season because the tilt makes it",C_ACC))
+    lp(cw("one",C_ACC) " - warm water and a ridge in the right place at the same time.")
+    print ""
+    lp(cw("Now the honest part.",C_ACC))
+    print ""
+    lp("The axis also wobbles, a full circle every 26,000 years, and the orbit")
+    lp("stretches and relaxes on cycles of 100,000. Those are real and they")
+    lp("drive ice ages.")
+    print ""
+    lp("They are " cw("climate, not weather",C_ACC) ", and " cw("nothing on your passage depends",C_ACC))
+    lp(cw("on them.",C_ACC) " They are in this lesson because they are interesting and")
+    lp("because you asked, and they are labelled so you know which is which.")
+    print ""
+    lpd("Every other lesson here earns its place by changing what you would do.")
+    lpd("This half of this one does not, and pretending otherwise would be the")
+    lpd("beginning of a tool full of things that sound like knowledge.")
+    print ""
+    return 1
+  }
+  return 0
+}
+function lesson_q(k){
+  if(k=="fluid")    return "It is 30 C and very humid. Is that air heavier or lighter than 30 C and dry?|Lighter. Water molecules at 18 replace nitrogen at 28 and oxygen at 32, and a given volume holds a fixed number of molecules. Warm and wet is buoyant twice over, which is what builds thunderstorms."
+  if(k=="data")     return "A seven-day GRIB and a 24-hour surface analysis disagree. Which do you believe?|The analysis. A human forecaster has looked at it and corrected it. The GRIB is a machine's extrapolation that nobody has seen, and the further out it runs the less it is worth."
+  if(k=="tide")     return "You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?|Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more."
+  if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
+  if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."
+  if(k=="lapse")    return "Air 18 C, dew point 12 C. How high is the cloud base?|About 2,400 ft: a spread of 6 C, and the spread closes at 2.5 C per 1000 ft, so 6 x 400. Not 6 x 333 - the divisor is the DIFFERENCE between the parcel's lapse rate and the dew point's, not the lapse rate itself."
+  if(k=="cells")    return "Why are so many of the world's deserts near 30 degrees latitude?|That is where the Hadley cell descends. The air rose at the equator, rained out everything it had, and comes back down warm and dry. The subtropical highs, the horse latitudes and the deserts are all the same descending branch."
+  if(k=="h500")     return "The 564 line runs east-west 200 nm north of you. Where is the storm track, and are you in the gales?|The track is 300 to 600 nm poleward of the 564 line and parallel to it, so well north of you. And all the gale force winds are poleward of that line - so at 200 nm south of it you are on the right side of it. That is the routing rule."
+  if(k=="cyclone")  return "Sea surface 27 C, moist unstable air, a nice tropical wave - and 40 knots of shear aloft. Cyclone?|No. Shear tears the tower apart before it can organise. Four of the five ingredients is not a storm, which is exactly why knowing the list is useful."
+  if(k=="seasons")  return "Northern winter is when the earth is CLOSEST to the sun. So why is it cold?|Because the seasons are the 23.5 degree tilt, not the distance. The northern hemisphere is leaning away, so the sun is low, the days are short, and the same energy is spread over more ground. The distance varies by about 3 percent and is swamped by it."
+  return ""
+}
+# =====================================================================
+#  weather -- dispatch
+# =====================================================================
+BEGIN{
+  col_init(); les_init()
+
+  if(cmd=="version"){ print "weather engine"; exit 0 }
+
+  else if(cmd=="what"){ wx_report(LOG, lon) }
+  else if(cmd=="score"){ sc_report(LOG) }
+  else if(cmd=="chart"){ ch_report(brg, dist, orient, w500, (north==""?1:north+0)) }
+
+  else if(cmd=="syllabus"){
+    print ""
+    printf "  %s\n", cw("LESSONS", C_ACC)
+    hr()
+    for(i=1;i<=LS_N;i++){
+      mk = (index("," donelist ",", "," LS_K[i] ",")>0) ? "*" : " "
+      printf "   %s %-9s %s\n", mk, LS_K[i], LS_T[i]
+    }
+    hr()
+    printf "  %s\n", cwd("* = done.    weather learn <key>")
+    print ""
+    printf "  %s\n", cwd("Each one earns its place by changing what the app says or what")
+    printf "  %s\n", cwd("you would do. One of them says plainly where that stops being")
+    printf "  %s\n", cwd("true, which is the point of the rule.")
+    print ""
+  }
+  else if(cmd=="lesson"){
+    if(!lesson_body(key)){ printf "  no such lesson: %s\n", key; exit 2 }
+    n=split(lesson_q(key),QA,"|")
+    if(n>=1){ hr(); printf "  %s %s\n", cw("Question:",C_ACC), QA[1]; print "" }
+  }
+  else if(cmd=="lessonq"){ n=split(lesson_q(key),QA,"|"); if(n>=2) print QA[2] }
+  else if(cmd=="lessonlist"){ for(i=1;i<=LS_N;i++) print LS_K[i] }
+
+  #  the machine forecasts, built only after the user's is committed
+  else if(cmd=="fcast"){
+    n = wx_load(LOG)
+    if(n<1) exit 1
+    for(i=n-1;i>=1;i--) if(wx_has(WP[i]) && wx_has(WP[n])) break
+    k=i
+    if(who2=="persist") sc_persist(n); else sc_rules(n, k, hours+0, lon)
+    if(wx_has(F_WDIR)) printf "wdir=%d\n", (F_WDIR+0.5)
+    if(wx_has(F_WSPD)) printf "wspd=%.0f\n", F_WSPD
+    if(wx_has(F_MSLP)) printf "mslp=%.1f\n", F_MSLP
+    if(wx_has(F_SEA))  printf "sea=%d\n",   F_SEA
+    printf "why=%s\n", (F_WHY==""?"-":F_WHY)
+  }
+  else if(cmd=="validat"){ print sc_validtime(now, hours+0) }
+  else if(cmd=="mkrec"){
+    n=0
+    while((getline line < fields) > 0){
+      p = index(line, "\t"); if(p<2) continue
+      K[++n]=substr(line,1,p-1); V[n]=substr(line,p+1)
+    }
+    close(fields)
+    rec = lg_make(now, type, K, V, n)
+    if(!lg_parse(rec)) exit 2
+    print rec
+  }
+  else { printf "  weather: unknown cmd %s\n", cmd; exit 2 }
+}
+__WEATHER_ENGINE__
+}
+
+about_text() {
+  cat <<'ABOUT'
+
+  ===============================================================
+   WEATHER -- read your own barometer
+  ===============================================================
+
+  WHAT THIS IS
+
+  Two things. It reasons over the observations in your deck log and
+  shows its working, and it teaches the physics underneath.
+
+  It is a separate tool from deck-log for a reason. A log records what
+  happened on this boat; a teacher is a different animal. The first
+  attempt put both in one program and the teaching material was the
+  part that got left out.
+
+  WHAT IT CANNOT DO
+
+  Forecast. There is no model here, no GRIB, and no chart it did not
+  get from you by hand. With no network there cannot be.
+
+  What it works from instead is the one category of weather data that
+  is never wrong - what you measured yourself - and the only one still
+  available when the antenna comes down. Celestial is what you do when
+  GPS dies. This is what you do when the sat comms die.
+
+  YOU FORECAST FIRST
+
+  weather forecast asks for yours and writes it down before showing any
+  of its own. Print the machine's guess first and you have not forecast
+  anything, you have agreed with an answer.
+
+  Then it offers two of its own - the rule set, and persistence, which
+  is "in twelve hours it will be much as it is now" - and when the time
+  comes it scores all three against what actually happened.
+
+  Scoring itself as well as you is the point. Every rule in here is a
+  rule of thumb. Some are right seven times in ten, and a rule that is
+  right seven times in ten is genuinely useful once you know that is
+  what it is. And you should be able to beat it in your own waters. A
+  training tool that cannot be outgrown is badly built.
+
+  WHERE IT COMES FROM
+
+  NOAA and the national weather services, which are public domain, and
+  the published literature. The 500 millibar rules are from the
+  Mariner's Guide to the 500-Millibar Chart by Joe Sienkiewicz of
+  NOAA's Ocean Prediction Center and Lee Chesneau. Full citations in
+  docs/SOURCES.md.
+
+  The physics is the part most often taught wrongly, so it is the part
+  checked hardest. If you were told the seasons are about distance from
+  the sun, see "weather learn seasons".
+
+  WHO WROTE IT
+
+  M. Larry Sherman had the ideas and the sea time. Claude wrote the
+  code. Part of Bash Navigation Software.
+
+  https://github.com/larrys614/bashnav
+
+  Apache License 2.0.
+
+ABOUT
+}
+
+FIELDS=""
+fld_start(){ FIELDS="${TMPDIR:-/tmp}/wx.$$.fields"; : > "$FIELDS"; }
+fld(){ printf '%s\t%s\n' "$1" "$2" >> "$FIELDS"; }
+fld_commit(){
+  mkdir -p "$DECKLOG_HOME"
+  rec=$(eng -v cmd=mkrec -v type="$1" -v fields="$FIELDS")
+  rm -f "$FIELDS"; FIELDS=""
+  [ -n "$rec" ] || { echo "  weather: refused to write a malformed record" >&2; return 1; }
+  printf '%s\n' "$rec" >> "$LOG"
+}
+ask(){ printf "  %-38s " "$1"; IFS= read -r a || a=""; [ -z "$a" ] && a="-"; fld "$2" "$a"; }
+
+do_learn() {
+  load_prog
+  if [ -z "$1" ]; then eng -v cmd=syllabus -v donelist="$lessons"; return 0; fi
+  eng -v cmd=lesson -v key="$1" || return 1
+  printf "  your answer (return to see it): "; IFS= read -r a || return 0
+  [ -n "$a" ] && printf "\n  you said: %s\n" "$a"
+  echo
+  printf "  %s\n" "$(eng -v cmd=lessonq -v key="$1")"
+  echo
+  mark_done "$1"
+}
+
+do_chart() {
+  cat <<'C'
+
+  From a 500 mb chart - by radiofax, or one you have on paper. Find the
+  5640 metre contour (marked 564) and read three things off it.
+
+C
+  printf "  bearing from you to the nearest point of it: "; IFS= read -r brg
+  printf "  its distance, nm: ";                            IFS= read -r dist
+  printf "  which way the line itself runs, as a bearing: "; IFS= read -r orient
+  printf "  500 mb wind speed there, knots (return to skip): "; IFS= read -r w500
+  printf "  northern hemisphere? [Y/n] ";                    IFS= read -r nh
+  n=1; case "$nh" in n|N) n=0 ;; esac
+  eng -v cmd=chart -v brg="$brg" -v dist="$dist" -v orient="${orient:-0}" \
+      -v w500="$w500" -v north="$n"
+}
+
+#  YOU FORECAST FIRST. Nothing of mine until yours is written down.
+do_forecast() {
+  printf "  how many hours ahead? [12] "; IFS= read -r hrs || hrs=12
+  [ -z "$hrs" ] && hrs=12
+  case "$hrs" in *[!0-9]*) echo "  ?"; return 1 ;; esac
+  valid=$(eng -v cmd=validat -v hours="$hrs")
+  echo
+  echo "  ==============================================================="
+  echo "   YOUR forecast for $valid"
+  echo "  ==============================================================="
+  echo "   Yours first. Nothing of mine until yours is written down."
+  echo "   Return to leave a field out."
+  echo
+  fld_start
+  fld for "$valid"; fld by user
+  ask "wind direction, degrees true"  wdir
+  ask "wind speed, knots"             wspd
+  ask "sea level pressure, hPa"       mslp
+  ask "sea state, 0-9"                sea
+  fld_commit fc || return 1
+  echo
+  echo "  yours is logged. Now mine."
+  for w in rules persist; do
+    fld_start; fld for "$valid"; fld by "$w"
+    eng -v cmd=fcast -v hours="$hrs" -v who2="$w" | while IFS='=' read -r k v; do
+      [ -n "$k" ] && printf '%s\t%s\n' "$k" "$v" >> "$FIELDS"
+    done
+    fld_commit fc || true
+  done
+  echo
+  $AWK -F'|' -v v="$valid" '
+    /\|fc\|/ && $0 ~ ("for=" v) {
+      by="";wd="";ws="";mp="";sa="";why=""
+      for(i=3;i<=NF;i++){ p=index($i,"="); k=substr($i,1,p-1); x=substr($i,p+1)
+        if(k=="by")by=x; else if(k=="wdir")wd=x; else if(k=="wspd")ws=x
+        else if(k=="mslp")mp=x; else if(k=="sea")sa=x; else if(k=="why")why=x }
+      printf "  %-8s wind %-4s %-4s kn   %-7s hPa   sea %s\n", by, wd, ws, mp, sa
+      if(why!="" && why!="-"){ gsub(/%3D/,"=",why); gsub(/%7C/,"|",why)
+                               printf "     %s\n", why } }' "$LOG"
+  echo
+  echo "  Log the observation for $valid in deck-log when it comes,"
+  echo "  then: weather score"
+  echo
+}
+
+help_text() {
+  cat <<'HLP'
+
+  WEATHER -- read your own barometer
+
+  weather                  the menu
+  weather what             what your log says is coming, with the reasoning
+  weather learn [key]      a lesson; no key lists them
+  weather chart            reason over a 500 mb radiofax chart
+  weather forecast         yours first, then mine, then both are scored
+  weather score            how you, the rules and persistence are doing
+  weather lon <deg>        your longitude, E positive - for the pressure tide
+  weather day|night|plain  colour mode
+  weather about | version
+
+  It reads the deck log; deck-log is what writes it. It never forecasts
+  from a model, because there is no network here and never will be.
+
+HLP
+}
+
+menu() {
+  while :; do
+    load_conf; load_prog
+    echo
+    echo "  ==============================================================="
+    echo "   WEATHER $WEATHER_VERSION   read your own barometer"
+    echo "  ==============================================================="
+    if [ -n "$lon" ]; then echo "   longitude $lon - the pressure tide is corrected for"
+    else echo "   no longitude set: 'weather lon <deg>' to correct the pressure tide"; fi
+    cat <<'M'
+
+    1  What the log says          4  Make a forecast
+    2  A lesson                   5  The score
+    3  From a 500 mb chart
+
+    c  Colour   a  About   h  Help   q  Quit
+M
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) eng -v cmd=what ;;
+      2) printf "  which lesson (return to list): "; IFS= read -r k; do_learn "$k" ;;
+      3) do_chart ;;
+      4) do_forecast ;;
+      5) eng -v cmd=score ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      a|A) about_text ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk || true
+load_conf
+install_engine
+case "${1:-}" in
+  "")        paint; menu ;;
+  what)      eng -v cmd=what ;;
+  learn)     shift; do_learn "$1" ;;
+  chart)     do_chart ;;
+  forecast)  do_forecast ;;
+  score)     eng -v cmd=score ;;
+  lon)       shift; lon="$1"; save_conf; echo "  longitude: $lon" ;;
+  day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
+  about)     about_text ;;
+  help|-h|--help) help_text ;;
+  version)   echo "weather $WEATHER_VERSION" ;;
+  *) echo "  weather: no such command: $1"; help_text; exit 2 ;;
+esac

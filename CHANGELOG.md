@@ -1,5 +1,72 @@
 # Changelog
 
+## weather 1.0 - its own tool, with the teaching in it
+
+Larry: *"i think it perhaps should be its own app... separate app everything we
+discussed."* He was right, and for a better reason than size.
+
+`deck-log`'s own governing rule is that the log records what happened on this
+boat and training never writes to it. A weather app with lessons and drills IS
+training - the same animal as `colregs` and `seamanship`, not the same animal
+as a log. Trying to be both is exactly why the teaching material got left out
+of the first build: the operational half went in and the pedagogy had nowhere
+to live.
+
+    weather what        what your log says is coming, and why
+    weather learn       ten lessons
+    weather chart       reason over a 500 mb radiofax chart
+    weather forecast    yours first, then mine, then both are scored
+    weather score       how you, the rules and persistence are doing
+
+`deck-log` captures and owns the log; `weather` reads it. No second store, no
+duplication - which is what the shared record format was designed to allow.
+`log.awk` and the colour helpers moved to `src/common/`.
+
+### Ten lessons, and one rule for all of them
+
+**A piece of physics has to earn its place by changing what the app says or
+what you would do.** Otherwise it is a lecture with a barometer attached.
+
+`fluid` `data` `tide` `coriolis` `gradient` `lapse` `cells` `h500` `cyclone`
+`seasons` - air as a fluid and warm moist air being *lighter*; the three kinds
+of weather data and why a GRIB is the one to distrust; the atmospheric tide;
+Coriolis and why no cyclone forms on the equator; friction and the chart-to-deck
+translation; lapse rates and where the cloud base really is; the heat engine and
+the deserts at 30 degrees; the 500 mb chart and the 564 line; the five
+ingredients of a cyclone; and the tilt.
+
+The last one says plainly where the physics stops being any of a sailor's
+business. Precession is real and drives ice ages and **nothing on a passage
+depends on it** - and saying so is the rule working, not an exception to it.
+
+### The six dead fields, now used
+
+An audit found that `cl`, `cm`, `ch`, `vis`, `pchg` and `swht` were asked for
+every three hours and **never read by anything**. Asking somebody at 0400 for
+three cloud codes and never mentioning them again is how you teach them to stop
+filling in the form.
+
+The cloud-type codes now drive the **warm-front sequence** rule - cirrus
+thickening to altostratus to nimbostratus, a front announcing itself hours
+ahead - which is what those three fields are *for*. Visibility trend is read
+too.
+
+### The 564 line
+
+`weather chart` takes three numbers off a radiofax chart and walks Chesneau's
+rules with the working shown: the storm track 300-600 nm poleward and parallel;
+all the gale force winds on the poleward side, which is the routing rule;
+systems moving at a third to a half of the 500 mb wind; and the surface wind
+behind at about half of it.
+
+### tests/fnvar-check.awk
+
+**A function name used as an ordinary variable**, which is the other half of
+what `fnparam-check` catches - and it bit within the hour: `teach.awk` defined
+`p()` while `screens.awk` used `p` as a local, and the tool died at startup with
+a message about a space before a bracket that tells you nothing at all. The
+lint now runs over every engine as the program it actually is.
+
 ## deck-log 1.1 - the learning loop
 
 The weather section completed: forecast, verify, score.

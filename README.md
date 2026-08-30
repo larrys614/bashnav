@@ -12,7 +12,7 @@ Three of them:
 | **[colregs](#colregs)** | The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
 | **[tides](#tides)** | Harmonic tide prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer &mdash; is there enough water. Overhead clearance too, where there are bridges. |
 | **[deck-log](#deck-log)** | The boat's records &mdash; deck, engine, provisions &mdash; kept append-only in UTC, with the spares worked out by replaying the log rather than stored. |
-| **[weather](#weather)** | Part of `deck-log`. Reasons from the observations you logged and **shows its working**: barometric tendency corrected for the daily atmospheric tide, backing and veering, Buys Ballot, fog, cloud base, and swell as the earliest warning there is. Then you forecast, it forecasts, and both are scored against what actually happened. |
+| **[weather](#weather)** | Read your own barometer. Reasons over the observations in your deck log and **shows its working** &mdash; the pressure tide, backing and veering, Buys Ballot, fog, cloud base, the warm-front cloud sequence, swell as the earliest warning there is &mdash; and teaches the physics underneath in ten lessons. Then you forecast, it forecasts, and both are scored. |
 
 <img src="docs/img/celnav-plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
 
@@ -402,26 +402,75 @@ Everything the chandler will ask, on one screen, with no signal.
 
 ## weather
 
-*Part of `deck-log` &mdash; there is no separate binary. It reasons over the
-observations in your log.*
+Read your own barometer. It reasons over the observations in your deck log and
+**shows its working**, and it teaches the physics underneath.
 
-### What the log says
+```sh
+weather what               what your log says is coming, and why
+weather learn coriolis     a lesson; no key lists them
+weather chart              reason over a 500 mb radiofax chart
+weather forecast           yours first, then mine, then both are scored
+weather score              how you, the rules and persistence are doing
+```
 
-Given a few three-hourly observations it reasons about what is coming and
-**shows its working**, because a forecast handed over without its reasoning
-teaches nothing. Barometric tendency corrected for the daily atmospheric tide;
-backing and veering; Buys Ballot; fog from dew point against sea temperature;
-cloud base from the spread; and a long-period swell from a new direction, which
-outruns the storm that made it.
+**It cannot forecast, and says so.** No model, no GRIB, no chart it did not get
+from you by hand. What it works from is the one category of weather data that is
+never wrong &mdash; what you measured yourself &mdash; and the only one still
+available when the antenna comes down. Celestial is what you do when GPS dies;
+this is what you do when the sat comms die.
 
-### Predict, then compare, then score
+### What it reasons about
 
-`deck-log forecast` asks for **your** forecast first and writes it down before
-showing any of its own &mdash; print the machine's guess first and you have not
-forecast anything, you have agreed with an answer. Then it offers two of its
-own: the rule set, and **persistence** ("in twelve hours it will be much as it
-is now"), which is the honest floor. Log the observation it was made for, and
-`deck-log score` marks all three.
+Barometric tendency **corrected for the daily atmospheric tide** and told out
+loud &mdash; in the tropics the glass falls two to three millibars every
+afternoon in fine weather, and a sailor who does not know that reads it as a
+system approaching. Backing and veering. Buys Ballot. Fog from dew point against
+sea temperature. Cloud base from the spread. The **cloud sequence** &mdash;
+cirrus thickening to altostratus to nimbostratus, a warm front announcing itself
+hours ahead. And long-period swell from a new direction, which outruns the storm
+that made it and is often the first news you get.
+
+### The lessons
+
+Ten, and the rule for all of them is that **a piece of physics has to earn its
+place by changing what the app says or what you would do** &mdash; otherwise it
+is a lecture with a barometer attached.
+
+| | |
+|---|---|
+| `fluid` | air is a fluid, and warm moist air is *lighter* than warm dry air |
+| `data` | observation, analysis, model &mdash; and why a GRIB is the one to distrust |
+| `tide` | the atmospheric tide, and the afternoon fall that means nothing |
+| `coriolis` | not a force, and why no cyclone forms on the equator |
+| `gradient` | friction, and translating a chart into what you get on deck |
+| `lapse` | stability, the inversion, and where the cloud base is |
+| `cells` | the heat engine, and why the deserts are at 30 degrees |
+| `h500` | the 500 millibar chart and the 564 line |
+| `cyclone` | the five ingredients, and avoidance as a relative-motion problem |
+| `seasons` | the tilt &mdash; and an honest note on where this stops mattering |
+
+One of them says plainly where the physics stops being any of a sailor's
+business. Padding a tool with material that cannot change a decision is the
+failure the rule exists to prevent.
+
+### The 564 line
+
+A 500 mb chart arrives by **HF radiofax** &mdash; an SSB receiver, at sea, no
+connectivity. Read three numbers off it and `weather chart` walks the rules:
+the storm track lies 300&ndash;600 nm poleward of the 5640 m contour and
+parallel to it; **all the gale force winds are on its poleward side**, which is
+the routing rule; systems move at a third to a half of the 500 mb wind; and the
+surface wind behind one is about half of it.
+
+From Sienkiewicz and Chesneau's *Mariner's Guide to the 500-Millibar Chart*
+(NOAA, public domain) &mdash; see [docs/SOURCES.md](docs/SOURCES.md).
+
+### And it keeps score
+
+`weather forecast` asks for **your** forecast first and writes it down before
+showing any of its own. Then it offers two: the rule set, and **persistence**
+("in twelve hours it will be much as it is now"), which is the honest floor.
+When the valid time comes, all three are marked:
 
 ```
              points  per field, points per forecast
@@ -430,18 +479,10 @@ is now"), which is the honest floor. Log the observation it was made for, and
   persist      14.0   dir 2.0  spd 5.0  hPa 7.0
 ```
 
-Weighted error points, taken from the WxChallenge: half a point per knot, one
-per millibar, a tenth per degree &mdash; so a near miss scores like a near
-miss. Scoring the rules too is the point. It keeps the tool honest, it teaches
-you *when* a rule of thumb holds, and it lets you beat it &mdash; which is what
-a training tool is for.
-
-It is **not a forecast**: no model, no chart, no GRIB. It is you, reading your
-own barometer &mdash; which is the one category of weather data that is never
-wrong, and the only one still available when the antenna comes down.
-
-The observation form follows NOAA's **Voluntary Observing Ship** standard, so
-learning it is learning the professional one.
+Weighted error points from the WxChallenge &mdash; half a point per knot, one
+per millibar, a tenth per degree &mdash; so a near miss scores like one. Scoring
+the rules as well as you is the point: it keeps the tool honest, it teaches you
+*when* a rule of thumb holds, and it lets you beat it.
 
 ---
 

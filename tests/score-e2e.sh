@@ -22,8 +22,8 @@ cat > "$d/p.awk" <<'PROBE'
 BEGIN{ sc_verify(LOG)
   printf "you=%.1f rules=%.1f persist=%.1f n=%d\n", TOT["you"], TOT["rules"], TOT["persist"], VN }
 PROBE
-r=$($AW -f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk \
-      -f src/decklog/score.awk -f "$d/p.awk" -v LOG="$d/log" </dev/null)
+r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+      -f src/weather/score.awk -f "$d/p.awk" -v LOG="$d/log" </dev/null)
 #  worked by hand against the 00Z observation: wdir 150, wspd 32, mslp 1003.0
 #    you     |150-150|*0.1 + |30-32|*0.5 + |1002-1003|*1.0 = 0 + 1.0 + 1.0 = 2.0
 #    rules   |114-150|*0.1 + |48-32|*0.5 + |1001-1003|*1.0 = 3.6 + 8.0 + 2.0 = 13.6

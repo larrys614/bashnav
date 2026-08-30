@@ -28,7 +28,7 @@ head=$(( full - lastn ))
 fail=0; n=0; whole=0; i=1
 while [ "$i" -lt "$lastn" ]; do
   dd if="$d/log" of="$d/cut" bs=1 count=$(( head + i )) 2>/dev/null
-  r=$($AW -f src/decklog/log.awk -f "$d/probe.awk" -v F="$d/cut" </dev/null)
+  r=$($AW -f src/common/log.awk -f "$d/probe.awk" -v F="$d/cut" </dev/null)
   #  an empty answer means the probe never ran - fail loudly, do not skip
   case "$r" in
     [0-9]*" "[0-9]*" "[0-9]*) ;;

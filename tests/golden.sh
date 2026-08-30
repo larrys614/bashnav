@@ -233,29 +233,51 @@ cat > "$DLD/log" <<'DLOG'
 2026-08-30T12:00Z|wx|mslp=1010.1|ptend=7|airt=17.2|dewp=16.8|seat=16.9|cloud=7|swper=14|swdir=230|~
 2026-08-30T15:00Z|eng|eq=eng.main|job=impeller|part=impeller|qty=1|hrs=1234.5|~
 DLOG
-DL="-f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk -f src/decklog/score.awk -f src/decklog/screens.awk"
+DL="-f src/common/log.awk -f src/common/colour.awk -f src/decklog/views.awk -f src/decklog/screens.awk"
 {
   for c in recent holdings shopping defects equip; do
     echo "=== deck-log $c ==="
     $AW $DL -v cmode=plain -v cmd="$c" -v LOG="$DLD/log" -v BOAT="$DLD/boat" -v n=20 </dev/null
   done
-  echo "=== deck-log the score ==="
-  cat >> "$DLD/log" <<'FLOG'
-2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=you|wdir=150|wspd=30|mslp=1002|~
-2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=rules|wdir=114|wspd=48|mslp=1001|~
-2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=persist|wdir=170|wspd=22|mslp=1010|~
-2026-08-31T00:00Z|nav|lat=42 00.0N|wdir=150|wspd=32|sea=5|~
-2026-08-31T00:00Z|wx|mslp=1003.0|~
-FLOG
-  $AW $DL -v cmode=plain -v cmd=score -v LOG="$DLD/log" -v BOAT="$DLD/boat" </dev/null
-  echo "=== deck-log what the log says ==="
-  $AW $DL -v cmode=plain -v cmd=wx -v LOG="$DLD/log" -v BOAT="$DLD/boat" -v lon=-72 </dev/null
   for m in cloud sea vis ptend cl cm ch; do
     echo "=== deck-log menu $m ==="
     $AW $DL -v cmode=plain -v cmd=menu -v what="$m" </dev/null
   done
 } | emit decklog.txt
 rm -rf "$DLD"
+
+# ---- weather: lessons and the reasoning -------------------------------
+WXD=$(mktemp -d)
+cat > "$WXD/log" <<'WXLOG'
+2026-08-30T06:00Z|nav|lat=41 14.0N|wdir=210|wspd=14|sea=3|~
+2026-08-30T06:00Z|wx|mslp=1016.4|airt=18.0|dewp=14.0|seat=17.5|cloud=2|ch=1|cm=0|cl=1|vis=8|swper=7|swdir=200|~
+2026-08-30T12:00Z|nav|lat=41 20.0N|wdir=170|wspd=22|sea=4|~
+2026-08-30T12:00Z|wx|mslp=1010.1|airt=17.2|dewp=16.8|seat=16.9|cloud=7|ch=4|cm=2|cl=6|vis=5|swper=14|swdir=230|~
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=you|wdir=150|wspd=30|mslp=1002|~
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=rules|wdir=114|wspd=48|mslp=1001|~
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=persist|wdir=170|wspd=22|mslp=1010|~
+2026-08-31T00:00Z|nav|lat=42 00.0N|wdir=150|wspd=32|sea=5|~
+2026-08-31T00:00Z|wx|mslp=1003.0|~
+WXLOG
+WX="-f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk -f src/weather/score.awk -f src/weather/chart.awk -f src/weather/teach.awk -f src/weather/screens.awk"
+{
+  echo "=== weather what ==="
+  $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log" -v lon=-72 </dev/null
+  echo "=== weather score ==="
+  $AW $WX -v cmode=plain -v cmd=score -v LOG="$WXD/log" </dev/null
+  echo "=== weather syllabus ==="
+  $AW $WX -v cmode=plain -v cmd=syllabus </dev/null
+  for k in fluid data tide coriolis gradient lapse cells h500 cyclone seasons; do
+    echo "=== weather learn $k ==="
+    $AW $WX -v cmode=plain -v cmd=lesson -v key="$k" </dev/null
+    $AW $WX -v cmode=plain -v cmd=lessonq -v key="$k" </dev/null
+  done
+  for n in 1 0; do
+    echo "=== weather chart, north=$n ==="
+    $AW $WX -v cmode=plain -v cmd=chart -v brg=000 -v dist=200 -v orient=090 -v w500=60 -v north=$n </dev/null
+  done
+} | emit weather.txt
+rm -rf "$WXD"
 
 # ---- compare or update ------------------------------------------------
 mkdir -p "$G"

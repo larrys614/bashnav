@@ -51,44 +51,6 @@
     plate: 4JH4-TE S/N E12345
   ----------------------------------------------------------------------
 
-=== deck-log the score ===
-
-  THE SCORE
-  ----------------------------------------------------------------------
-               points  per field, points per forecast
-  you             2.0   dir 0.0  spd 1.0  hPa 1.0
-  rules          13.6   dir 3.6  spd 8.0  hPa 2.0
-  persist        14.0   dir 2.0  spd 5.0  hPa 7.0
-  ----------------------------------------------------------------------
-  Lower is better. Half a point per knot, one per millibar, a tenth
-  per degree of wind direction - so a near miss scores like one.
-
-  You are beating the rule set. Trust yourself over it here.
-
-=== deck-log what the log says ===
-
-  WHAT THE LOG SAYS
-  ----------------------------------------------------------------------
-  Pressure 1003.0, -7.1 hPa in 12.0 hours.
-  Allowing for the daily atmospheric tide: -7.1 hPa.
-     the tide alone accounts for -0.0 of that. It is semidiurnal,
-     about 1.4 hPa in the tropics and much less in high latitudes,
-     and in the tropics it falls 2-3 mb every afternoon in fine weather.
-  A definite fall. Something is coming.
-     a rate matters more than a level: 1000 hPa steady is a quiet day,
-     1015 falling fast is not.
-
-  Wind has BACKED 20 degrees, 170 to 150.
-     northern hemisphere: backing with a falling glass puts the centre
-     to your north and closing. This is the one to take seriously.
-
-  Back to the wind: the low is roughly 240 from you.
-     Buys Ballot. Stand with your back to the wind: in the northern
-     hemisphere the low is on your left, in the southern, on your right.
-  ----------------------------------------------------------------------
-  This reasons only from what you logged. It is not a forecast:
-  no model, no chart, no GRIB. It is you, reading your own barometer.
-
 === deck-log menu cloud ===
 
   TOTAL CLOUD, eighths of sky

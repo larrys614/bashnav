@@ -1,0 +1,442 @@
+=== weather what ===
+
+  WHAT THE LOG SAYS
+  ----------------------------------------------------------------------
+  Pressure 1003.0, -7.1 hPa in 12.0 hours.
+  Allowing for the daily atmospheric tide: -7.1 hPa.
+     the tide alone accounts for -0.0 of that. It is semidiurnal,
+     about 1.4 hPa in the tropics and much less in high latitudes,
+     and in the tropics it falls 2-3 mb every afternoon in fine weather.
+  A definite fall. Something is coming.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
+
+  Wind has BACKED 20 degrees, 170 to 150.
+     northern hemisphere: backing with a falling glass puts the centre
+     to your north and closing. This is the one to take seriously.
+
+  Back to the wind: the low is roughly 240 from you.
+     Buys Ballot. Stand with your back to the wind: in the northern
+     hemisphere the low is on your left, in the southern, on your right.
+
+  The cloud has run the whole warm-front sequence: high, then
+  middle, and now low stratus. The front is on you or past.
+     cirrus -> cirrostratus -> altostratus -> nimbostratus and rain
+  ----------------------------------------------------------------------
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
+
+=== weather score ===
+
+  THE SCORE
+  ----------------------------------------------------------------------
+               points  per field, points per forecast
+  you             2.0   dir 0.0  spd 1.0  hPa 1.0
+  rules          13.6   dir 3.6  spd 8.0  hPa 2.0
+  persist        14.0   dir 2.0  spd 5.0  hPa 7.0
+  ----------------------------------------------------------------------
+  Lower is better. Half a point per knot, one per millibar, a tenth
+  per degree of wind direction - so a near miss scores like one.
+
+  You are beating the rule set. Trust yourself over it here.
+
+=== weather syllabus ===
+
+  LESSONS
+  ----------------------------------------------------------------------
+     fluid     Air is a fluid, and moist air is lighter
+     data      The three kinds of weather data, and which one you have
+     tide      The atmospheric tide: why the glass falls every afternoon
+     coriolis  Coriolis, which is not a force
+     gradient  Gradient wind, surface wind, and friction
+     lapse     Lapse rates, stability, and where the cloud base is
+     cells     The heat engine, and the three cells
+     h500      The 500 millibar chart and the 564 line
+     cyclone   How a tropical cyclone is made, and how to keep away
+     seasons   The tilt, the seasons, and an honest boundary
+  ----------------------------------------------------------------------
+  * = done.    weather learn <key>
+
+  Each one earns its place by changing what the app says or what
+  you would do. One of them says plainly where that stops being
+  true, which is the point of the rule.
+
+=== weather learn fluid ===
+
+  AIR IS A FLUID, AND MOIST AIR IS LIGHTER
+  ----------------------------------------------------------------------
+  Air is a fluid. At the speeds anything on a boat moves it barely
+  compresses, so it behaves very much like water - and the weather is
+  fluid dynamics happening to a very large, very thin bath.
+
+  And here is the counterintuitive one:
+
+    Warm MOIST air is LIGHTER than warm DRY air.
+
+  Humid air feels heavy. It is not. At the same temperature and pressure
+  a given volume holds a fixed NUMBER of molecules - so water vapour does
+  not add molecules to the box, it replaces them:
+
+         H2O  18      pushing out      N2  28
+                                       O2  32
+
+  Every water molecule that goes in evicts something heavier. Same count,
+  less mass, lower density.
+
+  This is the engine of everything else. Warm moist air is buoyant
+  twice over - once for being warm, once for being wet - which is why the
+  tropics convect so violently, and why a thunderstorm is a heat engine
+  rather than a wind event.
+
+  ----------------------------------------------------------------------
+  Question: It is 30 C and very humid. Is that air heavier or lighter than 30 C and dry?
+
+Lighter. Water molecules at 18 replace nitrogen at 28 and oxygen at 32, and a given volume holds a fixed number of molecules. Warm and wet is buoyant twice over, which is what builds thunderstorms.
+=== weather learn data ===
+
+  THE THREE KINDS OF WEATHER DATA
+  ----------------------------------------------------------------------
+  Most sailors never learn this, and it decides how much to believe.
+
+  OBSERVATION   an instrument reading of what is happening now.
+                 Not a forecast - but it is true.
+
+  ANALYSIS      a chart drawn from observations and then edited and
+                 verified by a human forecaster. A surface analysis,
+                 most national weather service products. The best
+                 available picture of NOW.
+
+  MODEL OUTPUT  a computer's projection. What sailors call a GRIB.
+                 Nobody has looked at it.
+
+  The trap is the third. A GRIB arrives in colour, at high resolution, out
+  to seven days, looking authoritative - and it is a machine's
+  extrapolation with no human in the loop. Sailors treat it as gospel.
+  The rule: check you are looking at an analysis, not a model run.
+
+  And it places this tool honestly. It works entirely in the first
+  column. Every number in it is something you measured. It cannot
+  forecast - but what it reasons FROM is the one category that is never
+  wrong, and the only one still there when the antenna comes down.
+
+  ----------------------------------------------------------------------
+  Question: A seven-day GRIB and a 24-hour surface analysis disagree. Which do you believe?
+
+The analysis. A human forecaster has looked at it and corrected it. The GRIB is a machine's extrapolation that nobody has seen, and the further out it runs the less it is worth.
+=== weather learn tide ===
+
+  THE ATMOSPHERIC TIDE
+  ----------------------------------------------------------------------
+  The sun heats the air, the earth turns under it, and a pressure wave
+  travels westward with the sun. It is on your barometer, every day.
+
+  The odd part: the dominant component is SEMIdiurnal - twice a day,
+  not once. Why once-a-day heating produces a twice-a-day pressure signal
+  is a genuine puzzle in meteorology.
+
+    amplitude in the tropics     about 1.4 hPa
+    maxima                       about 1000 and 2200 local
+    minima                       about 0400 and 1600 local
+    and it falls off steeply    ~1.2 hPa at the equator, ~0.2 at 45 deg
+
+  Which is a trap worth knowing about. In the tropics the glass
+  falls two to three millibars between mid-morning and mid-afternoon
+  every single day, in perfect weather. A sailor who does not know
+  that reads a routine afternoon fall as a system approaching.
+
+  This app corrects for it before saying anything about tendency, and
+  tells you how much of the change was the tide. Give it your longitude
+  - it needs local solar time to know where in the cycle you are.
+
+  ----------------------------------------------------------------------
+  Question: You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?
+
+Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more.
+=== weather learn coriolis ===
+
+  CORIOLIS, WHICH IS NOT A FORCE
+  ----------------------------------------------------------------------
+  The earth turns underneath you. Describe anything's motion relative to
+  the ground and it appears to curve. The "force" is the bookkeeping
+  entry for having chosen a rotating frame - nothing is pushing.
+
+  Its size goes as sin(latitude):
+
+    at the poles     full strength
+    at 45 degrees    about 0.7 of it
+    at the equator   ZERO
+
+  Two things it buys you.
+
+  First: no tropical cyclone forms within about 5 degrees of the
+  equator, because there is nothing there to spin it up. All that heat
+  and moisture and no rotation.
+
+  Second: it is half of Buys Ballot, which is the most useful rule this
+  app has. Stand with your back to the wind and the low is on your left
+  in the northern hemisphere - and on your right in the southern, because
+  the sense of the rotation reverses.
+
+  ----------------------------------------------------------------------
+  Question: Why does no hurricane ever form on the equator?
+
+Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum.
+=== weather learn gradient ===
+
+  GRADIENT WIND, SURFACE WIND, AND FRICTION
+  ----------------------------------------------------------------------
+  Well above the sea the wind balances the pressure gradient against
+  Coriolis and runs along the isobars. That is the gradient wind, and
+  it is what a weather chart draws.
+
+  Down where you are, friction slows the air. Slower air feels less
+  Coriolis. So pressure wins a little, and the surface wind blows
+  across the isobars, toward the low:
+
+    over water   backed 10-20 degrees, and about 2/3 of gradient speed
+    over land    backed 30-40 degrees, and slower still
+    southern hemisphere: veered, not backed
+
+  This is the chart-to-deck translation - what the isobars mean for
+  what you will actually get on the wind instrument.
+
+  And the same boundary layer does something else you already know about.
+  Friction slows the lowest air, so wind speed climbs with height, and
+  the apparent wind aloft is stronger and further aft than at the boom.
+  That is why a sail is twisted. One piece of physics, two apps.
+
+  ----------------------------------------------------------------------
+  Question: The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?
+
+Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low.
+=== weather learn lapse ===
+
+  LAPSE RATES, STABILITY, AND THE CLOUD BASE
+  ----------------------------------------------------------------------
+  Air cools as it rises, because it expands. How fast is the whole game.
+
+    dry adiabatic     about 3.0 C per 1000 ft   an unsaturated parcel
+    saturated         about 1.5 C per 1000 ft   condensing gives heat back
+    environmental     whatever the air actually does - measured
+
+  Compare the environmental rate with the adiabatic and you have
+  stability. If the surrounding air cools FASTER with height than the
+  parcel does, the parcel stays warmer than its surroundings, keeps
+  rising, and you get towering cloud. That is instability, and it is why
+  a saturated parcel can keep going where a dry one would have stopped.
+
+  THE CLOUD BASE falls straight out of it, and the arithmetic is
+  something you can do on deck:
+
+    a rising parcel cools at         3.0 C / 1000 ft
+    its dew point falls at           0.5 C / 1000 ft
+    so the spread closes at          2.5 C / 1000 ft
+
+    height (ft) = (air temp - dew point, in C) x 400
+
+  400, not 333. It is not the lapse rate, it is the DIFFERENCE between
+  two of them. Divide by the lapse rate alone and you put the base a
+  fifth too low. And it is air temperature, not sea temperature - the
+  sea is a fair proxy offshore and badly wrong near a front.
+
+  A field of cumulus with flat bases all at one height IS that level made
+  visible. Above it, the trade inversion caps the marine layer, and the
+  flat tops are you looking at the underside of the lid.
+
+  ----------------------------------------------------------------------
+  Question: Air 18 C, dew point 12 C. How high is the cloud base?
+
+About 2,400 ft: a spread of 6 C, and the spread closes at 2.5 C per 1000 ft, so 6 x 400. Not 6 x 333 - the divisor is the DIFFERENCE between the parcel's lapse rate and the dew point's, not the lapse rate itself.
+=== weather learn cells ===
+
+  THE HEAT ENGINE, AND THE THREE CELLS
+  ----------------------------------------------------------------------
+  The tropics take in more energy from the sun than they radiate away.
+  The poles do the reverse. The atmosphere and the ocean exist, as far as
+  weather is concerned, to move the difference poleward.
+
+  Most of the atmosphere's share travels as latent heat - water
+  evaporated in the tropics and released as rain somewhere else. The
+  water cycle is not a side effect of the weather. It is the working
+  fluid.
+
+    Hadley    rises at the equator, descends near 30 degrees
+    Ferrel    30 to 60, and the one you probably sail in
+    Polar     60 to the pole
+
+  The air descending at 30 degrees has already rained out everything it
+  had, so it arrives warm and dry. That gives you the subtropical highs,
+  the horse latitudes, the trade winds on their equatorward side - and
+  most of the world's deserts sit at that latitude for this reason.
+
+  And it closes the loop with the last lesson: that same descending
+  warm air is the inversion capping the marine layer. The lid over your
+  flat-topped cumulus is the far end of a circulation that started as
+  thunderstorms on the equator.
+
+  ----------------------------------------------------------------------
+  Question: Why are so many of the world's deserts near 30 degrees latitude?
+
+That is where the Hadley cell descends. The air rose at the equator, rained out everything it had, and comes back down warm and dry. The subtropical highs, the horse latitudes and the deserts are all the same descending branch.
+=== weather learn h500 ===
+
+  THE 500 MILLIBAR CHART, AND THE 564 LINE
+  ----------------------------------------------------------------------
+  A 500 mb chart is a topographic map of a pressure surface: the
+  contours are the HEIGHT at which the pressure is 500 millibars, drawn
+  in decametres. So "564" means the 5,640 metre contour. Low heights are
+  cold air, high heights are warm.
+
+  It is around 18,000 feet, with about half the atmosphere's mass above
+  and half below - which is why its flow is a fair proxy for where a
+  whole system gets carried. The steering level.
+
+  Five rules a mariner can use from one chart:
+
+    1. The surface storm track lies 300 to 600 nm poleward of the
+       5640 m contour, and runs parallel to it.
+
+    2. All the gale force winds are poleward of the 564 line.
+       Stay on its equatorward side and you stay out of the gales. This
+       is the routing rule, and it is why the standard book on the
+       subject is called Heavy Weather Avoidance.
+
+    3. Surface lows and fronts move at a third to a half of the
+       500 mb wind speed above them.
+
+    4. Surface wind behind the system, in the cold air to the west
+       and southwest, is about half the 500 mb wind speed.
+
+    5. Tighter contours mean stronger wind - the upper-air version of
+       close isobars. And the 588 contour marks the subtropical ridge,
+       which is what steers tropical systems.
+
+  You do not need the internet for this. A 500 mb chart comes in by HF
+  radiofax, on an SSB receiver, at sea, with no connectivity at all. Read
+  three numbers off it and weather chart will walk the rules with you.
+
+  From the Mariner's Guide to the 500-Millibar Chart, by Joe Sienkiewicz
+  of NOAA's Ocean Prediction Center and Lee Chesneau - US Navy, then OPC,
+  who spent his retirement teaching this to sailors. See docs/SOURCES.md.
+
+  ----------------------------------------------------------------------
+  Question: The 564 line runs east-west 200 nm north of you. Where is the storm track, and are you in the gales?
+
+The track is 300 to 600 nm poleward of the 564 line and parallel to it, so well north of you. And all the gale force winds are poleward of that line - so at 200 nm south of it you are on the right side of it. That is the routing rule.
+=== weather learn cyclone ===
+
+  HOW A TROPICAL CYCLONE IS MADE, AND HOW TO KEEP AWAY
+  ----------------------------------------------------------------------
+  This is the payoff for the other lessons: it needs all of them.
+
+    warm deep water    about 26.5 C, and 50 m deep, or the storm
+                       stirs up cold water and kills itself
+    enough Coriolis    so not within ~5 degrees of the equator
+    a moist unstable column  moist air is buoyant twice over
+    weak wind shear    or the tower is torn apart before it organises
+    something to start it  a wave, a trough, an old front
+
+  Take any one away and you get a lot of rain and no cyclone. Which is
+  useful: it tells you which conditions to worry about.
+
+  AND AVOIDANCE IS A PROBLEM YOU ALREADY KNOW.
+
+  A storm centre has a position, a course and a speed. So do you. You
+  want the largest possible closest point of approach. That is exactly
+  the relative-motion problem from colregs - the same vector triangle,
+  the same bearing drift, the same answer. The dangerous semicircle is
+  just the half where the storm's own motion adds to its wind.
+
+  Which is why the tools in this suite keep turning out to be the same
+  few ideas wearing different hats.
+
+  ----------------------------------------------------------------------
+  Question: Sea surface 27 C, moist unstable air, a nice tropical wave - and 40 knots of shear aloft. Cyclone?
+
+No. Shear tears the tower apart before it can organise. Four of the five ingredients is not a storm, which is exactly why knowing the list is useful.
+=== weather learn seasons ===
+
+  THE TILT, THE SEASONS, AND AN HONEST BOUNDARY
+  ----------------------------------------------------------------------
+  The earth's axis leans 23.5 degrees and keeps pointing the same way
+  as it goes round. So each hemisphere leans toward the sun for half the
+  year. That is the whole of the seasons - not distance from the sun,
+  which barely varies and is at its smallest in northern winter.
+
+  What it buys you at sea: the whole belt of weather migrates north and
+  south with it. The equatorial convergence, the subtropical ridge, the
+  storm tracks. A cyclone season is a season because the tilt makes it
+  one - warm water and a ridge in the right place at the same time.
+
+  Now the honest part.
+
+  The axis also wobbles, a full circle every 26,000 years, and the orbit
+  stretches and relaxes on cycles of 100,000. Those are real and they
+  drive ice ages.
+
+  They are climate, not weather, and nothing on your passage depends
+  on them. They are in this lesson because they are interesting and
+  because you asked, and they are labelled so you know which is which.
+
+  Every other lesson here earns its place by changing what you would do.
+  This half of this one does not, and pretending otherwise would be the
+  beginning of a tool full of things that sound like knowledge.
+
+  ----------------------------------------------------------------------
+  Question: Northern winter is when the earth is CLOSEST to the sun. So why is it cold?
+
+Because the seasons are the 23.5 degree tilt, not the distance. The northern hemisphere is leaning away, so the sun is low, the days are short, and the same energy is spread over more ground. The distance varies by about 3 percent and is swamped by it.
+=== weather chart, north=1 ===
+
+  FROM THE 500 MILLIBAR CHART
+  ----------------------------------------------------------------------
+  The 5640 m contour is 200 nm away, bearing 000, lying 090/270.
+
+  The surface storm track runs parallel to that line, north of it,
+  between 300 and 600 nm away from it.
+     so the depressions are travelling along 090/270, not toward you
+
+  All the gale force winds are on the north side of the 564 line.
+  You are on the equatorward side of it. That is the right side.
+     stay there and you stay out of the gales - that is the routing rule,
+     and it is why the standard book on this is called Heavy Weather Avoidance
+
+  At 60 knots aloft, systems below move at 20 to 30 knots.
+     a surface low or front travels at a third to a half of the 500 mb wind
+  So a system 300 nm off would be on you in 10 to 15 hours.
+
+  Behind it, in the cold air, expect about 30 knots on deck.
+     surface wind in the west-to-southwest quadrant is about half the 500 mb
+     wind - which is the number that decides what sail you are carrying
+  ----------------------------------------------------------------------
+  Rules from Sienkiewicz and Chesneau, Mariner's Guide to the
+  500-Millibar Chart, NOAA. They are rules of thumb: good ones,
+  and still rules of thumb.
+
+=== weather chart, north=0 ===
+
+  FROM THE 500 MILLIBAR CHART
+  ----------------------------------------------------------------------
+  The 5640 m contour is 200 nm away, bearing 000, lying 090/270.
+
+  The surface storm track runs parallel to that line, south of it,
+  between 300 and 600 nm away from it.
+     so the depressions are travelling along 090/270, not toward you
+
+  All the gale force winds are on the south side of the 564 line.
+  The line is equatorward of you, so you are on the gale side of it.
+     getting equatorward of the 564 line is the single most useful thing
+     you can do about the weather from here
+
+  At 60 knots aloft, systems below move at 20 to 30 knots.
+     a surface low or front travels at a third to a half of the 500 mb wind
+  So a system 300 nm off would be on you in 10 to 15 hours.
+
+  Behind it, in the cold air, expect about 30 knots on deck.
+     surface wind in the west-to-southwest quadrant is about half the 500 mb
+     wind - which is the number that decides what sail you are carrying
+  ----------------------------------------------------------------------
+  Rules from Sienkiewicz and Chesneau, Mariner's Guide to the
+  500-Millibar Chart, NOAA. They are rules of thumb: good ones,
+  and still rules of thumb.
+

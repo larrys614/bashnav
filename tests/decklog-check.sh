@@ -68,7 +68,7 @@ head -n "$n" "$d/log" > "$d/after"
 cmp -s "$d/before" "$d/after" || say "an earlier log line changed when a new entry was written"
 
 #  every record the app writes must parse with the record reader
-o=$($AW -f src/decklog/log.awk -f tests/dl-parse.awk -v F="$d/log")
+o=$($AW -f src/common/log.awk -f tests/dl-parse.awk -v F="$d/log")
 case "$o" in
   *" 0 bad") ;;
   *) say "the app wrote a record its own reader rejects: $o" ;;

@@ -343,7 +343,7 @@ for SH in $SHELLS; do
   #  The log is append-only, so a record written today has to parse in
   #  five years. These are the tests that protect that; everything else
   #  in the tool can be rewritten, a record on somebody's iPad cannot.
-  r=$($AW -f src/decklog/log.awk -f tests/log-check.awk </dev/null | tail -1)
+  r=$($AW -f src/common/log.awk -f tests/log-check.awk </dev/null | tail -1)
   case "$r" in
     "LOGRESULT "*" 0") ok "the log record layer round-trips and rejects the malformed ($r)" ;;
     *) bad "log record layer: $r" ;;
@@ -355,21 +355,21 @@ for SH in $SHELLS; do
     bad "an interrupted write is not handled safely"
   fi
 
-  r=$($AW -f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk \
+  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
         -f tests/wx-check.awk </dev/null | tail -1)
   case "$r" in
     "WXRESULT "*" 0") ok "the weather rules hold over their whole range ($r)" ;;
     *) bad "weather rules: $r" ;;
   esac
 
-  r=$($AW -f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk \
-        -f src/decklog/score.awk -f tests/score-check.awk </dev/null | tail -1)
+  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+        -f src/weather/score.awk -f tests/score-check.awk </dev/null | tail -1)
   case "$r" in
     "SCORERESULT "*" 0") ok "forecast scoring is right, including on the circle ($r)" ;;
     *) bad "forecast scoring: $r" ;;
   esac
-  r=$($AW -f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk \
-        -f src/decklog/score.awk -f tests/date-check.awk </dev/null | tail -1)
+  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+        -f src/weather/score.awk -f tests/date-check.awk </dev/null | tail -1)
   case "$r" in
     "DATERESULT 0") ok "date arithmetic round-trips over forty years" ;;
     *) bad "date arithmetic: $r" ;;
@@ -380,6 +380,57 @@ for SH in $SHELLS; do
   if o=$(sh tests/forecast-order.sh "$AW" "$SH" 2>&1); then
     ok "the app never shows its forecast before yours is written down"
   else printf '%s\n' "$o" | head -3; bad "never tell before you ask"; fi
+
+  #  ---- weather -----------------------------------------------------
+  WH_="$tmp/wx-$SH-$AW"; rm -rf "$WH_"; mkdir -p "$WH_"
+  o=$(DECKLOG_HOME="$WH_" WEATHER_HOME="$WH_" WEATHER_AWK="$AW" $SH ./bin/weather version 2>&1)
+  case "$o" in weather\ *) ok "weather reports its version" ;; *) bad "weather version: $o" ;; esac
+
+  cat > "$WH_/log" <<'WXLOG'
+2026-08-30T06:00Z|nav|lat=41 14.0N|wdir=210|wspd=14|sea=3|~
+2026-08-30T06:00Z|wx|mslp=1016.4|airt=18.0|dewp=14.0|seat=17.5|cloud=2|ch=1|cm=0|cl=1|vis=8|swper=7|swdir=200|~
+2026-08-30T12:00Z|nav|lat=41 20.0N|wdir=170|wspd=22|sea=4|~
+2026-08-30T12:00Z|wx|mslp=1010.1|airt=17.2|dewp=16.8|seat=16.9|cloud=7|ch=4|cm=2|cl=6|vis=5|swper=14|swdir=230|~
+WXLOG
+  wx_bad=0
+  #  every lesson renders, ends with a question, and has an answer
+  nk=0
+  #  a dedicated command rather than scraping the drawn syllabus - the
+  #  same mistake as parsing the tides station list, and it bit here too
+  for k in $(DECKLOG_HOME="$WH_" WEATHER_HOME="$WH_" WEATHER_AWK="$AW" \
+             $AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+                 -f src/weather/score.awk -f src/weather/chart.awk \
+                 -f src/weather/teach.awk -f src/weather/screens.awk \
+                 -v cmd=lessonlist </dev/null); do
+    [ -n "$k" ] || continue
+    o=$(printf '\n' | DECKLOG_HOME="$WH_" WEATHER_HOME="$WH_" WEATHER_AWK="$AW" $SH ./bin/weather learn "$k" 2>&1)
+    n=$(printf '%s\n' "$o" | wc -l)
+    [ "$n" -ge 15 ] || { bad "weather lesson $k rendered $n lines"; wx_bad=1; }
+    case "$o" in *"Question:"*) ;; *) bad "weather lesson $k has no question"; wx_bad=1 ;; esac
+    nk=$((nk+1))
+  done
+  [ "${nk:-0}" -ge 10 ] || { bad "only ${nk:-0} weather lessons found, expected 10"; wx_bad=1; }
+  [ "$wx_bad" = 0 ] && ok "all ${nk:-0} weather lessons render and answer their own question"
+
+  #  the cloud sequence must fire - those three fields were asked for and
+  #  ignored in the first build, which is how you teach somebody to stop
+  #  filling in a form
+  o=$(DECKLOG_HOME="$WH_" WEATHER_HOME="$WH_" WEATHER_AWK="$AW" $SH ./bin/weather what 2>&1)
+  case "$o" in *"warm-front"*) ok "the cloud-type codes are actually used" ;;
+    *) bad "the cloud sequence rule did not fire on a textbook warm front" ;; esac
+  case "$o" in *"Visibility"*) ;; *) bad "visibility is asked for and still ignored" ;; esac
+
+  #  the 500 mb rules
+  o=$(DECKLOG_HOME="$WH_" WEATHER_HOME="$WH_" WEATHER_AWK="$AW" $SH ./bin/weather \
+        chart </dev/null 2>&1 || true)
+  o=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+        -f src/weather/score.awk -f src/weather/chart.awk -f src/weather/teach.awk \
+        -f src/weather/screens.awk -v cmode=plain -v cmd=chart -v brg=000 -v dist=200 \
+        -v orient=090 -v w500=60 -v north=1 </dev/null)
+  case "$o" in *"300 and 600"*) ;; *) bad "the 564 storm-track rule is missing" ;; esac
+  case "$o" in *"right side"*) ;; *) bad "a boat south of the 564 line was not told it is clear of the gales" ;; esac
+  case "$o" in *"20 to 30 knots"*) ok "the 500 mb chart rules all fire" ;;
+    *) bad "the steering-speed rule did not compute" ;; esac
 
   #  deck-log end to end: the registry, a job, the derived holding, the
   #  shopping list, and append-only across every write path
@@ -405,6 +456,29 @@ for SH in $SHELLS; do
     if [ "$n" != 0 ]; then bad "$n parameters shadow a function name"; echo "$r" | grep -v '^BAD' | head -4; fp=1; fi
   done
   [ "$fp" = 0 ] && ok "no parameter shadows a function name"
+
+  #  ---- a function name used as an ordinary variable ---------------
+  #  fnparam-check catches a function name used as a PARAMETER; this is
+  #  the other half. teach.awk defined p() while screens.awk used p as a
+  #  local, and weather died at startup with a message about a space
+  #  before a bracket that tells you nothing at all.
+  fv_bad=0
+  for grp in \
+    "src/common/log.awk src/common/colour.awk src/weather/wx.awk src/weather/score.awk src/weather/chart.awk src/weather/teach.awk src/weather/screens.awk" \
+    "src/common/log.awk src/common/colour.awk src/decklog/views.awk src/decklog/screens.awk" \
+    "src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk" \
+    "src/celnav/engine.awk src/celnav/teach.awk" \
+    "src/tides/engine.awk" \
+    "src/seamanship/engine.awk"; do
+    [ -f "${grp%% *}" ] || continue
+    r=$($AW -f tests/fnvar-check.awk $grp 2>/dev/null | tail -1)
+    case "$r" in
+      "FNVAR 0") ;;
+      *) $AW -f tests/fnvar-check.awk $grp | grep -v FNVAR; fv_bad=1 ;;
+    esac
+  done
+  [ "$fv_bad" = 0 ] && ok "no function name is used as a variable in any engine"
+  [ "$fv_bad" = 0 ] || bad "a function name is shadowed by a variable"
 
   # ---- awk's own built-in variables --------------------------------
   #  A global called RS is the record separator. Setting it to a number

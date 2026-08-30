@@ -12,15 +12,16 @@ set -e
 cd "$(dirname "$0")/.."
 AW=${1:-awk}; SH=${2:-sh}
 d=$(mktemp -d); trap 'rm -rf "$d"' EXIT
-export DECKLOG_HOME="$d"; export DECKLOG_AWK="$AW"
-$SH ./bin/deck-log version >/dev/null 2>&1
+export DECKLOG_HOME="$d"; export WEATHER_HOME="$d"
+export DECKLOG_AWK="$AW"; export WEATHER_AWK="$AW"
+$SH ./bin/weather version >/dev/null 2>&1
 cat > "$d/log" <<'LOG'
 2026-08-30T06:00Z|nav|lat=41 14.0N|wdir=210|wspd=14|sea=3|~
 2026-08-30T06:00Z|wx|mslp=1016.4|~
 2026-08-30T12:00Z|nav|lat=41 20.0N|wdir=170|wspd=22|sea=4|~
 2026-08-30T12:00Z|wx|mslp=1010.1|~
 LOG
-printf '12\n-72\n200\n25\n1005\n5\n' | $SH ./bin/deck-log forecast > "$d/out" 2>&1 || true
+printf '12\n200\n25\n1005\n5\n' | $SH ./bin/weather forecast > "$d/out" 2>&1 || true
 bad=0
 #  the app's own forecast is the "rules" line; the user's last prompt is
 #  the sea-state menu. The rules line must come after it.

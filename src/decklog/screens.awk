@@ -93,29 +93,6 @@ BEGIN{
     exit 0
   }
 
-  else if(cmd=="wx"){ wx_report(LOG, lon) }
-  else if(cmd=="score"){ sc_report(LOG) }
-
-  #  Build one machine forecast and print it as key=value for the shell
-  #  to log.  Called ONLY after the user's own forecast is committed.
-  else if(cmd=="fcast"){
-    n = wx_load(LOG)
-    if(n<1){ exit 1 }
-    for(i=n-1;i>=1;i--) if(wx_has(WP[i]) && wx_has(WP[n])) break
-    k=i
-    if(who2=="persist") sc_persist(n); else sc_rules(n, k, hours+0, lon)
-    if(wx_has(F_WDIR)) printf "wdir=%d\n", (F_WDIR+0.5)
-    if(wx_has(F_WSPD)) printf "wspd=%.0f\n", F_WSPD
-    if(wx_has(F_MSLP)) printf "mslp=%.1f\n", F_MSLP
-    if(wx_has(F_SEA))  printf "sea=%d\n",   F_SEA
-    printf "why=%s\n", (F_WHY==""?"-":F_WHY)
-  }
-
-  #  the valid time: <hours> ahead of now, rounded to a synoptic hour so
-  #  the observation that verifies it is one somebody would take anyway
-  else if(cmd=="validat"){
-    print sc_validtime(now, hours+0)
-  }
   else if(cmd=="menu"){ menu_show(what) }
   else if(cmd=="menuok"){ exit (menu_ok(what, ans) ? 0 : 1) }
   else if(cmd=="check"){ s=implausible(what, ans); if(s!=""){ print s; exit 1 } exit 0 }

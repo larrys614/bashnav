@@ -17,15 +17,42 @@ build_decklog() {
     echo '  mkdir -p "$DECKLOG_HOME" 2>/dev/null || {'
     echo '    echo "deck-log: cannot create $DECKLOG_HOME" >&2; exit 1; }'
     echo '  cat > "$ENGINE" <<'"'"'__DECKLOG_ENGINE__'"'"''
-    cat src/decklog/log.awk
+    cat src/common/log.awk
+    cat src/common/colour.awk
     cat src/decklog/views.awk
-    cat src/decklog/wx.awk
-    cat src/decklog/score.awk
     cat src/decklog/screens.awk
     echo '__DECKLOG_ENGINE__'
     echo '}'
     cat src/decklog/25-about.sh
     cat src/decklog/30-ui.sh
+  } > "$out"
+  chmod +x "$out"
+}
+
+build_weather() {
+  out=bin/weather
+  {
+    cat src/weather/10-head.sh
+    echo ''
+    echo '# ---- engine extraction (written once, then reused) -----------------'
+    echo 'install_engine() {'
+    echo '  if [ -f "$ENGINE" ]; then'
+    echo '    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0'
+    echo '  fi'
+    echo '  mkdir -p "$WEATHER_HOME" 2>/dev/null || {'
+    echo '    echo "weather: cannot create $WEATHER_HOME" >&2; exit 1; }'
+    echo '  cat > "$ENGINE" <<'"'"'__WEATHER_ENGINE__'"'"''
+    cat src/common/log.awk
+    cat src/common/colour.awk
+    cat src/weather/wx.awk
+    cat src/weather/score.awk
+    cat src/weather/chart.awk
+    cat src/weather/teach.awk
+    cat src/weather/screens.awk
+    echo '__WEATHER_ENGINE__'
+    echo '}'
+    cat src/weather/25-about.sh
+    cat src/weather/30-ui.sh
   } > "$out"
   chmod +x "$out"
 }
@@ -116,4 +143,5 @@ build_celnav
 build_colregs
 build_tides
 build_decklog
+build_weather
 ls -l bin/

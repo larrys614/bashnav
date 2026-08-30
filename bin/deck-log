@@ -267,6 +267,37 @@ function lg_at(i){
   return lg_parse(LR_LINE[i])
 }
 # =====================================================================
+#  Colour, shared.
+#
+#  day    light text on a black panel
+#  night  deep red on black, no green at all, because rebuilding dark
+#         adaptation takes twenty minutes and a bright screen costs
+#         every one of them
+#  plain  no escape sequences whatsoever - chosen automatically when
+#         stdout is not a terminal, so redirected output is clean text
+#
+#  The panel is painted rather than only setting a foreground colour:
+#  a user on a light terminal profile otherwise gets white on white.
+# =====================================================================
+function col_init(   e){
+  if(COL_READY) return
+  e=sprintf("%c",27)
+  if(cmode=="night"){
+    C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"
+    C_WARN=e "[1;31m"; C_NO=e "[1;31m"; C_OK=e "[1;31m"
+  } else if(cmode=="day"){
+    C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"
+    C_WARN=e "[1;91m"; C_NO=e "[1;91m"; C_OK=e "[1;92m"
+  } else {
+    C_BASE=""; C_ACC=""; C_DIM=""; C_WARN=""; C_NO=""; C_OK=""
+  }
+  C_RST=C_BASE; COL_READY=1
+  return 0
+}
+function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
+function hr(){ print "  ----------------------------------------------------------------------" }
+# =====================================================================
 #  deck-log -- registry, derived views, and the entry helpers.
 #
 #  THE THREE LAYERS, and it matters that they stay separate:
@@ -283,20 +314,6 @@ function lg_at(i){
 #  then you have two numbers and no way to know which one lied.
 # =====================================================================
 
-function col_init(   e){
-  if(COL_READY) return
-  e=sprintf("%c",27)
-  if(cmode=="night"){ C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"
-                      C_WARN=e "[1;31m" }
-  else if(cmode=="day"){ C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"
-                         C_WARN=e "[1;91m" }
-  else { C_BASE=""; C_ACC=""; C_DIM=""; C_WARN="" }
-  C_RST=C_BASE; COL_READY=1
-  return 0
-}
-function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
-function cwd(s){ col_init(); return cw(s,C_DIM) }
-function hr(){ print "  ----------------------------------------------------------------------" }
 
 # ---------------------------------------------------------------------
 #  The registry.  Same encoding as the log so there is one escaping
@@ -404,480 +421,6 @@ function def_build(logfile,   i, ts, c){
   return DEF_N
 }
 # =====================================================================
-#  deck-log -- the weather reasoning.
-#
-#  EVERY RULE SHOWS ITS WORKING.  A forecast handed over without its
-#  reasoning teaches nothing; the explanation is the product.
-#
-#  And it can only ever be as good as the log behind it: this reasons
-#  from observations the user made, and says so.  With no network there
-#  is no model, no GRIB and no chart.  What there is, is the one
-#  category of weather data that is never wrong.
-# =====================================================================
-
-function wx_num(s){ if(s=="" || s=="-" || s=="/") return -9999; return s+0 }
-function wx_has(x){ return (x>-9000) }
-
-#  Angle difference on the circle.  350 against 010 is 20 degrees, not
-#  340, and getting this wrong would misreport every veer near north.
-function wx_d180(a){ while(a>180) a-=360; while(a<-180) a+=360; return a }
-
-#  Minutes between two of our timestamps.  Days from a civil date, so
-#  month ends and leap years come out right without a date library.
-function wx_mins(ts,   y,mo,d,h,mi,a,jd){
-  y=substr(ts,1,4)+0; mo=substr(ts,6,2)+0; d=substr(ts,9,2)+0
-  h=substr(ts,12,2)+0; mi=substr(ts,15,2)+0
-  a = int((14-mo)/12); y2 = y + 4800 - a; m2 = mo + 12*a - 3
-  jd = d + int((153*m2+2)/5) + 365*y2 + int(y2/4) - int(y2/100) + int(y2/400) - 32045
-  return jd*1440 + h*60 + mi
-}
-
-#  Load the observation history: the nav and wx records, newest last.
-function wx_load(logfile,   i, n){
-  WN=0
-  lg_read(logfile, "")
-  for(i=1;i<=LG_N;i++){
-    if(!lg_at(i)) continue
-    if(LG_TYPE!="nav" && LG_TYPE!="wx") continue
-    #  merge records that share a timestamp: a nav entry and the wx
-    #  entry taken with it are one observation
-    if(WN>0 && WT[WN]==LG_TS) n=WN; else { WN++; n=WN; WT[n]=LG_TS
-      WDIR[n]=-9999; WSPD[n]=-9999; WP[n]=-9999; WTEND[n]=""
-      WAIR[n]=-9999; WDEW[n]=-9999; WSEA[n]=-9999; WCLD[n]=-9999
-      WSWP[n]=-9999; WSWD[n]=-9999; WLAT[n]="" }
-    if(LG["wdir"]!="") WDIR[n]=wx_num(LG["wdir"])
-    if(LG["wspd"]!="") WSPD[n]=wx_num(LG["wspd"])
-    if(LG["mslp"]!="") WP[n]  =wx_num(LG["mslp"])
-    if(LG["ptend"]!="" && LG["ptend"]!="-") WTEND[n]=LG["ptend"]
-    if(LG["airt"]!="") WAIR[n]=wx_num(LG["airt"])
-    if(LG["dewp"]!="") WDEW[n]=wx_num(LG["dewp"])
-    if(LG["seat"]!="") WSEA[n]=wx_num(LG["seat"])
-    if(LG["cloud"]!="") WCLD[n]=wx_num(LG["cloud"])
-    if(LG["swper"]!="") WSWP[n]=wx_num(LG["swper"])
-    if(LG["swdir"]!="") WSWD[n]=wx_num(LG["swdir"])
-    if(LG["lat"]!="") WLAT[n]=LG["lat"]
-  }
-  return WN
-}
-
-#  Northern or southern, from a latitude written as "41 14.0N" or "-33.9"
-function wx_north(s){
-  if(s=="") return 1
-  if(s ~ /[Ss]$/) return 0
-  if(substr(s,1,1)=="-") return 0
-  return 1
-}
-function wx_latdeg(s,   x){
-  x = s+0; if(x<0) x=-x
-  return x
-}
-
-# ---------------------------------------------------------------------
-#  The atmospheric tide.
-#
-#  Solar heating drives a wave that travels westward with the sun, and
-#  it is on every barometer.  In the tropics the glass falls two to
-#  three millibars between mid-morning and mid-afternoon EVERY DAY IN
-#  PERFECT WEATHER, and a sailor who does not know that reads a routine
-#  afternoon fall as a system approaching.
-#
-#  Dominantly SEMIdiurnal - twice a day, not once.  Maxima near 1000
-#  and 2200 local, minima near 0400 and 1600.  Amplitude about 1.4 hPa
-#  in the tropics, falling steeply with latitude.
-#
-#  So the correction is applied BEFORE anything is said about tendency,
-#  and it is said out loud.
-# ---------------------------------------------------------------------
-function wx_tide(ts, lon, lat,   utch, solar, amp, la){
-  utch = substr(ts,12,2)+0 + (substr(ts,15,2)+0)/60.0
-  solar = utch + (lon+0)/15.0
-  while(solar<0) solar+=24; while(solar>=24) solar-=24
-  la = wx_latdeg(lat)
-  amp = 1.4 * cos(la*3.14159265/180.0)^3
-  if(amp<0) amp = -amp
-  #  maxima near 1000 and 2200 local: a cosine of period 12 h peaking there
-  return amp * cos(2*3.14159265*(solar-10.0)/12.0)
-}
-
-# ---------------------------------------------------------------------
-#  Buys Ballot.
-#
-#  Wind direction is where it comes FROM, so with your back to it you
-#  face wdir+180.  The low is 90 degrees to your left in the northern
-#  hemisphere, which is (wdir+180) - 90 = wdir + 90.  To your right in
-#  the southern: wdir + 270.
-#
-#  The first version added and subtracted the 90 the other way round and
-#  pointed at the exact opposite side of the sky - 080 for a low that
-#  was at 260.  Plausible-looking, completely wrong, and the sort of
-#  thing that survives a read-through and not a test.  Sanity check:
-#  a westerly in the northern hemisphere (270) gives 000, and a low to
-#  the north with a westerly is what a mid-latitude depression does.
-function wx_bb(wdir, north,   b){
-  b = north ? wdir + 90 : wdir + 270
-  while(b>=360) b-=360
-  while(b<0)    b+=360
-  return int(b+0.5)%360
-}
-
-# ---------------------------------------------------------------------
-#  The report
-# ---------------------------------------------------------------------
-function wx_say(s){ printf "  %s\n", s; return 0 }
-function wx_why(s){ printf "  %s\n", cwd("   " s); return 0 }
-
-function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k)
-{
-  n = wx_load(logfile)
-  print ""
-  printf "  %s\n", cw("WHAT THE LOG SAYS", C_ACC)
-  hr()
-  if(n < 2){
-    wx_say("Not enough observations yet.")
-    wx_why("Almost every rule here needs history, not a snapshot: a tendency")
-    wx_why("is a rate, backing is a change, a front is a sequence. Log a few")
-    wx_why("three-hourly entries and this page starts working.")
-    print ""
-    return 0
-  }
-  j = n
-  #  the most recent earlier observation with a pressure, for the trend
-  for(i=n-1; i>=1; i--) if(wx_has(WP[i]) && wx_has(WP[n])) break
-  k = i
-
-  # ---- pressure -----------------------------------------------------
-  if(k>=1 && wx_has(WP[n]) && wx_has(WP[k])){
-    dt = (wx_mins(WT[n]) - wx_mins(WT[k]))/60.0
-    dp = WP[n] - WP[k]
-    tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
-    corr = dp - (tide2 - tide1)
-    wx_say(sprintf("Pressure %.1f, %+.1f hPa in %.1f hours.", WP[n], dp, dt))
-    if(lon!=""){
-      wx_say(sprintf("Allowing for the daily atmospheric tide: %+.1f hPa.", corr))
-      wx_why(sprintf("the tide alone accounts for %+.1f of that. It is semidiurnal,", tide2-tide1))
-      wx_why("about 1.4 hPa in the tropics and much less in high latitudes,")
-      wx_why("and in the tropics it falls 2-3 mb every afternoon in fine weather.")
-    } else corr = dp
-    if(dt>0){
-      if(corr <= -3.0*(dt/3.0))      wx_say(cw("That is a serious fall. Expect a deepening system and a rising wind.", C_WARN))
-      else if(corr <= -1.5*(dt/3.0)) wx_say("A definite fall. Something is coming.")
-      else if(corr >=  1.5*(dt/3.0)) wx_say("Rising. The gradient is easing or a ridge is building.")
-      else                           wx_say("Near steady.")
-      wx_why("a rate matters more than a level: 1000 hPa steady is a quiet day,")
-      wx_why("1015 falling fast is not.")
-    }
-  } else {
-    wx_say("No pressure trend - fewer than two entries carry a pressure.")
-  }
-
-  # ---- wind: backing or veering, and Buys Ballot --------------------
-  if(k>=1 && wx_has(WDIR[n]) && wx_has(WDIR[k])){
-    dw = wx_d180(WDIR[n] - WDIR[k])
-    print ""
-    if(dw > 10)       wx_say(sprintf("Wind has VEERED %d degrees, %03d to %03d.", int(dw+0.5), WDIR[k], WDIR[n]))
-    else if(dw < -10) wx_say(sprintf("Wind has BACKED %d degrees, %03d to %03d.", int(-dw+0.5), WDIR[k], WDIR[n]))
-    else              wx_say(sprintf("Wind steady in direction, about %03d.", WDIR[n]))
-    if(wx_north(WLAT[n])){
-      if(dw > 10)       wx_why("northern hemisphere: veering with a rising glass usually means the")
-      if(dw > 10)       wx_why("centre has passed to the north of you and the cold front is through.")
-      if(dw < -10)      wx_why("northern hemisphere: backing with a falling glass puts the centre")
-      if(dw < -10)      wx_why("to your north and closing. This is the one to take seriously.")
-    } else {
-      wx_why("southern hemisphere: the sense of all of this reverses.")
-    }
-  }
-  #  Buys Ballot
-  if(wx_has(WDIR[n])){
-    print ""
-    wx_say(sprintf("Back to the wind: the low is roughly %03d from you.",
-           wx_bb(WDIR[n], wx_north(WLAT[n]))))
-    wx_why("Buys Ballot. Stand with your back to the wind: in the northern")
-    wx_why("hemisphere the low is on your left, in the southern, on your right.")
-  }
-
-  # ---- fog -----------------------------------------------------------
-  if(wx_has(WDEW[n]) && wx_has(WSEA[n])){
-    print ""
-    if(WDEW[n] >= WSEA[n] - 0.5){
-      wx_say(cw("Fog is likely: the dew point is at or above the sea temperature.", C_WARN))
-      wx_why("air moving over water colder than its own dew point condenses.")
-    } else {
-      wx_say(sprintf("Fog unlikely: dew point %.1f, sea %.1f, a margin of %.1f.",
-             WDEW[n], WSEA[n], WSEA[n]-WDEW[n]))
-    }
-  }
-
-  # ---- cloud base ----------------------------------------------------
-  if(wx_has(WAIR[n]) && wx_has(WDEW[n])){
-    print ""
-    wx_say(sprintf("Cloud base about %d ft (%d m).",
-           int((WAIR[n]-WDEW[n])*400), int((WAIR[n]-WDEW[n])*125)))
-    wx_why("the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,")
-    wx_why("its dew point falls at 0.5, and the difference is what counts. Not")
-    wx_why("the lapse rate alone: that would put the base a fifth too low.")
-  }
-
-  # ---- swell, the earliest warning there is --------------------------
-  if(wx_has(WSWP[n]) && WSWP[n] >= 12){
-    print ""
-    wx_say(cw(sprintf("A %d-second swell from %03d.", int(WSWP[n]), WSWD[n]), C_ACC))
-    wx_why("long-period swell outruns the storm that made it. This can be the")
-    wx_why("first news of a system, with a steady glass and a clear sky.")
-  }
-  hr()
-  wx_say(cwd("This reasons only from what you logged. It is not a forecast:"))
-  wx_say(cwd("no model, no chart, no GRIB. It is you, reading your own barometer."))
-  print ""
-  return 0
-}
-# =====================================================================
-#  deck-log -- forecast, verify, score.
-#
-#  THE ORDER IS THE POINT.  The user's forecast is committed to the log
-#  BEFORE the app shows any of its own reasoning.  Print the guess first
-#  and the person has not forecast anything - they have read an answer
-#  and agreed with it.  It feels like learning and is not.  Same bug as
-#  the colregs lights quiz telling you the aspect and then asking for
-#  it; house rule now: never tell before you ask.
-#
-#  AND THREE ARE SCORED, not one.  Scoring only the user would make this
-#  an oracle and it is not one: every rule in it is a rule of thumb.
-#  Scoring the rules too keeps it honest, teaches calibration, and lets
-#  the user eventually win - which is the point, because a training tool
-#  that cannot be outgrown is badly built.
-#
-#  The third is PERSISTENCE: "in twelve hours it will be much as it is
-#  now."  It is the honest floor.  Hard to beat at short range, and a
-#  forecast that does not beat it has shown no skill at all.  Standard
-#  practice in operational meteorology, and free.
-# =====================================================================
-
-#  Error points, taken from the WxChallenge: weighted, continuous, low
-#  score wins.  A near miss should score like a near miss, which one
-#  right/wrong verdict per forecast cannot express.
-function sc_pts(field, a, b,   d){
-  if(a<=-9000 || b<=-9000) return -1          # not comparable
-  if(field=="wdir"){ d = wx_d180(a-b); if(d<0) d=-d; return d * 0.1 }
-  d = a-b; if(d<0) d=-d
-  if(field=="wspd") return d * 0.5
-  if(field=="mslp") return d * 1.0
-  if(field=="sea")  return d * 2.0
-  return d
-}
-function sc_label(f){
-  if(f=="wdir") return "wind direction"
-  if(f=="wspd") return "wind speed"
-  if(f=="mslp") return "pressure"
-  if(f=="sea")  return "sea state"
-  return f
-}
-#  distinct short names: truncating the long ones gives "wind" twice,
-#  which is a column of numbers nobody can read
-function sc_short(f){
-  if(f=="wdir") return "dir"
-  if(f=="wspd") return "spd"
-  if(f=="mslp") return "hPa"
-  if(f=="sea")  return "sea"
-  return f
-}
-
-#  A fully developed sea for a given wind, roughly.  Used only to turn a
-#  forecast wind into a forecast sea state; it is a rule of thumb and is
-#  scored like everything else.
-function sc_sea(kt){
-  if(kt<1)  return 0
-  if(kt<7)  return 1
-  if(kt<13) return 2
-  if(kt<19) return 3
-  if(kt<25) return 4
-  if(kt<34) return 5
-  if(kt<41) return 6
-  if(kt<48) return 7
-  if(kt<56) return 8
-  return 9
-}
-
-# ---------------------------------------------------------------------
-#  The two machine forecasters.
-#
-#  Both are deliberately simple and both are honest about it.  The whole
-#  reason they are scored is that nobody, including whoever wrote them,
-#  knows how good they are until a season of observations says so.
-# ---------------------------------------------------------------------
-function sc_persist(n){
-  F_WDIR = WDIR[n]; F_WSPD = WSPD[n]; F_MSLP = WP[n]
-  F_SEA  = (wx_has(WSPD[n]) ? sc_sea(WSPD[n]) : -9999)
-  F_WHY  = "nothing changes"
-  return 0
-}
-function sc_rules(n, k, hours, lon,   dt, dp, dw, rate, damp, p, w, d, tide1, tide2){
-  F_WDIR=-9999; F_WSPD=-9999; F_MSLP=-9999; F_SEA=-9999; F_WHY=""
-  if(k<1){ sc_persist(n); F_WHY="only one observation - nothing but persistence to offer"; return 0 }
-  dt = (wx_mins(WT[n]) - wx_mins(WT[k]))/60.0
-  if(dt<=0){ sc_persist(n); return 0 }
-  #  a trend does not continue for ever: damp it
-  damp = 0.7
-
-  if(wx_has(WP[n]) && wx_has(WP[k])){
-    dp = WP[n] - WP[k]
-    if(lon!=""){
-      tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
-      dp = dp - (tide2 - tide1)
-    }
-    rate = dp/dt
-    F_MSLP = WP[n] + rate*hours*damp
-    F_WHY = sprintf("pressure trend %+.2f hPa/h, damped, carried %g h", rate, hours)
-    #  a falling glass is a rising wind: the classic rule, crudely
-    if(wx_has(WSPD[n])){
-      w = WSPD[n] - rate*hours*2.0
-      if(w<0) w=0
-      F_WSPD = w
-    }
-  } else if(wx_has(WSPD[n])) F_WSPD = WSPD[n]
-
-  if(wx_has(WDIR[n]) && wx_has(WDIR[k])){
-    dw = wx_d180(WDIR[n]-WDIR[k])/dt
-    d = WDIR[n] + dw*hours*damp
-    while(d<0) d+=360
-    while(d>=360) d-=360
-    F_WDIR = d
-    if(F_WHY!="") F_WHY = F_WHY sprintf("; turning %+.1f deg/h, damped", dw)
-  } else F_WDIR = WDIR[n]
-
-  if(wx_has(F_WSPD)) F_SEA = sc_sea(F_WSPD)
-  return 0
-}
-
-#  Find the observation nearest a valid time, within a tolerance.
-function sc_nearest(target, tolmin,   i, d, best, bd){
-  best=0; bd=999999
-  for(i=1;i<=WN;i++){
-    d = wx_mins(WT[i]) - wx_mins(target); if(d<0) d=-d
-    if(d<bd){ bd=d; best=i }
-  }
-  if(best==0 || bd>tolmin) return 0
-  return best
-}
-
-# ---------------------------------------------------------------------
-#  Verify and score.  Reads the fc records out of the log, finds the
-#  observation each was made for, and scores every forecaster on every
-#  field it offered.
-# ---------------------------------------------------------------------
-function sc_verify(logfile,   i, j, by, fo, o, f, p, nf, any, tot, cnt, fields, nfld){
-  wx_load(logfile)
-  nfld = split("wdir wspd mslp sea", fields, " ")
-  for(i in TOT) delete TOT[i]
-  for(i in CNT) delete CNT[i]
-  for(i in FTOT) delete FTOT[i]
-  for(i in FCNT) delete FCNT[i]
-  VN=0
-  lg_read(logfile, "fc")
-  for(i=1;i<=LG_N;i++){
-    if(!lg_at(i)) continue
-    fo = LG["for"]; by = LG["by"]
-    if(fo=="" || by=="") continue
-    o = sc_nearest(fo, 180)
-    if(o==0) continue                       # nothing observed yet
-    VN++
-    VBY[VN]=by; VFOR[VN]=fo; VMADE[VN]=LG_TS; VWHY[VN]=LG["why"]
-    for(j=1;j<=nfld;j++){
-      f = fields[j]
-      if(LG[f]=="" || LG[f]=="-") continue
-      if(f=="wdir") p = sc_pts(f, LG[f]+0, WDIR[o])
-      else if(f=="wspd") p = sc_pts(f, LG[f]+0, WSPD[o])
-      else if(f=="mslp") p = sc_pts(f, LG[f]+0, WP[o])
-      else p = -1
-      if(p<0) continue
-      TOT[by] += p; CNT[by]++
-      FTOT[by SUBSEP f] += p; FCNT[by SUBSEP f]++
-      any=1
-    }
-  }
-  return VN
-}
-
-function sc_report(logfile,   n, by, i, f, fields, nfld, j, names, nn){
-  n = sc_verify(logfile)
-  print ""
-  printf "  %s\n", cw("THE SCORE", C_ACC)
-  hr()
-  if(n==0){
-    printf "  %s\n", cwd("No forecast has reached its valid time yet, or no observation")
-    printf "  %s\n", cwd("has been logged near one. Make a forecast, then log the")
-    printf "  %s\n", cwd("observation it was for, and this page fills in.")
-    print ""
-    return 0
-  }
-  nn = split("you rules persist", names, " ")
-  nfld = split("wdir wspd mslp", fields, " ")
-  printf "  %-10s %8s  %s\n", "", "points", "per field, points per forecast"
-  for(i=1;i<=nn;i++){
-    by = names[i]
-    if(!(by in CNT)) continue
-    printf "  %-10s %8.1f ", by, TOT[by]
-    for(j=1;j<=nfld;j++){
-      f = fields[j]
-      if((by SUBSEP f) in FCNT)
-        printf "  %s %.1f", sc_short(f), FTOT[by SUBSEP f]/FCNT[by SUBSEP f]
-    }
-    print ""
-  }
-  hr()
-  printf "  %s\n", cwd("Lower is better. Half a point per knot, one per millibar, a tenth")
-  printf "  %s\n", cwd("per degree of wind direction - so a near miss scores like one.")
-  print ""
-  if(("persist" in CNT) && ("rules" in CNT)){
-    if(TOT["rules"]/CNT["rules"] > TOT["persist"]/CNT["persist"])
-      printf "  %s\n", cw("The rules are not beating persistence. That is the honest result", C_WARN)
-    if(TOT["rules"]/CNT["rules"] > TOT["persist"]/CNT["persist"])
-      printf "  %s\n", cw("so far, and it is worth knowing.", C_WARN)
-  }
-  if(("you" in CNT) && ("rules" in CNT)){
-    if(TOT["you"]/CNT["you"] < TOT["rules"]/CNT["rules"])
-      printf "  %s\n", cw("You are beating the rule set. Trust yourself over it here.", C_ACC)
-  }
-  print ""
-  return n
-}
-
-#  Round a time forward to the next multiple of 3 hours, <hours> ahead.
-#  Forecasts are made FOR a synoptic hour, so the observation that
-#  verifies one is an entry somebody would have made anyway.
-#
-#  The first version of the inverse conversion below returned the year
-#  4600 for a date in 2026.  Date arithmetic written from memory is a
-#  reliable way to be confidently wrong, which is why there is now a
-#  test that round-trips every day for forty years.
-function sc_jdn(y, mo, d,   a, y2, m2){
-  a = int((14-mo)/12); y2 = y + 4800 - a; m2 = mo + 12*a - 3
-  return d + int((153*m2+2)/5) + 365*y2 + int(y2/4) - int(y2/100) + int(y2/400) - 32045
-}
-#  Fliegel and Van Flandern, the standard inverse.  Sets SC_Y/SC_M/SC_D.
-function sc_civil(jd,   a, b, c, dd, e, m){
-  a = jd + 32044
-  b = int((4*a+3)/146097)
-  c = a - int(146097*b/4)
-  dd = int((4*c+3)/1461)
-  e = c - int(1461*dd/4)
-  m = int((5*e+2)/153)
-  SC_D = e - int((153*m+2)/5) + 1
-  SC_M = m + 3 - 12*int(m/10)
-  SC_Y = 100*b + dd - 4800 + int(m/10)
-  return 0
-}
-function sc_validtime(ts, hours,   y,mo,d,h,tot,jd,rh){
-  y=substr(ts,1,4)+0; mo=substr(ts,6,2)+0; d=substr(ts,9,2)+0
-  h=substr(ts,12,2)+0
-  jd = sc_jdn(y, mo, d)
-  tot = jd*24 + h + hours
-  rh = tot % 3
-  if(rh!=0) tot += (3-rh)
-  jd = int(tot/24); h = tot - jd*24
-  sc_civil(jd)
-  return sprintf("%04d-%02d-%02dT%02d:00Z", SC_Y, SC_M, SC_D, h)
-}
-# =====================================================================
 #  deck-log -- the screens, and the command dispatch.
 # =====================================================================
 
@@ -972,29 +515,6 @@ BEGIN{
     exit 0
   }
 
-  else if(cmd=="wx"){ wx_report(LOG, lon) }
-  else if(cmd=="score"){ sc_report(LOG) }
-
-  #  Build one machine forecast and print it as key=value for the shell
-  #  to log.  Called ONLY after the user's own forecast is committed.
-  else if(cmd=="fcast"){
-    n = wx_load(LOG)
-    if(n<1){ exit 1 }
-    for(i=n-1;i>=1;i--) if(wx_has(WP[i]) && wx_has(WP[n])) break
-    k=i
-    if(who2=="persist") sc_persist(n); else sc_rules(n, k, hours+0, lon)
-    if(wx_has(F_WDIR)) printf "wdir=%d\n", (F_WDIR+0.5)
-    if(wx_has(F_WSPD)) printf "wspd=%.0f\n", F_WSPD
-    if(wx_has(F_MSLP)) printf "mslp=%.1f\n", F_MSLP
-    if(wx_has(F_SEA))  printf "sea=%d\n",   F_SEA
-    printf "why=%s\n", (F_WHY==""?"-":F_WHY)
-  }
-
-  #  the valid time: <hours> ahead of now, rounded to a synoptic hour so
-  #  the observation that verifies it is one somebody would take anyway
-  else if(cmd=="validat"){
-    print sc_validtime(now, hours+0)
-  }
   else if(cmd=="menu"){ menu_show(what) }
   else if(cmd=="menuok"){ exit (menu_ok(what, ans) ? 0 : 1) }
   else if(cmd=="check"){ s=implausible(what, ans); if(s!=""){ print s; exit 1 } exit 0 }
@@ -1497,65 +1017,6 @@ do_correct() {
   echo "  correction logged. The original entry is untouched."
 }
 
-# ---------------------------------------------------------------------
-#  The learning loop.
-#
-#  YOU FORECAST FIRST.  The app shows nothing of its own until yours is
-#  written down. Print the machine's guess first and you have not
-#  forecast anything, you have agreed with an answer - which feels like
-#  learning and is not.
-# ---------------------------------------------------------------------
-do_forecast() {
-  printf "  how many hours ahead? [12] "; IFS= read -r hrs || hrs=12
-  [ -z "$hrs" ] && hrs=12
-  case "$hrs" in *[!0-9]*) echo "  ?"; return 1 ;; esac
-  valid=$(eng -v cmd=validat -v hours="$hrs")
-  printf "  your longitude, E positive (return to skip the pressure-tide
-  correction): "; IFS= read -r lo
-  echo
-  echo "  ==============================================================="
-  echo "   YOUR forecast for $valid"
-  echo "  ==============================================================="
-  echo "   Yours first. Nothing of mine until yours is written down."
-  echo "   Return to leave a field out."
-  echo
-  fld_start
-  fld for "$valid"; fld by user
-  ask_num wdir "wind direction, degrees true" ""
-  ask_num wspd "wind speed, knots" ""
-  ask_num mslp "sea level pressure, hPa" ""
-  ask_menu sea sea
-  fld who "${who:--}"
-  fld_commit fc || return 1
-  echo
-  echo "  yours is logged. Now mine."
-  #  only now
-  for w in rules persist; do
-    fld_start
-    fld for "$valid"; fld by "$w"
-    eng -v cmd=fcast -v hours="$hrs" -v lon="$lo" -v who2="$w" | while IFS='=' read -r k v; do
-      [ -n "$k" ] && printf '%s	%s
-' "$k" "$v" >> "$FIELDS"
-    done
-    fld_commit fc || true
-  done
-  echo
-  eng -v cmd=recent -v n=6 | grep -i "fc" >/dev/null 2>&1 || true
-  $AWK -F'|' -v v="$valid" '
-    /\|fc\|/ && $0 ~ ("for=" v) {
-      by=""; wd=""; ws=""; mp=""; sa=""; why=""
-      for(i=3;i<=NF;i++){ p=index($i,"="); k=substr($i,1,p-1); x=substr($i,p+1)
-        if(k=="by") by=x; else if(k=="wdir") wd=x; else if(k=="wspd") ws=x
-        else if(k=="mslp") mp=x; else if(k=="sea") sa=x; else if(k=="why") why=x }
-      printf "  %-8s wind %-4s %-4s kn   %-7s hPa   sea %s\n", by, wd, ws, mp, sa
-      if(why!="" && why!="-"){ gsub(/%3D/,"=",why); gsub(/%7C/,"|",why)
-                               printf "     %s\n", why }
-    }' "$LOG"
-  echo
-  echo "  Log the observation for $valid when it comes, then: deck-log score"
-  echo
-}
-
 help_text() {
   cat <<'HLP'
 
@@ -1568,9 +1029,6 @@ help_text() {
   deck-log inspect         run the engine checklist
   deck-log job             record work done, and the part it used
   deck-log open            what is outstanding
-  deck-log what [lon]      what the log says about the weather
-  deck-log forecast        your forecast first, then mine, then both are scored
-  deck-log score           how you, the rules and persistence are doing
   deck-log spares          what is aboard
   deck-log shopping        the list for the next port
   deck-log equip | part    the registry
@@ -1578,6 +1036,8 @@ help_text() {
   deck-log correct         correct an earlier entry, properly
   deck-log day|night|plain colour mode
   deck-log about | version
+
+  The weather reasoning lives in its own tool: try "weather".
 
   Every timestamp is UTC. The log is append only: nothing is ever
   edited or deleted, and a correction is a new entry that references
@@ -1602,9 +1062,6 @@ menu() {
     3  Engine inspection       7  The log
     4  Work done               8  What is outstanding
 
-    w  What the log says       f  Make a forecast
-                              k  The score
-
     p  Provisions   s  Stocktake   e  Equipment   n  New part
     x  Correct an entry
 
@@ -1618,10 +1075,6 @@ M
       6) printf "  which port (return for none): "; IFS= read -r p
          eng -v cmd=shopping -v port="$p" ;;
       7) eng -v cmd=recent -v n=20 ;;
-      f|F) do_forecast ;;
-      k|K) eng -v cmd=score ;;
-      w|W) printf "  your longitude in degrees, E positive (return to skip the\n  daily pressure-tide correction): "; IFS= read -r lo
-           eng -v cmd=wx -v lon="$lo" ;;
       8) eng -v cmd=defects ;;
       p|P) do_provision ;;  s|S) do_stocktake ;;
       e|E) eng -v cmd=equip; printf "  add one? [y/N] "; IFS= read -r y
@@ -1650,9 +1103,6 @@ case "${1:-}" in
   inspect)    do_inspect ;;
   job)        do_job ;;
   open)       eng -v cmd=defects ;;
-  what|reason) shift; eng -v cmd=wx -v lon="${1:-}" ;;
-  forecast)   do_forecast ;;
-  score)      eng -v cmd=score ;;
   spares)     eng -v cmd=holdings ;;
   shopping)   shift; eng -v cmd=shopping -v port="${1:-}" ;;
   equip)      eng -v cmd=equip ;;
