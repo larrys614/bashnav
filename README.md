@@ -76,6 +76,101 @@ any line of the output. These are assistants, not black boxes.
 
 ## Install
 
+**There is no app to install.** These are shell scripts &mdash; one file each,
+no installer, no App Store listing, no `.apk` and no `.ipa`. You copy the file,
+make it executable, and run it. That is the whole procedure.
+
+```sh
+git clone https://github.com/larrys614/bashnav.git
+cd bashnav
+./bin/celnav doctor        # checks your awk, your clock and the data folder
+```
+
+To put them on your path:
+
+```sh
+mkdir -p ~/bin
+cp bin/celnav bin/colregs bin/tides bin/deck-log bin/weather ~/bin/
+chmod +x ~/bin/celnav ~/bin/colregs ~/bin/tides ~/bin/deck-log ~/bin/weather
+```
+
+**On macOS, Linux or a BSD** there is nothing else to do. `celnav doctor` will
+confirm it.
+
+---
+
+### On an iPad
+
+An iPad has no shell of its own, so you install one. The tools then run inside
+it, the same as they do anywhere else.
+
+**1. Get a shell.** [a-Shell](https://holzschu.github.io/a-Shell_iOS/) from the
+App Store &mdash; free, and it already has an `awk` with the maths these tools
+need. [iSH](https://ish.app) works too.
+
+**2. Get the files in.** Two ways, and the first is easier if it works:
+
+```sh
+cd ~/Documents
+curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/celnav
+curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/colregs
+curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/tides
+curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/deck-log
+curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/weather
+```
+
+`help -l | grep curl` tells you whether a-Shell has it. If it does not, put the
+files into iCloud Drive or **On My iPad** from a computer, then in a-Shell type
+`pickFolder`, choose that folder, and copy them across.
+
+**3. Run them.**
+
+```sh
+chmod +x celnav colregs tides deck-log weather
+./celnav doctor
+```
+
+> **`cd ~/Documents` matters.** iOS only lets an app write inside its own
+> `Documents`, `Library` and `tmp`. Put the tools somewhere else and they will
+> not be able to create the folder they keep their engine and your log in.
+
+**Under iSH only**, install an awk with the maths library first &mdash; the
+BusyBox one is sometimes built without it:
+
+```sh
+apk add gawk        # iSH only. apk is Alpine's package manager and
+                    # does not exist on macOS or in a-Shell.
+```
+
+`celnav doctor` reports what it found and names the fix if anything is missing.
+
+**`tides` is 2.9 MB** because it carries the harmonic constants for 8,334
+stations inside it. It unpacks them once, on first run, in about a twentieth of
+a second. The others are well under 200 KB.
+
+---
+
+## Why it is built this way
+
+**It has to work when nothing else does.** No internet, no app store, no
+almanac to buy, nothing that runs out at the end of the year. `celnav`'s almanac
+is computed from orbital theory built into the script.
+
+**It has to run on whatever shell you can get.** POSIX `sh` plus `awk` is the
+largest common denominator across iSH and a-Shell on iOS, Termux on Android,
+macOS, Linux and the BSDs. There is no build step and nothing to install.
+
+**One file per tool.** Each program carries its own engine inside it as text and
+writes it out on first run. Moving a tool to a new device is moving one file.
+
+**The working is visible.** Every intermediate value is printed. If an answer
+looks wrong you can see where it went wrong, and you can continue by hand from
+any line of the output. These are assistants, not black boxes.
+
+---
+
+## Install
+
 Copy the file, make it executable, run it. That is the whole procedure.
 
 ```sh

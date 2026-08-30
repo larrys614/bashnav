@@ -332,6 +332,17 @@ for SH in $SHELLS; do
   esac
   rm -f "$tmp/tools.$$"
 
+  #  the install section must keep up with what exists, and must tell an
+  #  iPad user these are scripts rather than an app - the omission that
+  #  sent Larry to a search engine which answered about Android APKs
+  r=$($AW -f tests/install-check.awk README.md "$tmp/tools.$$" 2>/dev/null || true)
+  ls bin/ > "$tmp/tools.$$"
+  r=$($AW -f tests/install-check.awk README.md "$tmp/tools.$$")
+  case "$r" in
+    *"INSTALL 0") ok "the install instructions name every tool and cover the iPad" ;;
+    *) printf '%s\n' "$r" | grep -v INSTALL; bad "the install instructions are stale" ;;
+  esac
+
   r=$($AW -f tests/readme-check.awk -v WANT=6 README.md)
   case "$r" in
     *"READMERESULT 0 "*) ok "the README's fences close and all six pictures render" ;;
