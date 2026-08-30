@@ -11,6 +11,7 @@ Three of them:
 | **[celnav](#celnav)** | Celestial navigation: a computed almanac, sight reduction, the fix, and a training mode that teaches the whole subject from first principles. |
 | **[colregs](#colregs)** | The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
 | **[tides](#tides)** | Harmonic tide prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer &mdash; is there enough water. Overhead clearance too, where there are bridges. |
+| **[deck-log](#deck-log)** | The boat's records &mdash; deck, engine, provisions &mdash; kept append-only in UTC, with the spares worked out by replaying the log rather than stored. And the weather reasoned from your own observations, showing its working. |
 
 <img src="docs/img/celnav-plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
 

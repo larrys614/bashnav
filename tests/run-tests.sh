@@ -320,6 +320,18 @@ for SH in $SHELLS; do
     bad "a README plate has drifted from the program"
   fi
 
+  #  every built tool must have BOTH a row in the table at the top and a
+  #  section of its own. deck-log shipped with a section and no row, and
+  #  nothing noticed - invisible to whoever wrote it, the first thing a
+  #  reader sees.
+  ls bin/ > "$tmp/tools.$$"
+  r=$($AW -f tests/toolrow-check.awk README.md "$tmp/tools.$$" )
+  case "$r" in
+    *"TOOLROW 0") ok "every tool in bin/ is listed and has a section in the README" ;;
+    *) printf '%s\n' "$r" | grep -v TOOLROW; bad "a tool is missing from the README" ;;
+  esac
+  rm -f "$tmp/tools.$$"
+
   r=$($AW -f tests/readme-check.awk -v WANT=6 README.md)
   case "$r" in
     *"READMERESULT 0 "*) ok "the README's fences close and all six pictures render" ;;
