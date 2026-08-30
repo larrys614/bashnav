@@ -902,28 +902,194 @@
 
   STATIONS NEAREST 41.2333 -72.0833
   ----------------------------------------------------------------------
-   1    1.8 nm Little Gull Island                 sec United States  noaa/8510884
-   2    2.8 nm Silver Eel Pond  Fishers Island  N     United States  noaa/8510719
-   3    2.8 nm Silver Eel Pond                        United States  ticon/silver_eel_pond-8510719-usa-noaa
-   4    6.6 nm Plum Gut Harbor  Plum Island           United States  noaa/8511236
-   5    6.6 nm Plum Island Plum Gut Harbor            United States  ticon/plum_island_plum_gut_harbor-8511236-usa-noaa
-   6    7.2 nm Niantic  Niantic River             sec United States  noaa/8461925
-   7    7.3 nm New London CT                          United States  ticon/new_london_ct-744a-usa-uhslc_rq
-   8    7.7 nm New London                             United States  ticon/new_london-8461490-usa-noaa
-   9    8.2 nm WEST MYSTIC  MYSTIC RIVER              United States  noaa/8460751
-  10    8.3 nm NEW LONDON  State Pier                 United States  noaa/8461490
-  11    8.9 nm Mystic River at Route 1 Bridge at      United States  ticon/mystic_river_at_route_1_bridge_at_mystic_ct-412117071580800-usa-usgs
-  12   11.0 nm Watch Hill Point                   sec United States  noaa/8458694
+   1    1.8 nm  Little Gull Island               sec noaa  United States
+   2    2.8 nm  Silver Eel Pond  Fishers Island      noaa  United States
+   3    2.8 nm  Silver Eel Pond                      ticon United States
+   4    6.6 nm  Plum Gut Harbor  Plum Island         noaa  United States
+   5    6.6 nm  Plum Island Plum Gut Harbor          ticon United States
+   6    7.2 nm  Niantic  Niantic River           sec noaa  United States
+   7    7.3 nm  New London CT                        ticon United States
+   8    7.7 nm  New London                           ticon United States
+   9    8.2 nm  WEST MYSTIC  MYSTIC RIVER            noaa  United States
+  10    8.3 nm  NEW LONDON  State Pier               noaa  United States
+  11    8.9 nm  Mystic River at Route 1 Bridge a     ticon United States
+  12   11.0 nm  Watch Hill Point                 sec noaa  United States
   ----------------------------------------------------------------------
   Distance is a straight line. The nearest station can be on
   the other side of a headland and behave nothing like you.
 
-=== tides find falmouth ===
+=== tides find [falmouth] ===
 
   STATIONS MATCHING 'falmouth'
   ----------------------------------------------------------------------
-   1          Falmouth Foreside                  sec United States  noaa/8418015
-   2          Chappaquoit Point  West Falmouth H     United States  noaa/8447685
-   3          Falmouth Heights                   sec United States  noaa/8447865
+   1  Falmouth Foreside  (ME)                      sec noaa  United States
+   2  Falmouth Heights  (MA)                       sec noaa  United States
+   3  Chappaquoit Point  West Falmouth Harbor  (MA     noaa  United States
   ----------------------------------------------------------------------
+  3 matched.
+  Any order, any part of a word. Regular expressions work: ^st  bay$  a|b  port.*bay
+
+=== tides find [new london] ===
+
+  STATIONS MATCHING 'new london'
+  ----------------------------------------------------------------------
+   1  New London  (CT)                                 ticon United States
+   2  NEW LONDON  State Pier  (CT)                     noaa  United States
+   3  New London CT  (CT)                              ticon United States
+  ----------------------------------------------------------------------
+  3 matched.
+  Any order, any part of a word. Regular expressions work: ^st  bay$  a|b  port.*bay
+
+=== tides find [lon new] ===
+
+  STATIONS MATCHING 'lon new'
+  ----------------------------------------------------------------------
+   1  Long Beach  Bridgewater Yacht Club  New York     noaa  United States
+   2  New London  (CT)                                 ticon United States
+   3  NEW LONDON  State Pier  (CT)                     noaa  United States
+   4  New London CT  (CT)                              ticon United States
+  ----------------------------------------------------------------------
+  4 matched.
+  Any order, any part of a word. Regular expressions work: ^st  bay$  a|b  port.*bay
+
+=== tides find [new lon] ===
+
+  STATIONS MATCHING 'new lon'
+  ----------------------------------------------------------------------
+   1  Long Beach  Bridgewater Yacht Club  New York     noaa  United States
+   2  New London  (CT)                                 ticon United States
+   3  NEW LONDON  State Pier  (CT)                     noaa  United States
+   4  New London CT  (CT)                              ticon United States
+  ----------------------------------------------------------------------
+  4 matched.
+  Any order, any part of a word. Regular expressions work: ^st  bay$  a|b  port.*bay
+
+=== tides find [NEW LONDON] ===
+
+  STATIONS MATCHING 'NEW LONDON'
+  ----------------------------------------------------------------------
+   1  New London  (CT)                                 ticon United States
+   2  NEW LONDON  State Pier  (CT)                     noaa  United States
+   3  New London CT  (CT)                              ticon United States
+  ----------------------------------------------------------------------
+  3 matched.
+  Any order, any part of a word. Regular expressions work: ^st  bay$  a|b  port.*bay
+
+=== tides find [^st mary] ===
+
+  STATIONS MATCHING '^st mary'
+  read as a regular expression
+  ----------------------------------------------------------------------
+   1  St Marys  (England)                              ticon United Kingdom
+   2  St Marys  (England)                              ticon United Kingdom
+   3  St Marys River at Ferry Landing near Folksto     ticon United States
+   4  St Marys River at I 95 near Kingsland Ga  (G     ticon United States
+  ----------------------------------------------------------------------
+  4 matched.
+
+=== tides find [bay$] ===
+
+  STATIONS MATCHING 'bay$'
+  read as a regular expression
+  ----------------------------------------------------------------------
+   1  Adams Key  south end  Biscayne Bay  (FL)     sec noaa  United States
+   2  Aguchik Island  Kukak Bay  (AK)                  noaa  United States
+   3  Aialik Sill  Aialik Bay  (AK)                    noaa  United States
+   4  Albatross Anchorage  Balboa Bay  (AK)        sec noaa  United States
+   5  Alitak  Lazy Bay  (AK)                           noaa  United States
+   6  Allanton  East Bay  (FL)                     sec noaa  United States
+   7  Alligator Point  West Bay  (TX)              sec noaa  United States
+   8  Anderson Bay  (AK)                           sec noaa  United States
+   9  Anewa Bay  (Bougainville)                        ticon Papua New Guinea
+  10  Aniakchak Bay  (AK)                              noaa  United States
+  11  APOLLO BEACH  HILLSBOROUGH BAY  (FL)         sec noaa  United States
+  12  Astoria Youngs Bay  (OR)                         ticon United States
+  ----------------------------------------------------------------------
+  447 matched; the 12 closest to what you typed are shown.
+
+=== tides find [^boston$] ===
+
+  STATIONS MATCHING '^boston$'
+  read as a regular expression
+  ----------------------------------------------------------------------
+   1  BOSTON  (MA)                                     noaa  United States
+   2  Boston  (MA)                                     ticon United States
+  ----------------------------------------------------------------------
+  2 matched.
+
+=== tides find [falmouth|mystic] ===
+
+  STATIONS MATCHING 'falmouth|mystic'
+  read as a regular expression
+  ----------------------------------------------------------------------
+   1  Amelia Earhart Dam  Mystic River  (MA)           noaa  United States
+   2  Chappaquoit Point  West Falmouth Harbor  (MA     noaa  United States
+   3  Falmouth Foreside  (ME)                      sec noaa  United States
+   4  Falmouth Heights  (MA)                       sec noaa  United States
+   5  Mystic R at Amelia Earhart Dam nr Somerville     ticon United States
+   6  Mystic River at Route 1 Bridge at Mystic Ct      ticon United States
+   7  WEST MYSTIC  MYSTIC RIVER  (CT)                  noaa  United States
+  ----------------------------------------------------------------------
+  7 matched.
+
+=== tides find [port.*bay] ===
+
+  STATIONS MATCHING 'port.*bay'
+  read as a regular expression
+  ----------------------------------------------------------------------
+   1  Freeport  Baldwin Bay  (NY)                  sec noaa  United States
+   2  Kanatak Lagoon  Portage Bay  (AK)            sec noaa  United States
+   3  Newport Bay Entrance  Corona del Mar  (CA)       noaa  United States
+   4  Northport  Northport Bay  (NY)                   noaa  United States
+   5  Port Allen  Hanapepe Bay  (HI)                   noaa  United States
+   6  PORT CHICAGO  SUISUN BAY  (CA)                   noaa  United States
+   7  PORT O'CONNOR  MATAGORDA BAY  (TX)               noaa  United States
+   8  Port Saint Joe  St. Joseph Bay  (FL)             noaa  United States
+   9  Port Washington  Manhasset Bay  (NY)             noaa  United States
+  10  Portage Bay  Kupreanof Island  (AK)          sec noaa  United States
+  11  Portland  Nueces Bay  (TX)                       noaa  United States
+  12  Wakulla Airport  Ochlockonee Bay  (FL)           noaa  United States
+  ----------------------------------------------------------------------
+  13 matched; the 12 closest to what you typed are shown.
+
+=== tides find [((] ===
+
+  STATIONS MATCHING '(('
+  not a valid regular expression - searched as plain text instead
+
+  Nothing matched. The names in the database are not always the
+  ones on the chart, so try less of the name rather than more:
+  one distinctive word usually finds it.
+
+  Every word you type has to appear somewhere in the name, the
+  state or the country, but in any order. A regular expression
+  works too:  ^st  starts with;  bay$  ends with;  a|b  either;
+  port.*bay  with anything in between.
+
+=== tides find [*bad] ===
+
+  STATIONS MATCHING '*bad'
+  not a valid regular expression - searched as plain text instead
+
+  Nothing matched. The names in the database are not always the
+  ones on the chart, so try less of the name rather than more:
+  one distinctive word usually finds it.
+
+  Every word you type has to appear somewhere in the name, the
+  state or the country, but in any order. A regular expression
+  works too:  ^st  starts with;  bay$  ends with;  a|b  either;
+  port.*bay  with anything in between.
+
+=== tides find [zzzqqq] ===
+
+  STATIONS MATCHING 'zzzqqq'
+
+  Nothing matched. The names in the database are not always the
+  ones on the chart, so try less of the name rather than more:
+  one distinctive word usually finds it.
+
+  Every word you type has to appear somewhere in the name, the
+  state or the country, but in any order. A regular expression
+  works too:  ^st  starts with;  bay$  ends with;  a|b  either;
+  port.*bay  with anything in between.
 

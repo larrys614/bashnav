@@ -1,5 +1,80 @@
 # Changelog
 
+## Documentation - so this can be picked up cold
+
+Four documents so a later session, or anybody else, can understand what is
+here without reading eight thousand lines of awk:
+
+- `CLAUDE.md` - the orientation file. What this is, the five rules that break
+  things silently, and where to look next.
+- `docs/ARCHITECTURE.md` - why one tool is one file, how the engines are
+  packed as heredocs and extracted on first run, the strict shell/awk split
+  and the `cmd=` engine interface, the tide data pipeline and its licensing.
+- `docs/HACKING.md` - the portability traps, each tied to the bug that taught
+  it: awk built-in variable names, parameter/function shadowing, mawk
+  resolving functions at parse time, the tty test inside a command
+  substitution, `while read ... done < file` eating the loop body's stdin.
+  Plus the full bug ledger.
+- `docs/TESTING.md` - what the suite checks and why each check exists, why
+  validation is against NOAA's published tables rather than another
+  implementation, and the two things that still need a human eye.
+
+`REPO-STATE.md` rewritten - it still said MIT and "nothing is published yet".
+
+Also: the README described "the two questions a tide table is actually for -
+is there enough water, and does the mast clear the bridge." That was a tidy
+pair rather than an honest ranking. Enough water is the real question;
+clearance is narrow. Corrected, and a paragraph added saying plainly that a
+tide height is not a tidal stream - the rise and fall is the vertical, set and
+drift is the horizontal, and nothing in this tool predicts a current.
+
+## README - the lights picture was never rendering
+
+An unclosed ```` ```sh ```` fence in "Colour and night vision" swallowed the
+whole block that follows it: the `<img>` for `colregs-lights.svg`, the
+`<details>` around the copyable text, and the plain-text version of the
+picture itself. GitHub printed the img tag as source and rendered no image at
+all - and a missing picture and a colourless one look identical from the
+outside, which is how it was reported and why it took three rounds to find.
+The picture itself was correct the whole time.
+
+Fixed, and `tests/readme-check.awk` now runs in the suite: fences must close,
+`<details>` must balance, every `<img>` must sit outside every fence and point
+at a file that exists, and all four pictures must be present. All three
+failure modes were watched fail before the check was trusted.
+
+## tides 1.1 - 2026-08-29
+
+Finding a station without knowing its name.
+
+Typing a station's exact name was hopeless, and that put the whole tool
+behind a wall: the database calls a place `NEW LONDON  State Pier`, or
+`Chappaquoit Point  West Falmouth Harbor`, and nobody guesses that.
+
+- **Every word has to appear, in any order, anywhere inside a word.**
+  `lon new` finds New London just as well as `new london` does, and both
+  find it whatever the database calls it.
+- **Regular expressions**, used automatically the moment the text
+  contains any of `^ $ . [ ] | ( ) * + ? { } \` - `^st mary`, `bay$`,
+  `falmouth|mystic`, `port.*bay`, `^boston$`. The pattern is matched
+  against the name, the state and the country *separately*, so anchors
+  anchor to the name rather than to the three fields run together.
+- **A malformed pattern is caught before it is used.** awk cannot catch a
+  bad regular expression - it aborts the run - so the pattern is checked
+  first and anything that fails the check is searched as plain text.
+  Refusing to answer is worse than answering the obvious way.
+- **The list is ranked**, so a place whose name *is* what you typed is not
+  buried under thirty places that merely contain it.
+- **Searching from the menu keeps asking** until you choose something or
+  give up. A first guess is usually wrong, and walking back out to the
+  menu to try again is what makes people stop looking.
+- The list drops the station id, which can run to seventy characters, and
+  shows the rest of the name, the state and which dataset it came from -
+  which is where the disambiguation actually lives.
+- The number you pick now comes from a machine-readable list the engine
+  writes during the same run that drew the screen, rather than from
+  scraping the drawing. A station called "Pier 39" would have broken that.
+
 ## tides 1.0 - 2026-08-29
 
 The third tool. Harmonic tide prediction with no network and no
@@ -8,7 +83,7 @@ subscription: 8,334 stations, 6,090 with their own harmonic constants and
 table is built.
 
     tides near 41.2333 -72.0833     the stations nearest a position
-    tides find "new london"         or by name
+    tides find "new lon"            or by name
     tides use noaa/8461490          choose one
     tides today                     the table, the curve, and now
     tides sky                       the same, with the moon and the sun

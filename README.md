@@ -10,7 +10,7 @@ Three of them:
 |---|---|
 | **[celnav](#celnav)** | Celestial navigation: a computed almanac, sight reduction, the fix, and a training mode that teaches the whole subject from first principles. |
 | **[colregs](#colregs)** | The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
-| **[tides](#tides)** | Harmonic tide prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the two questions a tide table is actually for &mdash; is there enough water, and does the mast clear the bridge. |
+| **[tides](#tides)** | Harmonic tide prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer &mdash; is there enough water. Overhead clearance too, where there are bridges. |
 
 <img src="docs/img/celnav-plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
 
@@ -237,7 +237,7 @@ from a neighbour, which is exactly how a printed tide table is built.
 
 ```sh
 tides near 41.2333 -72.0833     # stations nearest a position
-tides find "new london"         # or by name
+tides find "new lon"            # or by name, loosely, or by regex
 tides use noaa/8461490          # choose one
 tides today                     # the table, the curve, and where you are on it
 tides sky                       # the same, with the moon and the sun
@@ -251,6 +251,46 @@ constants somebody measured there over a year or more. That is why you
 pick a station rather than a place &mdash; and why the nearest one by
 straight line can be on the wrong side of a headland and behave nothing
 like you.
+
+### Finding a station
+
+Nobody guesses a station's exact name. The database calls a place
+`NEW LONDON  State Pier`, or `Chappaquoit Point  West Falmouth Harbor`.
+So type part of it and pick from the numbered list:
+
+```
+  STATIONS MATCHING 'new lon'
+  ----------------------------------------------------------------------
+   1  Long Beach  Bridgewater Yacht Club  New York     noaa  United States
+   2  New London  (CT)                                 ticon United States
+   3  NEW LONDON  State Pier  (CT)                     noaa  United States
+   4  New London CT  (CT)                              ticon United States
+  ----------------------------------------------------------------------
+  4 matched.
+  Number to use it, or return to search again:
+```
+
+Every word you type has to appear somewhere in the name, the state or the
+country &mdash; but in any order, and anywhere inside a word. `lon new`
+finds New London just as well as `new london` does. Names that *are* what
+you typed sort above names that merely contain it.
+
+The text becomes a **regular expression** the moment it contains any of
+`^ $ . [ ] | ( ) * + ? { } \`, matched against the name, the state and
+the country separately so that anchors anchor where you expect:
+
+```sh
+tides find "^st mary"         # names that start with St Mary
+tides find "bay$"             # names that end in Bay
+tides find "falmouth|mystic"  # either one
+tides find "port.*bay"        # Port, then anything, then Bay
+tides find "^boston$"         # only the stations actually called Boston
+```
+
+A pattern that is not a valid regular expression is checked before it is
+used and searched as plain text instead &mdash; awk cannot catch a bad
+pattern, it simply dies, and refusing to answer is worse than answering
+the obvious way.
 
 ### Accuracy
 
@@ -267,6 +307,15 @@ stations spanning small and large ranges, mixed and diurnal regimes:
 
 The fixture is committed, so the check runs with no network like everything
 else here.
+
+**A tide height is not a tidal stream.** The rise and fall is the vertical;
+set and drift is the horizontal, and the two are different measurements made
+at different places. They are related, but locally: in a standing-wave basin
+the stream runs hardest at half-tide and goes slack at high and low water,
+while in a progressive wave the flood peaks *at* high water &mdash; which one
+you are in depends on the shape of the coast, the same reason a tide cannot be
+computed from a position. The 8,334 stations here are height stations. Nothing
+in this tool predicts a current.
 
 **What it does not know is the weather.** A deep low can raise the sea half
 a metre above prediction and a hard high can drop it as far; wind piles
@@ -296,12 +345,39 @@ output is not a terminal — so redirected output is always clean text.
 ```sh
 celnav night
 colregs night
+```
+
 <img src="docs/img/colregs-lights.svg" alt="A vessel restricted in her ability to manoeuvre, drawn from 040: red over white over red, with her sidelights" width="633">
 
 <details>
 <summary>the same thing as text, to copy</summary>
 
 ```
+  WHAT DO YOU SEE?
+  ----------------------------------------------------------------------
+  masthead height
+                                      R
+                                      W
+                                      :
+                                      R
+                                      :W
+                                      ::
+                                      ::
+                                      ::
+                                 G    ::
+                                 :    ::
+                                 :    ::
+                                 :    ::
+  deck                           :    ::
+                   =================================
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  ----------------------------------------------------------------------
+  You are broad on her starboard bow.
+  Letters are the colours: W white  R red  G green  Y yellow
+```
+
+</details>
 
 ---
 
@@ -321,12 +397,31 @@ the Convention differ, the Convention is right and this program is wrong.
 SHELLS="dash bash" AWKS="mawk gawk" ./tests/run-tests.sh   # the full matrix
 ```
 
-</details>
-
 The suite checks the almanac against embedded reference positions, reduces a
 known set of sights to a known fix, renders every lesson, and — importantly —
 checks that every drill and quiz marks its own correct answer as correct. That
 last test is what caught mawk re-seeding `srand()` from the clock.
+
+## How it is built
+
+If you want to change something, or you are picking this up after a gap:
+
+| | |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | start here &mdash; the rules that break things silently |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | how the tools are built and why they are shaped this way |
+| [`docs/HACKING.md`](docs/HACKING.md) | the portability traps, and the bug that taught each one |
+| [`docs/TESTING.md`](docs/TESTING.md) | what the suite checks, and what still needs a human |
+| [`REPO-STATE.md`](REPO-STATE.md) | where things stand and what is next |
+
+```sh
+./build.sh              # src/ -> bin/ ; run after any edit to src/
+./tests/run-tests.sh    # every shell x every awk on the machine
+```
+
+`bin/` is generated. Never edit it &mdash; CI checks that it matches `src/`.
+
+---
 
 ## Contributing
 

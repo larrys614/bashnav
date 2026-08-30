@@ -128,6 +128,11 @@ awk $TENG -v cmode=day -v cmd=day -v id=noaa/8461490 -v yy=2026 -v mm=8 -v dd=30
   | awk -f docs/ansi2svg.awk -v title="tides: a day at New London - the table, and the curve with the turns marked" \
   > docs/img/tides-day.svg
 
+awk $TENG -v cmode=day -v cmd=search -v q="new lon" -v k=12 </dev/null \
+  | sed -n '/STATIONS MATCHING/,/matched/p' \
+  | awk -f docs/ansi2svg.awk -v title="tides: searching for a station by part of its name, in any order" \
+  > docs/img/tides-find.svg
+
 echo "docs/img: $(ls docs/img/*.svg | wc -l) coloured pictures"
 
 echo "docs/index.html written ($(wc -l < docs/index.html) lines)"

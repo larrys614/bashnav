@@ -301,6 +301,20 @@ for SH in $SHELLS; do
   case "$r" in "TEXTS 2 BAD 0") ;; *) bad "ansi2svg does not place a known grid correctly: $r"; rm_bad=1 ;; esac
   [ "$rm_bad" = 0 ] && ok "every picture the README shows exists, is a plain SVG, and is an exact grid"
 
+  #  ---- the README's own markup -------------------------------------
+  #  A picture can be perfect and still never reach anybody.  An
+  #  unclosed ```sh fence once swallowed the lights plate whole: the
+  #  <img> tag sat inside the code block, GitHub printed it as text,
+  #  and no image rendered at all.  From the outside that is
+  #  indistinguishable from a picture with no colour in it, which is
+  #  exactly how it was reported and why it took so long to find.
+  r=$($AW -f tests/readme-check.awk -v WANT=4 README.md)
+  case "$r" in
+    *"READMERESULT 0 "*) ok "the README's fences close and all four pictures render" ;;
+    *) printf '%s\n' "$r" | grep -v READMERESULT
+       bad "the README's markup is broken - see the lines above" ;;
+  esac
+
   # ---- a function name used as a variable ---------------------------
   #  awk will not let a function's name be used as a variable or a
   #  parameter. gawk lets it pass; mawk refuses to parse the file, but
@@ -357,6 +371,61 @@ for SH in $SHELLS; do
   o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides find "new london" </dev/null 2>&1)
   case "$o" in *"NEW LONDON"*) ;; *) bad "name search missed New London" ;; esac
   ok "tides finds stations by name and by position"
+
+  #  ---- the loose name search -------------------------------------
+  #  Nobody types a station's exact name, so every one of these has to
+  #  land on New London: words in the wrong order, a fragment of a
+  #  word, and a regular expression.
+  for _q in "new london" "lon new" "new lon" "NEW LONDON" "^new london" "london|zzzz"; do
+    o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides find "$_q" </dev/null 2>&1)
+    case "$o" in *"NEW LONDON"*) ;; *) bad "search '$_q' missed New London" ;; esac
+  done
+  ok "the name search takes words in any order, fragments and regexes"
+
+  #  Anchors have to anchor to the NAME.  If the regex is run against
+  #  the name, the state and the country run together, ^ and $ - the
+  #  whole reason to reach for a regex - stop meaning anything, and
+  #  "bay$" silently matches nothing at all.
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides find 'bay$' </dev/null 2>&1)
+  case "$o" in *"Bay "*|*"Bay  "*) ok "\$ anchors to the end of the station's name" ;;
+    *) bad "'bay\$' found no station whose name ends in Bay" ;; esac
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides find '^boston$' </dev/null 2>&1 \
+      | $AW '/^ +[0-9]+  +[A-Za-z]/{n++} END{print n+0}')
+  check "^boston\$ matches only the stations actually called Boston" "2" "$o"
+
+  #  A word that is genuinely absent must find nothing, or the search
+  #  is matching everything and the list means nothing.
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides find "new zzzqqq" </dev/null 2>&1)
+  case "$o" in *"Nothing matched"*) ok "an impossible search says so" ;;
+    *) bad "'new zzzqqq' matched something" ;; esac
+
+  #  A malformed regex must NOT abort the run: awk cannot catch a bad
+  #  pattern, so a bad one has to be spotted before it is used.
+  for _q in "((" "*bad" "a[" "b\\" "|x" "a{"; do
+    o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides find "$_q" </dev/null 2>&1)
+    case "$o" in *"MATCHING"*) ;; *) bad "a malformed pattern '$_q' killed the search" ;; esac
+  done
+  ok "a malformed regular expression falls back to plain text"
+
+  #  Exactness has to outrank containment, or a place whose name IS what
+  #  you typed sits below the ones that merely contain it.  "falmouth"
+  #  is the discriminating case: alphabetically "Chappaquoit Point  West
+  #  Falmouth Harbor" comes first, and by rank "Falmouth Foreside" does.
+  o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides find "falmouth" </dev/null 2>&1 \
+      | $AW '/^ +1  +[A-Za-z]/{print; exit}')
+  case "$o" in *"Falmouth Foreside"*) ok "the closest name to what was typed comes first" ;;
+    *) bad "search ranking put this first instead: $o" ;; esac
+
+  #  Picking by number must use the engine's own list, and the picked
+  #  station must be the one on that line of the drawing.
+  o=$(printf '5\nnew lon\n3\nq\n' | TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides 2>&1)
+  case "$o" in *"station: NEW LONDON"*) ok "a station can be picked by number from a search" ;;
+    *) bad "picking 3 from the 'new lon' list did not select NEW LONDON" ;; esac
+
+  #  A search that finds nothing must not throw you back to the menu.
+  o=$(printf '5\nzzzqqq\nnew lon\n3\nq\n' | TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides 2>&1)
+  case "$o" in *"station: NEW LONDON"*) ok "a fruitless search can be retried in place" ;;
+    *) bad "the search loop did not offer a second try" ;; esac
   #  the curve and the sky panel must render
   TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides use noaa/8461490 >/dev/null 2>&1
   o=$(TIDES_HOME="$TH" TIDES_AWK="$AW" $SH ./bin/tides sky 2026-08-30 2>&1)

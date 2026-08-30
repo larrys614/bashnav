@@ -1,0 +1,199 @@
+# Architecture
+
+Why the code is shaped the way it is. Read `HACKING.md` for the rules;
+this file is the map.
+
+---
+
+## The constraint that decided everything
+
+The target is an iPad running [a-Shell](https://holzschu.github.io/a-Shell_iOS/),
+at sea, out of signal, on a boat where the chartplotter is the thing that just
+failed. From that one requirement, everything else follows:
+
+- **No dependencies.** POSIX `sh` and POSIX `awk` are what a-Shell has. Not
+  Python, not bash, not gawk.
+- **No network, ever.** Not at install, not at runtime, not for data. There is
+  a test that greps the whole tree for `curl`, `wget`, `nc -`, `telnet`, `ftp`
+  and `getline < "http…"` and fails the build if any appears.
+- **No install step.** Each tool is one executable file. Copy it, `chmod +x`,
+  run it. Nothing to unpack, nothing to `pip`, no second file to lose.
+- **Nothing to configure.** A config file appears on first use with sensible
+  defaults, in the tool's own dotfolder.
+
+Everything awkward about the codebase — the heredoc packing, the shell/awk
+split, the hand-rolled random number generator — is downstream of that list.
+
+---
+
+## One tool, one file
+
+`build.sh` concatenates `src/<tool>/*` into a single executable in `bin/`.
+The awk engines are embedded as **quoted heredocs** inside a shell function,
+so the file is a shell script that carries its own awk source as data:
+
+    install_engine() {
+      ...
+      cat > "$ENGINE" <<'__COLREGS_ENGINE__'
+      ...the whole of src/colregs/engine.awk...
+    __COLREGS_ENGINE__
+    }
+
+The quoting on `<<'__COLREGS_ENGINE__'` matters: it stops the shell expanding
+`$1`, backticks and `\` inside the awk source. Without the quotes the awk gets
+silently mangled.
+
+On first run the tool writes its engines into `~/.<tool>/` and from then on
+runs them from there. The extracted files are **versioned by filename**
+(`engine-1.15.awk`), so a newer binary never runs an older engine; and
+extraction repeats if the executable is newer than the extracted engine
+(`[ "$0" -nt "$ENGINE" ]`), so editing and re-running just works.
+
+    ~/.celnav/    engine-1.6.awk  teach-1.6.awk  celnav.conf
+    ~/.colregs/   engine-1.15.awk  contacts-1.15.awk  review-1.15.awk  colregs.conf
+    ~/.tides/     engine-1.1.awk  tables-1.1.awk  stations.dat  config  lastlist
+
+`bin/tides` is 2.9 MB because it carries 8,334 stations of harmonic constants
+inline. Extraction takes about 48 ms, once.
+
+**`bin/` is generated. Never edit it.** CI rebuilds and fails if the result
+differs from what is committed.
+
+---
+
+## The shell/awk split
+
+The division is strict and worth preserving:
+
+| | |
+|---|---|
+| **shell** (`10-head.sh`, `30-ui.sh`) | menus, prompts, reading keystrokes, config, colour mode, choosing an awk |
+| **awk** (`engine.awk`, …) | every calculation and every drawing |
+
+The shell never computes anything and awk never reads from the keyboard. That
+is what makes the engines testable: every screen the user sees can be produced
+by one `awk -f engine.awk -v cmd=… ` invocation with no terminal, which is
+exactly what the golden-file suite does with 27,245 lines of expected output.
+
+### The engine interface
+
+The shell calls awk through a one-line wrapper defined in `10-head.sh`:
+
+    eng()   { $AWK -f "$TABLES" -f "$ENGINE" -v cmode="$(cmode_now)" -v SF="$STATIONS" "$@" </dev/null; }
+
+Everything is passed as `-v` variables; a `BEGIN` block dispatches on `cmd`:
+
+    cmd=day  cmd=near  cmd=search  cmd=info  cmd=height            (tides)
+    cmd=light  cmd=shape  cmd=enc  cmd=scen  cmd=track  cmd=rv…    (colregs, 37 of them)
+    cmd=reduce  cmd=almanac  cmd=plan  cmd=stars  cmd=compass      (celnav)
+
+Note the `</dev/null` on every call. awk with no file arguments reads stdin,
+and an engine that is only supposed to compute will otherwise sit there
+swallowing the terminal.
+
+Commands that *mark* an answer are separate from commands that *pose* the
+question — `enc` and `encm`, `qlight` and `qlightm`, `scen` and `scenm`. Both
+are driven from the same seed, so a drill can be regenerated exactly for
+marking without the shell having to remember anything. That is also what makes
+"every drill marks its own correct answer as correct" a testable property.
+
+---
+
+## Per-tool layout
+
+    src/common/20-about.sh        the About menu shared by all three
+
+    src/celnav/10-head.sh         config, colour, awk detection, eng()/teach()
+    src/celnav/engine.awk         almanac, sight reduction, plotting, fix
+    src/celnav/teach.awk          the lessons and drills
+    src/celnav/25-about.sh        celnav's part of the About menu
+    src/celnav/30-ui.sh           commands and menu
+
+    src/colregs/10-head.sh        as above, plus the reporting style
+    src/colregs/engine.awk        lights, shapes, sounds, encounters, scenarios
+    src/colregs/contacts.awk      the Navy contact-management section
+    src/colregs/review.awk        153 reviewable claims and the report builder
+    src/colregs/26-review.sh      the interactive review session
+    src/colregs/30-ui.sh          commands and menu
+
+    src/tides/10-head.sh          config, colour, awk detection, eng()
+    src/tides/tables.awk          generated: constituent definitions
+    src/tides/engine.awk          harmonic prediction, station search, drawing
+    src/tides/stations.dat        generated: 8,334 stations
+    src/tides/30-ui.sh            commands and menu
+    src/tides/gen/*.py            the generators (run offline, output committed)
+
+The numeric prefixes are concatenation order, nothing more.
+
+---
+
+## Drawing
+
+Every picture is a character grid built in awk and coloured with ANSI escape
+sequences. Three modes, remembered in the config:
+
+- **day** — light text on a black panel
+- **night** — deep red on black, *no green at all*, because rebuilding dark
+  adaptation takes twenty minutes and a bright screen costs every one of them
+- **plain** — no escape sequences whatsoever
+
+Plain is chosen automatically whenever stdout is not a terminal, so redirected
+output is always clean text. **The tty test must happen at the top level of
+the script, not inside `cmode_now()`** — see `HACKING.md`; this ate the colour
+on every real terminal for weeks.
+
+Every drawing paints its own black background edge-to-edge rather than only
+setting a foreground colour, because a user on Apple Terminal's default light
+profile otherwise gets white text on white.
+
+---
+
+## The tide data pipeline
+
+    neaps/tide-database  ──►  src/tides/gen/make_stations.py  ──►  stations.dat
+    (NOAA + TICON-4)          src/tides/gen/make_tables.py    ──►  tables.awk
+
+The generators run offline on a developer's machine and their **output is
+committed**. They are not part of the build and the tools never run them.
+
+`stations.dat` is one station per line, pipe-separated:
+
+    R|id|name|region|country|lat|lon|tzmin|z0mm|datum|idx:amp_mm:phase_tenths,...
+    S|id|name|region|country|lat|lon|tzmin|refid|htype|hhi|hlo|thi|tlo
+
+`R` is a **reference** station with its own harmonic constants (6,090 of them).
+`S` is a **subordinate** station with no constants of its own — only time and
+height corrections applied to a reference station's high and low waters, which
+is exactly how a printed tide table is built (2,244 of them).
+
+Amplitudes are stored in millimetres and phases in tenths of a degree — finer
+than the constants are actually known, and it keeps the file near a megabyte.
+
+Times are always the **station's own standard time**, never summer time,
+because that is what the offsets in the source data are referenced to. A tide
+table has always been in standard time.
+
+### Data licensing, which travels with the data
+
+- NOAA harmonics: **public domain**
+- TICON-4 harmonics: **CC BY 4.0**
+- assembled via `neaps/tide-database`, itself CC BY 4.0
+
+The CC BY obligation travels with the data regardless of the Apache 2.0 licence
+on the code. `NOTICE` carries it and must not be dropped.
+
+---
+
+## What is deliberately not here
+
+- **No position input.** A tide cannot be computed from a position — it depends
+  on the shape of the coast and the depth and resonance of the basin, so every
+  place needs constants somebody measured there. You pick a *station*, not a
+  place. The nearest one by straight line can be on the wrong side of a
+  headland and behave nothing like you.
+- **No tidal streams.** The 8,334 stations are height stations. Set and drift
+  is a different measurement made at different places; nothing here predicts a
+  current. See `REPO-STATE.md` for where that is going.
+- **No weather.** A prediction is the astronomical tide and nothing else. A
+  deep low can raise the sea half a metre above it.
+- **No GPS, no AIS, no charts.** These are cross-checking and training tools.

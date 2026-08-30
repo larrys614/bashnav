@@ -207,8 +207,15 @@ TD="-f src/tides/tables.awk -f src/tides/engine.awk -v SF=src/tides/stations.dat
   done
   echo "=== tides near the Race ==="
   $AW $TD -v cmode=plain -v cmd=near -v lat=41.2333 -v lon=-72.0833 -v k=12 </dev/null
-  echo "=== tides find falmouth ==="
-  $AW $TD -v cmode=plain -v cmd=search -v q=falmouth -v k=12 </dev/null
+  #  The name search, in every shape somebody actually types it:
+  #  one word, words in the wrong order, a fragment, a regex, a
+  #  malformed regex, and something that is simply not there.
+  for q in "falmouth" "new london" "lon new" "new lon" "NEW LONDON" \
+           "^st mary" "bay$" "^boston$" "falmouth|mystic" "port.*bay" \
+           "((" "*bad" "zzzqqq"; do
+    echo "=== tides find [$q] ==="
+    $AW $TD -v cmode=plain -v cmd=search -v q="$q" -v k=12 </dev/null
+  done
 } | emit tides.txt
 
 # ---- compare or update ------------------------------------------------

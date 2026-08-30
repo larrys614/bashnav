@@ -265,7 +265,7 @@ function st_keep(k,d,id,nm,rg,cy,la,lo,kind,   i,j){
 }
 #  Nearest k stations to a position, by great-circle distance.
 function st_near(file,lat,lon,k,   line,f,d,n){
-  SR_N=0
+  SR_N=0; SR_HASD=1
   while((getline line < file) > 0){
     if(substr(line,1,1)=="#") continue
     n=split(line,f,"|")
@@ -276,23 +276,133 @@ function st_near(file,lat,lon,k,   line,f,d,n){
   close(file)
   return SR_N
 }
-#  Search by name, case-insensitively, on any part of the name, the
-#  region or the country. Results in file order, capped.
-function st_search(file,q,k,   line,f,n,hay,cnt){
-  SR_N=0; cnt=0
+#  ------------------------------------------------------------------
+#  Searching for a station by name
+#
+#  Typing a station's exact name is hopeless: the database calls a place
+#  "Falmouth  Cornwall" with two spaces, or "New London  Thames River",
+#  and nobody guesses that.  So the search is deliberately loose.
+#
+#  Two modes, chosen from the query itself:
+#
+#    plain words   every word has to appear somewhere in the name, the
+#                  region or the country, in any order and anywhere
+#                  inside a word.  "lon new" finds New London.
+#
+#    a regex       if the query contains regular-expression characters
+#                  it is used as one extended regular expression against
+#                  the same text.  "^st " or "falmouth|penzance" or
+#                  "port.*bay" all work.
+#
+#  A malformed regex is fatal in awk - it aborts the run, it cannot be
+#  caught - so the pattern is checked first and a query that does not
+#  survive the check is searched as plain text instead.  Refusing to
+#  answer is worse than answering the obvious way.
+#  ------------------------------------------------------------------
+
+#  Does the query look like somebody meant a regular expression?
+function re_meta(p){ return (p ~ /[][^$.|()*+?{}\\]/) }
+
+#  A conservative structural check on an extended regular expression.
+#  It cannot prove a pattern is valid, but it rejects every malformed
+#  one seen in practice: unbalanced brackets or parens, a trailing
+#  backslash, a repetition with nothing to repeat.
+function re_ok(p,   i,n,c,par,brk,prev){
+  n=length(p); par=0; brk=0; prev=""
+  if(n==0) return 0
+  for(i=1;i<=n;i++){
+    c=substr(p,i,1)
+    if(c=="\\"){
+      if(i==n) return 0            # trailing backslash
+      i++; prev="x"; continue
+    }
+    if(brk){                       # inside [ ... ]
+      if(c=="]" && prev!="[" && prev!="^") brk=0
+      prev=c; continue
+    }
+    if(c=="["){ brk=1; prev="["; continue }
+    if(c=="]") return 0            # unmatched ]
+    if(c=="("){ par++; prev="("; continue }
+    if(c==")"){ par--; if(par<0) return 0; prev=")"; continue }
+    if(c=="*" || c=="+" || c=="?" || c=="{"){
+      if(prev=="" || prev=="(" || prev=="|") return 0   # nothing to repeat
+    }
+    if(c=="|" && (prev=="" || prev=="(" || prev=="|")) return 0
+    prev=c
+  }
+  if(par!=0 || brk) return 0
+  if(prev=="|") return 0
+  return 1
+}
+
+#  Insert into a fixed-size best-so-far list ordered by rank, then by
+#  name, so the same query always produces the same list in the same
+#  order - the menu picks by number and the number has to mean the same
+#  thing when the list is rebuilt.
+function st_keeprank(k,rank,nm,id,rg,cy,la,lo,kind,   i,key,ki){
+  key = sprintf("%d|%s", rank, tolower(nm))
+  if(SR_N>=k && key >= SR_KEY[SR_N]) return 0
+  i = (SR_N<k) ? ++SR_N : SR_N
+  while(i>1 && SR_KEY[i-1] > key){
+    SR_KEY[i]=SR_KEY[i-1]; SR_ID[i]=SR_ID[i-1]; SR_NM[i]=SR_NM[i-1]
+    SR_RG[i]=SR_RG[i-1]; SR_CY[i]=SR_CY[i-1]; SR_D[i]=0
+    SR_LA[i]=SR_LA[i-1]; SR_LO[i]=SR_LO[i-1]; SR_KD[i]=SR_KD[i-1]
+    i--
+  }
+  SR_KEY[i]=key; SR_ID[i]=id; SR_NM[i]=nm; SR_RG[i]=rg; SR_CY[i]=cy
+  SR_D[i]=0; SR_LA[i]=la; SR_LO[i]=lo; SR_KD[i]=kind
+  return 1
+}
+
+#  Rank a hit: the lower the number the higher it sits in the list.
+#  A place whose name IS what you typed should never be buried under
+#  thirty places that merely contain it.
+function st_rank(q,nm,rg,cy,   lnm){
+  lnm = tolower(nm)
+  if(lnm==q)                       return 1
+  if(index(lnm,q)==1)              return 2
+  if(index(" " lnm, " " q)>0)      return 3   # a word of the name starts with it
+  if(index(lnm,q)>0)               return 4
+  return 5                                    # matched on region or country
+}
+
+#  Search the station file.  Sets SR_* to the best k hits, SR_TOTAL to
+#  how many matched altogether and SR_MODE to how the query was read.
+function st_search(file,q,k,   line,f,n,hay,cnt,w,nw,i,ok,rank,rx){
+  SR_N=0; cnt=0; SR_HASD=0
   q=tolower(q)
+  gsub(/^[ \t]+|[ \t]+$/,"",q)
+  if(q==""){ SR_TOTAL=0; SR_MODE="empty"; return 0 }
+  rx=0
+  if(re_meta(q)){
+    if(re_ok(q)) rx=1
+    else SR_MODE="badregex"
+  }
+  if(rx) SR_MODE="regex"
+  else if(SR_MODE!="badregex") SR_MODE="words"
+  nw = rx ? 0 : split(q,w,/[ \t]+/)
   while((getline line < file) > 0){
     if(substr(line,1,1)=="#") continue
     n=split(line,f,"|")
     if(n<8) continue
-    hay = tolower(f[3] " " f[4] " " f[5])
-    if(index(hay,q)==0) continue
-    cnt++
-    if(SR_N<k){
-      SR_N++
-      SR_D[SR_N]=0; SR_ID[SR_N]=f[2]; SR_NM[SR_N]=f[3]; SR_RG[SR_N]=f[4]
-      SR_CY[SR_N]=f[5]; SR_LA[SR_N]=f[6]+0; SR_LO[SR_N]=f[7]+0; SR_KD[SR_N]=f[1]
+    hay = tolower(f[3] "  " f[4] "  " f[5])
+    if(rx){
+      #  A regex is matched against the name, the state and the country
+      #  SEPARATELY, not against the three run together.  Otherwise ^
+      #  and $ - the whole reason somebody reached for a regex - anchor
+      #  to the start of the name and the end of the country, and
+      #  "bay$" matches nothing on earth.
+      if(tolower(f[3]) ~ q) rank=3
+      else if(tolower(f[4]) ~ q || tolower(f[5]) ~ q) rank=5
+      else continue
+    } else {
+      ok=1
+      for(i=1;i<=nw;i++) if(index(hay,w[i])==0){ ok=0; break }
+      if(!ok) continue
+      rank = (nw>1) ? 4 : st_rank(q,f[3],f[4],f[5])
     }
+    cnt++
+    st_keeprank(k,rank,f[3],f[2],f[4],f[5],f[6]+0,f[7]+0,f[1])
   }
   close(file)
   SR_TOTAL=cnt
@@ -763,14 +873,42 @@ function td_airwindows(jdA,jdB,air,mast,   t,step,inw,st,v,n){
 # =====================================================================
 #  Station lists
 # =====================================================================
-function td_showlist(   i,d){
+#  Two shapes, because the two lists answer different questions.  A
+#  nearest-first list is read for its distances; a name search is read
+#  for the rest of the name, which is where the disambiguation lives -
+#  "Long Beach" and "Long Beach  Bridgewater Yacht Club  New York" are
+#  the same first ten characters and a hundred miles apart.  The id is
+#  not drawn: it can be seventy characters long, and the list is picked
+#  by number.
+function td_showlist(   i,d,w){
   hr()
-  for(i=1;i<=SR_N;i++){
-    if(SR_D[i]>0) d=sprintf("%6.1f nm", SR_D[i]); else d="        "
-    printf "  %2d %s %-34s %-3s %-14s %s\n", i, d, substr(SR_NM[i],1,34),
-       (SR_KD[i]=="R" ? "" : "sec"), substr(SR_CY[i],1,14), SR_ID[i]
+  if(SR_HASD){
+    for(i=1;i<=SR_N;i++){
+      d = SR_ID[i]; sub(/\/.*/,"",d)
+      printf "  %2d %6.1f nm  %-32s %-3s %-5s %s\n", i, SR_D[i], substr(SR_NM[i],1,32),
+         (SR_KD[i]=="R" ? "" : "sec"), d, substr(SR_CY[i],1,16)
+    }
+  } else {
+    for(i=1;i<=SR_N;i++){
+      w = SR_NM[i]
+      if(SR_RG[i]!="") w = w "  (" SR_RG[i] ")"
+      d = SR_ID[i]; sub(/\/.*/,"",d)      # which dataset it came from
+      printf "  %2d  %-44s %-3s %-5s %s\n", i, substr(w,1,44),
+         (SR_KD[i]=="R" ? "" : "sec"), d, substr(SR_CY[i],1,16)
+    }
   }
   hr()
+  return SR_N
+}
+#  The same list with nothing in it but numbers and ids, written to a
+#  side file so the drawing and the machine-readable form come out of
+#  ONE scan of the station file.  Two scans could disagree - and the
+#  number somebody types has to mean the row they are looking at.
+function td_rawlist(f,   i){
+  if(f=="") return 0
+  printf "" > f
+  for(i=1;i<=SR_N;i++) printf "%d|%s|%s\n", i, SR_ID[i], SR_NM[i] > f
+  close(f)
   return SR_N
 }
 BEGIN{
@@ -778,6 +916,7 @@ BEGIN{
   ST_TZOFF = (tzoff=="") ? 0 : tzoff+0
   if(cmd=="near"){
     st_near(SF, lat+0, lon+0, (k==""?10:k+0))
+    td_rawlist(rawto)
     print ""
     printf "  %s\n", cw(sprintf("STATIONS NEAREST %.4f %.4f", lat+0, lon+0), C_HDR)
     td_showlist()
@@ -787,10 +926,32 @@ BEGIN{
   }
   else if(cmd=="search"){
     st_search(SF, q, (k==""?20:k+0))
+    td_rawlist(rawto)
     print ""
     printf "  %s\n", cw(sprintf("STATIONS MATCHING '%s'", q), C_HDR)
-    td_showlist()
-    if(SR_TOTAL>SR_N) printf "  %s\n", cwd(sprintf("%d matched; showing the first %d.", SR_TOTAL, SR_N))
+    if(SR_MODE=="regex")
+      printf "  %s\n", cwd("read as a regular expression")
+    else if(SR_MODE=="badregex")
+      printf "  %s\n", cwd("not a valid regular expression - searched as plain text instead")
+    if(SR_N==0){
+      print ""
+      printf "  %s\n", cwd("Nothing matched. The names in the database are not always the")
+      printf "  %s\n", cwd("ones on the chart, so try less of the name rather than more:")
+      printf "  %s\n", cwd("one distinctive word usually finds it.")
+      print ""
+      printf "  %s\n", cwd("Every word you type has to appear somewhere in the name, the")
+      printf "  %s\n", cwd("state or the country, but in any order. A regular expression")
+      printf "  %s\n", cwd("works too:  ^st  starts with;  bay$  ends with;  a|b  either;")
+      printf "  %s\n", cwd("port.*bay  with anything in between.")
+    } else {
+      td_showlist()
+      if(SR_TOTAL>SR_N)
+        printf "  %s\n", cwd(sprintf("%d matched; the %d closest to what you typed are shown.", SR_TOTAL, SR_N))
+      else
+        printf "  %s\n", cwd(sprintf("%d matched.", SR_TOTAL))
+      if(SR_MODE=="words")
+        printf "  %s\n", cwd("Any order, any part of a word. Regular expressions work: ^st  bay$  a|b  port.*bay")
+    }
     print ""
   }
   else if(cmd=="day"){

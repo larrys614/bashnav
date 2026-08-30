@@ -1,0 +1,68 @@
+# Read this before changing anything
+
+Bash Navigation Software: three marine navigation tools written in POSIX `sh`
+and POSIX `awk`, with no dependencies, no network, and no install step. They
+are meant to run on an iPad in a-Shell, at sea, on a boat with no signal.
+
+Larry Sherman has the ideas and the sea time; Claude writes the code. If you
+are a later session picking this up, these four documents are the handover:
+
+| | |
+|---|---|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | how the thing is built and why it is shaped this way |
+| [`docs/HACKING.md`](docs/HACKING.md) | the rules you must not break, and the bug that taught each one |
+| [`docs/TESTING.md`](docs/TESTING.md) | what the suite checks, and why each check exists |
+| [`REPO-STATE.md`](REPO-STATE.md) | where things stand and what is next |
+
+Read `docs/HACKING.md` before you write a line of awk. Most of it is not
+obvious, none of it is stylistic, and every rule in it is there because
+something shipped broken.
+
+## The two-line version
+
+    ./build.sh              # src/ -> bin/ ; run this after ANY edit to src/
+    ./tests/run-tests.sh    # every shell x every awk on the machine
+
+Never edit `bin/` directly. It is generated, CI checks that it matches `src/`,
+and your change will be silently overwritten by the next build.
+
+## The five rules that break things silently
+
+1. **POSIX awk only.** No gawk extensions. Test under `mawk` *and* `gawk` —
+   gawk accepts things mawk refuses outright, so a gawk-only run proves
+   nothing.
+2. **Never name a variable after an awk built-in.** `RS`, `RT`, `NR`, `FS`,
+   `NF`, `OFS`, `ORS`, `RSTART`, `RLENGTH`, `SUBSEP`, `FILENAME`, `CONVFMT`,
+   `FIELDWIDTHS`, `IGNORECASE`. `tests/awkvars-check.awk` enforces this.
+3. **Never let a function parameter shadow a function name.** Illegal in
+   POSIX; gawk tolerates it, mawk refuses to parse the file.
+   `tests/fnparam-check.awk` enforces this.
+4. **No newline after the `:` of a ternary.** gawk sometimes allows it, mawk
+   never does.
+5. **POSIX `sh`, not bash.** No arrays, no `[[`, no `local`, no `$'...'`, no
+   `${var,,}`. It has to run under dash and under a-Shell's shell.
+
+## The standard that governs
+
+For `colregs`, the COLREGs as published by the IMO. Where the program and the
+Convention differ, **the Convention is right and the program is wrong**. The
+tools are training and cross-checking aids and say so, in each `about`
+section, in `SAFETY.md`, and on the site. Do not soften that language.
+
+## Working with Larry
+
+He is a former US Navy FTG2/SS — fire control technician, submarines,
+1984–1990, on *Alaska*, *Lafayette*, *Gato* and *Greenling*. He stood the
+manoeuvring watch and worked in the fire control tracking party, so he knows
+relative motion, bearing drift and manual solutions cold, and the contacts
+module in `colregs` is built from methods he remembered and I then verified.
+
+He is not a programmer. He reports what he *sees* — "still no color", "it
+jumps one char to the right" — and those reports are consistently accurate
+descriptions of the symptom. They are not diagnoses, and twice now I have
+wasted rounds by treating them as one. See the entry on the lights picture in
+`docs/HACKING.md`.
+
+When he says something you built is wrong about the sea, he is usually right,
+and the disagreement is usually about mechanism rather than about the claim.
+Check what the data can actually support before agreeing or arguing.

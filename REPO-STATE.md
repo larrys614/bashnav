@@ -1,103 +1,132 @@
-# Bash Navigation Software — repository state
+# Repository state
 
-Built 2026-08-29. Ready to push; nothing is published yet.
+Last updated 2026-08-29. Published at
+**https://github.com/larrys614/bashnav**.
 
-## What is in it
+New here? Start with [`CLAUDE.md`](CLAUDE.md), then
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md),
+[`docs/HACKING.md`](docs/HACKING.md) and
+[`docs/TESTING.md`](docs/TESTING.md).
 
-    bin/celnav          celnav 1.1   cksum 4175943417 142889
-    bin/colregs         colregs 1.1  cksum 2128191058 95824
-    src/celnav/         10-head.sh, engine.awk, teach.awk, 30-ui.sh
-    src/colregs/        10-head.sh, engine.awk, 30-ui.sh
-    build.sh            joins src/ into the two single files in bin/
-    tests/run-tests.sh  the whole suite; SHELLS and AWKS widen the matrix
-    docs/index.html     the project site (GitHub Pages serves /docs)
-    docs/site-template.html + docs/make-site.sh + docs/plates/
-                        the site is rebuilt from the tools' real output
-    docs/manual-src/    manual and quick-reference sources, mkpdf.sh, figures
-    docs/*.pdf          the built manual (11 pp) and card (4 pp)
-    .github/workflows/  CI: the matrix, busybox awk, shellcheck, and a check
-                        that bin/ is not stale
-    README, LICENSE (MIT), CONTRIBUTING, SAFETY, CHANGELOG, PUBLISHING
+---
 
-## Decisions taken
+## Versions
 
-**MIT licence**, as chosen: shortest, best understood, and the least friction
-for a safety tool meant to be used widely, including inside commercial software.
-It carries the warranty and liability disclaimer that a navigation tool needs.
+| tool | version | size | what it is |
+|---|---|---|---|
+| `bin/celnav` | 1.6 | 153 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
+| `bin/colregs` | 1.15 | 175 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
+| `bin/tides` | 1.1 | 2.9 MB | harmonic tide prediction, 8,334 stations worldwide |
 
-**One repository, site included.** `bashnav` holds both tools and publishes the
-site from `docs/`. One thing to maintain, one URL to give people.
+Licence **Apache 2.0** (`LICENSE`, canonical text). `NOTICE` carries the
+copyright plus the data terms: NOAA harmonics public domain, TICON-4 harmonics
+CC BY 4.0. **The CC BY obligation travels with the data** regardless of the
+code licence.
+
+---
+
+## Decisions taken, and why
+
+**Apache 2.0, not MIT.** Commercial use is welcome; the patent grant and the
+explicit warranty disclaimer are what a navigation tool needs.
+
+**One repository, site included.** One thing to maintain, one URL.
 
 **The site is generated from real output.** `docs/make-site.sh` runs the tools
-and drops their actual output into the page, so what the site shows can never
-drift from what the programs do. The lights plate is post-processed so the
-R, G, W and Y letters appear in their real colours.
+and drops their actual output into the page, so the site cannot drift from
+what the programs do. Same for the README pictures, via `docs/ansi2svg.awk`.
 
-## colregs 1.1 — what it covers
+**Contributors opt in, name only.** `CONTRIBUTORS.md`. The review session
+never asks for an email address, and there is a test that it does not.
 
-- **Lights** — twenty vessel types. Each light is a record of fore-and-aft
-  position, athwartships position, height and arc of visibility, so any vessel
-  is rendered from any bearing and the arcs decide what is visible. Seen from
-  astern, masthead lights correctly disappear.
-- **Day shapes** — ten, drawn as glyphs on a mast.
-- **Encounters** — twenty-eight scenarios on a head-up plan view, each with four
-  options and the rule that governs it: crossing, head-on and overtaking, narrow
-  channels (Rule 9), traffic separation schemes (Rule 10), restricted visibility
-  (Rule 19), tows, mine clearance, seaplanes, pilot vessels, and vessels aground
-  or at anchor.
-- **Collision avoidance** — a developing situation rather than a snapshot. The
-  generator picks a desired CPA and time to it, then solves backwards for the
-  target's course and speed, so every scenario has a known exact answer. Three
-  observations six minutes apart carry realistic bearing scatter. The user
-  answers three questions (is there risk, how close, what do you do); the
-  solution shows the CPA, the time to it, and the target's true course and speed
-  from the vector triangle. Then a frame-by-frame true-motion replay runs under
-  *the action the user chose*, and reports the CPA that action actually
-  produced against the CPA of holding on.
-- **Sound signals** — fifteen, drawn as timelines, split into Rule 34 (in sight
-  of one another) and Rule 35 (restricted visibility).
-- **Fifteen lessons** on Rules 5, 6, 7, 8, 9, 10, 12, 13, 14, 15/16, 17, 18, 19,
-  the lights and shapes rules, and the sound rules. Each ends with a question.
+**The COLREGs content is a training aid and says so** — in `colregs about`, in
+`SAFETY.md`, and on the site. Where the program and the Convention differ, the
+Convention governs.
 
-The COLREGs content is a training aid and says so, in `colregs about`, in
-SAFETY.md and on the site. Where it and the Convention differ, the Convention
-governs.
+**Pick a station, not a place.** A tide cannot be computed from a position.
 
-## Two bugs the tests and a user caught
+**No tidal current data.** *Decided 2026-08-29.* NOAA publishes 4,430
+current-prediction stations with harmonic constants and the same
+reference/subordinate structure the heights use — but **US waters only**.
+TICON, which gives the height data worldwide coverage, is heights. Larry's
+call: US-only coverage makes it a no. Worldwide is the point of carrying the
+tool at all.
 
-**The artwork was invisible on a light terminal.** Both tools set a white
-foreground without painting a background, so on Apple Terminal's default light
-profile the ASCII was white on white and only the coloured lamps showed. Every
-drawing now paints itself as its own black panel with light text, edge to edge
-(erase-to-end-of-line), independent of the user's terminal profile.
+---
 
-## A bug the tests caught
+## Next: set and drift
 
-`mawk` re-seeds `srand()` from the clock even when handed an explicit seed. Both
-engines used seeded `rand()` so a drill could be regenerated for marking; under
-mawk the marking would occasionally score a correct answer as wrong. Both now use
-an internal MINSTD generator (`xsrand`/`xrand`), and the suite checks that every
-drill and quiz marks its own correct answer as correct — which is the test that
-found it.
+*Agreed 2026-08-29. Designed, not built.* Lives **in `tides`**.
 
-## Also fixed
+Larry's framing, and he is right about the priority: the daily navigational
+problem underway is not clearance under a bridge, it is what the water is
+doing to you and what to steer to allow for it. The README claimed "the two
+questions a tide table is actually for — is there enough water, and does the
+mast clear the bridge". That was a tidy pair rather than an honest ranking,
+and it has been corrected.
 
-- `celnav help` never listed the commands added in 1.1 (`doctor`, `learn`,
-  `walk`, `drill`, `sandbox`, `night`, `version`). It now lists all of them,
-  grouped into Working, Learning and Setup.
-- An unknown command used to say "try celnav help". Both tools now print the
-  actual list of commands, so a typo answers itself.
-- The install instructions said `apk add gawk` without saying that apk is
-  Alpine's and exists only inside iSH. macOS, Linux and the BSDs need nothing
-  installed, and the docs and the doctor message now say so.
-- `tests/run-tests.sh` had a `set -e` hazard: a command substitution capturing a
-  deliberately-failing run silently ended the suite early. Fixed, and the suite
-  now runs to the end under dash and bash with mawk and gawk.
+**The module needs no flow data at all**, which is why the decision above
+costs nothing. Both halves are vector geometry:
 
-## Still to do
+1. **Measuring set and drift.** Run a DR from a known fix; take a second fix.
+   The vector from DR to fix, over the elapsed time, is set and drift. This is
+   the honest number, because it contains *everything* that moved you — tidal
+   stream, wind-driven current, leeway, log error, helmsman's bias — not just
+   the part a table predicted.
 
-1. Larry's GitHub username goes into `README.md` and the site; both carry the
-   placeholder `larrys614`. `PUBLISHING.md` step 2 is the one command.
-2. Push, and turn on Pages (Settings → Pages → main → /docs).
-3. Optional: tag v1.1 and attach `bin/celnav` and `bin/colregs` to a release, so
-   people who only want the tools do not have to clone.
+2. **Using it — the current triangle.** Intended track and boat speed through
+   the water on one side, set and drift on another; course to steer and speed
+   over ground fall out. And the reverse, from what was observed.
+
+It is the same triangle Larry solved by hand in the fire control tracking
+party — own ship's vector, the relative vector, the target's vector. In
+collision work you solve for the target's motion; in current sailing you solve
+for the water's. `src/colregs/contacts.awk` already has that machinery and it
+should be lifted, not rewritten.
+
+**The one honest link to the tide data**, and worth building because it works
+worldwide with the constants already present: tidal stream atlases are indexed
+by **hours from high water at a standard port** ("HW Dover −3"). `tides`
+already knows HW time everywhere it has a station, so it can say *which page
+of the atlas you are on*. That is a real, useful connection between the height
+data and the stream — as opposed to computing a stream from a height curve,
+which is not possible. In a standing-wave basin the stream runs hardest at
+half-tide and goes slack at HW and LW; in a progressive wave the flood peaks
+*at* HW; which one you are in depends on the shape of the coast.
+
+---
+
+## Loose ends
+
+1. **`docs/index.html` does not mention `tides` at all** — the site predates
+   the tool. `docs/make-site.sh` already builds `docs/img/tides-day.svg` and
+   `docs/img/tides-find.svg`, but nothing on the site uses them. The README
+   covers `tides` fully.
+2. **Five orphaned SVGs on GitHub** from before a rename — `contacts.svg`,
+   `lights.svg`, `lights-mineclear.svg`, `plot.svg`, `sky.svg`. Identical blob
+   SHAs to their new names, nothing references them. Extracting a tarball adds
+   files but never removes them, so they must be deleted on Larry's side.
+3. **A Shortcuts recipe for iPad GPS → `tides near`**, so a position can be
+   handed to the tool without typing it.
+4. **The Clipper training app.** Larry has emailed Clipper for permission to
+   build an interactive trainer from their course PDFs. Nothing is to be built
+   from those materials without written permission — their text is
+   copyrighted. Facts and methods are not, and can be taught freely in our own
+   words.
+5. **Tag a release** and attach `bin/celnav`, `bin/colregs` and `bin/tides`,
+   so people who only want the tools do not have to clone 2.9 MB of station
+   data through git.
+
+---
+
+## Working agreement
+
+Larry has the sea time and the ideas; Claude writes the code. He tests by
+using the tools the way a sailor would, and he has found things the suite
+could not: the mine-clearance light arrangement, the towing light geometry,
+a quiz that told you the answer before it asked, and a picture that was
+missing rather than colourless.
+
+He reports symptoms accurately and does not diagnose. Treating his report as a
+diagnosis has twice cost several rounds — see the lights-picture entry in
+`docs/HACKING.md`.

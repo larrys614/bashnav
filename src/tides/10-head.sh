@@ -4,12 +4,13 @@
 #  Part of Bash Navigation Software.  https://github.com/larrys614/bashnav
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
-TIDES_VERSION=1.0
+TIDES_VERSION=1.1
 TIDES_HOME=${TIDES_HOME:-$HOME/.tides}
 CONF="$TIDES_HOME/config"
 ENGINE="$TIDES_HOME/engine-$TIDES_VERSION.awk"
 TABLES="$TIDES_HOME/tables-$TIDES_VERSION.awk"
 STATIONS="$TIDES_HOME/stations.dat"
+LISTFILE="$TIDES_HOME/lastlist"   # the numbered list a search just drew
 cmode=day
 ISTTY=0; [ -t 1 ] && ISTTY=1
 station=""

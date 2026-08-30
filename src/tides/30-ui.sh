@@ -21,33 +21,58 @@ need_station() {
 NS
   return 1
 }
-pick_from_list() {   # a list is on screen; let the user choose by number
-  printf "  Number to use it, or return: "; IFS= read -r n || return 1
+#  A list is on screen; let the person choose by number.  The numbers
+#  are read back from the engine's quiet output, not scraped off the
+#  drawn list: a station called "Pier 39" would break that the first
+#  time somebody searched for it.
+#  A list is on screen; let the person choose by number.  The numbers
+#  come from the side file the engine wrote during the same run that
+#  drew the list, not from scraping the drawing: a station called
+#  "Pier 39" would break that the first time somebody searched for it.
+pick_from_list() {
+  [ -s "$LISTFILE" ] || return 1
+  printf "  Number to use it, or return to search again: "
+  IFS= read -r n || return 1
   [ -z "$n" ] && return 1
-  case "$n" in *[!0-9]*) return 1 ;; esac
-  line=$(eng -v cmd="$LASTCMD" -v lat="$LASTLAT" -v lon="$LASTLON" -v q="$LASTQ" -v k=40 \
-         | $AWK -v n="$n" '$1==n{ print $NF }')
-  [ -z "$line" ] && { echo "  no such number"; return 1; }
-  station="$line"
-  stationname=$(eng -v cmd=info -v id="$station" -v yy=2026 -v mm=1 -v dd=1 | cut -d'|' -f2)
+  case "$n" in *[!0-9]*) echo "  that is not a number"; return 1 ;; esac
+  row=$($AWK -F'|' -v n="$n" '$1==n{print; exit}' "$LISTFILE")
+  [ -z "$row" ] && { echo "  there is no $n in that list"; return 1; }
+  station=$(printf '%s\n' "$row" | cut -d'|' -f2)
+  stationname=$(printf '%s\n' "$row" | cut -d'|' -f3)
   save_conf
   printf "  station: %s\n" "$stationname"
+  printf "  %s\n" "$station"
   return 0
 }
 #  Declining to pick a station is a normal outcome, not a failure: these
 #  return 0 either way, so a caller running under 'set -e' is not killed
 #  by somebody pressing return.
 do_near() {
-  LASTCMD=near; LASTLAT="$1"; LASTLON="$2"; LASTQ=""
-  eng -v cmd=near -v lat="$1" -v lon="$2" -v k="${3:-10}"
+  : > "$LISTFILE"
+  eng -v cmd=near -v lat="$1" -v lon="$2" -v k="${3:-10}" -v rawto="$LISTFILE"
   pick_from_list || true
   return 0
 }
 do_find() {
-  LASTCMD=search; LASTQ="$1"; LASTLAT=""; LASTLON=""
-  eng -v cmd=search -v q="$1" -v k="${2:-20}"
+  : > "$LISTFILE"
+  eng -v cmd=search -v q="$1" -v k="${2:-20}" -v rawto="$LISTFILE"
   pick_from_list || true
   return 0
+}
+#  Searching by name from the menu keeps asking until something is
+#  chosen or the person gives up.  A first guess at a station name is
+#  usually wrong, and having to walk back out to the menu to try again
+#  is what makes people stop looking.
+find_loop() {
+  while :; do
+    printf "\n  name, or part of one (return to go back): "
+    IFS= read -r q || return 0
+    [ -z "$q" ] && return 0
+    : > "$LISTFILE"
+    eng -v cmd=search -v q="$q" -v k=20 -v rawto="$LISTFILE"
+    [ -s "$LISTFILE" ] || continue
+    pick_from_list && return 0
+  done
 }
 do_day() {
   need_station || return 1
@@ -64,7 +89,7 @@ help_text() {
 
   tides                    the menu
   tides near <lat> <lon>   the stations nearest a position
-  tides find <name>        search for a station by name
+  tides find <text>        search for a station by name
   tides use <id>           choose a station
   tides today [date]       the day's table, curve and depth helper
   tides sky [date]         the same, with the moon and sun panel
@@ -75,6 +100,27 @@ help_text() {
 
   Dates are YYYY-MM-DD.  Times are the station's own standard time -
   no summer time, exactly like a printed tide table.
+
+  FINDING A STATION
+
+  Nobody guesses a station's exact name: the database calls a place
+  "NEW LONDON  State Pier" or "Chappaquoit Point  West Falmouth
+  Harbor".  So type part of it and pick from the numbered list.
+
+  Every word you type has to appear somewhere in the name, the state
+  or the country, but in any order and anywhere inside a word, so
+  "lon new" finds New London just as well as "new london" does.
+
+  If you want more control, the text is used as a regular expression
+  the moment it contains any of  ^ $ . [ ] | ( ) * + ? { } \
+
+    tides find "^st mary"        names that start with St Mary
+    tides find "bay$"            names that end in Bay
+    tides find "falmouth|mystic" either one
+    tides find "port.*bay"       Port, then anything, then Bay
+
+  A pattern that is not a valid regular expression is searched as
+  plain text instead rather than refusing to answer.
 
   A tide cannot be computed from a position. It depends on the shape of
   the coast and the depth and resonance of the basin, so every place
@@ -110,7 +156,7 @@ M
       2) printf "  date (YYYY-MM-DD): "; IFS= read -r d; SKY=0; do_day "$d" ;;
       3) SKY=1; do_day ;;
       4) ask_depth; SKY=0; do_day; CHARTED=""; DRAFT=""; CLEAR=""; AIR=""; MAST="" ;;
-      5) printf "  name: "; IFS= read -r q; [ -n "$q" ] && do_find "$q" ;;
+      5) find_loop ;;
       6) printf "  latitude: "; IFS= read -r la; printf "  longitude: "; IFS= read -r lo
          [ -n "$la" ] && do_near "$la" "$lo" ;;
       c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
