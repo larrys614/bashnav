@@ -1,5 +1,106 @@
 # Changelog
 
+## The iPad bug: none of the tools could start on an iPad
+
+Larry, from the boat: *"when i try and run the apps in a-shell i get a could not
+create container error"*, then the path — `/private/var/mobile/Containers/Data/
+Application/<uuid>`.
+
+That was our own message: `celnav: cannot create /private/var/mobile/Containers/
+…/.celnav`. The word he picked out of it, *container*, was in the path and not
+in the verb. His report was accurate; reading it as a diagnosis cost the first
+round, which is the third time on this project.
+
+**The bug.** a-Shell's own README: *"In iOS, you cannot write in the `~`
+directory, only in `~/Documents/`, `~/Library/` and `~/tmp`."* `$HOME` there is
+the app's iOS data container. Every tool kept its engine, its config and the log
+in `$HOME/.<tool>`, so **not one of the six would start on an iPad** — the only
+platform this project has ever been for.
+
+It survived a full shell × awk matrix, CI, a published release, five tools and a
+launcher, because every machine the suite runs on has a writable `$HOME`. **A
+test environment that shares an assumption with the code cannot test that
+assumption.**
+
+**The fix.** `src/common/05-home.sh`, spliced into every tool by `build.sh`,
+takes the first of `$HOME`, `$HOME/Documents`, `$HOME/Library` that it can
+create **and write a file in** — proved by writing, not guessed from the
+platform, because nothing distinguishes a-Shell by name and the next constrained
+platform will not announce itself either. `$HOME` is tried first, so nothing
+changes on macOS, Linux, the BSDs or Termux; on a-Shell it lands in
+`~/Documents/.celnav`. `<TOOL>_HOME` still overrides everything and skips the
+probe.
+
+`celnav doctor` and `tides where` print the folder that was actually chosen.
+
+**The test.** `tests/ios-home.sh`, in the matrix, two ways:
+
+- a `$HOME` whose dotfolder cannot be created — portable, runs as any user
+  including root, and covers the fallback
+- a `$HOME` with the write bit off — the real iOS condition. It needs a uid that
+  `chmod` applies to, so under root it uses `setpriv`; where it cannot run it
+  prints **SKIP** rather than passing quietly
+
+It checks more than a version string: `tides` must unpack 2.9 MB and find
+Falmouth, `celnav doctor` must report the folder writable and name it, and on a
+normal machine the folder must still be `$HOME/.celnav` and not `~/Documents`.
+
+I watched all five tools fail it before the fix.
+
+**The README was also wrong about why.** It said `cd ~/Documents` mattered
+because otherwise the tools "will not be able to create the folder they keep
+their engine and your log in". The folder was under `$HOME` whatever directory
+you stood in, so that advice never helped. Corrected, with a-Shell's rule quoted.
+
+## bashnav 1.0 - one icon on the home screen
+
+Larry: *"is there a way to make them icons on the screen, and have them launch
+in a terminal?"*
+
+Yes, twice over, and the two answers are different.
+
+**Per-tool icons.** a-Shell ships an **Execute Command** action for Shortcuts,
+and a Shortcut can be added to the home screen. The one thing that has to be
+right is not obvious: the action must be set to run **In App**, not **In
+Extension**. a-Shell prefers the extension because it is faster, and the
+extension is *"a lightweight version of the App, without no graphical user
+interface"*, while In App *"opens the main application to execute the
+shortcut"*. Every tool here draws a menu and waits for a keystroke, so in the
+extension there is no terminal to draw on and nothing to read the key from. The
+recipe is in the README under **An icon on the home screen**.
+
+**And one icon for all of them** - `bin/bashnav`, the launcher. Pure `sh`, no
+awk, no engine, nothing to extract, 3.4 KB.
+
+    bashnav              the menu
+    bashnav tides        run one directly
+    bashnav tides near   arguments pass straight through
+    bashnav where        where each tool was found
+
+It searches beside itself, `./bin`, `~/Documents`, `~/bin`, `.`, then `PATH`.
+`~/Documents` is in that list deliberately: it is the only place iOS lets an
+app write, so it is where an iPad user's tools actually are. A tool it cannot
+find is **still listed**, marked `-- not found --`, with the places it looked -
+a launcher that silently hides a tool one directory away has become the problem
+it was built to solve.
+
+One icon rather than five is also the honest answer for a boat. Cold hands, wet
+screen: one icon and a five-line menu is easier to hit than picking the right
+one of five icons on a page of forty.
+
+`tests/launcher-check.sh` covers six things, including one that has bitten this
+README repeatedly - **the menu block in the README is diffed against the menu
+the program prints**, so it cannot drift the day a version number changes.
+
+### Also
+
+- **The README carried a duplicate `## Why it is built this way` and a second,
+  stale `## Install`** - the old one, still saying "Both tools" and listing
+  only `celnav` and `colregs`. `install-check.awk` passed the whole time
+  because the *new* section satisfied every one of its conditions; the check
+  asks whether the facts appear somewhere, and both sections were somewhere.
+  Deleted. A lint that scans for a fact cannot see a contradiction.
+
 ## weather 1.0 - its own tool, with the teaching in it
 
 Larry: *"i think it perhaps should be its own app... separate app everything we

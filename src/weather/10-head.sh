@@ -17,7 +17,7 @@
 WEATHER_VERSION=1.0
 
 #  the log belongs to deck-log; weather only ever READS it
-: "${DECKLOG_HOME:=$HOME/.bashnav}"
+: "${DECKLOG_HOME:=$(bn_home .bashnav)}"
 LOG="$DECKLOG_HOME/log"
 : "${WEATHER_HOME:=$DECKLOG_HOME}"
 CONF="$WEATHER_HOME/weather.conf"

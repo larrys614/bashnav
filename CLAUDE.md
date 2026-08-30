@@ -1,8 +1,15 @@
 # Read this before changing anything
 
-Bash Navigation Software: three marine navigation tools written in POSIX `sh`
-and POSIX `awk`, with no dependencies, no network, and no install step. They
-are meant to run on an iPad in a-Shell, at sea, on a boat with no signal.
+Bash Navigation Software: five marine tools and a launcher, written in POSIX
+`sh` and POSIX `awk`, with no dependencies, no network, and no install step.
+They are meant to run on an iPad in a-Shell, at sea, on a boat with no signal.
+
+    celnav    celestial navigation, sight reduction, the fix, a teaching track
+    colregs   rules of the road, lights, encounters, contact management
+    tides     harmonic prediction, 8,334 stations worldwide
+    deck-log  the boat's records: deck, engine, provisions, spares
+    weather   read your own barometer, and the physics under it
+    bashnav   a launcher, pure sh - one home-screen icon reaching all five
 
 Larry Sherman has the ideas and the sea time; Claude writes the code. If you
 are a later session picking this up, these four documents are the handover:

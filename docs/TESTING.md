@@ -15,6 +15,13 @@ time; edit `src/`.
 
 **A test you have never watched fail is not a test.**
 
+And a lint that scans for a fact cannot see a *contradiction*. `install-check`
+asks whether the README mentions each tool and says the right things about an
+iPad. For weeks the README carried **two** `## Install` sections — the current
+one and a stale one still saying "Both tools" — and the check passed the whole
+time, because everything it looks for was present in the newer one. It was
+found by reading, not by running.
+
 Break the code deliberately, watch the check go red, restore, watch it go
 green. My own harnesses have been wrong four separate times, and two checks
 have passed while the behaviour they claimed to test was switched off. Both
@@ -48,6 +55,10 @@ content changes.
 | `svg-check.awk` | an SVG that is not an exact character grid |
 | `readme-check.awk` | unclosed fences, unbalanced `<details>`, `<img>` inside a fence or pointing at nothing |
 | `count-check.awk` | counts quoted in prose against what the program actually has |
+| `toolrow-check.awk` | a tool in `bin/` with no row in the README's table, or no section, or a row whose anchor leads nowhere |
+| `install-check.awk` | an install section that has fallen behind what exists |
+| `ios-home.sh` | every tool must start when `$HOME` cannot be written &mdash; the iOS condition, which no tool survived until 2026-08-30 |
+| `launcher-check.sh` | the launcher must offer and find every tool, fail out loud, pass arguments through — and its menu in the README is diffed against the menu it prints |
 | `review-check.awk` | review keys unique and well formed; every claim renders |
 | `contacts-check.awk` | the contacts lessons and the tracking exercise |
 | **no network, ever** | `curl wget nc telnet ftp`, and `getline < "http…"` |
@@ -97,6 +108,20 @@ user sees change, and did I mean it?" CI runs the comparison, so an unintended
 change to a screen fails the build instead of being noticed months later.
 
 ---
+
+## Test the platform, not a convenient stand-in
+
+Every check in this suite ran green while **not one of the six tools could start
+on an iPad**, because each kept its data in `$HOME/.<tool>` and iOS refuses
+writes to `$HOME`. The suite runs on machines with a writable `$HOME`, so it
+shared the assumption the code was making, and a test that shares an assumption
+with the code cannot test it.
+
+`tests/ios-home.sh` takes the assumption away two ways: a `$HOME` whose dotfolder
+cannot be created (portable, runs as any user, root included), and a `$HOME` with
+the write bit off, which is the real condition. The second needs a uid that
+`chmod` applies to, so under root it uses `setpriv`; where it cannot run it says
+**SKIP** out loud rather than passing quietly.
 
 ## What still needs a human
 

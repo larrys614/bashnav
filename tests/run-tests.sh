@@ -335,7 +335,6 @@ for SH in $SHELLS; do
   #  the install section must keep up with what exists, and must tell an
   #  iPad user these are scripts rather than an app - the omission that
   #  sent Larry to a search engine which answered about Android APKs
-  r=$($AW -f tests/install-check.awk README.md "$tmp/tools.$$" 2>/dev/null || true)
   ls bin/ > "$tmp/tools.$$"
   r=$($AW -f tests/install-check.awk README.md "$tmp/tools.$$")
   case "$r" in
@@ -450,6 +449,26 @@ WXLOG
   else
     printf '%s\n' "$o" | head -6
     bad "deck-log"
+  fi
+
+  #  iOS refuses writes in $HOME, and every tool kept its data there.
+  #  Not one of them started on the platform this project is for.
+  if o=$(sh tests/ios-home.sh "$SH" 2>&1); then
+    ok "every tool starts when \$HOME is unwritable, as it is on iOS"
+    printf '%s\n' "$o" | grep '^  SKIP' || true
+  else
+    printf '%s\n' "$o" | head -10
+    bad "a tool cannot run on iOS"
+  fi
+
+  #  the launcher: it must offer and find every tool in bin/, say so
+  #  plainly when it cannot, pass arguments through, and the menu the
+  #  README prints must be the menu the program prints.
+  if o=$(sh tests/launcher-check.sh "$SH" 2>&1); then
+    ok "the launcher finds every tool and its README menu is current"
+  else
+    printf '%s\n' "$o" | head -12
+    bad "bashnav launcher"
   fi
 
   # ---- a function name used as a variable ---------------------------

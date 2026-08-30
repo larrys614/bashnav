@@ -1,6 +1,6 @@
 # Repository state
 
-Last updated 2026-08-29. Published at
+Last updated 2026-08-30. Published at
 **https://github.com/larrys614/bashnav**.
 
 New here? Start with [`CLAUDE.md`](CLAUDE.md), then
@@ -17,6 +17,9 @@ New here? Start with [`CLAUDE.md`](CLAUDE.md), then
 | `bin/celnav` | 1.6 | 153 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
 | `bin/colregs` | 1.15 | 175 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
 | `bin/tides` | 1.1 | 2.9 MB | harmonic tide prediction, 8,334 stations worldwide |
+| `bin/deck-log` | 1.1 | 42 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
+| `bin/weather` | 1.0 | 67 KB | reasons over the log's observations and shows its working; ten lessons; forecast scoring |
+| `bin/bashnav` | 1.0 | 3.4 KB | the launcher: a menu in front of the other five, and one home-screen icon on an iPad |
 
 Licence **Apache 2.0** (`LICENSE`, canonical text). `NOTICE` carries the
 copyright plus the data terms: NOAA harmonics public domain, TICON-4 harmonics
@@ -96,26 +99,46 @@ half-tide and goes slack at HW and LW; in a progressive wave the flood peaks
 
 ---
 
+## The platform bug, 2026-08-30
+
+**None of the tools could start on an iPad**, from the first release until this
+morning. iOS refuses writes in `$HOME`; every tool kept its data there. Found by
+Larry the first time he tried to run them on the boat, not by the suite. Fixed
+(`src/common/05-home.sh`) and covered (`tests/ios-home.sh`). Full account in
+`CHANGELOG.md` and `docs/HACKING.md`.
+
+The lesson worth carrying: **the suite ran on machines that shared the code's
+assumption.** Everything else this project targets — a-Shell's awk, a small
+screen, no network — is modelled somewhere in the tests. A writable `$HOME` was
+not, because it never looked like a platform question.
+
 ## Loose ends
 
-1. **`docs/index.html` does not mention `tides` at all** — the site predates
-   the tool. `docs/make-site.sh` already builds `docs/img/tides-day.svg` and
-   `docs/img/tides-find.svg`, but nothing on the site uses them. The README
-   covers `tides` fully.
+1. **`docs/index.html` still describes two tools.** The site predates `tides`,
+   `deck-log`, `weather` and `bashnav`. `docs/make-site.sh` already builds
+   `docs/img/tides-day.svg` and `docs/img/tides-find.svg` and nothing uses
+   them. The README covers all six fully; the site is the stale surface.
 2. **Five orphaned SVGs on GitHub** from before a rename — `contacts.svg`,
    `lights.svg`, `lights-mineclear.svg`, `plot.svg`, `sky.svg`. Identical blob
    SHAs to their new names, nothing references them. Extracting a tarball adds
    files but never removes them, so they must be deleted on Larry's side.
 3. **A Shortcuts recipe for iPad GPS → `tides near`**, so a position can be
-   handed to the tool without typing it.
+   handed to the tool without typing it. The Shortcuts groundwork is now in the
+   README — a-Shell's **Execute Command** action, set to run **In App** — and
+   this one differs only in passing an argument the Shortcut computes. *Not
+   tested on hardware.* Larry has the iPad; the recipe is written from a-Shell's
+   own documentation and needs one run to confirm.
 4. **The Clipper training app.** Larry has emailed Clipper for permission to
    build an interactive trainer from their course PDFs. Nothing is to be built
    from those materials without written permission — their text is
    copyrighted. Facts and methods are not, and can be taught freely in our own
    words.
-5. **Tag a release** and attach `bin/celnav`, `bin/colregs` and `bin/tides`,
-   so people who only want the tools do not have to clone 2.9 MB of station
-   data through git.
+5. **Tag a release** and attach all six binaries, so people who only want the
+   tools do not have to clone 2.9 MB of station data through git.
+6. **`seamanship` is held**, on the local `seamanship-hold` tag and not in this
+   repository, pending Clipper's answer. Larry has a personal binary. See the
+   note above: if Clipper objects even to the generic build, it stays on his
+   iPad and never enters `bashnav`.
 
 ---
 

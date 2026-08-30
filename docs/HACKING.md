@@ -55,6 +55,34 @@ and `review.awk` alongside it. Test invocations must pass all three.
 Break the line before the `?` or use an `if`. `rv_colour()` and `rv_arc()` in
 `review.awk` are written as plain `if`s for exactly this reason.
 
+### `$HOME` is not writable on iOS
+
+    : "${CELNAV_HOME:=$HOME/.celnav}"          # WRONG on the target platform
+
+a-Shell's README: *"In iOS, you cannot write in the `~` directory, only in
+`~/Documents/`, `~/Library/` and `~/tmp`."* `$HOME` there is the app's data
+container, `/private/var/mobile/Containers/Data/Application/<uuid>`, and `mkdir`
+in it is refused.
+
+**All five tools defaulted to `$HOME/.<tool>`, so not one of them would start on
+an iPad** — the only platform this project has ever been for. Each printed
+`cannot create /private/var/mobile/Containers/…` and stopped. It survived a full
+test matrix, CI, a published release and five tools because *every machine the
+suite runs on has a writable `$HOME`*.
+
+`src/common/05-home.sh` now picks the first of `$HOME`, `$HOME/Documents`,
+`$HOME/Library` it can create **and write a file in**. Proving it by writing,
+rather than sniffing the platform, is the point: there is no `uname` that
+distinguishes a-Shell from any other iOS shell, and the next constrained
+platform will not announce itself either.
+
+> Larry reported *"a could not create container error"*, then the path. That was
+> our own message read off the screen — `cannot create /private/var/mobile/
+> Containers/Data/Application/<uuid>/.celnav` — and the word he picked out of it
+> was in the path, not the verb. **Third time on this project that his report
+> was an accurate description and I read it as a diagnosis.** Reproducing it
+> took one command: a `$HOME` with the write bit off.
+
 ### POSIX sh, not bash
 
 No arrays, no `[[ ]]`, no `local`, no `$'...'`, no `${var,,}`, no `function`
@@ -218,6 +246,15 @@ the network lint was silently overwritten, because `run-tests.sh` rebuilds
 > ranking test and an `<img>` counter — passed while the thing they claimed to
 > test was disabled. The ranking test used Boston, where alphabetical order
 > already gives the right answer; it uses Falmouth now, where it does not.
+
+### Platform
+
+**Nothing in the suite ran as an iPad runs it.** See the `$HOME` entry above:
+five tools, none of which could start on the target device, and a green matrix
+the whole time. A test environment that shares an assumption with the code
+cannot test that assumption. `tests/ios-home.sh` removes this one — a `$HOME`
+that cannot be written, which is the actual iOS condition — and it is the model
+for any future one.
 
 ### Build and release
 

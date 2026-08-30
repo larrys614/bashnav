@@ -43,8 +43,9 @@ The quoting on `<<'__COLREGS_ENGINE__'` matters: it stops the shell expanding
 `$1`, backticks and `\` inside the awk source. Without the quotes the awk gets
 silently mangled.
 
-On first run the tool writes its engines into `~/.<tool>/` and from then on
-runs them from there. The extracted files are **versioned by filename**
+On first run the tool writes its engines into its own dotfolder and from then on
+runs them from there. **Where that folder goes is decided at run time, not
+fixed to `$HOME`** — see below. The extracted files are **versioned by filename**
 (`engine-1.15.awk`), so a newer binary never runs an older engine; and
 extraction repeats if the executable is newer than the extracted engine
 (`[ "$0" -nt "$ENGINE" ]`), so editing and re-running just works.
@@ -52,9 +53,35 @@ extraction repeats if the executable is newer than the extracted engine
     ~/.celnav/    engine-1.6.awk  teach-1.6.awk  celnav.conf
     ~/.colregs/   engine-1.15.awk  contacts-1.15.awk  review-1.15.awk  colregs.conf
     ~/.tides/     engine-1.1.awk  tables-1.1.awk  stations.dat  config  lastlist
+    ~/.bashnav/   decklog-1.1.awk  weather-1.0.awk  log  boat  *.conf
+
+### `$HOME` is not writable on iOS, so the folder is chosen, not assumed
+
+`src/common/05-home.sh` defines `bn_home`, spliced into every tool by
+`build.sh` between the shebang and the first use. It takes the first of
+`$HOME`, `$HOME/Documents`, `$HOME/Library` that it can **create and write in**,
+proved by writing a file rather than by guessing from the platform.
+
+`$HOME` is tried first, so nothing changes on macOS, Linux, the BSDs or Termux.
+On a-Shell it lands in `~/Documents/.celnav`, because `$HOME` there is the app's
+iOS data container and every write to it is refused. A `<TOOL>_HOME` environment
+variable still overrides the lot and skips the probe, which is what the test
+suite uses.
+
+This is not a nicety. Every tool defaulted to `$HOME/.<tool>` and **not one of
+them would start on an iPad** — the platform the whole project exists for.
+`tests/ios-home.sh` takes a writable `$HOME` away and is now part of the matrix.
 
 `bin/tides` is 2.9 MB because it carries 8,334 stations of harmonic constants
 inline. Extraction takes about 48 ms, once.
+
+**`bin/bashnav` is the exception and carries nothing.** It is a launcher: pure
+`sh`, no awk, no engine, no dotfolder, no config. It exists because an iPad
+puts *one* icon on a home screen far more easily than five, and because a
+Shortcut that runs an interactive tool has to be set to run **In App** rather
+than in a-Shell's extension - the extension has no terminal, so a menu has
+nothing to draw on. Both routes are documented in the README; the launcher is
+the one that needs no Shortcut at all.
 
 **`bin/` is generated. Never edit it.** CI rebuilds and fails if the result
 differs from what is committed.
@@ -101,7 +128,9 @@ marking without the shell having to remember anything. That is also what makes
 
 ## Per-tool layout
 
-    src/common/20-about.sh        the About menu shared by all three
+    src/common/20-about.sh        the About menu shared by the tools
+    src/common/log.awk            the append-only record layer (deck-log, weather)
+    src/common/colour.awk         col_init/cw/cwd/hr, shared
 
     src/celnav/10-head.sh         config, colour, awk detection, eng()/teach()
     src/celnav/engine.awk         almanac, sight reduction, plotting, fix
@@ -122,6 +151,20 @@ marking without the shell having to remember anything. That is also what makes
     src/tides/stations.dat        generated: 8,334 stations
     src/tides/30-ui.sh            commands and menu
     src/tides/gen/*.py            the generators (run offline, output committed)
+
+    src/decklog/10-head.sh        config, colour, awk detection, the append path
+    src/decklog/engine.awk        record building and validation
+    src/decklog/views.awk         the derived views: holdings, shopping list
+    src/decklog/30-ui.sh          commands, menu, the three-hourly prompt
+
+    src/weather/10-head.sh        config, colour, awk detection
+    src/weather/wx.awk            the reasoning: tendency, veering, Buys Ballot
+    src/weather/teach.awk         ten lessons
+    src/weather/score.awk         WxChallenge scoring, valid times
+    src/weather/chart.awk         the 500 mb chart and Chesneau's rules
+    src/weather/30-ui.sh          commands and menu
+
+    src/launcher/bashnav.sh       the launcher, whole. No awk, nothing embedded.
 
 The numeric prefixes are concatenation order, nothing more.
 

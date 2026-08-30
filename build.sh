@@ -4,10 +4,20 @@ set -e
 cd "$(dirname "$0")"
 mkdir -p bin
 
+#  The tools' data folder is chosen at run time, not fixed to $HOME --
+#  see src/common/05-home.sh, which explains why.  That block has to
+#  land between the head file's shebang and its first use of bn_home,
+#  so it is spliced in rather than concatenated.
+head_of() {
+  sed -n '1p' "$1"
+  cat src/common/05-home.sh
+  sed -n '2,$p' "$1"
+}
+
 build_decklog() {
   out=bin/deck-log
   {
-    cat src/decklog/10-head.sh
+    head_of src/decklog/10-head.sh
     echo ''
     echo '# ---- engine extraction (written once, then reused) -----------------'
     echo 'install_engine() {'
@@ -32,7 +42,7 @@ build_decklog() {
 build_weather() {
   out=bin/weather
   {
-    cat src/weather/10-head.sh
+    head_of src/weather/10-head.sh
     echo ''
     echo '# ---- engine extraction (written once, then reused) -----------------'
     echo 'install_engine() {'
@@ -60,7 +70,7 @@ build_weather() {
 build_celnav() {
   out=bin/celnav
   {
-    cat src/celnav/10-head.sh
+    head_of src/celnav/10-head.sh
     echo ''
     echo '# ---- engine extraction (written once, then reused) -----------------'
     echo 'install_engine() {'
@@ -86,7 +96,7 @@ build_celnav() {
 build_colregs() {
   out=bin/colregs
   {
-    cat src/colregs/10-head.sh
+    head_of src/colregs/10-head.sh
     echo ''
     echo '# ---- engine extraction (written once, then reused) -----------------'
     echo 'install_engine() {'
@@ -117,7 +127,7 @@ build_colregs() {
 build_tides() {
   out=bin/tides
   {
-    cat src/tides/10-head.sh
+    head_of src/tides/10-head.sh
     echo ''
     echo '# ---- data extraction (written once, then reused) -------------------'
     echo 'extract_data() {'
@@ -144,4 +154,9 @@ build_colregs
 build_tides
 build_decklog
 build_weather
+
+#  the launcher is a plain script - nothing to extract, no engine
+cp src/launcher/bashnav.sh bin/bashnav
+chmod +x bin/bashnav
+
 ls -l bin/

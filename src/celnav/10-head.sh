@@ -8,7 +8,7 @@
 # =====================================================================
 CELNAV_VERSION=1.6
 
-: "${CELNAV_HOME:=$HOME/.celnav}"
+: "${CELNAV_HOME:=$(bn_home .celnav)}"
 ENGINE="$CELNAV_HOME/engine-$CELNAV_VERSION.awk"
 TEACH="$CELNAV_HOME/teach-$CELNAV_VERSION.awk"
 PROG="$CELNAV_HOME/progress"

@@ -4,7 +4,7 @@ Marine navigation tools written in POSIX shell and awk. No dependencies, no
 network, no data files that expire. Each tool is a single file you can copy onto
 anything with a shell — including an iPad.
 
-Three of them:
+Five of them, and one launcher:
 
 | | |
 |---|---|
@@ -13,6 +13,7 @@ Three of them:
 | **[tides](#tides)** | Harmonic tide prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer &mdash; is there enough water. Overhead clearance too, where there are bridges. |
 | **[deck-log](#deck-log)** | The boat's records &mdash; deck, engine, provisions &mdash; kept append-only in UTC, with the spares worked out by replaying the log rather than stored. |
 | **[weather](#weather)** | Read your own barometer. Reasons over the observations in your deck log and **shows its working** &mdash; the pressure tide, backing and veering, Buys Ballot, fog, cloud base, the warm-front cloud sequence, swell as the earliest warning there is &mdash; and teaches the physics underneath in ten lessons. Then you forecast, it forecasts, and both are scored. |
+| **[bashnav](#bashnav)** | One launcher for the lot. Run it with no arguments for a menu, or `bashnav tides` to go straight there. On an iPad it is the one home-screen icon that reaches all five. |
 
 <img src="docs/img/celnav-plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
 
@@ -90,9 +91,12 @@ To put them on your path:
 
 ```sh
 mkdir -p ~/bin
-cp bin/celnav bin/colregs bin/tides bin/deck-log bin/weather ~/bin/
-chmod +x ~/bin/celnav ~/bin/colregs ~/bin/tides ~/bin/deck-log ~/bin/weather
+cp bin/celnav bin/colregs bin/tides bin/deck-log bin/weather bin/bashnav ~/bin/
+chmod +x ~/bin/celnav ~/bin/colregs ~/bin/tides ~/bin/deck-log ~/bin/weather ~/bin/bashnav
 ```
+
+Then `bashnav` on its own gives you a menu of the other five, and
+`bashnav tides` runs one directly.
 
 **On macOS, Linux or a BSD** there is nothing else to do. `celnav doctor` will
 confirm it.
@@ -117,6 +121,7 @@ curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/colregs
 curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/tides
 curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/deck-log
 curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/weather
+curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/bashnav
 ```
 
 `help -l | grep curl` tells you whether a-Shell has it. If it does not, put the
@@ -126,13 +131,21 @@ files into iCloud Drive or **On My iPad** from a computer, then in a-Shell type
 **3. Run them.**
 
 ```sh
-chmod +x celnav colregs tides deck-log weather
+chmod +x celnav colregs tides deck-log weather bashnav
 ./celnav doctor
+./bashnav                  # the menu
 ```
 
-> **`cd ~/Documents` matters.** iOS only lets an app write inside its own
-> `Documents`, `Library` and `tmp`. Put the tools somewhere else and they will
-> not be able to create the folder they keep their engine and your log in.
+> **`cd ~/Documents` matters, and `~` will not do.** iOS lets an app write
+> inside its own `Documents`, `Library` and `tmp` and **nowhere else** &mdash;
+> a-Shell's own words: *"In iOS, you cannot write in the `~` directory, only in
+> `~/Documents/`, `~/Library/` and `~/tmp`."* `~` there is the app's data
+> container, `/private/var/mobile/Containers/Data/Application/<uuid>`.
+>
+> Each tool keeps its engine, its settings and your log in a folder of its own,
+> and **it picks a writable one**: `~/.celnav` on a Mac or a Linux box,
+> `~/Documents/.celnav` on an iPad, because that is the first place iOS allows.
+> `celnav doctor` and `tides where` print the folder they actually chose.
 
 **Under iSH only**, install an awk with the maths library first &mdash; the
 BusyBox one is sometimes built without it:
@@ -150,56 +163,38 @@ a second. The others are well under 200 KB.
 
 ---
 
-## Why it is built this way
+### An icon on the home screen
 
-**It has to work when nothing else does.** No internet, no app store, no
-almanac to buy, nothing that runs out at the end of the year. `celnav`'s almanac
-is computed from orbital theory built into the script.
+a-Shell ships three Shortcuts actions, and the one you want is **Execute
+Command**. A Shortcut can be added to the home screen, so this gives a tool a
+real icon that opens straight into it.
 
-**It has to run on whatever shell you can get.** POSIX `sh` plus `awk` is the
-largest common denominator across iSH and a-Shell on iOS, Termux on Android,
-macOS, Linux and the BSDs. There is no build step and nothing to install.
+**Make the Shortcut.**
 
-**One file per tool.** Each program carries its own engine inside it as text and
-writes it out on first run. Moving a tool to a new device is moving one file.
+1. Shortcuts app &rarr; **+** &rarr; search for **a-Shell** &rarr; **Execute
+   Command**.
+2. For the command, type what you would type at the prompt:
 
-**The working is visible.** Every intermediate value is printed. If an answer
-looks wrong you can see where it went wrong, and you can continue by hand from
-any line of the output. These are assistants, not black boxes.
+       cd ~/Documents; ./bashnav
 
----
+3. **Set it to run In App.** This is the part that matters and it is not the
+   default. Expand the action's options and choose **In App**, not **In
+   Extension**.
+4. Name it, then **Share &rarr; Add to Home Screen**, and pick an icon.
 
-## Install
+> **Why In App.** a-Shell runs a Shortcut in an extension when it can, because
+> that is faster. The extension is, in the developer's words, *"a lightweight
+> version of the App, without no graphical user interface"*, while In App
+> *"opens the main application to execute the shortcut"*. Every tool here is
+> interactive &mdash; it draws a menu and waits for a keystroke &mdash; so in
+> the extension there is no terminal for it to draw on and nothing to read the
+> keystroke from. In App is not an optimisation you are giving up; it is the
+> only mode these tools can work in.
 
-Copy the file, make it executable, run it. That is the whole procedure.
-
-```sh
-git clone https://github.com/larrys614/bashnav.git
-cd bashnav
-./bin/celnav doctor        # checks your awk, your clock and the data folder
-./bin/colregs about
-```
-
-To put them on your path:
-
-```sh
-mkdir -p ~/bin && cp bin/celnav bin/colregs ~/bin/ && chmod +x ~/bin/celnav ~/bin/colregs
-```
-
-**On macOS, Linux or a BSD** there is nothing to install. `celnav doctor` will
-confirm it.
-
-**On an iPad.** Both tools run under [iSH](https://ish.app) and
-[a-Shell](https://holzschu.github.io/a-Shell_iOS/). Under iSH *only*, install an
-awk with the maths library first — the BusyBox one is sometimes built without it:
-
-```sh
-apk add gawk        # iSH only. apk is Alpine's package manager and
-                    # does not exist on macOS.
-```
-
-a-Shell already has a suitable awk. `celnav doctor` will tell you either way, and
-names the fix if something is missing.
+**One icon or five.** `cd ~/Documents; ./bashnav` gives you one icon that opens
+the menu. Repeat the recipe with `./bashnav tides`, `./bashnav colregs` and so
+on if you would rather have an icon each. On a wet deck, one icon and a
+five-line menu is easier to hit than five icons on a page of forty.
 
 ---
 
@@ -578,6 +573,46 @@ Weighted error points from the WxChallenge &mdash; half a point per knot, one
 per millibar, a tenth per degree &mdash; so a near miss scores like one. Scoring
 the rules as well as you is the point: it keeps the tool honest, it teaches you
 *when* a rule of thumb holds, and it lets you beat it.
+
+---
+
+## bashnav
+
+One launcher in front of the other five. It is pure `sh` &mdash; no awk, no
+engine, nothing to extract &mdash; and it exists for one reason: an iPad can put
+*one* icon on a home screen far more easily than five, and finding the right
+icon among forty on a wet deck is worse than reading a list of five.
+
+```
+  ===============================================================
+   BASH NAVIGATION SOFTWARE 1.0
+  ===============================================================
+
+    1  celnav    Celestial navigation, sight reduction and the fix
+    2  colregs   Rules of the road, lights, and collision avoidance
+    3  tides     Tide prediction for 8,334 stations
+    4  deck-log  The boat's records: deck, engine, provisions
+    5  weather   Read your own barometer
+
+    q  Quit
+
+  >
+```
+
+    bashnav              the menu
+    bashnav tides        run one directly
+    bashnav tides near   arguments pass straight through
+    bashnav where        where each tool was found
+    bashnav version
+
+It looks for each tool beside itself, in `./bin`, in `~/Documents`, in `~/bin`,
+in the current directory, and finally on your `PATH` &mdash; in that order. A
+tool it cannot find is still listed, marked `-- not found --`, with the places
+it looked. Silently hiding a tool because it is one directory away is how a
+launcher becomes the problem it was meant to solve.
+
+See [an icon on the home screen](#an-icon-on-the-home-screen) for the Shortcuts
+recipe.
 
 ---
 

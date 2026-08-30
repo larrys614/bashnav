@@ -10,7 +10,7 @@
 # =====================================================================
 DECKLOG_VERSION=1.1
 
-: "${DECKLOG_HOME:=$HOME/.bashnav}"
+: "${DECKLOG_HOME:=$(bn_home .bashnav)}"
 LOG="$DECKLOG_HOME/log"
 BOAT="$DECKLOG_HOME/boat"
 CONF="$DECKLOG_HOME/decklog.conf"

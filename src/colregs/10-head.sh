@@ -8,7 +8,7 @@
 # =====================================================================
 COLREGS_VERSION=1.15
 
-: "${COLREGS_HOME:=$HOME/.colregs}"
+: "${COLREGS_HOME:=$(bn_home .colregs)}"
 ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
 CONTACTS="$COLREGS_HOME/contacts-$COLREGS_VERSION.awk"
 REVIEW="$COLREGS_HOME/review-$COLREGS_VERSION.awk"

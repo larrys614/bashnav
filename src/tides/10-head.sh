@@ -5,7 +5,7 @@
 #  Copyright 2026 M. Larry Sherman.  Apache License 2.0.
 # =====================================================================
 TIDES_VERSION=1.1
-TIDES_HOME=${TIDES_HOME:-$HOME/.tides}
+TIDES_HOME=${TIDES_HOME:-$(bn_home .tides)}
 CONF="$TIDES_HOME/config"
 ENGINE="$TIDES_HOME/engine-$TIDES_VERSION.awk"
 TABLES="$TIDES_HOME/tables-$TIDES_VERSION.awk"
