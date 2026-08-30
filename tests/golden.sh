@@ -233,12 +233,21 @@ cat > "$DLD/log" <<'DLOG'
 2026-08-30T12:00Z|wx|mslp=1010.1|ptend=7|airt=17.2|dewp=16.8|seat=16.9|cloud=7|swper=14|swdir=230|~
 2026-08-30T15:00Z|eng|eq=eng.main|job=impeller|part=impeller|qty=1|hrs=1234.5|~
 DLOG
-DL="-f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk -f src/decklog/screens.awk"
+DL="-f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk -f src/decklog/score.awk -f src/decklog/screens.awk"
 {
   for c in recent holdings shopping defects equip; do
     echo "=== deck-log $c ==="
     $AW $DL -v cmode=plain -v cmd="$c" -v LOG="$DLD/log" -v BOAT="$DLD/boat" -v n=20 </dev/null
   done
+  echo "=== deck-log the score ==="
+  cat >> "$DLD/log" <<'FLOG'
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=you|wdir=150|wspd=30|mslp=1002|~
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=rules|wdir=114|wspd=48|mslp=1001|~
+2026-08-30T12:00Z|fc|for=2026-08-31T00:00Z|by=persist|wdir=170|wspd=22|mslp=1010|~
+2026-08-31T00:00Z|nav|lat=42 00.0N|wdir=150|wspd=32|sea=5|~
+2026-08-31T00:00Z|wx|mslp=1003.0|~
+FLOG
+  $AW $DL -v cmode=plain -v cmd=score -v LOG="$DLD/log" -v BOAT="$DLD/boat" </dev/null
   echo "=== deck-log what the log says ==="
   $AW $DL -v cmode=plain -v cmd=wx -v LOG="$DLD/log" -v BOAT="$DLD/boat" -v lon=-72 </dev/null
   for m in cloud sea vis ptend cl cm ch; do

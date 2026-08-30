@@ -20,6 +20,7 @@ build_decklog() {
     cat src/decklog/log.awk
     cat src/decklog/views.awk
     cat src/decklog/wx.awk
+    cat src/decklog/score.awk
     cat src/decklog/screens.awk
     echo '__DECKLOG_ENGINE__'
     echo '}'

@@ -293,6 +293,65 @@ do_correct() {
   echo "  correction logged. The original entry is untouched."
 }
 
+# ---------------------------------------------------------------------
+#  The learning loop.
+#
+#  YOU FORECAST FIRST.  The app shows nothing of its own until yours is
+#  written down. Print the machine's guess first and you have not
+#  forecast anything, you have agreed with an answer - which feels like
+#  learning and is not.
+# ---------------------------------------------------------------------
+do_forecast() {
+  printf "  how many hours ahead? [12] "; IFS= read -r hrs || hrs=12
+  [ -z "$hrs" ] && hrs=12
+  case "$hrs" in *[!0-9]*) echo "  ?"; return 1 ;; esac
+  valid=$(eng -v cmd=validat -v hours="$hrs")
+  printf "  your longitude, E positive (return to skip the pressure-tide
+  correction): "; IFS= read -r lo
+  echo
+  echo "  ==============================================================="
+  echo "   YOUR forecast for $valid"
+  echo "  ==============================================================="
+  echo "   Yours first. Nothing of mine until yours is written down."
+  echo "   Return to leave a field out."
+  echo
+  fld_start
+  fld for "$valid"; fld by user
+  ask_num wdir "wind direction, degrees true" ""
+  ask_num wspd "wind speed, knots" ""
+  ask_num mslp "sea level pressure, hPa" ""
+  ask_menu sea sea
+  fld who "${who:--}"
+  fld_commit fc || return 1
+  echo
+  echo "  yours is logged. Now mine."
+  #  only now
+  for w in rules persist; do
+    fld_start
+    fld for "$valid"; fld by "$w"
+    eng -v cmd=fcast -v hours="$hrs" -v lon="$lo" -v who2="$w" | while IFS='=' read -r k v; do
+      [ -n "$k" ] && printf '%s	%s
+' "$k" "$v" >> "$FIELDS"
+    done
+    fld_commit fc || true
+  done
+  echo
+  eng -v cmd=recent -v n=6 | grep -i "fc" >/dev/null 2>&1 || true
+  $AWK -F'|' -v v="$valid" '
+    /\|fc\|/ && $0 ~ ("for=" v) {
+      by=""; wd=""; ws=""; mp=""; sa=""; why=""
+      for(i=3;i<=NF;i++){ p=index($i,"="); k=substr($i,1,p-1); x=substr($i,p+1)
+        if(k=="by") by=x; else if(k=="wdir") wd=x; else if(k=="wspd") ws=x
+        else if(k=="mslp") mp=x; else if(k=="sea") sa=x; else if(k=="why") why=x }
+      printf "  %-8s wind %-4s %-4s kn   %-7s hPa   sea %s\n", by, wd, ws, mp, sa
+      if(why!="" && why!="-"){ gsub(/%3D/,"=",why); gsub(/%7C/,"|",why)
+                               printf "     %s\n", why }
+    }' "$LOG"
+  echo
+  echo "  Log the observation for $valid when it comes, then: deck-log score"
+  echo
+}
+
 help_text() {
   cat <<'HLP'
 
@@ -306,6 +365,8 @@ help_text() {
   deck-log job             record work done, and the part it used
   deck-log open            what is outstanding
   deck-log what [lon]      what the log says about the weather
+  deck-log forecast        your forecast first, then mine, then both are scored
+  deck-log score           how you, the rules and persistence are doing
   deck-log spares          what is aboard
   deck-log shopping        the list for the next port
   deck-log equip | part    the registry
@@ -337,7 +398,8 @@ menu() {
     3  Engine inspection       7  The log
     4  Work done               8  What is outstanding
 
-    w  What the log says (the weather reasoning)
+    w  What the log says       f  Make a forecast
+                              k  The score
 
     p  Provisions   s  Stocktake   e  Equipment   n  New part
     x  Correct an entry
@@ -352,6 +414,8 @@ M
       6) printf "  which port (return for none): "; IFS= read -r p
          eng -v cmd=shopping -v port="$p" ;;
       7) eng -v cmd=recent -v n=20 ;;
+      f|F) do_forecast ;;
+      k|K) eng -v cmd=score ;;
       w|W) printf "  your longitude in degrees, E positive (return to skip the\n  daily pressure-tide correction): "; IFS= read -r lo
            eng -v cmd=wx -v lon="$lo" ;;
       8) eng -v cmd=defects ;;
@@ -383,6 +447,8 @@ case "${1:-}" in
   job)        do_job ;;
   open)       eng -v cmd=defects ;;
   what|reason) shift; eng -v cmd=wx -v lon="${1:-}" ;;
+  forecast)   do_forecast ;;
+  score)      eng -v cmd=score ;;
   spares)     eng -v cmd=holdings ;;
   shopping)   shift; eng -v cmd=shopping -v port="${1:-}" ;;
   equip)      eng -v cmd=equip ;;

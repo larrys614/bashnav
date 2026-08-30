@@ -362,6 +362,25 @@ for SH in $SHELLS; do
     *) bad "weather rules: $r" ;;
   esac
 
+  r=$($AW -f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk \
+        -f src/decklog/score.awk -f tests/score-check.awk </dev/null | tail -1)
+  case "$r" in
+    "SCORERESULT "*" 0") ok "forecast scoring is right, including on the circle ($r)" ;;
+    *) bad "forecast scoring: $r" ;;
+  esac
+  r=$($AW -f src/decklog/log.awk -f src/decklog/views.awk -f src/decklog/wx.awk \
+        -f src/decklog/score.awk -f tests/date-check.awk </dev/null | tail -1)
+  case "$r" in
+    "DATERESULT 0") ok "date arithmetic round-trips over forty years" ;;
+    *) bad "date arithmetic: $r" ;;
+  esac
+  if o=$(sh tests/score-e2e.sh "$AW" 2>&1); then
+    ok "you, the rules and persistence all score against a hand-worked answer"
+  else printf '%s\n' "$o" | head -3; bad "end-to-end scoring"; fi
+  if o=$(sh tests/forecast-order.sh "$AW" "$SH" 2>&1); then
+    ok "the app never shows its forecast before yours is written down"
+  else printf '%s\n' "$o" | head -3; bad "never tell before you ask"; fi
+
   #  deck-log end to end: the registry, a job, the derived holding, the
   #  shopping list, and append-only across every write path
   if o=$(sh tests/decklog-check.sh "$AW" "$SH" 2>&1); then

@@ -1,5 +1,48 @@
 # Changelog
 
+## deck-log 1.1 - the learning loop
+
+The weather section completed: forecast, verify, score.
+
+    deck-log forecast    yours first, then mine, then both are scored
+    deck-log score       how you, the rules and persistence are doing
+
+**You forecast first, and the app shows nothing of its own until yours is
+written down.** Print the machine's guess first and the person has not
+forecast anything - they have read an answer and agreed with it. It feels like
+learning and is not. Same bug as the colregs lights quiz printing the aspect
+and then asking for it; the house rule is now **never tell before you ask**,
+and `tests/forecast-order.sh` enforces it as an ordering property of the
+transcript and of the log.
+
+**Three are scored, not one.** Scoring only the user would make the app an
+oracle and it is not one: every rule in it is a rule of thumb. Scoring the
+rules keeps it honest, teaches calibration - a rule right seven times in ten is
+useful *once you know it is seven in ten* - and lets the user win, which is the
+point, because a training tool that cannot be outgrown is badly built.
+
+The third is **persistence**: "in twelve hours it will be much as it is now."
+It is the honest floor, it is hard to beat at short range, and a forecast that
+does not beat it has shown no skill at all.
+
+Weighted error points from the WxChallenge - half a point per knot, one per
+millibar, a tenth per degree - so a near miss scores like a near miss rather
+than as a failure.
+
+### What the tests caught
+
+- **The valid-time calculation returned the year 4600** for a date in 2026.
+  Date arithmetic written from memory is a reliable way to be confidently
+  wrong. `tests/date-check.awk` now round-trips every day for forty years and
+  checks every valid time lands on a synoptic hour and in the future.
+- **Wind direction had to be scored on the circle**: 350 against 010 is 20
+  degrees, not 340. Scored linearly, every forecast near north would have been
+  marked a catastrophe, and it would have looked for a whole season like the
+  forecaster being bad at north.
+
+`tests/score-e2e.sh` checks all three scores against an answer worked by hand
+in the comments, so the arithmetic can be verified by reading it.
+
 ## deck-log 1.0 - the boat's records
 
 The fourth tool. The deck log, the engine log and the provisions list in one

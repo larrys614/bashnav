@@ -406,6 +406,28 @@ backing and veering; Buys Ballot; fog from dew point against sea temperature;
 cloud base from the spread; and a long-period swell from a new direction, which
 outruns the storm that made it.
 
+### And it keeps score
+
+`deck-log forecast` asks for **your** forecast first and writes it down before
+showing any of its own &mdash; print the machine's guess first and you have not
+forecast anything, you have agreed with an answer. Then it offers two of its
+own: the rule set, and **persistence** ("in twelve hours it will be much as it
+is now"), which is the honest floor. Log the observation it was made for, and
+`deck-log score` marks all three.
+
+```
+             points  per field, points per forecast
+  you           2.0   dir 0.0  spd 1.0  hPa 1.0
+  rules        13.6   dir 3.6  spd 8.0  hPa 2.0
+  persist      14.0   dir 2.0  spd 5.0  hPa 7.0
+```
+
+Weighted error points, taken from the WxChallenge: half a point per knot, one
+per millibar, a tenth per degree &mdash; so a near miss scores like a near
+miss. Scoring the rules too is the point. It keeps the tool honest, it teaches
+you *when* a rule of thumb holds, and it lets you beat it &mdash; which is what
+a training tool is for.
+
 It is **not a forecast**: no model, no chart, no GRIB. It is you, reading your
 own barometer &mdash; which is the one category of weather data that is never
 wrong, and the only one still available when the antenna comes down.
