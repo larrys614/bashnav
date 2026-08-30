@@ -23,7 +23,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -56,7 +60,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -89,7 +97,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -122,7 +134,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -155,7 +171,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -188,7 +208,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -221,7 +245,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -254,7 +282,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -287,7 +319,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -320,7 +356,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -353,7 +393,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -386,7 +430,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel under 50 m, under way
   Rule 23.  One masthead light, sidelights, sternlight.
@@ -419,7 +467,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -452,7 +504,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -485,7 +541,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -518,7 +578,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -551,7 +615,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -584,7 +652,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -617,7 +689,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -650,7 +726,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -683,7 +763,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -716,7 +800,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -749,7 +837,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -782,7 +874,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Power-driven vessel of 50 m or more, under way
   Rule 23.  Two masthead lights, the after one higher.
@@ -815,7 +911,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -848,7 +948,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -881,7 +985,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -914,7 +1022,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -947,7 +1059,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -980,7 +1096,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -1013,7 +1133,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -1046,7 +1170,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -1079,7 +1207,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -1112,7 +1244,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -1145,7 +1281,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -1178,7 +1318,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under way
   Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
@@ -1211,7 +1355,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1244,7 +1392,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1277,7 +1429,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1310,7 +1466,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1343,7 +1503,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1376,7 +1540,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1409,7 +1577,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1442,7 +1614,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1475,7 +1651,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1508,7 +1688,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1541,7 +1725,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1574,7 +1762,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel, optional all-round pair
   Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
@@ -1607,7 +1799,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1640,7 +1836,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1673,7 +1873,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1706,7 +1910,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1739,7 +1947,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1772,7 +1984,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1805,7 +2021,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1838,7 +2058,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1871,7 +2095,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1904,7 +2132,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1937,7 +2169,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -1970,7 +2206,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, under 50 m
   Rule 30.  A single all-round white light where it can best be seen.
@@ -2003,7 +2243,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2036,7 +2280,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2069,7 +2317,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2102,7 +2354,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2135,7 +2391,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2168,7 +2428,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2201,7 +2465,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2234,7 +2502,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2267,7 +2539,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2300,7 +2576,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2333,7 +2613,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2366,7 +2650,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel at anchor, 50 m or more
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
@@ -2399,7 +2687,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2432,7 +2724,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2465,7 +2761,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2498,7 +2798,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2531,7 +2835,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2564,7 +2872,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2597,7 +2909,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2630,7 +2946,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2663,7 +2983,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2696,7 +3020,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2729,7 +3057,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2762,7 +3094,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel aground
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
@@ -2795,7 +3131,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -2828,7 +3168,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -2861,7 +3205,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -2894,7 +3242,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -2927,7 +3279,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -2960,7 +3316,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -2993,7 +3353,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -3026,7 +3390,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -3059,7 +3427,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -3092,7 +3464,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -3125,7 +3501,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -3158,7 +3538,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making no way
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
@@ -3191,7 +3575,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3224,7 +3612,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3257,7 +3649,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3290,7 +3686,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3323,7 +3723,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3356,7 +3760,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3389,7 +3797,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3422,7 +3834,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3455,7 +3871,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3488,7 +3908,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3521,7 +3945,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3554,7 +3982,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Not under command, making way
   Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
@@ -3587,7 +4019,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3621,7 +4057,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3655,7 +4095,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3689,7 +4133,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3723,7 +4171,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3757,7 +4209,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3791,7 +4247,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3825,7 +4285,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3859,7 +4323,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3893,7 +4361,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3927,7 +4399,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3961,7 +4437,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Restricted in her ability to manoeuvre
   Rule 27.  Red, white, red in a vertical line. Making way, so the ordinary lights as well.
@@ -3995,7 +4475,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4028,7 +4512,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4061,7 +4549,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4094,7 +4586,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4127,7 +4623,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4160,7 +4660,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4193,7 +4697,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4226,7 +4734,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4259,7 +4771,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4292,7 +4808,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4325,7 +4845,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4358,7 +4882,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Constrained by her draught
   Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
@@ -4391,7 +4919,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4425,7 +4957,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4459,7 +4995,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4493,7 +5033,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4527,7 +5071,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4561,7 +5109,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4595,7 +5147,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4629,7 +5185,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4663,7 +5223,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4697,7 +5261,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4731,7 +5299,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4765,7 +5337,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel trawling
   Rule 26.  Green over white. Green for a trawl dragged along the bottom.
@@ -4799,7 +5375,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -4833,7 +5413,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -4867,7 +5451,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -4901,7 +5489,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -4935,7 +5527,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -4969,7 +5565,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -5003,7 +5603,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -5037,7 +5641,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -5071,7 +5679,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -5105,7 +5717,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -5139,7 +5755,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -5173,7 +5793,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Fishing, other than trawling
   Rule 26.  Red over white. The old rhyme: red over white, fishing at night.
@@ -5207,7 +5831,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5241,7 +5869,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5275,7 +5907,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5309,7 +5945,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5343,7 +5983,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5377,7 +6021,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5411,7 +6059,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5445,7 +6097,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5479,7 +6135,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5513,7 +6173,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5547,7 +6211,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5581,7 +6249,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Pilot vessel on duty
   Rule 29.  White over red: pilot ahead. Sidelights and sternlight when under way.
@@ -5615,7 +6287,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5648,7 +6324,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5681,7 +6361,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5714,7 +6398,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5747,7 +6435,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5780,7 +6472,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5813,7 +6509,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5846,7 +6546,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5879,7 +6583,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5912,7 +6620,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5945,7 +6657,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -5978,7 +6694,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow under 200 m
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
@@ -6011,7 +6731,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6044,7 +6768,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6077,7 +6805,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6110,7 +6842,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6143,7 +6879,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6176,7 +6916,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6209,7 +6953,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6242,7 +6990,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6275,7 +7027,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6308,7 +7064,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6341,7 +7101,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6374,7 +7138,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Towing, tow over 200 m
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
@@ -6407,7 +7175,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6440,7 +7212,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6473,7 +7249,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6506,7 +7286,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6539,7 +7323,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6572,7 +7360,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6605,7 +7397,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6638,7 +7434,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6671,7 +7471,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6704,7 +7508,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6737,7 +7545,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6770,7 +7582,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Vessel being towed
   Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
@@ -6803,7 +7619,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -6837,7 +7657,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -6871,7 +7695,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -6905,7 +7733,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -6939,7 +7771,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -6973,7 +7809,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -7007,7 +7847,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -7041,7 +7885,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -7075,7 +7923,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -7109,7 +7961,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -7143,7 +7999,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -7177,7 +8037,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
@@ -7211,7 +8075,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7244,7 +8112,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7277,7 +8149,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7310,7 +8186,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7343,7 +8223,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7376,7 +8260,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7409,7 +8297,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7442,7 +8334,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7475,7 +8371,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7508,7 +8408,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7541,7 +8445,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7574,7 +8482,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Air-cushion vessel in non-displacement mode
   Rule 23.  The ordinary power-driven lights plus an all-round flashing yellow.
@@ -7607,7 +8519,11 @@
   You are right ahead of her: you are looking at her bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7640,7 +8556,11 @@
   You are fine on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7673,7 +8593,11 @@
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7706,7 +8630,11 @@
   You are on her starboard beam: you see her whole starboard side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7739,7 +8667,11 @@
   You are broad on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7772,7 +8704,11 @@
   You are fine on her starboard quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7805,7 +8741,11 @@
   You are right astern of her: you are looking at her stern.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7838,7 +8778,11 @@
   You are fine on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7871,7 +8815,11 @@
   You are broad on her port quarter.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7904,7 +8852,11 @@
   You are on her port beam: you see her whole port side.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7937,7 +8889,11 @@
   You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
@@ -7970,7 +8926,11 @@
   You are fine on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Sailing vessel under 7 m, or a vessel under oars
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.

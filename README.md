@@ -184,29 +184,37 @@ The rules of the road, drawn in characters.
 - **Sound signals** drawn as timelines, since a script cannot make a noise.
 - **Fifteen lessons** on the rules themselves, each with a check question.
 
+<img src="docs/img/colregs-mineclear.svg" alt="A mine clearance vessel seen from broad on her starboard quarter: three all-round green lights, one on the mast and two out on a yard, with her masthead light forward" width="633">
+
+<details>
+<summary>the same thing as text, to copy</summary>
+
 ```
   WHAT DO YOU SEE?
   ----------------------------------------------------------------------
-                                      R
-                                      W
-                                      :
-                                      R
-                                      :W
-                                      ::
-                                      ::
-                                      ::
-                                 G    ::
-                                 :    ::
-                                 :    ::
-                                 :    ::
-                                 :    ::
-                   =================================
+  masthead height
+                              G
+                              :
+                           G--:---G
+                           :  :   :
+                           :  W   :
+                           :  :   :
+                           :  :   :
+                           :  :   :
+                           :  :   : R
+                           :  :   : :
+                           :  :   : :
+                           :  :   : :
+  deck                     :  :   : :
+                 =====================================
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her starboard bow.
+  You are broad on her port bow.
   Letters are the colours: W white  R red  G green  Y yellow
 ```
+
+</details>
 
 Every light also carries its colour as a letter, so the pattern is unambiguous
 in night mode, in plain mode, and for anyone who does not see red and green.
@@ -308,6 +316,8 @@ stations spanning small and large ranges, mixed and diurnal regimes:
 The fixture is committed, so the check runs with no network like everything
 else here.
 
+<img src="docs/img/tides-find.svg" alt="Searching for a tide station by part of its name: four matches for 'new lon', numbered for picking" width="633">
+
 **A tide height is not a tidal stream.** The rise and fall is the vertical;
 set and drift is the horizontal, and the two are different measurements made
 at different places. They are related, but locally: in a standing-wave basin
@@ -375,6 +385,12 @@ colregs night
   ----------------------------------------------------------------------
   You are broad on her starboard bow.
   Letters are the colours: W white  R red  G green  Y yellow
+  Sideways spacing is where the lights sit along her hull, close to.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 ```
 
 </details>

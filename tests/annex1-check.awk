@@ -42,6 +42,15 @@ BEGIN{
       #  masthead light
       if(nmast>0 && sgh > 0.75*mfh + 1e-9)
         fail(key,sprintf("sidelights at %.2f are above 3/4 of the masthead light at %.2f",sgh,mfh))
+      #  Annex I 3(b), the other half of the same sentence: "the
+      #  sidelights shall not be placed in front of the forward
+      #  masthead lights."  So a sidelight belongs AT or ABAFT the
+      #  forward masthead light, never ahead of it.  This is the rule
+      #  behind the thing that looks wrong in the drawing - a green
+      #  light sitting aft of the masts on a vessel showing you her
+      #  starboard bow.  It is not a drawing error; it is Annex I.
+      if(nmast>0 && sgx > mfx + 1e-9)
+        fail(key,sprintf("sidelights at %.2f are forward of the masthead light at %.2f",sgx,mfx))
     }
     #  A vessel under way showing sidelights shows a sternlight
     if(ng==1 && nstern==0 && key!="tow200" && key!="tow200p")

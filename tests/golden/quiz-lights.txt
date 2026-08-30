@@ -22,7 +22,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Mine clearance vessel
@@ -92,7 +96,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Fishing, other than trawling
@@ -162,7 +170,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Fishing, other than trawling
@@ -235,7 +247,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel being towed
@@ -304,7 +320,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Sailing vessel under 7 m, or a vessel under oars
@@ -378,7 +398,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel at anchor, under 50 m
@@ -476,7 +500,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Mine clearance vessel
@@ -550,7 +578,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Sailing vessel under way
@@ -619,7 +651,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Air-cushion vessel in non-displacement mode
@@ -692,7 +728,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Not under command, making way
@@ -762,7 +802,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Not under command, making no way
@@ -860,7 +904,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Mine clearance vessel
@@ -929,7 +977,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow over 200 m
@@ -998,7 +1050,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel at anchor, 50 m or more
@@ -1068,7 +1124,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow over 200 m
@@ -1138,7 +1198,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow under 200 m
@@ -1207,7 +1271,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel at anchor, 50 m or more
@@ -1305,7 +1373,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel aground
@@ -1374,7 +1446,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Mine clearance vessel
@@ -1447,7 +1523,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow over 200 m
@@ -1516,7 +1596,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Not under command, making way
@@ -1586,7 +1670,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Mine clearance vessel
@@ -1655,7 +1743,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Pilot vessel on duty
@@ -1725,7 +1817,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Mine clearance vessel
@@ -1799,7 +1895,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow over 200 m
@@ -1869,7 +1969,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel at anchor, 50 m or more
@@ -1938,7 +2042,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow under 200 m
@@ -2008,7 +2116,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel being towed
@@ -2078,7 +2190,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel aground
@@ -2176,7 +2292,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Restricted in her ability to manoeuvre
@@ -2250,7 +2370,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow under 200 m
@@ -2348,7 +2472,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Fishing, other than trawling
@@ -2422,7 +2550,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Vessel at anchor, 50 m or more
@@ -2520,7 +2652,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Pilot vessel on duty
@@ -2594,7 +2730,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Restricted in her ability to manoeuvre
@@ -2664,7 +2804,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Pilot vessel on duty
@@ -2738,7 +2882,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Fishing, other than trawling
@@ -2808,7 +2956,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow under 200 m
@@ -2877,7 +3029,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Air-cushion vessel in non-displacement mode
@@ -2947,7 +3103,11 @@
   ----------------------------------------------------------------------
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
-  It is not a heading cue - at any real range they are all in line.
+  Annex I keeps sidelights abaft the forward masthead light, so a
+  sidelight falls toward her stern here, never toward her bow. And
+  at a bow aspect you see across her beam more than along her length,
+  so her green swings left - as it does bow-on. Not a heading cue:
+  at any real range every one of them is in line.
 
   Q1  What is she?
      a) Towing, tow over 200 m

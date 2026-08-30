@@ -308,9 +308,21 @@ for SH in $SHELLS; do
   #  and no image rendered at all.  From the outside that is
   #  indistinguishable from a picture with no colour in it, which is
   #  exactly how it was reported and why it took so long to find.
-  r=$($AW -f tests/readme-check.awk -v WANT=4 README.md)
+  #  The README pastes real program output into fenced blocks by hand, so
+  #  it drifts. The colregs plate sat there for weeks saying "You are on
+  #  her starboard bow" after the program had started saying "broad on",
+  #  and without the note that explains why a sidelight is drawn aft of
+  #  the masts - the one thing a reader of that picture needs.
+  if o=$(sh tests/plates-check.sh "$AW" 2>&1); then
+    ok "the README's plates still match what the program prints"
+  else
+    printf '%s\n' "$o" | grep -v '^PLATES OK'
+    bad "a README plate has drifted from the program"
+  fi
+
+  r=$($AW -f tests/readme-check.awk -v WANT=6 README.md)
   case "$r" in
-    *"READMERESULT 0 "*) ok "the README's fences close and all four pictures render" ;;
+    *"READMERESULT 0 "*) ok "the README's fences close and all six pictures render" ;;
     *) printf '%s\n' "$r" | grep -v READMERESULT
        bad "the README's markup is broken - see the lines above" ;;
   esac
