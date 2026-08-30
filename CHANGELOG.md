@@ -1,5 +1,91 @@
 # Changelog
 
+## The iPad installer is committed, not gitignored
+
+Larry: *"lets fix it and push it."*
+
+`release/bashnav-ipad.sh` was generated and ignored, and the README's install
+line pointed at `releases/latest/download/…` &mdash; a URL that would exist only
+after somebody cut a GitHub release by hand. That is a step to forget, and it
+would be forgotten while the README told iPad users to `curl` a 404.
+
+It is tracked now, and the install line points at the file in the repo:
+
+    curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/release/bashnav-ipad.sh
+
+which works the moment a change is pushed. CI checks it is not stale exactly the
+way it checks `bin/` &mdash; regenerate, then `git diff` &mdash; because a stale
+installer hands an iPad an older tool than the repository claims and nothing on
+the boat would say so. That check was watched failing before it was trusted: the
+first version of it passed against an untracked file, which proved nothing.
+
+The cost is real and is written down in `REPO-STATE.md`: the installer is a copy
+of all six binaries, so every change to any tool adds ~3.4 MB to git history. If
+cloning ever becomes unpleasant, the way back is a release asset.
+
+## The iPad release: one file, one command
+
+Larry wanted a download-and-run install, and icons on the home screen.
+
+**`bashnav-ipad.sh`** &mdash; one self-extracting script, 3.4 MB, built by
+`release/make-ipad.sh` from `bin/`. `chmod +x`, run it, done.
+
+He asked for two downloads, a tarball and a script. It is one, and the reason is
+the platform: **a-Shell does not guarantee `tar`, and it definitely has no
+`unzip`** &mdash; that needs `pkg install zip`, which needs the network, which is
+the one thing this suite is built never to need. An installer whose first act is
+to require a tool the platform may not have is an installer that fails on the
+boat. So the tools travel inside the script as quoted heredocs, exactly the way
+each tool already carries its own awk engine. `sh` is the only dependency, and
+you have that or you could not run the installer.
+
+What it does: writes the six tools into `~/Documents`, makes them executable,
+**runs every one of them to prove it worked**, and adds a marked block to
+`~/Documents/.profile` &mdash; PATH plus the five `*_HOME` variables &mdash; so
+that in a new a-Shell window `weather` is a command. Run it twice and nothing is
+deleted, your own `.profile` lines survive, the managed block is replaced rather
+than duplicated, and the first `.profile` it met is backed up beside itself.
+
+**Icons: a script cannot make one**, and it says so. On iOS only the Shortcuts
+app can add to the home screen, and only when a person does it. What the
+installer does instead is put the command on the clipboard (`pbcopy`, if
+a-Shell has it), print the four-step recipe with the **In App** setting spelled
+out, and tell you that `open shortcuts://` takes you there.
+
+### A write probe that killed the installer
+
+    mkdir -p "$d" 2>/dev/null && : > "$d/.wtest" 2>/dev/null
+
+Two faults in one line, both invisible until the directory exists and cannot be
+written &mdash; which is exactly `$HOME` on an iPad:
+
+1. **The error reaches the terminal anyway.** Redirections apply left to right,
+   so the failing `>` reports before the `2>/dev/null` meant to silence it.
+2. **Under `dash` the script exits.** `:` is a POSIX *special built-in*, and a
+   redirection error on a special built-in terminates a non-interactive shell.
+
+The installer printed `cannot create /…/.wtest` and stopped dead after "checking
+they run". `bash` survived and only leaked the message, which is how something
+like this reaches a user at all. `( : > … )` fixes both.
+
+The same line was in `src/common/05-home.sh` &mdash; yesterday's fix for the iOS
+`$HOME` bug &mdash; and in `celnav doctor`. Fixed in all three.
+
+### And `/tmp` is not promised either
+
+`deck-log` and `weather` built each record in `${TMPDIR:-/tmp}`. iOS gives an app
+`Documents`, `Library` and its own `tmp`; there may be no `/tmp` at all. Both now
+use the tool's own data folder, which was probed for writability at startup.
+
+### The suite got slower, then didn't
+
+The installer, launcher and `$HOME` checks exercise `sh` and not `awk`, so
+running them for every shell × awk pair did identical work twelve times. They now
+run once per shell. Written as `if [ "$AW" != "$FIRSTAWK" ]; then :` and not as
+`&&` on the check itself &mdash; `if [ … ] && o=$(check)` sends every skipped
+pass down the `else` branch and reports a failure, which would have been a worse
+bug than the slowness.
+
 ## The iPad bug: none of the tools could start on an iPad
 
 Larry, from the boat: *"when i try and run the apps in a-shell i get a could not

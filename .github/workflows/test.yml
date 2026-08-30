@@ -55,3 +55,17 @@ jobs:
             git diff --stat -- bin/
             exit 1
           fi
+
+      #  The iPad installer is generated from bin/ and committed, so that
+      #  the README's curl line works the moment a change is pushed. A
+      #  stale one hands an iPad an older tool than the repo claims, and
+      #  nothing on the boat would say so.
+      - name: Confirm release/bashnav-ipad.sh matches bin/
+        run: |
+          sh release/make-ipad.sh >/dev/null
+          if ! git diff --quiet -- release/; then
+            echo "release/bashnav-ipad.sh is out of date."
+            echo "Run: sh release/make-ipad.sh   and commit the result."
+            git diff --stat -- release/
+            exit 1
+          fi

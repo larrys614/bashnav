@@ -1,6 +1,7 @@
 
 FIELDS=""
-fld_start(){ FIELDS="${TMPDIR:-/tmp}/wx.$$.fields"; : > "$FIELDS"; }
+#  see src/decklog/10-head.sh: not /tmp, which iOS does not promise
+fld_start(){ FIELDS="$DECKLOG_HOME/.wxfields.$$"; mkdir -p "$DECKLOG_HOME" 2>/dev/null; : > "$FIELDS"; }
 fld(){ printf '%s\t%s\n' "$1" "$2" >> "$FIELDS"; }
 fld_commit(){
   mkdir -p "$DECKLOG_HOME"

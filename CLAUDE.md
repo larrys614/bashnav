@@ -64,11 +64,28 @@ manoeuvring watch and worked in the fire control tracking party, so he knows
 relative motion, bearing drift and manual solutions cold, and the contacts
 module in `colregs` is built from methods he remembered and I then verified.
 
-He is not a programmer. He reports what he *sees* — "still no color", "it
-jumps one char to the right" — and those reports are consistently accurate
-descriptions of the symptom. They are not diagnoses, and twice now I have
-wasted rounds by treating them as one. See the entry on the lights picture in
-`docs/HACKING.md`.
+He is a market data systems engineer and has been for decades — Financial
+Sciences, Tibco, Greenwich Capital, CDC Capital, Whitney, RBS, Credit Suisse,
+MarketsIO, with consulting at Chase, Goldman, Merrill and NatWest. He scripts,
+and is strong in Bash, Perl and Python. **An earlier version of this file said
+"he is not a programmer". That was wrong.** Write to him as an engineer:
+mechanism, trade-offs and the actual failure, not a simplified version of it.
+
+What he does not do is guess at *this* codebase, and that is the useful part.
+He reports what he *sees* — "still no color", "it jumps one char to the right",
+"a could not create container error" — and those reports are consistently
+accurate descriptions of the symptom. They are not diagnoses. **Three times now
+I have wasted rounds by treating one as a diagnosis**, and every time the fix
+was to go and look at what was actually being served: the lights picture that
+was missing rather than colourless, colour that had never worked on any
+terminal, and the iPad data folder. See `docs/HACKING.md`.
+
+He has also found four things the suite could not: the mine-clearance light
+arrangement, the towing light geometry, a quiz that gave away its answer, and
+that none of the tools would start on the platform they were written for. He
+finds them by using the tools the way a sailor would. That is the division of
+labour on this project and it works — do not try to reason him out of a
+symptom, go and reproduce it.
 
 When he says something you built is wrong about the sea, he is usually right,
 and the disagreement is usually about mechanism rather than about the claim.

@@ -330,7 +330,8 @@ doctor() {
   if awk_has_math "$AWK"; then echo "  awk maths        : OK (sin/cos/atan2/sqrt/log/exp present)"
   else echo "  awk maths        : MISSING -- install gawk (see message above)"; fi
   printf "  data directory   : %s" "$CELNAV_HOME"
-  if mkdir -p "$CELNAV_HOME" 2>/dev/null && : > "$CELNAV_HOME/.wtest" 2>/dev/null; then
+  #  subshell: see src/common/05-home.sh for why this is not optional
+  if mkdir -p "$CELNAV_HOME" 2>/dev/null && ( : > "$CELNAV_HOME/.wtest" ) 2>/dev/null; then
      rm -f "$CELNAV_HOME/.wtest"; echo "  (writable)"
   else echo "  (NOT WRITABLE)"; fi
   printf "  engine file      : %s" "$ENGINE"

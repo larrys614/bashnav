@@ -17,6 +17,10 @@ if [ -z "${AWKS:-}" ]; then
   for _a in awk gawk mawk; do command -v "$_a" >/dev/null 2>&1 && AWKS="$AWKS $_a"; done
   [ -n "$AWKS" ] || AWKS=awk
 fi
+#  Checks that exercise only the SHELL do not need repeating for every
+#  awk.  Running them once per shell instead of once per shell x awk is
+#  the difference between a suite you run and one you skip.
+FIRSTAWK=$(printf '%s' "$AWKS" | awk '{print $1}')
 fail=0
 tmp=${TMPDIR:-/tmp}/bashnav-test.$$
 mkdir -p "$tmp"
@@ -451,9 +455,21 @@ WXLOG
     bad "deck-log"
   fi
 
+  #  the iPad installer: the one thing between a working repo and a
+  #  working iPad, run once, on a boat, with no way to debug it.
+  if [ "$AW" != "$FIRSTAWK" ]; then :   # shell-only: once per shell
+  elif o=$(sh tests/ipad-install-check.sh "$SH" 2>&1); then
+    ok "the iPad installer installs, runs and can be run twice"
+    printf '%s\n' "$o" | grep '^  SKIP' || true
+  else
+    printf '%s\n' "$o" | head -10
+    bad "the iPad installer"
+  fi
+
   #  iOS refuses writes in $HOME, and every tool kept its data there.
   #  Not one of them started on the platform this project is for.
-  if o=$(sh tests/ios-home.sh "$SH" 2>&1); then
+  if [ "$AW" != "$FIRSTAWK" ]; then :   # shell-only: once per shell
+  elif o=$(sh tests/ios-home.sh "$SH" 2>&1); then
     ok "every tool starts when \$HOME is unwritable, as it is on iOS"
     printf '%s\n' "$o" | grep '^  SKIP' || true
   else
@@ -464,7 +480,8 @@ WXLOG
   #  the launcher: it must offer and find every tool in bin/, say so
   #  plainly when it cannot, pass arguments through, and the menu the
   #  README prints must be the menu the program prints.
-  if o=$(sh tests/launcher-check.sh "$SH" 2>&1); then
+  if [ "$AW" != "$FIRSTAWK" ]; then :   # shell-only: once per shell
+  elif o=$(sh tests/launcher-check.sh "$SH" 2>&1); then
     ok "the launcher finds every tool and its README menu is current"
   else
     printf '%s\n' "$o" | head -12

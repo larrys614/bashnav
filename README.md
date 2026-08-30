@@ -105,47 +105,62 @@ confirm it.
 
 ### On an iPad
 
-An iPad has no shell of its own, so you install one. The tools then run inside
-it, the same as they do anywhere else.
+An iPad has no shell of its own, so you install one, and then one file
+installs everything else.
 
 **1. Get a shell.** [a-Shell](https://holzschu.github.io/a-Shell_iOS/) from the
-App Store &mdash; free, and it already has an `awk` with the maths these tools
-need. [iSH](https://ish.app) works too.
+App Store &mdash; free, and its `awk` already has the maths these tools need.
+[iSH](https://ish.app) works too.
 
-**2. Get the files in.** Two ways, and the first is easier if it works:
+**2. Get one file in: `bashnav-ipad.sh`.** Either
 
 ```sh
 cd ~/Documents
-curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/celnav
-curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/colregs
-curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/tides
-curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/deck-log
-curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/weather
-curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/bin/bashnav
+curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/release/bashnav-ipad.sh
 ```
 
-`help -l | grep curl` tells you whether a-Shell has it. If it does not, put the
-files into iCloud Drive or **On My iPad** from a computer, then in a-Shell type
-`pickFolder`, choose that folder, and copy them across.
+or, if a-Shell has no `curl` (`help -l | grep curl` tells you), put the file in
+iCloud Drive or **On My iPad** from a computer, then type `pickFolder` in
+a-Shell, choose that folder, and copy it across.
 
-**3. Run them.**
+**3. Run it.**
 
 ```sh
-chmod +x celnav colregs tides deck-log weather bashnav
-./celnav doctor
-./bashnav                  # the menu
+chmod +x bashnav-ipad.sh
+./bashnav-ipad.sh
 ```
 
-> **`cd ~/Documents` matters, and `~` will not do.** iOS lets an app write
-> inside its own `Documents`, `Library` and `tmp` and **nowhere else** &mdash;
-> a-Shell's own words: *"In iOS, you cannot write in the `~` directory, only in
+That is the whole install. It writes the six tools into `~/Documents`, makes
+them executable, **runs each one to prove it works**, and adds a small managed
+block to `~/Documents/.profile` so that in any new a-Shell window you can type
+
+```sh
+bashnav          # the menu
+weather          # or any tool by name
+celnav doctor    # checks your awk, your clock and your folders
+```
+
+Running it again is safe: nothing is deleted, your own `.profile` lines are
+kept, and the managed block is replaced rather than added a second time. The
+first `.profile` it finds is backed up beside itself.
+
+> **Why one file and not a tarball plus a script.** a-Shell does not guarantee
+> `tar`, and it definitely has no `unzip` &mdash; that needs `pkg install zip`,
+> which needs the network, which is the one thing this suite is built never to
+> need. An installer whose first act is to require a tool the platform may not
+> have is an installer that fails on the boat. So the tools travel inside the
+> script as quoted heredocs, exactly the way each tool already carries its own
+> awk engine. `sh` is the only dependency, and you have it or you could not run
+> the installer at all.
+
+> **`~` is not writable on iOS, and that is not a detail.** iOS lets an app
+> write in `Documents`, `Library` and `tmp` and nowhere else &mdash; a-Shell's
+> own words: *"In iOS, you cannot write in the `~` directory, only in
 > `~/Documents/`, `~/Library/` and `~/tmp`."* `~` there is the app's data
-> container, `/private/var/mobile/Containers/Data/Application/<uuid>`.
->
-> Each tool keeps its engine, its settings and your log in a folder of its own,
-> and **it picks a writable one**: `~/.celnav` on a Mac or a Linux box,
-> `~/Documents/.celnav` on an iPad, because that is the first place iOS allows.
-> `celnav doctor` and `tides where` print the folder they actually chose.
+> container, `/private/var/mobile/Containers/Data/Application/<uuid>`. Each
+> tool now proves a folder is writable before using it, so it keeps its engine
+> and your log in `~/Documents/.celnav` on an iPad and `~/.celnav` everywhere
+> else. `celnav doctor` and `tides where` print the folder actually chosen.
 
 **Under iSH only**, install an awk with the maths library first &mdash; the
 BusyBox one is sometimes built without it:
@@ -155,8 +170,6 @@ apk add gawk        # iSH only. apk is Alpine's package manager and
                     # does not exist on macOS or in a-Shell.
 ```
 
-`celnav doctor` reports what it found and names the fix if anything is missing.
-
 **`tides` is 2.9 MB** because it carries the harmonic constants for 8,334
 stations inside it. It unpacks them once, on first run, in about a twentieth of
 a second. The others are well under 200 KB.
@@ -165,18 +178,13 @@ a second. The others are well under 200 KB.
 
 ### An icon on the home screen
 
-a-Shell ships three Shortcuts actions, and the one you want is **Execute
-Command**. A Shortcut can be added to the home screen, so this gives a tool a
-real icon that opens straight into it.
-
-**Make the Shortcut.**
+The installer prints this at the end, and puts the command on your clipboard if
+a-Shell has `pbcopy`. **No script can create a home-screen icon** &mdash; on iOS
+only the Shortcuts app can, and only when a person does it. Five taps each:
 
 1. Shortcuts app &rarr; **+** &rarr; search for **a-Shell** &rarr; **Execute
    Command**.
-2. For the command, type what you would type at the prompt:
-
-       cd ~/Documents; ./bashnav
-
+2. Command: `cd ~/Documents; ./bashnav`
 3. **Set it to run In App.** This is the part that matters and it is not the
    default. Expand the action's options and choose **In App**, not **In
    Extension**.
@@ -192,11 +200,14 @@ real icon that opens straight into it.
 > only mode these tools can work in.
 
 **One icon or five.** `cd ~/Documents; ./bashnav` gives you one icon that opens
-the menu. Repeat the recipe with `./bashnav tides`, `./bashnav colregs` and so
-on if you would rather have an icon each. On a wet deck, one icon and a
-five-line menu is easier to hit than five icons on a page of forty.
+the menu. Repeat with `./bashnav weather`, `./bashnav tides` and so on if you
+would rather have an icon each. On a wet deck, one icon and a five-line menu is
+easier to hit than five icons on a page of forty.
+
+`open shortcuts://` from a-Shell takes you straight there.
 
 ---
+
 
 ## celnav
 

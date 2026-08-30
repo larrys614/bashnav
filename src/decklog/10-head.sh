@@ -78,7 +78,10 @@ utcday()   { date -u '+%Y-%m-%d'; }
 # ---------------------------------------------------------------------
 FIELDS=""
 fld_start() {
-  FIELDS="${TMPDIR:-/tmp}/dl.$$.fields"
+  #  Not /tmp: iOS gives an app Documents, Library and its own tmp,
+  #  and nothing promises a /tmp at all.  DECKLOG_HOME was probed for
+  #  writability at startup, so it is the one place known to work.
+  FIELDS="$DECKLOG_HOME/.fields.$$"
   : > "$FIELDS"
 }
 #  fld k v   - skip nothing: an empty value is a DECLINED field and is

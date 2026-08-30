@@ -22,7 +22,13 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   for bn_h_base in "$HOME" "$HOME/Documents" "$HOME/Library"; do
     [ -n "$bn_h_base" ] || continue
     bn_h_dir="$bn_h_base/$1"
-    if mkdir -p "$bn_h_dir" 2>/dev/null && : > "$bn_h_dir/.wtest" 2>/dev/null
+    #  The write probe MUST sit inside its own subshell.  Twice over:
+    #  a failing redirection is set up before the 2>/dev/null that was
+    #  meant to silence it, so the error reaches the terminal anyway;
+    #  and ":" is a POSIX *special* built-in, so under dash a
+    #  redirection error on it makes the whole shell EXIT.  The tool
+    #  would print "cannot create ..." and vanish.  ( ) contains both.
+    if mkdir -p "$bn_h_dir" 2>/dev/null && ( : > "$bn_h_dir/.wtest" ) 2>/dev/null
     then
       rm -f "$bn_h_dir/.wtest"
       printf '%s\n' "$bn_h_dir"
@@ -113,7 +119,10 @@ utcday()   { date -u '+%Y-%m-%d'; }
 # ---------------------------------------------------------------------
 FIELDS=""
 fld_start() {
-  FIELDS="${TMPDIR:-/tmp}/dl.$$.fields"
+  #  Not /tmp: iOS gives an app Documents, Library and its own tmp,
+  #  and nothing promises a /tmp at all.  DECKLOG_HOME was probed for
+  #  writability at startup, so it is the one place known to work.
+  FIELDS="$DECKLOG_HOME/.fields.$$"
   : > "$FIELDS"
 }
 #  fld k v   - skip nothing: an empty value is a DECLINED field and is

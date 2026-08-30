@@ -57,6 +57,7 @@ content changes.
 | `count-check.awk` | counts quoted in prose against what the program actually has |
 | `toolrow-check.awk` | a tool in `bin/` with no row in the README's table, or no section, or a row whose anchor leads nowhere |
 | `install-check.awk` | an install section that has fallen behind what exists |
+| `ipad-install-check.sh` | the iPad installer must install, prove the tools run, set the PATH, and survive being run twice &mdash; plus the write-probe regression at shell level |
 | `ios-home.sh` | every tool must start when `$HOME` cannot be written &mdash; the iOS condition, which no tool survived until 2026-08-30 |
 | `launcher-check.sh` | the launcher must offer and find every tool, fail out loud, pass arguments through — and its menu in the README is diffed against the menu it prints |
 | `review-check.awk` | review keys unique and well formed; every claim renders |
@@ -122,6 +123,16 @@ cannot be created (portable, runs as any user, root included), and a `$HOME` wit
 the write bit off, which is the real condition. The second needs a uid that
 `chmod` applies to, so under root it uses `setpriv`; where it cannot run it says
 **SKIP** out loud rather than passing quietly.
+
+## Shell-only checks run once per shell
+
+The installer, the launcher and the `$HOME` checks exercise `sh`, not `awk`, so
+running them for every shell × awk pair repeated identical work twelve times and
+made the suite slow enough to skip. They now run when `$AW` is the first awk in
+the list. The guard is written as `if [ "$AW" != "$FIRSTAWK" ]; then :` rather
+than `&&`-ed onto the check, because `if [ … ] && o=$(check)` sends every
+skipped pass down the `else` branch and reports a **failure** — which is worse
+than the slowness it was meant to fix.
 
 ## What still needs a human
 

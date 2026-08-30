@@ -112,6 +112,28 @@ assumption.** Everything else this project targets — a-Shell's awk, a small
 screen, no network — is modelled somewhere in the tests. A writable `$HOME` was
 not, because it never looked like a platform question.
 
+## The iPad release
+
+`release/make-ipad.sh` builds **`release/bashnav-ipad.sh`**, one self-extracting
+installer carrying all six tools.
+
+**It is generated *and committed*, like `bin/`.** It was gitignored for a day, on
+the reasoning that a release asset should not be a tracked file. That reasoning
+assumed somebody would be cutting GitHub releases by hand, and the README's
+`curl` line pointed at a `releases/latest/download/` URL that did not exist.
+Larry's call: track it. The install line now points at the file in the repo and
+works the moment a change is pushed, with no release step at all.
+
+**The cost, stated so it stays a decision.** The installer is a copy of all six
+binaries, so every change to any tool writes a fresh ~3.4 MB blob into git
+history &mdash; on top of the 2.9 MB `bin/tides` already costs. If the repository
+ever becomes unpleasant to clone, the fix is to go back to a release asset and
+point the README at it; nothing else depends on the file being tracked.
+
+CI checks it is not stale, the same way it checks `bin/` &mdash; regenerate, then
+`git diff`. A stale installer would hand an iPad an older tool than the repo
+claims, and nothing on the boat would say so.
+
 ## Loose ends
 
 1. **`docs/index.html` still describes two tools.** The site predates `tides`,
@@ -133,8 +155,10 @@ not, because it never looked like a platform question.
    from those materials without written permission — their text is
    copyrighted. Facts and methods are not, and can be taught freely in our own
    words.
-5. **Tag a release** and attach all six binaries, so people who only want the
-   tools do not have to clone 2.9 MB of station data through git.
+5. **Tag a release** and attach `release/bashnav-ipad.sh` and the six binaries,
+   so people who only want the tools do not have to clone 2.9 MB of station
+   data through git. The README's iPad instructions already point at
+   `releases/latest/download/bashnav-ipad.sh`, so this is now load bearing.
 6. **`seamanship` is held**, on the local `seamanship-hold` tag and not in this
    repository, pending Clipper's answer. Larry has a personal binary. See the
    note above: if Clipper objects even to the generic build, it stays on his
@@ -144,12 +168,17 @@ not, because it never looked like a platform question.
 
 ## Working agreement
 
-Larry has the sea time and the ideas; Claude writes the code. He tests by
-using the tools the way a sailor would, and he has found things the suite
-could not: the mine-clearance light arrangement, the towing light geometry,
-a quiz that told you the answer before it asked, and a picture that was
-missing rather than colourless.
+Larry has the sea time and the ideas; Claude writes the code. He is a market
+data systems engineer and scripts in Bash, Perl and Python, so the explanations
+should be engineering-grade — but he does not guess at this codebase, and that
+is what makes his reports worth so much.
+
+He tests by using the tools the way a sailor would, and he has found things the
+suite could not: the mine-clearance light arrangement, the towing light
+geometry, a quiz that told you the answer before it asked, a picture that was
+missing rather than colourless, and — on the first morning he tried them at sea
+— that **not one of the tools would start on an iPad**.
 
 He reports symptoms accurately and does not diagnose. Treating his report as a
-diagnosis has twice cost several rounds — see the lights-picture entry in
-`docs/HACKING.md`.
+diagnosis has now cost several rounds three separate times. Reproduce first;
+each of the three took one command once somebody went and looked.

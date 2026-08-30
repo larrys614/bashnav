@@ -148,6 +148,30 @@ the honest answer was no, nobody ever had.
 The review section picker appeared to ignore every keystroke. It was consuming
 the key file instead.
 
+### A write probe must sit inside `( )`
+
+    mkdir -p "$d" 2>/dev/null && : > "$d/.wtest" 2>/dev/null      # WRONG
+
+Two separate faults in one line, both invisible until the directory exists and
+cannot be written:
+
+1. **The error still reaches the terminal.** Redirections are applied left to
+   right, so the failing `> "$d/.wtest"` reports *before* the `2>/dev/null` that
+   was meant to silence it. The user sees `cannot create /…/.wtest`.
+2. **Under `dash` the shell exits.** `:` is a POSIX **special built-in**, and a
+   redirection error on a special built-in terminates a non-interactive shell.
+   Not the function — the whole script.
+
+    mkdir -p "$d" 2>/dev/null && ( : > "$d/.wtest" ) 2>/dev/null   # RIGHT
+
+The iPad installer died exactly there the first time it met a read-only `$HOME`:
+printed a raw shell error and stopped after "checking they run". `bash` survived
+it and only leaked the message, which is how a thing like this reaches a user —
+it works on the machine you wrote it on.
+
+`tests/ipad-install-check.sh` probes this directly, at the shell level, as well
+as through the installer.
+
 ### Declining is not failing
 
 `tides near` used to exit non-zero when the user pressed return instead of
@@ -246,6 +270,13 @@ the network lint was silently overwritten, because `run-tests.sh` rebuilds
 > ranking test and an `<img>` counter — passed while the thing they claimed to
 > test was disabled. The ranking test used Boston, where alphabetical order
 > already gives the right answer; it uses Falmouth now, where it does not.
+
+### Do not put working files in `/tmp` on iOS
+
+`deck-log` and `weather` built each record in `${TMPDIR:-/tmp}`. iOS gives an app
+`Documents`, `Library` and its own `tmp`, and **nothing promises a `/tmp` at
+all**. Both now use the tool's own data folder, which was probed for writability
+at startup and is therefore the one place known to work.
 
 ### Platform
 

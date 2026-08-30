@@ -22,7 +22,13 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   for bn_h_base in "$HOME" "$HOME/Documents" "$HOME/Library"; do
     [ -n "$bn_h_base" ] || continue
     bn_h_dir="$bn_h_base/$1"
-    if mkdir -p "$bn_h_dir" 2>/dev/null && : > "$bn_h_dir/.wtest" 2>/dev/null
+    #  The write probe MUST sit inside its own subshell.  Twice over:
+    #  a failing redirection is set up before the 2>/dev/null that was
+    #  meant to silence it, so the error reaches the terminal anyway;
+    #  and ":" is a POSIX *special* built-in, so under dash a
+    #  redirection error on it makes the whole shell EXIT.  The tool
+    #  would print "cannot create ..." and vanish.  ( ) contains both.
+    if mkdir -p "$bn_h_dir" 2>/dev/null && ( : > "$bn_h_dir/.wtest" ) 2>/dev/null
     then
       rm -f "$bn_h_dir/.wtest"
       printf '%s\n' "$bn_h_dir"
@@ -3302,7 +3308,8 @@ doctor() {
   if awk_has_math "$AWK"; then echo "  awk maths        : OK (sin/cos/atan2/sqrt/log/exp present)"
   else echo "  awk maths        : MISSING -- install gawk (see message above)"; fi
   printf "  data directory   : %s" "$CELNAV_HOME"
-  if mkdir -p "$CELNAV_HOME" 2>/dev/null && : > "$CELNAV_HOME/.wtest" 2>/dev/null; then
+  #  subshell: see src/common/05-home.sh for why this is not optional
+  if mkdir -p "$CELNAV_HOME" 2>/dev/null && ( : > "$CELNAV_HOME/.wtest" ) 2>/dev/null; then
      rm -f "$CELNAV_HOME/.wtest"; echo "  (writable)"
   else echo "  (NOT WRITABLE)"; fi
   printf "  engine file      : %s" "$ENGINE"

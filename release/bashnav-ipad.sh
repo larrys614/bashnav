@@ -1,4 +1,7101 @@
 #!/bin/sh
+# =====================================================================
+#  bashnav for iPad -- one file, one command, nothing to unpack.
+#
+#  WHY ONE FILE AND NOT A TARBALL PLUS A SCRIPT.
+#  a-Shell does not guarantee tar, and it definitely does not ship
+#  unzip -- that needs "pkg install zip", which needs the network,
+#  which is the one thing this suite is built never to need.  An
+#  installer whose first act is to require a tool the platform may not
+#  have is an installer that fails on the boat.  So the tools travel
+#  inside this script as quoted heredocs, exactly the way each tool
+#  already carries its own awk engine.  sh is the only dependency, and
+#  you have it or you could not be reading this.
+#
+#      chmod +x bashnav-ipad.sh
+#      ./bashnav-ipad.sh
+#
+#  It is safe to run twice.  Nothing is deleted, and the block it adds
+#  to .profile is replaced rather than appended a second time.
+# =====================================================================
+set -u
+BASHNAV_RELEASE=1.0
+TOOLS="celnav colregs tides deck-log weather bashnav"
+
+say()  { printf '%s\n' "$*"; }
+step() { printf '  %-46s' "$*"; }
+fine() { printf 'ok\n'; }
+die()  { printf '\n  STOPPED: %s\n\n' "$*" >&2; exit 1; }
+
+case "${1:-}" in
+  -h|--help|help)
+    say ""
+    say "  bashnav-ipad.sh            install into ~/Documents"
+    say "  BASHNAV_DEST=<dir> ...     install somewhere else"
+    say "  bashnav-ipad.sh --list     what is inside, without installing"
+    say ""
+    exit 0 ;;
+  --list) say ""; say "  bashnav release $BASHNAV_RELEASE"; for t in $TOOLS; do say "    $t"; done; say ""; exit 0 ;;
+esac
+
+say ""
+say "  ==================================================================="
+say "   BASH NAVIGATION SOFTWARE -- release $BASHNAV_RELEASE"
+say "  ==================================================================="
+say ""
+
+# ---------------------------------------------------------------------
+#  1. Where the tools go.
+#
+#  iOS lets an app write in Documents, Library and tmp and nowhere
+#  else -- $HOME itself is refused.  So ~/Documents is not a
+#  preference here, it is the only answer on an iPad.  We prove it by
+#  writing a file rather than by guessing from the platform.
+# ---------------------------------------------------------------------
+#  ( ) around the probe is load bearing: a failing redirection reports
+#  before the 2>/dev/null can silence it, and ":" is a special built-in,
+#  so under dash the redirection error EXITS the script.  This installer
+#  died exactly there the first time it met a read-only $HOME.
+writable() {
+  mkdir -p "$1" 2>/dev/null || return 1
+  ( : > "$1/.wtest" ) 2>/dev/null || return 1
+  rm -f "$1/.wtest"
+  return 0
+}
+
+DEST="${BASHNAV_DEST:-}"
+if [ -n "$DEST" ]; then
+  writable "$DEST" || die "$DEST is not writable."
+else
+  for d in "$HOME/Documents" "$HOME/bin" "$HOME" .; do
+    if writable "$d"; then DEST="$d"; break; fi
+  done
+  [ -n "$DEST" ] || die "found nowhere writable. Set BASHNAV_DEST and try again."
+fi
+say "  Installing into $DEST"
+say ""
+
+# ---------------------------------------------------------------------
+#  2. The tools themselves.
+# ---------------------------------------------------------------------
+extract_celnav() {
+  cat > "$DEST/celnav" <<'__BN_PAYLOAD_celnav__'
+#!/bin/sh
+# ---------------------------------------------------------------------
+#  Where a tool keeps its engine, its config and your log.
+#
+#  ON iOS YOU CANNOT WRITE IN $HOME.  a-Shell's own README: "In iOS, you
+#  cannot write in the ~ directory, only in ~/Documents/, ~/Library/ and
+#  ~/tmp."  $HOME there is the app's data container --
+#  /private/var/mobile/Containers/Data/Application/<uuid> -- and mkdir
+#  in it is refused.
+#
+#  Every tool in this suite defaulted to $HOME/.<tool>, so not one of
+#  them would start on an iPad: the platform the whole project exists
+#  for.  It printed "cannot create /private/var/mobile/Containers/..."
+#  and stopped.  Nobody noticed because every machine the tests run on
+#  has a writable $HOME.
+#
+#  So: use the first place we can actually create AND write in.  $HOME
+#  is tried first, so nothing changes on macOS, Linux, the BSDs or
+#  Termux.  ~/Documents is what a-Shell gives you.
+# ---------------------------------------------------------------------
+bn_home() {                       # bn_home <dotfolder>  ->  prints path
+  for bn_h_base in "$HOME" "$HOME/Documents" "$HOME/Library"; do
+    [ -n "$bn_h_base" ] || continue
+    bn_h_dir="$bn_h_base/$1"
+    #  The write probe MUST sit inside its own subshell.  Twice over:
+    #  a failing redirection is set up before the 2>/dev/null that was
+    #  meant to silence it, so the error reaches the terminal anyway;
+    #  and ":" is a POSIX *special* built-in, so under dash a
+    #  redirection error on it makes the whole shell EXIT.  The tool
+    #  would print "cannot create ..." and vanish.  ( ) contains both.
+    if mkdir -p "$bn_h_dir" 2>/dev/null && ( : > "$bn_h_dir/.wtest" ) 2>/dev/null
+    then
+      rm -f "$bn_h_dir/.wtest"
+      printf '%s\n' "$bn_h_dir"
+      return 0
+    fi
+  done
+  #  Nothing was writable.  Name the path the user expects, so the
+  #  caller's own error message is one they can act on, and fail there.
+  printf '%s\n' "$HOME/$1"
+  return 1
+}
+# =====================================================================
+#  celnav -- celestial navigation for the small screen
+#  Pure POSIX shell + awk.  No network, no almanac tables, no libraries.
+#  Runs on iSH, a-Shell, Termux, macOS and Linux.
+#
+#  Larry Sherman / built with Claude.  See celnav-manual.pdf.
+# =====================================================================
+CELNAV_VERSION=1.6
+
+: "${CELNAV_HOME:=$(bn_home .celnav)}"
+ENGINE="$CELNAV_HOME/engine-$CELNAV_VERSION.awk"
+TEACH="$CELNAV_HOME/teach-$CELNAV_VERSION.awk"
+PROG="$CELNAV_HOME/progress"
+SIGHTS="$CELNAV_HOME/sights.txt"
+CONF="$CELNAV_HOME/celnav.conf"
+
+# ---- pick an awk that has the maths library --------------------------
+awk_has_math() {
+  $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1)+exp(1)+log(2); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
+}
+pick_awk() {
+  if [ -n "$CELNAV_AWK" ]; then AWK="$CELNAV_AWK"; return 0; fi
+  for a in awk gawk mawk nawk original-awk "busybox awk"; do
+    if awk_has_math "$a"; then AWK="$a"; return 0; fi
+  done
+  AWK=awk
+  cat >&2 <<'NOMATH'
+celnav: no awk with trigonometric functions was found.
+
+  On macOS:            nothing to do - the built-in awk already has it.
+                       (apk is Alpine's, and only exists inside iSH.)
+  On iSH (Alpine):     apk add gawk
+  On Termux:           pkg install gawk
+  On Debian/Ubuntu:    sudo apt install gawk
+  a-Shell already has a suitable awk built in.
+
+  If your awk is under another name, set it explicitly:
+      CELNAV_AWK=gawk celnav
+NOMATH
+  return 1
+}
+
+# ---- defaults -------------------------------------------------------
+drlat="00 00.0 N"; drlon="000 00.0 E"; course=0; speed=0
+heye=2.5; ie=0.0; temp=10; press=1010; fixtime=""
+cmode=day
+#  Note: [ -t 1 ] must be tested HERE, at the top level, and not
+#  inside cmode_now.  Inside a command substitution stdout is a
+#  pipe, so the test is always false and every terminal would be
+#  told it was plain.  That bug ate the colour on real terminals.
+ISTTY=0; [ -t 1 ] && ISTTY=1
+
+# ---- config ---------------------------------------------------------
+load_conf() {
+  [ -f "$CONF" ] || return 0
+  while IFS='=' read -r k v; do
+    case "$k" in
+      drlat) drlat="$v" ;; drlon) drlon="$v" ;;
+      course) course="$v" ;; speed) speed="$v" ;;
+      heye) heye="$v" ;; ie) ie="$v" ;;
+      temp) temp="$v" ;; press) press="$v" ;;
+      cmode) cmode="$v" ;;
+    esac
+  done < "$CONF"
+}
+save_conf() {
+  mkdir -p "$CELNAV_HOME"
+  {
+    echo "drlat=$drlat"; echo "drlon=$drlon"
+    echo "course=$course"; echo "speed=$speed"
+    echo "heye=$heye"; echo "ie=$ie"
+    echo "temp=$temp"; echo "press=$press"
+    echo "cmode=$cmode"
+  } > "$CONF"
+}
+
+# colour: day (white on black), night (red on black), plain (no escapes)
+paint() {
+  [ "$cmode" = plain ] && return 0
+  [ "$ISTTY" = 1 ] || return 0
+  case "$cmode" in
+    night) printf '\033[40m\033[31m\033[2J\033[H' ;;
+    day)   printf '\033[40m\033[37m\033[2J\033[H' ;;
+  esac
+}
+unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
+cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
+engine() { $AWK -f "$ENGINE" -v cmode="$(cmode_now)" "$@" </dev/null; }
+teach()  { $AWK -f "$ENGINE" -f "$TEACH" -v cmode="$(cmode_now)" "$@" </dev/null; }
+
+# ---- training progress ---------------------------------------------
+lessons=""; dok=0; dtry=0
+load_prog() {
+  [ -f "$PROG" ] || return 0
+  while IFS='=' read -r k v; do
+    case "$k" in lessons) lessons="$v" ;; dok) dok="$v" ;; dtry) dtry="$v" ;; esac
+  done < "$PROG"
+}
+save_prog() {
+  mkdir -p "$CELNAV_HOME"
+  { echo "lessons=$lessons"; echo "dok=$dok"; echo "dtry=$dtry"; } > "$PROG"
+}
+mark_done() {
+  case ",$lessons," in *,"$1",*) return 0 ;; esac
+  if [ -z "$lessons" ]; then lessons="$1"; else lessons="$lessons,$1"; fi
+  save_prog
+}
+newseed() { echo $(( ( $(date +%s 2>/dev/null || echo 12345) + $$ ) % 999983 )); }
+
+utcnow() { date -u +"%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "2026-01-01 00:00:00"; }
+utctoday() { date -u +"%Y-%m-%d" 2>/dev/null || echo "2026-01-01"; }
+
+# normalise a time typed as HHMM, HHMMSS, HH:MM or HH:MM:SS
+fixtimefmt() {
+  t=$(echo "$1" | tr -d ' ')
+  case "$t" in
+    *:*:*) echo "$t" ;;
+    *:*)   echo "$t:00" ;;
+    ??????) echo "$(echo "$t"|cut -c1-2):$(echo "$t"|cut -c3-4):$(echo "$t"|cut -c5-6)" ;;
+    ????)   echo "$(echo "$t"|cut -c1-2):$(echo "$t"|cut -c3-4):00" ;;
+    *) echo "$t" ;;
+  esac
+}
+
+nsights() { [ -f "$SIGHTS" ] && grep -cv '^[ 	]*\(#\|$\)' "$SIGHTS" 2>/dev/null || echo 0; }
+
+# ---- sight log ------------------------------------------------------
+add_sight() {   # utc body limb hs ie heye temp press label
+  mkdir -p "$CELNAV_HOME"
+  printf '%s|%s|%s|%s|%s|%s|%s|%s|%s\n' "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" >> "$SIGHTS"
+}
+list_sights() {
+  if [ ! -s "$SIGHTS" ]; then echo "  (sight log is empty)"; return; fi
+  echo "   #  UT                    body        limb  Hs          IE    eye"
+  echo "  --------------------------------------------------------------------"
+  n=0
+  while IFS='|' read -r u b l hs i he t p lbl; do
+    case "$u" in ''|\#*) continue ;; esac
+    n=$((n+1))
+    printf "  %2d  %-21s %-11s %-5s %-11s %-5s %s\n" "$n" "$u" "$b" "$l" "$hs" "$i" "$he"
+  done < "$SIGHTS"
+}
+del_sight() {
+  [ -s "$SIGHTS" ] || return 0
+  $AWK -v k="$1" 'BEGIN{n=0} /^[ \t]*(#|$)/{print;next} {n++; if(n!=k) print}' "$SIGHTS" > "$SIGHTS.tmp" \
+    && mv "$SIGHTS.tmp" "$SIGHTS"
+}
+
+# ---- engine extraction (written once, then reused) -----------------
+install_engine() {
+  if [ -f "$ENGINE" ] && [ -f "$TEACH" ]; then
+    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
+  fi
+  mkdir -p "$CELNAV_HOME" 2>/dev/null || {
+    echo "celnav: cannot create $CELNAV_HOME" >&2; exit 1; }
+  cat > "$ENGINE" <<'__CELNAV_ENGINE__'
+# =====================================================================
+#  celnav engine  --  offline celestial navigation core
+#  Pure POSIX awk.  No network, no external data files.
+#  Section 1: math, time, nutation
+# =====================================================================
+
+function d2r(x){ return x*0.0174532925199432958 }
+function r2d(x){ return x*57.2957795130823209 }
+function sind(x){ return sin(x*0.0174532925199432958) }
+function cosd(x){ return cos(x*0.0174532925199432958) }
+function tand(x){ return sin(x*0.0174532925199432958)/cos(x*0.0174532925199432958) }
+function asind(x){ if(x>=1) return 90; if(x<=-1) return -90; return r2d(atan2(x,sqrt(1-x*x))) }
+function acosd(x){ if(x>=1) return 0; if(x<=-1) return 180; return r2d(atan2(sqrt(1-x*x),x)) }
+function atan2d(y,x){ return r2d(atan2(y,x)) }
+function nrm360(x){ x=x-360*int(x/360); if(x<0) x+=360; return x }
+function nrm180(x){ x=nrm360(x); if(x>180) x-=360; return x }
+function fabs(x){ return (x<0)?-x:x }
+
+# ---- Julian Day (Gregorian calendar) --------------------------------
+function jdate(y,m,d,   a,b){
+  if(m<=2){ y=y-1; m=m+12 }
+  a=int(y/100); b=2-a+int(a/4)
+  return int(365.25*(y+4716))+int(30.6001*(m+1))+d+b-1524.5
+}
+# ---- calendar date from JD ------------------------------------------
+function jd2cal(jd,   z,f,a,al,b,c,d,e,dd){
+  jd=jd+0.5; z=int(jd); f=jd-z
+  if(z<2299161){ a=z } else { al=int((z-1867216.25)/36524.25); a=z+1+al-int(al/4) }
+  b=a+1524; c=int((b-122.1)/365.25); d=int(365.25*c); e=int((b-d)/30.6001)
+  dd=b-d-int(30.6001*e)+f
+  CAL_M=(e<14)?e-1:e-13
+  CAL_Y=(CAL_M>2)?c-4716:c-4715
+  CAL_D=int(dd); CAL_FRAC=dd-CAL_D
+  return CAL_Y
+}
+# ---- Delta T (TT - UT), seconds -------------------------------------
+# Piecewise: Espenak/Meeus polynomials before 2005, observed plateau after.
+function deltaT(y,   t){
+  if(DT_OVERRIDE!="") return DT_OVERRIDE+0
+  if(y<1961) return 33
+  if(y<1986){ t=y-1975; return 45.45+1.067*t-t*t/260-t*t*t/718 }
+  if(y<2005){ t=y-2000
+    return 63.86+0.3345*t-0.060374*t*t+0.0017275*t*t*t+0.000651814*t*t*t*t+0.00002373599*t*t*t*t*t }
+  if(y<2020){ return 64.7 + (y-2005)*(69.36-64.7)/15 }
+  if(y<2026){ return 69.36 - (y-2020)*0.03 }
+  return 69.2 + (y-2026)*0.10
+}
+# ---- nutation in longitude/obliquity (arcsec) and true obliquity -----
+function nutation(T,   om,ls,lm){
+  om = nrm360(125.04452 - 1934.136261*T + 0.0020708*T*T)
+  ls = nrm360(280.4665 + 36000.7698*T)
+  lm = nrm360(218.3165 + 481267.8813*T)
+  DPSI = -17.20*sind(om) - 1.32*sind(2*ls) - 0.23*sind(2*lm) + 0.21*sind(2*om)
+  DEPS =   9.20*cosd(om) + 0.57*cosd(2*ls) + 0.10*cosd(2*lm) - 0.09*cosd(2*om)
+  EPS0 = 23.439291111 - 0.0130041667*T - 0.00000016389*T*T + 0.0000005036*T*T*T
+  EPS  = EPS0 + DEPS/3600
+  return EPS
+}
+# ---- Greenwich apparent sidereal time, degrees ----------------------
+function gast(jdut,   T,gm){
+  T=(jdut-2451545.0)/36525.0
+  gm = 280.46061837 + 360.98564736629*(jdut-2451545.0) + 0.000387933*T*T - T*T*T/38710000.0
+  nutation(T)
+  return nrm360(gm + (DPSI*cosd(EPS))/3600.0)
+}
+
+# =====================================================================
+#  Section 2: Sun
+#  Meeus ch.25.  Returns apparent RA/Dec of date, radius vector.
+#  Sets: P_RA P_DEC (deg), P_SD P_HP (arcmin), P_DIST (au)
+# =====================================================================
+function sun_pos(jdtt,   gx,gy,gz,R,n,ra,dec){
+  earth_state(jdtt)
+  gx=-EX; gy=-EY; gz=-EZ
+  R = sqrt(gx*gx+gy*gy+gz*gz)
+  ecl2eq(gx,gy,gz)
+  n=sqrt(QX*QX+QY*QY+QZ*QZ); QX=QX/n; QY=QY/n; QZ=QZ/n
+  aberrate()
+  ra = nrm360(atan2d(QY,QX)); dec = asind(QZ)
+  precess_nutate(ra,dec,jdtt)
+  P_DIST= R
+  P_SD  = 15.993833/R          # arcmin  (959.63" at 1 au)
+  P_HP  = 0.14656667/R         # arcmin  (8.794" at 1 au)
+  return P_RA
+}
+
+# =====================================================================
+#  Section 3: Moon  --  Meeus ch.47, full main-problem table
+# =====================================================================
+function moon_init(   i,n,a){
+  if(MOON_READY) return
+  ML_TAB = \
+  "0 0 1 0 6288774 -20905355;2 0 -1 0 1274027 -3699111;2 0 0 0 658314 -2955968;" \
+  "0 0 2 0 213618 -569925;0 1 0 0 -185116 48888;0 0 0 2 -114332 -3149;" \
+  "2 0 -2 0 58793 246158;2 -1 -1 0 57066 -152138;2 0 1 0 53322 -170733;" \
+  "2 -1 0 0 45758 -204586;0 1 -1 0 -40923 -129620;1 0 0 0 -34720 108743;" \
+  "0 1 1 0 -30383 104755;2 0 0 -2 15327 10321;0 0 1 2 -12528 0;" \
+  "0 0 1 -2 10980 79661;4 0 -1 0 10675 -34782;0 0 3 0 10034 -23210;" \
+  "4 0 -2 0 8548 -21636;2 1 -1 0 -7888 24208;2 1 0 0 -6766 30824;" \
+  "1 0 -1 0 -5163 -8379;1 1 0 0 4987 -16675;2 -1 1 0 4036 -12831;" \
+  "2 0 2 0 3994 -10445;4 0 0 0 3861 -11650;2 0 -3 0 3665 14403;" \
+  "0 1 -2 0 -2689 -7003;2 0 -1 2 -2602 0;2 -1 -2 0 2390 10056;" \
+  "1 0 1 0 -2348 6322;2 -2 0 0 2236 -9884;0 1 2 0 -2120 5751;" \
+  "0 2 0 0 -2069 0;2 -2 -1 0 2048 -4950;2 0 1 -2 -1773 4130;" \
+  "2 0 0 2 -1595 0;4 -1 -1 0 1215 -3958;0 0 2 2 -1110 0;" \
+  "3 0 -1 0 -892 3258;2 1 1 0 -810 2616;4 -1 -2 0 759 -1897;" \
+  "0 2 -1 0 -713 -2117;2 2 -1 0 -700 2354;2 1 -2 0 691 0;" \
+  "2 -1 0 -2 596 0;4 0 1 0 549 -1423;0 0 4 0 537 -1117;" \
+  "4 -1 0 0 520 -1571;1 0 -2 0 -487 -1739;2 1 0 -2 -399 0;" \
+  "0 0 2 -2 -381 -4421;1 1 1 0 351 0;3 0 -2 0 -340 0;" \
+  "4 0 -3 0 330 0;2 -1 2 0 327 0;0 2 1 0 -323 1165;" \
+  "1 1 -1 0 299 0;2 0 3 0 294 0;2 0 -1 -2 0 8752"
+  MB_TAB = \
+  "0 0 0 1 5128122;0 0 1 1 280602;0 0 1 -1 277693;2 0 0 -1 173237;" \
+  "2 0 -1 1 55413;2 0 -1 -1 46271;2 0 0 1 32573;0 0 2 1 17198;" \
+  "2 0 1 -1 9266;0 0 2 -1 8822;2 -1 0 -1 8216;2 0 -2 -1 4324;" \
+  "2 0 1 1 4200;2 1 0 -1 -3359;2 -1 -1 1 2463;2 -1 0 1 2211;" \
+  "2 -1 -1 -1 2065;0 1 -1 -1 -1870;4 0 -1 -1 1828;0 1 0 1 -1794;" \
+  "0 0 0 3 -1749;0 1 -1 1 -1565;1 0 0 1 -1491;0 1 1 1 -1475;" \
+  "0 1 1 -1 -1410;0 1 0 -1 -1344;1 0 0 -1 -1335;0 0 3 1 1107;" \
+  "4 0 0 -1 1021;4 0 -1 1 833;0 0 1 -3 777;4 0 -2 1 671;" \
+  "2 0 0 -3 607;2 0 2 -1 596;2 -1 1 -1 491;2 0 -2 1 -451;" \
+  "0 0 3 -1 439;2 0 2 1 422;2 0 -3 -1 421;2 1 -1 1 -366;" \
+  "2 1 0 1 -351;4 0 0 1 331;2 -1 1 1 315;2 -2 0 -1 302;" \
+  "0 0 1 3 -283;2 1 1 -1 -229;1 1 0 -1 223;1 1 0 1 223;" \
+  "0 1 -2 -1 -220;2 1 -1 -1 -220;1 0 1 1 -185;2 -1 -2 -1 181;" \
+  "0 1 2 1 -177;4 0 -2 -1 176;4 -1 -1 -1 166;1 0 1 -1 -164;" \
+  "4 0 1 -1 132;1 0 -1 -1 -119;4 -1 0 -1 115;2 -2 0 1 107"
+  NL = split(ML_TAB, LROW, ";")
+  for(i=1;i<=NL;i++){ n=split(LROW[i],a," ")
+    LD[i]=a[1]+0; LM[i]=a[2]+0; LMP[i]=a[3]+0; LF[i]=a[4]+0; LCL[i]=a[5]+0; LCR[i]=a[6]+0 }
+  NB = split(MB_TAB, BROW, ";")
+  for(i=1;i<=NB;i++){ n=split(BROW[i],a," ")
+    BD[i]=a[1]+0; BM[i]=a[2]+0; BMP[i]=a[3]+0; BF[i]=a[4]+0; BCB[i]=a[5]+0 }
+  MOON_READY=1
+}
+function moon_pos(jdtt,   T,Lp,D,M,Mp,F,A1,A2,A3,E,i,arg,f,sl,sr,sb,lam,bet,dist,eps,x,y,z){
+  moon_init()
+  T=(jdtt-2451545.0)/36525.0
+  Lp= nrm360(218.3164477 + 481267.88123421*T - 0.0015786*T*T + T*T*T/538841.0 - T*T*T*T/65194000.0)
+  D = nrm360(297.8501921 + 445267.1114034*T - 0.0018819*T*T + T*T*T/545868.0 - T*T*T*T/113065000.0)
+  M = nrm360(357.5291092 + 35999.0502909*T - 0.0001536*T*T + T*T*T/24490000.0)
+  Mp= nrm360(134.9633964 + 477198.8675055*T + 0.0087414*T*T + T*T*T/69699.0 - T*T*T*T/14712000.0)
+  F = nrm360(93.2720950 + 483202.0175233*T - 0.0036539*T*T - T*T*T/3526000.0 + T*T*T*T/863310000.0)
+  A1= nrm360(119.75 + 131.849*T)
+  A2= nrm360(53.09 + 479264.290*T)
+  A3= nrm360(313.45 + 481266.484*T)
+  E = 1 - 0.002516*T - 0.0000074*T*T
+  sl=0; sr=0; sb=0
+  for(i=1;i<=NL;i++){
+    arg = LD[i]*D + LM[i]*M + LMP[i]*Mp + LF[i]*F
+    f = 1
+    if(LM[i]==1||LM[i]==-1) f=E
+    else if(LM[i]==2||LM[i]==-2) f=E*E
+    sl += LCL[i]*f*sind(arg)
+    sr += LCR[i]*f*cosd(arg)
+  }
+  for(i=1;i<=NB;i++){
+    arg = BD[i]*D + BM[i]*M + BMP[i]*Mp + BF[i]*F
+    f = 1
+    if(BM[i]==1||BM[i]==-1) f=E
+    else if(BM[i]==2||BM[i]==-2) f=E*E
+    sb += BCB[i]*f*sind(arg)
+  }
+  sl += 3958*sind(A1) + 1962*sind(Lp-F) + 318*sind(A2)
+  sb += -2235*sind(Lp) + 382*sind(A3) + 175*sind(A1-F) + 175*sind(A1+F) \
+      + 127*sind(Lp-Mp) - 115*sind(Lp+Mp)
+  lam = Lp + sl/1000000.0
+  bet = sb/1000000.0
+  dist= 385000.56 + sr/1000.0        # km
+  eps = nutation(T)
+  lam = lam + DPSI/3600.0            # apparent longitude
+  x = cosd(bet)*cosd(lam)
+  y = cosd(eps)*cosd(bet)*sind(lam) - sind(eps)*sind(bet)
+  z = sind(eps)*cosd(bet)*sind(lam) + cosd(eps)*sind(bet)
+  P_RA  = nrm360(atan2d(y,x))
+  P_DEC = asind(z)
+  P_DIST= dist
+  P_HP  = r2d(atan2(6378.14/dist, 1))*60.0        # arcmin
+  P_SD  = r2d(atan2(1737.4/dist, 1))*60.0         # arcmin (geocentric)
+  return P_RA
+}
+
+# =====================================================================
+#  Section 4: Planets  (JPL approximate Keplerian elements, 1800-2050)
+#  Heliocentric ecliptic J2000 rectangular coordinates.
+# =====================================================================
+function pl_init(   i,n,a,r){
+  if(PL_READY) return
+  PL_TAB["mercury"]="0.38709927 0.20563593 7.00497902 252.25032350 77.45779628 48.33076593 0.00000037 0.00001906 -0.00594749 149472.67411175 0.16047689 -0.12534081"
+  PL_TAB["venus"]  ="0.72333566 0.00677672 3.39467605 181.97909950 131.60246718 76.67984255 0.00000390 -0.00004107 -0.00078890 58517.81538729 0.00268329 -0.27769418"
+  PL_TAB["earth"]  ="1.00000261 0.01671123 -0.00001531 100.46457166 102.93768193 0.0 0.00000562 -0.00004392 -0.01294668 35999.37244981 0.32327364 0.0"
+  PL_TAB["mars"]   ="1.52371034 0.09339410 1.84969142 -4.55343205 -23.94362959 49.55953891 0.00001847 0.00007882 -0.00813131 19140.30268499 0.44441088 -0.29257343"
+  PL_TAB["jupiter"]="5.20288700 0.04838624 1.30439695 34.39644051 14.72847983 100.47390909 -0.00011607 -0.00013253 -0.00183714 3034.74612775 0.21252668 0.20469106"
+  PL_TAB["saturn"] ="9.53667594 0.05386179 2.48599187 49.95424423 92.59887831 113.66242448 -0.00125060 -0.00050991 0.00193609 1222.49362201 -0.41897216 -0.28867794"
+  PL_READY=1
+}
+# ---- periodic corrections to the Keplerian model (fitted 1985-2080) ----
+function corr_init(   i){
+  if(CORR_READY) return
+  CORR["earth","lam"]="0.01208699 0.073557552;293.9318700000 -32964.62630000 0.1203255 -0.001532293;196.9709400000 -45036.88600000 0.09228801 -5.401692e-05;" \
+       "357.6454800000 -445383.27590000 0.01534711 -0.07072088;278.4854700000 -22518.44300000 -0.08049157 -6.984342e-05;" \
+       "68.2670400000 -431558.95230000 -0.06209631 -0.05040628;325.6035600000 -3034.74610000 0.04319273 0.006025144;" \
+       "227.8637400000 -65929.25260000 -0.04543808 0.0002302252;297.4355100000 -9037.51360000 0.0001919151 0.04069601;" \
+       "149.9640000000 -33718.13940000 0.03496926 0.0001845623;250.4285700000 2281.23300000 0.02199503 0.01785439;" \
+       "328.3283100000 -29929.88020000 0.0152811 0.02137002;92.2963500000 410.11890000 0.01394522 0.01325566;" \
+       "175.2961500000 -31622.68130000 -0.01730427 0.009351976;302.1625500000 -431743.14120000 -0.03265283 -0.03270084;" \
+       "275.7607200000 4376.69110000 0.008938055 0.01428162;259.5354300000 -35999.37240000 -0.007332249 0.01286916;" \
+       "115.4564100000 -67555.32900000 0.01134587 -5.249999e-05;250.4910300000 -432086.53540000 -0.01180239 -0.0063626"
+  CORR["earth","bet"]="-1.4872796e-05 -0.00026774431;259.5354300000 -35999.37240000 0.01586903 -0.02306233;25.6399200000 -35815.18350000 0.0225295 -0.001726146;" \
+       "293.0556900000 -393462.53580000 0.001110023 -0.008868955;207.8639100000 -36342.76660000 -0.005750236 0.001237916;" \
+       "175.2961500000 -31622.68130000 0.003144837 -0.00057107;77.3114400000 -35471.78930000 0.003870872 0.0008593518;" \
+       "328.3283100000 -29929.88020000 -0.0005481749 -0.002637254;344.7272100000 -393119.14160000 -0.0008841429 0.001968591"
+  CORR["earth","r"]="-2.3766885 -5.5004702;357.6454800000 -445383.27590000 -19.82775 -4.304853;293.9318700000 -32964.62630000 0.4221211 16.46268;" \
+       "196.9709400000 -45036.88600000 0.1011917 15.82733;68.2670400000 -431558.95230000 14.84085 -18.28325;" \
+       "227.8637400000 -65929.25260000 -0.02115016 -9.243412;302.1625500000 -431743.14120000 9.75092 -9.741185;" \
+       "278.4854700000 -22518.44300000 0.0155789 -5.401023;149.9640000000 -33718.13940000 0.04798795 4.997429;" \
+       "250.4910300000 -432086.53540000 1.909507 -3.553883;230.4287400000 31867.71900000 -1.425941 -2.796863;328.3283100000 -29929.88020000 -2.609962 1.683412;" \
+       "115.4564100000 -67555.32900000 -0.01667701 2.503136"
+  CORR["venus","lam"]="0.38141432 0.18814967;196.9709400000 -45036.88600000 0.1884387 -0.2134626;115.4564100000 -67555.32900000 -0.1190349 -0.05941254;" \
+       "278.4854700000 -22518.44300000 0.08151819 0.08576199;178.0209000000 -58517.81540000 -0.05322535 0.01727352;" \
+       "297.4355100000 -9037.51360000 -0.004494646 -0.05724289;212.4173400000 -55483.06930000 0.04936506 -0.0004097324;" \
+       "353.3170500000 -90140.49670000 0.01613412 -0.02685734;260.2717500000 54042.76780000 -0.009183521 -0.02467848;" \
+       "325.6035600000 -3034.74610000 0.02593808 0.004992817;275.7607200000 4376.69110000 -0.003298415 -0.02347517;" \
+       "164.3606100000 -1096.90730000 0.009552046 0.01545687;277.7491500000 -112560.58320000 0.001582495 -0.01604392;" \
+       "64.8346800000 -110966.13860000 -0.01456861 1.646679e-05;175.2961500000 -31622.68130000 0.008661169 -0.00720625;" \
+       "96.5063700000 -81036.25840000 -0.009527263 -0.002531809;196.2346200000 -135079.02620000 0.00162047 -0.009342428;" \
+       "342.3815100000 -59614.72270000 -0.009536243 -0.00369943;211.8290400000 -58743.74540000 -0.0006460425 -0.01191388"
+  CORR["venus","bet"]="0.0011649786 0.0014117423;178.0209000000 -58517.81540000 -0.009719669 0.006102501;14.9918400000 -103554.70140000 0.009867384 0.002920341;" \
+       "18.9500400000 13480.92940000 0.009644584 -0.001890232;297.4355100000 -9037.51360000 0.002109282 0.005378454;" \
+       "252.8524800000 -126139.86910000 0.004719859 3.25837e-05;260.2717500000 54042.76780000 0.001953433 0.003923696;" \
+       "246.8137800000 -52448.32320000 -0.001270643 0.002863915;96.5063700000 -81036.25840000 0.00269161 0.000524973"
+  CORR["venus","r"]="-4.0440722 -3.9947711;278.4854700000 -22518.44300000 -60.40273 3.731282;196.9709400000 -45036.88600000 37.37556 16.30635;" \
+       "115.4564100000 -67555.32900000 9.90858 -13.82079;178.0209000000 -58517.81540000 -1.376343 -5.295455;353.3170500000 -90140.49670000 3.723565 2.715371;" \
+       "212.4173400000 -55483.06930000 0.08327838 4.987362;277.7491500000 -112560.58320000 2.769669 0.346571;260.2717500000 54042.76780000 -2.519825 0.881471;" \
+       "64.8346800000 -110966.13860000 -0.0008375509 -2.185821;96.5063700000 -81036.25840000 0.5252507 -1.901839;" \
+       "196.2346200000 -135079.02620000 1.647043 0.3190223;125.3681700000 -89857.95130000 -1.482141 0.2214723"
+  CORR["mars","lam"]="0.073276124 -0.050913418;38.9498700000 -16105.55660000 0.4221151 0.01172075;73.3463100000 -13070.81050000 -0.3207995 -0.1756033;" \
+       "77.8997400000 -32211.11320000 -0.2671903 -0.004051128;250.4285700000 2281.23300000 -0.1705033 -0.1526503;" \
+       "254.9820000000 -16859.06970000 -0.1487781 0.03125821;145.4105700000 -14577.83670000 -0.09917416 -0.07230777;" \
+       "164.3606100000 -1096.90730000 -0.07978916 -0.08443762;4.5534300000 -19140.30270000 -0.09303109 0.03727692;" \
+       "140.8571400000 4562.46600000 -0.04203529 -0.07111785;107.7427500000 -10036.06440000 -0.05551219 0.02519498;" \
+       "325.6035600000 -3034.74610000 0.005191772 0.05798154;43.5033000000 -35245.85930000 0.04809166 -0.01933824;" \
+       "149.9640000000 -33718.13940000 0.002481413 -0.0478491;112.2961800000 -29176.36710000 -0.03085883 0.02989777;" \
+       "302.7938400000 -12199.83320000 0.02153575 -0.03470091;82.4531700000 -51351.41590000 -0.03238547 0.01433189;" \
+       "59.3426100000 -17955.97700000 0.02918683 0.01199357;245.8751400000 21421.53570000 -0.01312109 -0.02450269;" \
+       "116.8496100000 -48316.66980000 -0.02480601 0.006536493;291.2071200000 -6069.49220000 0.01499762 -0.01762776;" \
+       "227.6188500000 -6883.85410000 0.02042632 0.01028144;259.5354300000 -35999.37240000 -0.007722287 0.02053063;" \
+       "53.3464800000 16515.67550000 -0.01133974 -0.01456191;38.3615700000 -19366.23270000 0.009671722 -0.0222796"
+  CORR["mars","bet"]="0.00079890373 0.00059472224;73.3463100000 -13070.81050000 -0.009371826 0.003495287;43.5033000000 -35245.85930000 0.00363426 0.005114592;" \
+       "325.6035600000 -3034.74610000 -0.002802397 -0.00483739;291.2071200000 -6069.49220000 0.004715247 0.00282825;" \
+       "77.8997400000 -32211.11320000 -0.001908215 -0.004700526;82.4531700000 -51351.41590000 -0.003139656 -0.003599447;" \
+       "4.5534300000 -19140.30270000 -0.003012705 0.00330128;245.8751400000 21421.53570000 -0.002987987 -1.146299e-05;" \
+       "250.4285700000 2281.23300000 -0.001877523 0.00173176;259.5354300000 -35999.37240000 -0.001679133 -0.001792673"
+  CORR["mars","r"]="-21.382857 -14.937465;38.9498700000 -16105.55660000 -2.09096 81.11085;77.8997400000 -32211.11320000 1.005659 -74.91462;" \
+       "254.9820000000 -16859.06970000 65.36945 -25.74685;73.3463100000 -13070.81050000 26.14605 -48.25839;145.4105700000 -14577.83670000 9.54128 -20.38115;" \
+       "4.5534300000 -19140.30270000 -9.450783 -11.76148;112.2961800000 -29176.36710000 -8.002105 -7.646865;250.4285700000 2281.23300000 -2.038733 10.50426;" \
+       "43.5033000000 -35245.85930000 3.653788 8.918485;325.6035600000 -3034.74610000 -5.26211 -6.986983;116.8496100000 -48316.66980000 -0.962282 -8.173631;" \
+       "140.8571400000 4562.46600000 -6.902913 4.239201;291.2071200000 -6069.49220000 6.052225 5.042152;107.7427500000 -10036.06440000 -3.336195 -6.252611;" \
+       "59.3426100000 -17955.97700000 -2.871736 6.473678;82.4531700000 -51351.41590000 -2.865099 -6.372345"
+  CORR["jupiter","lam"]="-0.41028843 -3.1519571;300.7236800000 -3627.23430000 0.1548291 -3.292923;298.7502400000 -535.31350000 0.8898022 -1.771667;" \
+       "158.2096000000 -1798.05360000 -1.082643 -0.634264;352.4076600000 -2369.26850000 0.8678683 -0.8848074;123.8244000000 842.73650000 0.2362923 0.3531108;" \
+       "235.0171600000 -3074.99260000 0.3127457 -0.1181649;60.1973000000 -6667.71520000 -0.09998661 0.1640186;" \
+       "189.3252000000 -5422.55860000 0.1670782 0.1830487;148.6930400000 -4240.31150000 0.2488739 0.09696039;" \
+       "246.5676200000 -1214.02950000 0.1291909 0.08202753;82.1678200000 -2680.38130000 0.06910359 -0.1278932;" \
+       "171.4013000000 -4909.90810000 -0.06705653 -0.07052412;121.4470600000 -6132.40170000 -0.03962689 0.09036523;" \
+       "43.5695600000 -2079.42900000 0.03784055 0.09827737;201.6414400000 -5720.86220000 -0.04162281 0.04673022;" \
+       "284.0566600000 -7212.14810000 0.009168496 -0.04938042;276.4151000000 -6416.50640000 -0.02256117 -0.067046;" \
+       "197.3791600000 -4595.78980000 0.01082177 -0.03298581"
+  CORR["jupiter","bet"]="0.01013569 -0.013799258;94.2895800000 -3016.20210000 -0.01964365 -0.04590897;280.8868000000 2487.96300000 -0.01107298 -0.04223035;" \
+       "266.3272400000 -6661.98040000 0.03820319 0.009079332;40.4376800000 -1219.76430000 -0.02505051 -0.009786272;" \
+       "261.2991800000 -3377.64130000 0.02251912 -0.01811954;255.7519800000 -652.66840000 0.01676884 -0.01262166;" \
+       "125.5429000000 -4797.32750000 0.008125322 -0.01606768;292.3655600000 -3837.23610000 -0.007141953 0.01381951"
+  CORR["jupiter","r"]="116.55222 171.05413;94.5937400000 -3632.96910000 -2424.932 -1414.583;55.8858000000 -2377.73260000 760.8429 -257.3742;" \
+       "221.6877400000 -1806.51770000 -310.3554 -556.9985;128.9901800000 -598.22300000 -218.2974 -201.6065;162.2169400000 -5471.26920000 -302.4469 28.07282;" \
+       "151.8966200000 3086.18600000 35.35779 233.873;7.9654600000 -4181.52100000 -152.501 -191.0568;356.7191600000 -6659.25110000 8.13963 -140.9351;" \
+       "43.8737200000 -2696.19600000 26.72227 77.6931;198.5095600000 -4861.19750000 28.54977 -68.9727;177.7747400000 -7283.52170000 -67.99533 23.40862;" \
+       "166.1750600000 -5979.57460000 -10.30204 58.61532"
+  CORR["saturn","lam"]="1.1307344 11.018167;282.8602400000 -603.95780000 -7.138075 1.979021;308.3160200000 -1257.96580000 -0.06819605 -3.203091;" \
+       "39.8663800000 977.01960000 -0.18898 1.562752;229.8513800000 -1634.03310000 -0.7033277 -0.4771899;350.6779200000 -2404.74070000 0.4334075 -0.3891529;" \
+       "94.5937400000 -3632.96910000 0.2716209 -0.5125147;98.9937400000 -2914.66190000 0.08134022 -0.0727527;" \
+       "110.1515400000 -5445.22160000 0.06040979 -0.09920994;134.1559600000 -2039.18250000 0.1180407 -0.008225761;" \
+       "112.3231600000 -4183.13680000 -0.04749109 -0.06836991;241.3133400000 -4781.35980000 -0.002644166 -0.03556585;" \
+       "204.8830000000 -7234.81110000 -0.02822802 -0.01466217;310.8115400000 -3381.76030000 -0.05709148 -0.03392346;" \
+       "318.3153800000 -6020.78160000 0.0166828 0.01621049;109.0816000000 -2669.18790000 -0.08681944 -0.003553119;" \
+       "267.2912000000 -4467.24150000 0.01739398 0.01566426;39.4624800000 -9090.03940000 0.01019107 0.006155999;" \
+       "161.3134400000 -5155.38210000 0.01250362 0.01047798;180.0031200000 -7827.29930000 -0.006360744 -0.003543871;" \
+       "5.9807800000 -6765.13640000 0.005305305 0.003032148"
+  CORR["saturn","bet"]="0.04594471 -0.0049265574;13.5239000000 -1230.95770000 -0.2621558 0.06582295;121.8397200000 -1740.87890000 0.1760729 -0.01792964;" \
+       "128.9901800000 -598.22300000 0.1761792 0.004909281;309.2799800000 936.77310000 0.005266281 -0.131938;" \
+       "244.3960000000 -2476.11430000 0.08134765 0.03913214;306.8534200000 -2873.45490000 -0.03215151 -0.001493257;" \
+       "47.8318400000 -3204.50140000 -0.00323104 0.02448966;276.6132800000 -2062.50080000 0.01698729 -0.001536169;" \
+       "238.9752800000 -3583.29800000 -0.01043742 0.00550594;355.6492200000 -3883.21740000 0.009695369 0.004367689"
+  CORR["saturn","r"]="1653.0768 7264.9878;228.8986600000 1846.76420000 -7460.825 -2068.723;292.5637400000 516.76950000 -495.167 6275.17;" \
+       "77.0020400000 -1239.42180000 -4224.518 -1896.678;193.6759800000 -1539.34120000 -456.8661 -1674.925;83.1810000000 -3650.55260000 1030.998 996.4103;" \
+       "55.1804800000 2292.16010000 -205.4423 1136.955;310.8720000000 -871.13430000 -565.3999 -179.6274;124.9716000000 -2600.54360000 183.635 -438.7941;" \
+       "35.4551400000 -5416.82380000 28.44769 347.0462;341.2990800000 -3003.61900000 265.9184 -144.8612;193.4210400000 -4087.48440000 -180.2974 -111.698;" \
+       "312.3233600000 -4931.18140000 -143.5391 58.00097;62.2312000000 -7249.01000000 26.70343 111.0817;344.2932400000 -5706.66330000 57.32919 -33.4193"
+  CORR_READY=1
+}
+function corrval(tab,T,   n,a,i,m,s,v){
+  if(tab=="") return 0
+  n=split(tab,a,";")
+  split(a[1],m," "); v=m[1]+m[2]*T
+  for(i=2;i<=n;i++){ split(a[i],m," ")
+    s=m[1]+m[2]*T
+    v += m[3]*sind(s) + m[4]*cosd(s)
+  }
+  return v
+}
+
+function kepler(M,e,   E,dE,i){
+  M=nrm180(M); E=M+ (180/3.14159265358979)*e*sind(M)
+  for(i=0;i<12;i++){
+    dE=(E - (180/3.14159265358979)*e*sind(E) - M)/(1-e*cosd(E))
+    E=E-dE
+    if(fabs(dE)<1e-11) break
+  }
+  return E
+}
+# sets HX,HY,HZ : heliocentric ecliptic J2000, au
+function helio(body,jdtt,   T,n,el,a,e,I,L,pe,no,M,w,E,xv,yv,cosw,sinw,co,so,ci,si,rr,lm,bt){
+  pl_init()
+  T=(jdtt-2451545.0)/36525.0
+  n=split(PL_TAB[body],el," ")
+  a = el[1]+el[7]*T;  e = el[2]+el[8]*T;   I = el[3]+el[9]*T
+  L = el[4]+el[10]*T; pe= el[5]+el[11]*T;  no= el[6]+el[12]*T
+  M = nrm180(L - pe)
+  w = pe - no
+  E = kepler(M,e)
+  xv = a*(cosd(E)-e)
+  yv = a*sqrt(1-e*e)*sind(E)
+  cosw=cosd(w); sinw=sind(w); co=cosd(no); so=sind(no); ci=cosd(I); si=sind(I)
+  HX = (cosw*co - sinw*so*ci)*xv + (-sinw*co - cosw*so*ci)*yv
+  HY = (cosw*so + sinw*co*ci)*xv + (-sinw*so + cosw*co*ci)*yv
+  HZ = (sinw*si)*xv + (cosw*si)*yv
+  corr_init()
+  if((body,"lam") in CORR){
+    rr=sqrt(HX*HX+HY*HY+HZ*HZ)
+    lm=nrm360(atan2d(HY,HX)) + corrval(CORR[body,"lam"],T)/60.0
+    bt=asind(HZ/rr) + corrval(CORR[body,"bet"],T)/60.0
+    rr=rr + corrval(CORR[body,"r"],T)*0.000001
+    HX=rr*cosd(bt)*cosd(lm); HY=rr*cosd(bt)*sind(lm); HZ=rr*sind(bt)
+  }
+  return 0
+}
+# Earth heliocentric position and velocity (au, au/day) -> EX.. EVX..
+function earth_state(jdtt,   x1,y1,z1){
+  helio("earth",jdtt);  EX=HX; EY=HY; EZ=HZ
+  helio("earth",jdtt-0.5); x1=HX; y1=HY; z1=HZ
+  helio("earth",jdtt+0.5)
+  EVX=HX-x1; EVY=HY-y1; EVZ=HZ-z1
+  return 0
+}
+# ecliptic J2000 rectangular -> equatorial J2000 rectangular
+function ecl2eq(x,y,z,   ce,se){
+  ce=cosd(23.4392911); se=sind(23.4392911)
+  QX=x; QY=ce*y-se*z; QZ=se*y+ce*z
+  return 0
+}
+# apply annual aberration to a unit direction (QX,QY,QZ equatorial) using EV
+function aberrate(   vx,vy,vz,ce,se,n){
+  ce=cosd(23.4392911); se=sind(23.4392911)
+  vx=EVX; vy=ce*EVY-se*EVZ; vz=se*EVY+ce*EVZ
+  QX=QX+vx/173.144633; QY=QY+vy/173.144633; QZ=QZ+vz/173.144633
+  n=sqrt(QX*QX+QY*QY+QZ*QZ); QX=QX/n; QY=QY/n; QZ=QZ/n
+  return 0
+}
+# precess mean J2000 RA/Dec -> mean of date; then nutation -> apparent
+function precess_nutate(ra,dec,jdtt,   T,ze,z,th,A,B,C,ra1,de1,eps,dra,dde){
+  T=(jdtt-2451545.0)/36525.0
+  ze=(2306.2181*T+0.30188*T*T+0.017998*T*T*T)/3600.0
+  z =(2306.2181*T+1.09468*T*T+0.018203*T*T*T)/3600.0
+  th=(2004.3109*T-0.42665*T*T-0.041833*T*T*T)/3600.0
+  A = cosd(dec)*sind(ra+ze)
+  B = cosd(th)*cosd(dec)*cosd(ra+ze) - sind(th)*sind(dec)
+  C = sind(th)*cosd(dec)*cosd(ra+ze) + cosd(th)*sind(dec)
+  ra1= nrm360(z + atan2d(A,B))
+  de1= asind(C)
+  eps= nutation(T)
+  dra=((cosd(eps)+sind(eps)*sind(ra1)*tand(de1))*DPSI - cosd(ra1)*tand(de1)*DEPS)/3600.0
+  dde=(sind(eps)*cosd(ra1)*DPSI + sind(ra1)*DEPS)/3600.0
+  P_RA = nrm360(ra1+dra)
+  P_DEC= de1+dde
+  return 0
+}
+function planet_pos(body,jdtt,   gx,gy,gz,d,tau,i,ra,dec){
+  earth_state(jdtt)
+  tau=0
+  for(i=0;i<3;i++){
+    helio(body,jdtt-tau)
+    gx=HX-EX; gy=HY-EY; gz=HZ-EZ
+    d=sqrt(gx*gx+gy*gy+gz*gz)
+    tau=d/173.144633
+  }
+  ecl2eq(gx,gy,gz)
+  d=sqrt(QX*QX+QY*QY+QZ*QZ); QX=QX/d; QY=QY/d; QZ=QZ/d
+  aberrate()
+  ra = nrm360(atan2d(QY,QX)); dec = asind(QZ)
+  precess_nutate(ra,dec,jdtt)
+  P_DIST=d
+  P_SD=0
+  P_HP=0.14657/d*0            # planetary parallax is below plotting noise
+  return 0
+}
+# ---- navigational star catalogue (J2000, from Hipparcos/Yale via libastro) ----
+# num|name|RA2000 deg|Dec2000 deg|pmRA mas/yr|pmDec mas/yr|magnitude
+function star_init(   i,n,a){
+  if(STAR_READY) return
+  STAR_TAB= \
+  "1|Alpheratz|2.096911|29.090432|135.7|-163.0|2.07;2|Ankaa|6.571046|-42.305981|232.8|-353.6|2.40;" \
+  "3|Schedar|10.126836|56.537331|50.4|-32.2|2.24;4|Diphda|10.897379|-17.986605|232.8|32.7|2.04;" \
+  "5|Achernar|24.428527|-57.236757|88.0|-40.1|0.45;6|Hamal|31.793363|23.462423|190.7|-145.8|2.01;" \
+  "7|Acamar|44.565311|-40.304672|-53.5|25.7|2.88;8|Menkar|45.569884|4.089734|-11.8|-78.8|2.54;" \
+  "9|Mirfak|51.080710|49.861180|24.1|-26.0|1.79;10|Aldebaran|68.980161|16.509301|62.8|-189.4|0.87;" \
+  "11|Rigel|78.634468|-8.201641|1.9|-0.6|0.18;12|Capella|79.172329|45.997991|75.5|-427.1|0.08;" \
+  "13|Bellatrix|81.282763|6.349702|-8.7|-13.3|1.64;14|Elnath|81.572972|28.607450|23.3|-174.2|1.65;" \
+  "15|Alnilam|84.053389|-1.201920|1.5|-1.1|1.69;16|Betelgeuse|88.792939|7.407063|27.3|10.9|0.45;" \
+  "17|Canopus|95.987958|-52.695660|20.0|23.7|-0.62;18|Sirius|101.287155|-16.716116|-546.0|-1223.1|-1.44;" \
+  "19|Adhara|104.656452|-28.972084|2.6|2.3|1.50;20|Procyon|114.825492|5.224993|-716.6|-1034.6|0.40;" \
+  "21|Pollux|116.328960|28.026199|-625.7|-45.9|1.16;22|Avior|125.628482|-59.509483|-25.3|22.7|1.86;" \
+  "23|Suhail|136.998994|-43.432589|-23.2|14.3|2.23;24|Miaplacidus|138.299898|-69.717208|-157.7|108.9|1.67;" \
+  "25|Alphard|141.896847|-8.658603|-14.5|33.2|1.99;26|Regulus|152.092961|11.967207|-249.4|4.9|1.36;" \
+  "27|Dubhe|165.931953|61.751033|-136.5|-35.2|1.81;28|Denebola|177.264906|14.572060|-499.0|-113.8|2.14;" \
+  "29|Gienah|183.951543|-17.541929|-159.6|22.3|2.58;30|Acrux|186.649566|-63.099092|-35.4|-14.7|0.77;" \
+  "31|Gacrux|187.791497|-57.113212|27.9|-264.3|1.59;32|Alioth|193.507289|55.959821|111.7|-9.0|1.76;" \
+  "33|Spica|201.298247|-11.161322|-42.5|-31.7|0.98;34|Alkaid|206.885157|49.313265|-121.2|-15.6|1.85;" \
+  "35|Hadar|210.955852|-60.373039|-34.0|-25.1|0.61;36|Menkent|211.670619|-36.369955|-519.3|-517.9|2.06;" \
+  "37|Arcturus|213.915300|19.182410|-1093.5|-1999.4|-0.05;38|Rigil Kentaurus|219.902067|-60.833976|-3678.2|481.8|-0.01;" \
+  "39|Zubenelgenubi|222.719638|-16.041778|-105.7|-69.0|2.75;40|Kochab|222.676360|74.155505|-32.3|11.9|2.07;" \
+  "41|Alphecca|233.671951|26.714693|120.4|-89.4|2.22;42|Antares|247.351920|-26.432003|-10.2|-23.2|1.06;" \
+  "43|Atria|252.166229|-69.027715|17.8|-32.9|1.91;44|Sabik|257.594531|-15.724910|41.2|97.6|2.43;" \
+  "45|Shaula|263.402167|-37.103821|-8.9|-30.0|1.62;46|Rasalhague|263.733627|12.560035|110.1|-222.6|2.08;" \
+  "47|Eltanin|269.151541|51.488895|-8.5|-23.0|2.24;48|Kaus Australis|276.042993|-34.384616|-39.6|-124.0|1.79;" \
+  "49|Vega|279.234735|38.783692|201.0|287.5|0.03;50|Nunki|283.816357|-26.296722|13.9|-52.6|2.05;" \
+  "51|Altair|297.695830|8.868322|536.8|385.5|0.76;52|Peacock|306.411908|-56.735090|7.7|-86.2|1.94;" \
+  "53|Deneb|310.357978|45.280338|1.6|1.6|1.25;54|Enif|326.046492|9.875011|30.0|1.4|2.38;" \
+  "55|Alnair|332.058273|-46.960975|127.6|-147.9|1.73;56|Fomalhaut|344.412694|-29.622236|329.2|-164.2|1.17;" \
+  "57|Markab|346.190224|15.205264|61.1|-42.6|2.49;58|Polaris|37.954515|89.264109|44.2|-11.7|1.97"
+  NSTAR=split(STAR_TAB,STROW,";")
+  for(i=1;i<=NSTAR;i++){ n=split(STROW[i],a,"|")
+    SNUM[i]=a[1]+0; SNAME[i]=a[2]; SRA[i]=a[3]+0; SDEC[i]=a[4]+0
+    SPMR[i]=a[5]+0; SPMD[i]=a[6]+0; SMAG[i]=a[7]+0
+    SIDX[tolower(a[2])]=i; SIDX[a[1]+0]=i }
+  SIDX["al na'ir"]=SIDX["alnair"]
+  SIDX["rigil kent"]=SIDX["rigil kentaurus"]
+  SIDX["kaus aust"]=SIDX["kaus australis"]
+  SIDX["zuben'ubi"]=SIDX["zubenelgenubi"]
+  SIDX["polaris"]=NSTAR
+  STAR_READY=1
+}
+
+# star position: i = catalogue index; sets P_RA,P_DEC (apparent of date)
+function star_pos(i,jdtt,   yr,ra,dec,n){
+  star_init()
+  yr=(jdtt-2451545.0)/365.25
+  dec = SDEC[i] + SPMD[i]*yr/3600000.0
+  ra  = SRA[i]  + SPMR[i]*yr/3600000.0/cosd(SDEC[i])
+  earth_state(jdtt)
+  QX=cosd(dec)*cosd(ra); QY=cosd(dec)*sind(ra); QZ=sind(dec)
+  aberrate()
+  ra=nrm360(atan2d(QY,QX)); dec=asind(QZ)
+  precess_nutate(ra,dec,jdtt)
+  P_DIST=0; P_SD=0; P_HP=0
+  return 0
+}
+function star_lookup(key,   k){
+  star_init()
+  k=tolower(key)
+  if(k in SIDX) return SIDX[k]
+  if((key+0) in SIDX && key+0>0) return SIDX[key+0]
+  return 0
+}
+
+# =====================================================================
+#  Section 6: parsing and formatting
+# =====================================================================
+function parse_ang(s,   t,i,n,a,sign,h,v,c){
+  sign=1; h=""
+  s=toupper(s)
+  gsub(/[\260\047\042]/," ",s)           # degree, minute, second symbols
+  gsub(/[Dd]EG/," ",s)
+  n=length(s); t=""
+  for(i=1;i<=n;i++){ c=substr(s,i,1)
+    if(c=="N"||c=="E") { h="+"; c=" " }
+    else if(c=="S"||c=="W") { h="-"; c=" " }
+    else if(c=="-"){ if(t ~ /^[ ]*$/) sign=-1; c=" " }
+    else if(c==":"||c=="/"||c==","||c=="D"||c=="M") c=" "
+    t=t c
+  }
+  n=split(t,a," ")
+  if(n==0) return "ERR"
+  v=a[1]+0
+  if(n>=2) v=v+(a[2]+0)/60.0
+  if(n>=3) v=v+(a[3]+0)/3600.0
+  if(h=="-") sign=-1
+  return sign*v
+}
+function fmt_dm(x,w,   neg,d,m,s){
+  neg=(x<0); if(neg) x=-x
+  d=int(x); m=(x-d)*60.0
+  if(m>=59.95){ m=0; d=d+1 }
+  if(w==3) s=sprintf("%03d %04.1f'",d,m)
+  else     s=sprintf("%02d %04.1f'",d,m)
+  return (neg?"-":"") s
+}
+function fmt_lat(x){ return fmt_dm(fabs(x),2) (x<0?"S":"N") }
+function fmt_lon(x){ return fmt_dm(fabs(x),3) (x<0?"W":"E") }
+function fmt_hms(h,   hh,mm,ss){ hh=int(h); mm=int((h-hh)*60); ss=int((h-hh-mm/60.0)*3600+0.5)
+  if(ss>=60){ss-=60;mm++}; if(mm>=60){mm-=60;hh++}
+  return sprintf("%02d:%02d:%02d",hh,mm,ss) }
+# "YYYY-MM-DD HH:MM:SS"  ->  UT Julian date
+function parse_utc(s,   a,n,b,c,d){
+  gsub(/[Tt]/," ",s); gsub(/[\/]/,"-",s)
+  n=split(s,a," ")
+  split(a[1],b,"-"); split(a[2],c,":")
+  UT_Y=b[1]+0; UT_MO=b[2]+0; UT_D=b[3]+0
+  UT_H=c[1]+0; UT_MI=c[2]+0; UT_S=(n>=2?c[3]+0:0)
+  return jdate(UT_Y,UT_MO,UT_D) + (UT_H + UT_MI/60.0 + UT_S/3600.0)/24.0
+}
+
+# =====================================================================
+#  Section 7: body dispatch, sight corrections, sight reduction
+# =====================================================================
+# name -> apparent GHA/Dec at UT jd.  Sets B_GHA B_DEC B_SD B_HP B_NAME B_MAG
+function body_at(name,jdut,   tt,i,lname){
+  jd2cal(jdut); tt = jdut + deltaT(CAL_Y)/86400.0
+  lname=tolower(name)
+  B_MAG=""
+  if(lname=="sun"){ sun_pos(tt); B_NAME="Sun"; B_MAG=-26.7 }
+  else if(lname=="moon"){ moon_pos(tt); B_NAME="Moon"; P_SD=0.2725*P_HP; B_MAG=-12 }
+  else if(lname=="venus"||lname=="mars"||lname=="jupiter"||lname=="saturn"||lname=="mercury"){
+    planet_pos(lname,tt); B_NAME=toupper(substr(lname,1,1)) substr(lname,2); B_MAG=planet_mag(lname) }
+  else { i=star_lookup(name); if(i==0) return "ERR"
+         star_pos(i,tt); B_NAME=SNAME[i]; B_MAG=SMAG[i] }
+  B_GHA = nrm360(gast(jdut) - P_RA)
+  B_DEC = P_DEC
+  B_SD  = P_SD
+  B_HP  = P_HP
+  B_SHA = nrm360(360 - P_RA)
+  return B_GHA
+}
+function planet_mag(n){ if(n=="venus")return -4.0; if(n=="mars")return 0.7
+  if(n=="jupiter")return -2.2; if(n=="saturn")return 0.6; return 0.0 }
+
+# ---- sextant corrections.  All angles in degrees, corrections in arcmin.
+# limb: "L" lower, "U" upper, "C" centre/star
+function corrections(hs,ie,heye,temp,press,limb,   ha,dip,refr,par,sd,f){
+  dip  = 1.7594*sqrt(heye>0?heye:0)              # arcmin, heye in metres
+  ha   = hs - ie/60.0 - dip/60.0
+  C_HA = ha
+  f    = (press/1010.0)*(283.0/(273.0+temp))
+  if(ha > -0.9) refr = f/tand(ha + 7.31/(ha+4.4)); else refr = 0
+  par  = B_HP*cosd(ha)
+  sd   = B_SD
+  if(B_NAME=="Moon" && sd>0) sd = sd*(1.0 + sind(ha)*B_HP/3437.75)   # augmentation
+  C_DIP=dip; C_REF=refr; C_PAR=par; C_SD=sd
+  C_LIMB = (limb=="L"? sd : (limb=="U"? -sd : 0))
+  C_HO = ha + (par - refr + C_LIMB)/60.0
+  return C_HO
+}
+# ---- sight reduction: sets R_HC, R_ZN, R_LHA
+function reduce_sight(lat,lon,gha,dec,   lha,x,y){
+  lha = nrm360(gha + lon)
+  R_LHA = lha
+  R_HC  = asind(sind(lat)*sind(dec) + cosd(lat)*cosd(dec)*cosd(lha))
+  y = -cosd(dec)*sind(lha)
+  x = cosd(lat)*sind(dec) - sind(lat)*cosd(dec)*cosd(lha)
+  R_ZN  = nrm360(atan2d(y,x))
+  return R_HC
+}
+
+# =====================================================================
+#  Section 8: ASCII canvas
+# =====================================================================
+
+# ---- colour ----------------------------------------------------------
+#  cmode = day | night | plain.  Night deliberately stays inside the reds:
+#  anything brighter than deep red costs the observer their dark adaptation.
+function col_init(   e){
+  if(COL_READY) return
+  e=sprintf("%c",27)
+  if(cmode=="night"){
+    C_BASE = e "[40m" e "[31m"; C_ACC = e "[1;31m"; C_DIM = e "[2;31m"; C_HDR = e "[1;31m"
+  } else if(cmode=="day"){
+    C_BASE = e "[40m" e "[37m"; C_ACC = e "[1;32m"; C_DIM = e "[90m";   C_HDR = e "[1;36m"
+  } else {
+    C_BASE = ""; C_ACC = ""; C_DIM = ""; C_HDR = ""
+  }
+  C_RST = C_BASE
+  if(cmode=="night"){ C_PANEL = e "[40m" e "[31m"; C_EOL = e "[K" C_BASE }
+  else if(cmode=="day"){ C_PANEL = e "[40m" e "[37m"; C_EOL = e "[K" C_BASE }
+  else { C_PANEL=""; C_EOL="" }
+  COL_READY = 1
+  return 0
+}
+function cw(s,col){ col_init(); if(col=="") return s; return col s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
+
+function gclear(w,h,   r,c){ col_init(); PW=w; PH=h
+  for(r=0;r<h;r++) for(c=0;c<w;c++){ G[r,c]=" "; GC[r,c]="" } }
+function gput(r,c,ch){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW){ G[r,c]=ch; GC[r,c]="" } }
+function gputc(r,c,ch,col){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW){ G[r,c]=ch; GC[r,c]=col } }
+function gputw(r,c,ch){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW&&G[r,c]==" "){ G[r,c]=ch; GC[r,c]="" } }
+function gputwc(r,c,ch,col){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW&&G[r,c]==" "){ G[r,c]=ch; GC[r,c]=col } }
+function gputs(r,c,s,   i){ for(i=1;i<=length(s);i++) gput(r,c+i-1,substr(s,i,1)) }
+function gputsc(r,c,s,col,   i){ for(i=1;i<=length(s);i++) gputc(r,c+i-1,substr(s,i,1),col) }
+#  The plot is painted as its own panel, so it is legible whatever the
+#  terminal's own background happens to be.
+function gshow(   r,c,line,cur,last,cc){
+  for(r=0;r<PH;r++){
+    last=-1
+    for(c=0;c<PW;c++) if(G[r,c]!=" ") last=c
+    line=""; cur=""
+    for(c=0;c<=last;c++){
+      cc=GC[r,c]
+      if(cc!=cur){ line = line (cc==""? C_PANEL : cc); cur=cc }
+      line = line G[r,c]
+    }
+    print "  " C_PANEL line C_EOL
+  }
+  return 0
+}
+function slopechar(drow,dcol,   s){
+  if(dcol==0) return "|"
+  s=drow/dcol
+  if(s<0) s=-s
+  if(s<0.35) return "-"
+  if(s>2.5)  return "|"
+  return ((drow/dcol)<0) ? "/" : "\\"
+}
+
+# =====================================================================
+#  Section 9: intercept plot  (plotting sheet, N up, E right)
+#  arrays: NL_ n of lops; LZN[] azimuth, LP[] intercept nm, LLBL[] label
+# =====================================================================
+function plot_sheet(n,fixN,fixE,haveFix,title,   i,maxr,r,sc,xs,ys,cx,cy,fr,fc,dr,dc,t,rr,cc,ch,m,w,h,tk){
+  w=73; h=27; cx=int(w/2); cy=int(h/2)
+  maxr=2.0
+  for(i=1;i<=n;i++){ r=fabs(LP[i]); if(r>maxr) maxr=r }
+  if(haveFix){ r=sqrt(fixN*fixN+fixE*fixE); if(r*1.3>maxr) maxr=r*1.3 }
+  sc=nicestep(maxr*1.2/(h/2-1))
+  ys=sc; xs=sc/2.0
+  gclear(w,h)
+  for(i=0;i<h;i++) gputwc(i,cx,":",C_DIM)
+  for(i=0;i<w;i++) gputwc(cy,i,".",C_DIM)
+  # azimuth lines from AP out to each intercept foot
+  for(i=1;i<=n;i++){
+    fr = cy - (LP[i]*cosd(LZN[i]))/ys
+    fc = cx + (LP[i]*sind(LZN[i]))/xs
+    m = fabs(fr-cy); if(fabs(fc-cx)>m) m=fabs(fc-cx)
+    if(m>0.5) for(t=0;t<=m;t+=0.5) gputwc(cy+(fr-cy)*t/m, cx+(fc-cx)*t/m, ".", C_DIM)
+  }
+  # the LOPs
+  for(i=1;i<=n;i++){
+    fr = cy - (LP[i]*cosd(LZN[i]))/ys
+    fc = cx + (LP[i]*sind(LZN[i]))/xs
+    dr = -(cosd(LZN[i]+90))/ys
+    dc =  (sind(LZN[i]+90))/xs
+    ch = slopechar(dr,dc)
+    m = fabs(dr); if(fabs(dc)>m) m=fabs(dc)
+    dr=dr/m; dc=dc/m
+    for(t=-(w+h); t<=(w+h); t+=0.5){
+      rr=fr+dr*t; cc=fc+dc*t
+      if(rr<-0.5||rr>=h||cc<-0.5||cc>=w) continue
+      gput(rr,cc,ch)
+    }
+  }
+  gputc(cy,cx,"+",C_ACC)
+  for(i=1;i<=n;i++){
+    fr = cy - (LP[i]*cosd(LZN[i]))/ys
+    fc = cx + (LP[i]*sind(LZN[i]))/xs
+    if(fabs(fr-cy)<0.5 && fabs(fc-cx)<0.5) fc=fc+1
+    gputc(fr,fc,LLBL[i],C_ACC)
+  }
+  if(haveFix) gputc(cy-fixN/ys, cx+fixE/xs, "@", C_ACC)
+  gputs(0,cx-2,"N"); gputs(h-1,cx-2,"S")
+  gputs(cy-1,0,"W"); gputs(cy-1,w-1,"E")
+  tk=sprintf("%g nm per row",sc)
+  gputs(h-1,w-length(tk)-1,tk)
+  print ""
+  print "  " title
+  gshow()
+  printf "  AP = %s    LOP = lettered line    fix = %s    1 row = %g nm, 1 column = %g nm\n",
+         cw("+",C_ACC), cw("@",C_ACC), sc, xs
+  #  A cell is twice as tall as it is wide, so a line within a couple of
+  #  degrees of vertical has to step a column somewhere down the plot.
+  #  That step is the geometry, not the drawing: forcing it straight
+  #  would draw a line that is a degree wrong, and a degree over the
+  #  height of this sheet is a real distance. Say so, because it looks
+  #  like a fault and is not.
+  printf "  %s\n", cwd(sprintf("A near-vertical LOP steps a column part way down: a cell is %g nm", xs))
+  printf "  %s\n", cwd(sprintf("wide, so one degree off vertical is %.1f nm across this sheet.", (h-1)*sc*0.01745))
+}
+function nicestep(x,   e,m){
+  if(x<=0) return 1
+  e=1
+  while(x/e>=10) e*=10
+  while(x/e<1) e/=10
+  m=x/e
+  if(m<=1) return 1*e
+  if(m<=2) return 2*e
+  if(m<=5) return 5*e
+  return 10*e
+}
+# ---- sky diagram: zenith at centre, horizon at rim, N up ------------
+function plot_sky(n,   i,w,h,cx,cy,rx,ry,a,rr,row,col,t,lab)
+{
+  w=59; h=25; cx=int(w/2); cy=int(h/2); rx=cx-1; ry=cy-1
+  gclear(w,h)
+  for(t=0;t<360;t+=1.0){
+    gputwc(cy-ry*cosd(t), cx+rx*sind(t), "*", C_DIM)
+    gputwc(cy-ry*0.6667*cosd(t), cx+rx*0.6667*sind(t), ".", C_DIM)
+    gputwc(cy-ry*0.3333*cosd(t), cx+rx*0.3333*sind(t), ".", C_DIM)
+  }
+  gputc(cy,cx,"+",C_ACC)
+  for(i=1;i<=n;i++){
+    if(SKYALT[i] < -2) continue
+    rr = (90-SKYALT[i])/90.0
+    if(rr>1.02) continue
+    row = cy - ry*rr*cosd(SKYAZ[i])
+    col = cx + rx*rr*sind(SKYAZ[i])
+    if(SKYLBL[i]=="1"||SKYLBL[i]=="2"||SKYLBL[i]=="3") gputc(row,col,SKYLBL[i],C_ACC)
+    else gput(row,col,SKYLBL[i])
+  }
+  gputs(0,cx-1,"N"); gputs(h-1,cx-1,"S")
+  gputs(cy,0,"W"); gputs(cy,w-1,"E")
+  gputs(cy-1,cx+2,"zenith")
+  print ""
+  print "  SKY VIEW  (centre = overhead, rim = horizon, N up, E right)"
+  gshow()
+  printf "  inner rings = 60 and 30 degrees altitude   zenith = %s\n", cw("+",C_ACC)
+}
+
+# =====================================================================
+#  Section 10: commands
+# =====================================================================
+function hr(){ print "  ----------------------------------------------------------------------" }
+
+function cmd_almanac(   jd,i,list,n,b,names){
+  jd=parse_utc(utc)
+  printf "\n  ALMANAC for %04d-%02d-%02d %s UT   (JD %.5f)\n",UT_Y,UT_MO,UT_D,fmt_hms(UT_H+UT_MI/60+UT_S/3600),jd
+  printf "  Delta-T used: %.1f s\n", deltaT(UT_Y)
+  hr()
+  printf "  %-14s %13s %13s %8s %8s\n","BODY","GHA","DEC","SD","HP"
+  printf "  %-14s %13s\n","Aries", fmt_dm(gast(jd),3)
+  n=split(bodies,list,",")
+  for(i=1;i<=n;i++){
+    b=list[i]; if(b=="") continue
+    if(body_at(b,jd)=="ERR"){ printf "  %-14s  ** unknown body **\n",b; continue }
+    printf "  %-14s %13s %13s %8s %8s\n", B_NAME, fmt_dm(B_GHA,3),
+       (B_DEC<0? "S":"N") fmt_dm(fabs(B_DEC),2), (B_SD>0?sprintf("%.1f'",B_SD):"-"),
+       (B_HP>0?sprintf("%.1f'",B_HP):"-")
+    if(B_SHA!="" && B_MAG!="" && B_SD==0)
+       printf "  %-14s SHA %s  mag %.1f\n","", fmt_dm(B_SHA,3), B_MAG
+  }
+  hr()
+}
+
+
+# solve for the offset of the fix from a trial position; returns via SOL_N/SOL_E
+function solve_fix(ns,tlat,tlon,keep,   i,dt,runN,runE,cosl,la,lo,ho,A,B,C,D,E2,det){
+  A=0;B=0;C=0;D=0;E2=0
+  for(i=1;i<=ns;i++){
+    dt=(FIXJD - S_JD[i])*24.0
+    runN=speed*dt*cosd(course); runE=speed*dt*sind(course)
+    la = tlat - runN/60.0
+    cosl=cosd(la); if(fabs(cosl)<0.02) cosl=0.02
+    lo = tlon - runE/(60.0*cosl)
+    body_at(S_BODY[i],S_JD[i])
+    ho = corrections(S_HS[i],S_IE[i],S_HE[i],S_TM[i],S_PR[i],S_LIMB[i])
+    reduce_sight(la,lo,B_GHA,B_DEC)
+    if(keep){
+      S_NAME[i]=B_NAME; AP_LAT[i]=la; AP_LON[i]=lo
+      S_HO[i]=ho; S_HA[i]=C_HA; S_HC[i]=R_HC; S_ZN[i]=R_ZN; S_LHA[i]=R_LHA
+      S_GHA[i]=B_GHA; S_DEC[i]=B_DEC; S_SD[i]=B_SD; S_HP[i]=B_HP
+      S_INT[i]=(ho-R_HC)*60.0
+      S_DIP[i]=C_DIP; S_REF[i]=C_REF; S_PAR[i]=C_PAR; S_LIM[i]=C_LIMB
+      S_RUN[i]=sqrt(runN*runN+runE*runE)
+    }
+    ZN[i]=R_ZN; PP[i]=(ho-R_HC)*60.0
+    A += cosd(R_ZN)^2; B += cosd(R_ZN)*sind(R_ZN); C += sind(R_ZN)^2
+    D += PP[i]*cosd(R_ZN); E2 += PP[i]*sind(R_ZN)
+  }
+  det=A*C-B*B
+  NM_A=A; NM_B=B; NM_C=C; NM_DET=det
+  if(fabs(det)<1e-9){ SOL_OK=0; SOL_N=0; SOL_E=0; return 0 }
+  SOL_OK=1
+  SOL_N=(D*C-E2*B)/det
+  SOL_E=(A*E2-B*D)/det
+  return 1
+}
+
+# ---------------- reduce: full sight reduction and fix ---------------
+function cmd_reduce(   line,n,f,i,jd,jdf,alat,alon,dN,dE,res,rms,latf,lonf,cosl,ns,it,shift){
+  ns=0
+  while((getline line < sfile) > 0){
+    if(line ~ /^[ \t]*#/ || line ~ /^[ \t]*$/) continue
+    n=split(line,f,"|")
+    if(n<4) continue
+    ns++
+    S_UTC[ns]=f[1]; S_BODY[ns]=f[2]; S_LIMB[ns]=toupper(f[3]); S_HS[ns]=parse_ang(f[4])
+    S_IE[ns]=(n>=5&&f[5]!=""?f[5]+0:0); S_HE[ns]=(n>=6&&f[6]!=""?f[6]+0:2.5)
+    S_TM[ns]=(n>=7&&f[7]!=""?f[7]+0:10); S_PR[ns]=(n>=8&&f[8]!=""?f[8]+0:1010)
+    S_LBL[ns]=(n>=9?f[9]:"")
+    S_JD[ns]=parse_utc(f[1])
+  }
+  close(sfile)
+  if(ns==0){ print "  No sights found."; return }
+  alat=parse_ang(drlat); alon=parse_ang(drlon)
+  jdf = (fixtime!="" ? parse_utc(fixtime) : S_JD[ns])
+  FIXJD = jdf
+  alat=parse_ang(drlat); alon=parse_ang(drlon)
+  jd2cal(jdf)
+  printf "\n  SIGHT REDUCTION  --  %d sight%s\n", ns, (ns==1?"":"s")
+  printf "  Fix time      %04d-%02d-%02d %s UT\n",CAL_Y,CAL_M,CAL_D,fmt_hms(CAL_FRAC*24)
+  printf "  DR at fix     %s  %s\n", fmt_lat(alat), fmt_lon(alon)
+  if(speed+0>0) printf "  Run           course %03d T, speed %.1f kn\n", course+0, speed+0
+  if(body_at(S_BODY[1],S_JD[1])=="ERR"){ printf "\n  ** unknown body: %s\n",S_BODY[1]; return }
+  # first pass, from the navigator's own DR - this is the printed working
+  solve_fix(ns,alat,alon,1)
+  dN=SOL_N; dE=SOL_E
+  for(i=1;i<=ns;i++){
+    S_CH[i]=substr("abcdefghijklmnop",i,1)
+    hr()
+    printf "  Sight %s: %-10s %s UT   limb %s\n", S_CH[i], S_NAME[i], S_UTC[i],
+           (S_LIMB[i]=="L"?"lower":(S_LIMB[i]=="U"?"upper":"centre"))
+    printf "    Hs  %11s     GHA %11s     assumed pos %s %s\n", fmt_dm(S_HS[i],2), fmt_dm(S_GHA[i],3),
+           fmt_lat(AP_LAT[i]), fmt_lon(AP_LON[i])
+    printf "    IE  %+11.1f'    Dec %11s     LHA %s\n", -S_IE[i], (S_DEC[i]<0?"S":"N") fmt_dm(fabs(S_DEC[i]),2), fmt_dm(S_LHA[i],3)
+    printf "    Dip %+11.1f'    SD  %10s     Hc  %11s\n", -S_DIP[i], (S_SD[i]>0?sprintf("%.1f'",S_SD[i]):"    -  "), fmt_dm(S_HC[i],2)
+    printf "    Ha  %11s     HP  %10s     Zn  %11s\n", fmt_dm(S_HA[i],2), (S_HP[i]>0?sprintf("%.1f'",S_HP[i]):"    -  "), fmt_dm(S_ZN[i],3)
+    printf "    Ref %+11.1f'\n", -S_REF[i]
+    if(S_PAR[i]>0.05) printf "    Par %+11.1f'\n", S_PAR[i]
+    if(S_LIM[i]!=0)   printf "    SD  %+11.1f'\n", S_LIM[i]
+    printf "    Ho  %11s                          Intercept %6.1f nm %s\n",
+           fmt_dm(S_HO[i],2), fabs(S_INT[i]), (S_INT[i]>=0?"TOWARD":"AWAY")
+    if(S_RUN[i]>0.05) printf "    LOP advanced %.1f nm along %03d T to the fix time\n", S_RUN[i], course+0
+  }
+  hr()
+  # ---- fix, refined by re-reducing from the first answer -------------
+  if(ns>=2 && SOL_OK){
+    cosl=cosd(alat); if(fabs(cosl)<0.02) cosl=0.02
+    latf=alat+dN/60.0; lonf=alon+dE/(60.0*cosl)
+    for(it=0; it<6; it++){
+      solve_fix(ns,latf,lonf,0)
+      if(!SOL_OK) break
+      cosl=cosd(latf); if(fabs(cosl)<0.02) cosl=0.02
+      latf=latf+SOL_N/60.0; lonf=lonf+SOL_E/(60.0*cosl)
+      if(sqrt(SOL_N*SOL_N+SOL_E*SOL_E)<0.02) break
+    }
+    shift = sqrt((latf-(alat+dN/60.0))^2 + ((lonf-(alon+dE/(60.0*cosd(alat))))*cosd(alat))^2)*60
+    FIX_N=(latf-alat)*60.0
+    FIX_E=nrm180(lonf-alon)*60.0*cosd(alat)
+    if(lonf>180) lonf-=360; if(lonf<-180) lonf+=360
+    printf "\n%s\n", cw(sprintf("  FIX   %s   %s", fmt_lat(latf), fmt_lon(lonf)), C_ACC)
+    printf "  Offset from DR: %.1f nm %s, %.1f nm %s   (%.1f nm on %03d T)\n",
+      fabs(FIX_N),(FIX_N>=0?"N":"S"), fabs(FIX_E),(FIX_E>=0?"E":"W"),
+      sqrt(FIX_N*FIX_N+FIX_E*FIX_E), nrm360(atan2d(FIX_E,FIX_N))
+    if(shift>0.15) printf "  (re-reduced from the first answer until it stopped moving: it shifted %.1f nm)\n", shift
+    rms=0
+    printf "\n  LOP residuals at the fix (nm):\n"
+    solve_fix(ns,latf,lonf,0)
+    for(i=1;i<=ns;i++){
+      res = PP[i] - (SOL_N*cosd(ZN[i]) + SOL_E*sind(ZN[i]))
+      printf "    %s %-10s Zn %03d T   intercept from DR %6.1f   residual %+6.2f\n",
+             S_CH[i],S_NAME[i],S_ZN[i]+0.5,S_INT[i],res
+      rms += res*res
+    }
+    if(ns>2) printf "    RMS scatter %.2f nm  -  this is the quality of your sights\n", sqrt(rms/ns)
+    fix_geometry(ns)
+    HAVE_FIX=1
+  } else {
+    print "\n  Single line of position only - no fix (2+ sights with different azimuths needed)."
+    HAVE_FIX=0; FIX_N=0; FIX_E=0
+  }
+  # ---- diagrams
+  for(i=1;i<=ns;i++){ SKYALT[i]=S_HO[i]; SKYAZ[i]=S_ZN[i]; SKYLBL[i]=S_CH[i]
+                      LZN[i]=S_ZN[i]; LP[i]=S_INT[i]; LLBL[i]=S_CH[i] }
+  plot_sky(ns)
+  plot_sheet(ns,FIX_N,FIX_E,HAVE_FIX,"INTERCEPT PLOT  (AP at centre, N up)")
+  print ""
+  printf "  %-3s %-12s %-8s %-10s %s\n","","body","Zn","intercept","LOP"
+  for(i=1;i<=ns;i++)
+    printf "  %-3s %-12s %03d T    %6.1f nm  %-6s Ho %s  Hc %s\n",
+      S_CH[i],S_NAME[i],S_ZN[i]+0.5,fabs(S_INT[i]),(S_INT[i]>=0?"toward":"away"),
+      fmt_dm(S_HO[i],2), fmt_dm(S_HC[i],2)
+  print ""
+}
+
+# ---- how well the azimuths pin the position down --------------------
+function fix_geometry(ns,   tr,dd,mu1,mu2,amaj,amin,brg,sig){
+  sig=1.0                                   # assume 1.0' of error per sight
+  tr=NM_A+NM_C; dd=sqrt((NM_A-NM_C)^2+4*NM_B*NM_B)
+  mu1=(tr+dd)/2; mu2=(tr-dd)/2              # mu2 = weakest direction
+  if(mu2<=1e-9){ print cw("\n  GEOMETRY: the lines of position are parallel - this is not a fix.",C_ACC)
+                 print "  Shoot a body at least 40 degrees away in azimuth."; return }
+  amaj=sig/sqrt(mu2); amin=sig/sqrt(mu1)
+  brg=nrm360(atan2d(mu2-NM_A, NM_B))
+  printf "\n  GEOMETRY: 1.0' of sight error puts the fix out by %.1f nm along %03d T\n", amaj, brg
+  printf "            and %.1f nm across it.  (%d LOPs)\n", amin, ns
+  if(amaj>3.0) print cw("  WEAK CUT - the azimuths are too close together. Add a body 40-120 deg away.",C_ACC)
+  else if(amaj>1.6) print "  Fair cut. A body more nearly at right angles would tighten it."
+}
+
+# ---------------- plan: what can I shoot, and when ------------------
+function sun_alt(jd,lat,lon){
+  body_at("sun",jd); reduce_sight(lat,lon,B_GHA,B_DEC); return R_HC
+}
+function find_cross(jd0,lat,lon,h,dirn,   t,a,b,jd,lo,hi,i,mid){
+  # scan the 24h from jd0 for sun altitude crossing h with given direction
+  a=sun_alt(jd0,lat,lon)
+  for(t=1/144.0; t<=1.0; t+=1/144.0){
+    b=sun_alt(jd0+t,lat,lon)
+    if((dirn>0 && a<h && b>=h)||(dirn<0 && a>h && b<=h)){
+      lo=jd0+t-1/144.0; hi=jd0+t
+      for(i=0;i<25;i++){ mid=(lo+hi)/2
+        if(((sun_alt(mid,lat,lon)<h)?1:0) == ((dirn>0)?1:0)) lo=mid; else hi=mid }
+      return (lo+hi)/2
+    }
+    a=b
+  }
+  return -1
+}
+function evt2(jd,jd0,lon,   u,l){
+  if(jd<0) return "    --"
+  u=(jd-jd0)*24; l=u+lon/15.0; if(l<0)l+=24; if(l>=24)l-=24
+  return sprintf("%s / %s", substr(fmt_hms(u),1,5), substr(fmt_hms(l),1,5))
+}
+function moon_ill(jd,   sr,sd,mr,md,el){
+  body_at("sun",jd); sr=P_RA; sd=P_DEC
+  body_at("moon",jd); mr=P_RA; md=P_DEC
+  el=acosd(sind(sd)*sind(md)+cosd(sd)*cosd(md)*cosd(sr-mr))
+  MOON_ILL=(1-cosd(el))/2*100
+  MOON_PH=(nrm360(mr-sr)<180 ? "waxing" : "waning")
+  if(MOON_ILL<3) MOON_PH="new - no moon"
+  else if(MOON_ILL>97) MOON_PH="full"
+  return MOON_ILL
+}
+function evt(jd,jd0){ if(jd<0) return "   --  "; return sprintf("%s", fmt_hms((jd-jd0)*24)) }
+
+function cmd_plan(   jd,lat,lon,i,k,nb,names,alt,az,mag,nm,tmp,j,jd0,best,bi,bj,bk,sp,a1,a2,a3,d1,d2,d3,mn){
+  best=-1; bi=0; bj=0; bk=0
+  jd=parse_utc(utc); lat=parse_ang(drlat); lon=parse_ang(drlon)
+  jd0=jdate(UT_Y,UT_MO,UT_D)
+  printf "\n  SIGHT PLANNING  %04d-%02d-%02d %s UT\n",UT_Y,UT_MO,UT_D,fmt_hms(UT_H+UT_MI/60+UT_S/3600)
+  printf "  Position %s  %s\n", fmt_lat(lat), fmt_lon(lon)
+  hr()
+  printf "  %-12s %-19s %-19s\n","","MORNING  UT / LMT","EVENING  UT / LMT"
+  printf "  %-12s %-19s %-19s\n","Sunrise/set", evt2(find_cross(jd0,lat,lon,-0.833,1),jd0,lon), evt2(find_cross(jd0,lat,lon,-0.833,-1),jd0,lon)
+  printf "  %-12s %-19s %-19s\n","Civil twi",   evt2(find_cross(jd0,lat,lon,-6,1),jd0,lon),     evt2(find_cross(jd0,lat,lon,-6,-1),jd0,lon)
+  printf "  %-12s %-19s %-19s\n","Nautical",    evt2(find_cross(jd0,lat,lon,-12,1),jd0,lon),    evt2(find_cross(jd0,lat,lon,-12,-1),jd0,lon)
+  printf "  Star horizon is usable between civil and nautical twilight.\n"
+  moon_ill(jd)
+  printf "  Moon %.0f%% illuminated, %s\n", MOON_ILL, MOON_PH
+  sp=sun_alt(jd,lat,lon)
+  if(sp > -0.9)      print "  Sun is above the horizon: sun (and possibly moon/Venus) sights only."
+  else if(sp > -6)   print "  Civil twilight: brightest stars and planets with a sharp horizon - prime time."
+  else if(sp > -12)  print "  Nautical twilight: good star horizon, working the fainter stars."
+  else               print "  Full night: horizon too dark for reliable sights."
+  hr()
+  nb=0
+  split("sun,moon,venus,mars,jupiter,saturn",names,",")
+  for(i=1;i<=6;i++){
+    body_at(names[i],jd); reduce_sight(lat,lon,B_GHA,B_DEC)
+    nb++; PB_N[nb]=B_NAME; PB_A[nb]=R_HC; PB_Z[nb]=R_ZN; PB_M[nb]=B_MAG
+  }
+  star_init()
+  for(i=1;i<=NSTAR;i++){
+    star_pos(i, jd + deltaT(UT_Y)/86400.0)
+    reduce_sight(lat,lon,nrm360(gast(jd)-P_RA),P_DEC)
+    if(R_HC < 5 || R_HC > 82) continue
+    nb++; PB_N[nb]=SNAME[i]; PB_A[nb]=R_HC; PB_Z[nb]=R_ZN; PB_M[nb]=SMAG[i]
+  }
+  # insertion sort by azimuth
+  for(i=2;i<=nb;i++){ tmp=PB_Z[i]; a1=PB_N[i]; a2=PB_A[i]; a3=PB_M[i]; j=i-1
+    while(j>=1 && PB_Z[j]>tmp){ PB_Z[j+1]=PB_Z[j]; PB_N[j+1]=PB_N[j]; PB_A[j+1]=PB_A[j]; PB_M[j+1]=PB_M[j]; j-- }
+    PB_Z[j+1]=tmp; PB_N[j+1]=a1; PB_A[j+1]=a2; PB_M[j+1]=a3 }
+  printf "  %-16s %8s %8s %6s  %s\n","BODY","ALT","Zn","MAG","note"
+  k=0
+  for(i=1;i<=nb;i++){
+    if(PB_A[i] < 5) continue
+    if(sp > -0.9 && PB_M[i] > -3.5) continue
+    k++
+    printf "  %-16s %7.1f  %6.1f  %5.1f  %s\n", PB_N[i], PB_A[i], PB_Z[i], PB_M[i],
+       (PB_A[i]<15?"low - refraction uncertain":(PB_A[i]>75?"very high - Zn changes fast":""))
+    SKYALT[k]=PB_A[i]; SKYAZ[k]=PB_Z[i]; SKYLBL[k]="*"
+    TN[k]=PB_N[i]; TA[k]=PB_A[i]; TZ[k]=PB_Z[i]; TM[k]=PB_M[i]
+    TO[k]=1
+    if(sp > -0.9 && PB_M[i] > -3.5) TO[k]=0
+  }
+  if(sp > -0.9) print "  (stars omitted - the sun is up)"
+  if(k==0){ print "  Nothing usable above 5 degrees altitude at this time."; return }
+  # best three: brightest usable, maximise minimum azimuth separation
+  best=-1
+  for(i=1;i<=k;i++){ if(TM[i]>2.6||TA[i]<15||TA[i]>70||!TO[i]) continue
+   for(j=i+1;j<=k;j++){ if(TM[j]>2.6||TA[j]<15||TA[j]>70||!TO[j]) continue
+    for(nm=j+1;nm<=k;nm++){ if(TM[nm]>2.6||TA[nm]<15||TA[nm]>70||!TO[nm]) continue
+      d1=angsep(TZ[i],TZ[j]); d2=angsep(TZ[j],TZ[nm]); d3=angsep(TZ[i],TZ[nm])
+      mn=(d1<d2?d1:d2); if(d3<mn) mn=d3
+      if(mn>best){ best=mn; bi=i; bj=j; bk=nm }
+    }}}
+  if(best<=0 && sp>-0.9) print "\n  Daylight: take a sun line now and cross it with a second sun line\n  after a run of two hours or more, or with the moon if it is up."
+  if(best>0){
+    printf "\n  Best three for a fix (azimuth spread %.0f deg minimum):\n", best
+    printf "%s\n", cw(sprintf("    1  %-16s alt %5.1f  Zn %5.1f", TN[bi],TA[bi],TZ[bi]), C_ACC)
+    printf "%s\n", cw(sprintf("    2  %-16s alt %5.1f  Zn %5.1f", TN[bj],TA[bj],TZ[bj]), C_ACC)
+    printf "%s\n", cw(sprintf("    3  %-16s alt %5.1f  Zn %5.1f", TN[bk],TA[bk],TZ[bk]), C_ACC)
+    SKYLBL[bi]="1"; SKYLBL[bj]="2"; SKYLBL[bk]="3"
+  }
+  plot_sky(k)
+  printf "  * = usable body    %s = the suggested set\n", cw("1 2 3",C_ACC)
+  print ""
+}
+function angsep(a,b,   d){ d=fabs(nrm180(a-b)); return d }
+
+# ---------------- compass check --------------------------------------
+function cmd_compass(   jd,lat,lon,zn,ce,dev,amp){
+  jd=parse_utc(utc); lat=parse_ang(drlat); lon=parse_ang(drlon)
+  if(body_at(body,jd)=="ERR"){ print "  unknown body"; return }
+  reduce_sight(lat,lon,B_GHA,B_DEC)
+  zn=R_ZN
+  printf "\n  COMPASS CHECK  %s  %s UT\n", B_NAME, utc
+  printf "  Position %s  %s\n", fmt_lat(lat), fmt_lon(lon)
+  hr()
+  printf "  True azimuth of %s        Zn  %6.1f T   (altitude %.1f)\n", B_NAME, zn, R_HC
+  if(fabs(R_HC)<2){
+    amp = asind(sind(B_DEC)/cosd(lat))
+    printf "  Amplitude (body on horizon)    %5.1f deg %s of %s\n", fabs(amp),
+       (B_DEC>=0?"N":"S"), (zn<180?"E":"W")
+  }
+  if(cbrg!=""){
+    ce = nrm180(zn - parse_ang(cbrg))
+    printf "  Compass bearing observed       %6.1f C\n", parse_ang(cbrg)
+    printf "  Compass error                  %6.1f %s\n", fabs(ce), (ce>=0?"EAST":"WEST")
+    if(variation!=""){
+      dev = nrm180(ce - parse_ang(variation))
+      printf "  Variation (chart)              %6.1f %s\n", fabs(parse_ang(variation)+0), (parse_ang(variation)>=0?"EAST":"WEST")
+      printf "  Deviation of this compass      %6.1f %s\n", fabs(dev), (dev>=0?"EAST":"WEST")
+    }
+  }
+  if(R_HC>25) print "\n  NOTE: azimuth checks are most reliable with the body below about 20 degrees."
+  hr(); print ""
+}
+
+# ---------------- self test ------------------------------------------
+# Reference values are independent geocentric apparent positions
+# (JPL-grade ephemeris), embedded so the test works with no network.
+function cmd_selftest(   n,i,a,rows,jd,d,fail,tol,worst,g,dr,dd){
+  rows= \
+  "2026-03-21 00:00:00|sun|178.17769|0.15224;" \
+  "2026-08-29 12:00:00|sun|359.76432|9.24525;" \
+  "2027-06-01 18:45:00|sun|101.78428|22.09939;" \
+  "2026-03-21 00:00:00|moon|155.81258|13.63671;" \
+  "2026-08-29 12:00:00|moon|165.86669|-1.35060;" \
+  "2025-11-07 09:12:30|moon|115.92951|27.14095;" \
+  "2026-01-15 03:30:00|venus|227.85355|-21.72116;" \
+  "2026-08-29 12:00:00|mars|54.83234|23.40889;" \
+  "2026-08-29 12:00:00|jupiter|21.91696|17.36552;" \
+  "2026-08-29 12:00:00|saturn|143.96867|3.01444;" \
+  "2026-08-29 12:00:00|Sirius|56.13195|-16.74927;" \
+  "2026-08-29 12:00:00|Polaris|110.88427|89.37141;" \
+  "2026-08-29 12:00:00|Vega|238.24593|38.81220;" \
+  "2030-01-01 00:00:00|Acrux|273.61706|-63.26202"
+  n=split(rows,a,";")
+  fail=0; worst=0
+  print ""
+  print "  SELF TEST -- almanac against an independent reference ephemeris"
+  hr()
+  printf "  %-22s %-9s %9s %9s\n","UT","body","dGHA'","dDec'"
+  for(i=1;i<=n;i++){
+    split(a[i],d,"|")
+    jd=parse_utc(d[1])
+    body_at(d[2],jd)
+    dr=nrm180(d[3]-B_GHA)*60*cosd(B_DEC); dd=(d[4]-B_DEC)*60
+    g=sqrt(dr*dr+dd*dd); if(g>worst) worst=g
+    printf "  %-22s %-9s %9.3f %9.3f  %s\n", d[1],d[2],dr,dd,(g<1.0?"ok":"FAIL")
+    if(g>=1.0) fail++
+  }
+  hr()
+  # --- sight reduction arithmetic against a hand-checked triangle
+  reduce_sight(35.0,-40.0,45.0,20.0)
+  printf "  Sight reduction check: Hc %.4f (expect 74.3647)  Zn %.3f (expect 197.691)\n",R_HC,R_ZN
+  if(fabs(R_HC-74.3647)>0.001||fabs(R_ZN-197.691)>0.01) fail++
+  B_NAME="Sun"; B_SD=15.9; B_HP=0.15
+  printf "  Corrections check:     Ho %.4f (expect 45.1660)\n", corrections(45.0,2.0,3.0,10,1010,"L")
+  if(fabs(corrections(45.0,2.0,3.0,10,1010,"L")-45.1660)>0.0002) fail++
+  hr()
+  printf "  Worst almanac error %.3f arcmin.  %s\n", worst, cw((fail==0?"ALL TESTS PASSED":"*** " fail " FAILURE(S) ***"),C_ACC)
+  print ""
+  exit (fail==0?0:1)
+}
+
+BEGIN{
+  col_init()
+  if(cmd=="almanac")      cmd_almanac()
+  else if(cmd=="reduce")  cmd_reduce()
+  else if(cmd=="plan")    cmd_plan()
+  else if(cmd=="compass") cmd_compass()
+  else if(cmd=="selftest") cmd_selftest()
+  else if(cmd=="stars")   cmd_stars()
+  else if(cmd!="" && substr(cmd,1,2)!="t_"){ print "engine: unknown cmd \"" cmd "\"" ; exit 2 }
+}
+function cmd_stars(   i,jd){
+  jd=(utc!=""?parse_utc(utc):jdate(2026,1,1))
+  star_init()
+  printf "\n  NAVIGATIONAL STARS   %s\n", (utc!=""?utc " UT":"J2000")
+  hr()
+  printf "  %3s %-17s %11s %12s %6s\n","No","Name","SHA","Dec","Mag"
+  for(i=1;i<=NSTAR;i++){
+    star_pos(i, jd + deltaT(2026)/86400.0)
+    printf "  %3d %-17s %11s %12s %6.2f\n", SNUM[i], SNAME[i], fmt_dm(nrm360(360-P_RA),3),
+       (P_DEC<0?"S":"N") fmt_dm(fabs(P_DEC),2), SMAG[i]
+  }
+  hr(); print ""
+}
+__CELNAV_ENGINE__
+  cat > "$TEACH" <<'__CELNAV_TEACH__'
+# =====================================================================
+#  celnav teaching module
+#  Loaded alongside engine.awk.  Everything here is drawing and text;
+#  all the astronomy comes from the engine, so a lesson and the working
+#  tool can never disagree.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+#  Orthographic globe.  Sets up a view centred on (lat0,lon0) and draws
+#  points, small circles and graticule on the shared canvas.
+# ---------------------------------------------------------------------
+function gl_init(w,h,lat0,lon0,   i){
+  GL_W=w; GL_H=h; GL_CX=int(w/2); GL_CY=int(h/2)
+  GL_RX=GL_CX-1; GL_RY=GL_CY-1
+  GL_LAT0=lat0; GL_LON0=lon0
+  gclear(w,h)
+  return 0
+}
+# project: sets GL_R (row), GL_C (col), GL_VIS (1 if on the near side)
+function gl_proj(lat,lon,   x,y,z,dl){
+  dl=lon-GL_LON0
+  x = cosd(lat)*sind(dl)
+  y = cosd(GL_LAT0)*sind(lat) - sind(GL_LAT0)*cosd(lat)*cosd(dl)
+  z = sind(GL_LAT0)*sind(lat) + cosd(GL_LAT0)*cosd(lat)*cosd(dl)
+  GL_VIS = (z >= -0.02)
+  GL_C = GL_CX + x*GL_RX
+  GL_R = GL_CY - y*GL_RY
+  return GL_VIS
+}
+function gl_limb(   t){
+  for(t=0;t<360;t+=0.45) gput(GL_CY-GL_RY*cosd(t), GL_CX+GL_RX*sind(t), ".")
+  return 0
+}
+function gl_graticule(full,   la,lo){
+  for(lo=-180;lo<180;lo+=1.5){ if(gl_proj(0,lo)) gputw(GL_R,GL_C,"-") }
+  if(full){
+    for(la=-60;la<=60;la+=30){ if(la==0) continue
+      for(lo=-180;lo<180;lo+=3){ if(gl_proj(la,lo)) gputw(GL_R,GL_C,"'") } }
+    for(lo=-180;lo<180;lo+=45)
+      for(la=-84;la<=84;la+=3){ if(gl_proj(la,lo)) gputw(GL_R,GL_C,"'") }
+  }
+  return 0
+}
+# a small circle of angular radius rad (degrees) about (clat,clon)
+function gl_circle(clat,clon,rad,ch,   b,la,lo){
+  for(b=0;b<360;b+=0.5){
+    la = asind(sind(clat)*cosd(rad) + cosd(clat)*sind(rad)*cosd(b))
+    lo = clon + atan2d(sind(b)*sind(rad)*cosd(clat), cosd(rad)-sind(clat)*sind(la))
+    if(gl_proj(la,lo)) gput(GL_R,GL_C,ch)
+  }
+  return 0
+}
+function gl_mark(lat,lon,ch){
+  if(gl_proj(lat,lon)) gput(GL_R,GL_C,ch)
+  return 0
+}
+function gl_label(lat,lon,s,dc,dr){
+  if(gl_proj(lat,lon)) gputs(GL_R+dr, GL_C+dc, s)
+  return 0
+}
+
+# point at angular distance d on bearing b from (lat,lon) -> DP_LAT, DP_LON
+function dest(lat,lon,b,d){
+  DP_LAT = asind(sind(lat)*cosd(d) + cosd(lat)*sind(d)*cosd(b))
+  DP_LON = lon + atan2d(sind(b)*sind(d)*cosd(lat), cosd(d)-sind(lat)*sind(DP_LAT))
+  return DP_LAT
+}
+function angdist(la1,lo1,la2,lo2){
+  return acosd(sind(la1)*sind(la2)+cosd(la1)*cosd(la2)*cosd(lo2-lo1))
+}
+
+# ---------------------------------------------------------------------
+#  The navigational triangle drawn on the observer's sky
+#  (zenith at the centre, horizon at the rim, north up)
+# ---------------------------------------------------------------------
+function sky_pt(alt,az){
+  SP_R = TR_CY - TR_RY*((90-alt)/90)*cosd(az)
+  SP_C = TR_CX + TR_RX*((90-alt)/90)*sind(az)
+  return 0
+}
+function tri_arc(a1,z1,a2,z2,ch,   x1,y1,zz1,x2,y2,zz2,om,t,s1,s2,x,y,z,al,az,i){
+  x1=cosd(a1)*cosd(z1); y1=cosd(a1)*sind(z1); zz1=sind(a1)
+  x2=cosd(a2)*cosd(z2); y2=cosd(a2)*sind(z2); zz2=sind(a2)
+  om=acosd(x1*x2+y1*y2+zz1*zz2)
+  if(om<0.01) return 0
+  for(i=0;i<=200;i++){
+    t=i/200.0
+    s1=sind((1-t)*om)/sind(om); s2=sind(t*om)/sind(om)
+    x=s1*x1+s2*x2; y=s1*y1+s2*y2; z=s1*zz1+s2*zz2
+    al=asind(z); az=nrm360(atan2d(y,x))
+    if(al< -1) continue
+    sky_pt(al,az); gputw(SP_R,SP_C,ch)
+  }
+  return 0
+}
+function tri_diagram(lat,dec,lha,   w,h,t,paz,palt,zn,hc){
+  w=61; h=25; TR_CX=int(w/2); TR_CY=int(h/2); TR_RX=TR_CX-1; TR_RY=TR_CY-1
+  gclear(w,h)
+  for(t=0;t<360;t+=0.6){
+    gputw(TR_CY-TR_RY*cosd(t), TR_CX+TR_RX*sind(t), ".")
+  }
+  reduce_sight(lat,lha*0,0,0)     # keep the engine happy about globals
+  hc = asind(sind(lat)*sind(dec)+cosd(lat)*cosd(dec)*cosd(lha))
+  zn = nrm360(atan2d(-cosd(dec)*sind(lha), cosd(lat)*sind(dec)-sind(lat)*cosd(dec)*cosd(lha)))
+  palt = (lat>=0? lat : -lat)
+  paz  = (lat>=0? 0 : 180)
+  tri_arc(90,0,palt,paz,"'")          # zenith to pole  (co-latitude)
+  tri_arc(90,0,hc,zn,"`")             # zenith to body  (zenith distance)
+  tri_arc(palt,paz,hc,zn,"+")         # pole to body    (polar distance)
+  sky_pt(90,0);   gput(SP_R,SP_C,"Z")
+  sky_pt(palt,paz); gput(SP_R,SP_C,"P"); gputs(SP_R-1,SP_C-1,(lat>=0?"N":"S"))
+  sky_pt(hc,zn);  gput(SP_R,SP_C,"*")
+  gputs(0,TR_CX-1,"N"); gputs(h-1,TR_CX-1,"S")
+  gputs(TR_CY,0,"W");   gputs(TR_CY,w-1,"E")
+  TRI_HC=hc; TRI_ZN=zn
+  return 0
+}
+
+function arc_mid(a1,z1,a2,z2,   x1,y1,zz1,x2,y2,zz2,x,y,z,n){
+  x1=cosd(a1)*cosd(z1); y1=cosd(a1)*sind(z1); zz1=sind(a1)
+  x2=cosd(a2)*cosd(z2); y2=cosd(a2)*sind(z2); zz2=sind(a2)
+  x=(x1+x2)/2; y=(y1+y2)/2; z=(zz1+zz2)/2
+  n=sqrt(x*x+y*y+z*z); if(n<1e-9) return 0
+  AM_ALT=asind(z/n); AM_AZ=nrm360(atan2d(y,x))
+  return 0
+}
+function tri_label(alt,az,s,dc,dr){
+  sky_pt(alt,az); gputs(SP_R+dr, SP_C+dc, s)
+  return 0
+}
+
+# ---------------------------------------------------------------------
+#  How big is each sextant correction?  A bar chart in arcminutes.
+# ---------------------------------------------------------------------
+function bar(n,   i,s){ s=""; for(i=0;i<n;i++) s=s "="; return s }
+function corr_bars(hs,ie,heye,temp,press,limb,   ho,sc,i){
+  ho = corrections(hs,ie,heye,temp,press,limb)
+  sc = 0.55                                   # characters per arcminute
+  printf "    %-22s %11s\n", "Hs  sextant reading", fmt_dm(hs,2)
+  printf "    %-22s %+8.1f'  %s\n", "index error", -ie, bar(int(fabs(ie)*sc+0.5))
+  printf "    %-22s %+8.1f'  %s\n", "dip (height of eye)", -C_DIP, bar(int(C_DIP*sc+0.5))
+  printf "    %-22s %11s\n", "Ha  apparent altitude", fmt_dm(C_HA,2)
+  printf "    %-22s %+8.1f'  %s\n", "refraction", -C_REF, bar(int(C_REF*sc+0.5))
+  if(C_PAR>0.02) printf "    %-22s %+8.1f'  %s\n", "parallax", C_PAR, bar(int(C_PAR*sc+0.5))
+  if(C_LIMB!=0)  printf "    %-22s %+8.1f'  %s\n", "semi-diameter", C_LIMB, bar(int(fabs(C_LIMB)*sc+0.5))
+  printf "    %-22s %11s\n", "Ho  observed altitude", fmt_dm(ho,2)
+  return ho
+}
+
+# ---------------------------------------------------------------------
+#  Why a straight line will do: the circle of position, zoomed in
+# ---------------------------------------------------------------------
+function lop_zoom(zd,nmwide,   w,h,cx,cy,i,x,R,y,row,sag,vex,maxsag){
+  w=67; h=13; cx=int(w/2); cy=h-3
+  gclear(w,h)
+  R = zd*60.0                                   # radius of the circle, nm
+  maxsag = R - sqrt(R*R - (nmwide/2)*(nmwide/2))
+  vex = (h-6)/maxsag                            # rows per nm, exaggerated
+  for(i=0;i<w;i++){
+    x = (i-cx)*(nmwide/w)
+    y = R - sqrt(R*R - x*x)
+    row = cy - y*vex
+    gputw(cy,i,"-")
+    gput(row,i,"o")
+  }
+  gput(cy,cx,"+")
+  gputs(cy+1,cx-3,"AP")
+  gputs(0,1,sprintf("the circle of position has a radius of %.0f nm", R))
+  gputs(1,1,sprintf("across %.0f nm it falls only %.2f nm away from the straight line", nmwide, maxsag))
+  gputs(2,1,sprintf("(drawn here with the vertical stretched about %.0f times, or you", vex*(nmwide/w)))
+  gputs(3,1,"would not see the curve at all)")
+  gputs(h-1,1,"o = the true circle of position    - = the straight LOP we draw")
+  return maxsag
+}
+# ---------------------------------------------------------------------
+#  Running fix: one LOP advanced along the course to meet a second
+# ---------------------------------------------------------------------
+function runfix_fig(zn1,p1,zn2,p2,crs,dist,   w,h,cx,cy,xs,ys,i,t,m,rn,re,p1a,dn,de,mx,sc){
+  w=71; h=23; cx=int(w/2); cy=int(h/2)
+  rn=dist*cosd(crs); re=dist*sind(crs)
+  p1a = p1 + rn*cosd(zn1) + re*sind(zn1)
+  mx=fabs(p1); if(fabs(p1a)>mx)mx=fabs(p1a); if(fabs(p2)>mx)mx=fabs(p2); if(dist>mx)mx=dist
+  ys = nicestep(mx*1.35/(h/2-1)); xs = ys/2.0
+  gclear(w,h)
+  lop_line(cx,cy,xs,ys,zn1,p1,".",w,h)
+  lop_line(cx,cy,xs,ys,zn1,p1a,"=",w,h)
+  lop_line(cx,cy,xs,ys,zn2,p2,"|",w,h)
+  m=fabs(rn/ys); if(fabs(re/xs)>m) m=fabs(re/xs)
+  for(t=0;t<=m;t+=0.4) gput(cy-(rn/ys)*t/m, cx+(re/xs)*t/m, ">")
+  gput(cy,cx,"+")
+  dn=(p1a*sind(zn2)-p2*sind(zn1))/sind(zn2-zn1)
+  de=(p2*cosd(zn1)-p1a*cosd(zn2))/sind(zn2-zn1)
+  gput(cy-dn/ys, cx+de/xs, "@")
+  gputs(0,1,sprintf("1 row = %g nm", ys))
+  return 0
+}
+function lop_line(cx,cy,xs,ys,zn,p,ch,w,h,   fr,fc,dr,dc,m,t){
+  fr = cy - (p*cosd(zn))/ys
+  fc = cx + (p*sind(zn))/xs
+  dr = -(cosd(zn+90))/ys
+  dc =  (sind(zn+90))/xs
+  m  = fabs(dr); if(fabs(dc)>m) m=fabs(dc)
+  dr=dr/m; dc=dc/m
+  for(t=-(w+h); t<=(w+h); t+=0.5){
+    if(fr+dr*t<0||fr+dr*t>=h||fc+dc*t<0||fc+dc*t>=w) continue
+    gput(fr+dr*t, fc+dc*t, ch)
+  }
+  return 0
+}
+
+# =====================================================================
+#  Lesson text helpers
+# =====================================================================
+# ---- a reproducible pseudo-random generator -------------------------
+#  awk's own srand()/rand() is not reproducible across implementations:
+#  mawk re-seeds from the clock even when handed an explicit seed, which
+#  would make a drill and its marking disagree.  MINSTD is exact in
+#  double precision and gives the same stream everywhere.
+function xsrand(s,   i){
+  RS_ = int(s) % 2147483647
+  if(RS_ <= 0) RS_ += 2147483646
+  for(i=0;i<8;i++) RS_ = (16807*RS_) % 2147483647
+  return 0
+}
+function xrand(){ RS_ = (16807*RS_) % 2147483647; return RS_/2147483647.0 }
+
+function tp(s){ print "  " s }
+function tb(){ print "" }
+function thead(id,title,   i,u){
+  print ""
+  printf "  %s  %s\n", id, title
+  u=""; for(i=0;i<length(title)+6;i++) u=u "-"
+  print "  " u
+}
+function tnote(s){ print "  " s }
+
+# =====================================================================
+#  Module F -- Foundations
+# =====================================================================
+function les_F1(){
+  thead("F1","What a sight actually measures")
+  tb()
+  tp("A sextant measures one thing: the angle between a body in the sky and")
+  tp("your horizon. Nothing else. It does not know where you are, and it does")
+  tp("not care.")
+  tb()
+  tp("  1. You bring the body down to the horizon in the mirrors and read the")
+  tp("     angle off the arc. That reading is Hs, the sextant altitude.")
+  tp("  2. Straight overhead is 90 degrees. The horizon is 0. So an altitude of")
+  tp("     40 degrees means the body stands 40 degrees up from the sea.")
+  tp("  3. The useful quantity is the other half of that: 90 minus the altitude,")
+  tp("     called the zenith distance. It is how far the body is from being")
+  tp("     directly overhead.")
+  tb()
+  tp("That last number is the whole trick, and the next two lessons are about")
+  tp("why. Hold on to it: zenith distance = 90 - altitude.")
+  tb()
+  tp("     zenith (straight up)")
+  tp("         |")
+  tp("         |      90 - Hs = zenith distance")
+  tp("         |   .-'")
+  tp("         | .'        * the body")
+  tp("         |'      .-'")
+  tp("         |   .-'   Hs = the angle you measure")
+  tp("      you o------------------------------  your horizon")
+  tb()
+}
+function les_F2(){
+  thead("F2","The geographical position")
+  tb()
+  tp("At any instant, every body in the sky is directly overhead somewhere on")
+  tp("the earth. That spot is its geographical position, or GP.")
+  tb()
+  tp("  1. The GP has a latitude and a longitude, like any other place.")
+  tp("  2. Its latitude is the body's declination - how far north or south of")
+  tp("     the celestial equator the body lies.")
+  tp("  3. Its longitude comes from the body's Greenwich Hour Angle, GHA -")
+  tp("     how far west of Greenwich it has swung.")
+  tp("  4. The GP moves, and quickly: the earth turns 15 degrees of longitude")
+  tp("     an hour, so a body's GP travels about 900 nautical miles westward")
+  tp("     every hour at the equator.")
+  tb()
+  tp("The almanac exists to answer one question: at this instant of Universal")
+  tp("Time, where is this body's GP? Declination gives the latitude, GHA gives")
+  tp("the longitude. That is all an almanac is for.")
+  tb()
+  tp("Nothing here depends on where you are. The GP is the same for every")
+  tp("observer on earth at that instant, which is exactly what makes it useful.")
+  tb()
+}
+function les_F3(){
+  thead("F3","Your altitude puts you on a circle")
+  tb()
+  tp("Now put the two ideas together.")
+  tb()
+  tp("  1. If a body were exactly overhead, its altitude would be 90 degrees")
+  tp("     and you would be standing on its GP.")
+  tp("  2. Measure an altitude of 50 degrees instead, and your zenith distance")
+  tp("     is 40 degrees. You are 40 degrees away from the GP.")
+  tp("  3. One degree on the earth is 60 nautical miles, so you are 2400 miles")
+  tp("     from the GP - but the sextant says nothing about which direction.")
+  tp("  4. Every point 2400 miles from the GP is a candidate. Those points form")
+  tp("     a circle drawn on the earth, centred on the GP.")
+  tb()
+  tp("That circle is your circle of position. One sight, one circle. You are")
+  tp("somewhere on it.")
+  tb()
+}
+function les_F4(){
+  thead("F4","Two circles give a fix")
+  tb()
+  tp("One circle is not a position. Two are.")
+  tb()
+  tp("  1. Take a second sight of a different body. It gives a second circle,")
+  tp("     centred on that body's GP.")
+  tp("  2. Two circles on a sphere cross in two places, and you are at one of")
+  tp("     them.")
+  tp("  3. The two crossings are usually hundreds or thousands of miles apart,")
+  tp("     so your dead reckoning tells you at a glance which one is yours.")
+  tp("  4. A third sight is the check. If all three circles pass through the")
+  tp("     same small area, the round was a good one. If they enclose a large")
+  tp("     triangle, one of the sights is wrong.")
+  tb()
+  tp("That is celestial navigation entire. Everything after this lesson is")
+  tp("about doing it accurately and quickly, on a small chart table, without")
+  tp("drawing circles thousands of miles across.")
+  tb()
+}
+function les_F5(){
+  thead("F5","Why we never draw the circles")
+  tb()
+  tp("A circle of position is typically two or three thousand miles across.")
+  tp("You cannot draw one on a chart. You do not need to.")
+  tb()
+  tp("  1. You already know roughly where you are - your dead reckoning.")
+  tp("  2. Near your DR, a stretch of that vast circle is almost perfectly")
+  tp("     straight. Over 60 miles it departs from a straight line by a")
+  tp("     fraction of a mile.")
+  tp("  3. So instead of the circle, we draw a short straight line: the line")
+  tp("     of position, or LOP.")
+  tp("  4. To place it we need two things - how far the circle passes from")
+  tp("     the DR, and in what direction. Those are the intercept and the")
+  tp("     azimuth, and computing them is what sight reduction does.")
+  tb()
+  tp("The picture below is the circle from lesson F3, zoomed in to a 60-mile")
+  tp("stretch, with the vertical stretched so that you can see the curve at all.")
+  tb()
+}
+
+# =====================================================================
+#  Module T -- Time and the almanac
+# =====================================================================
+function les_T1(){
+  thead("T1","Universal Time, and why the clock rules")
+  tb()
+  tp("Everything in celestial navigation is referred to Universal Time, which")
+  tp("for our purposes is the same as GMT. Not ship's time, not local time.")
+  tb()
+  tp("  1. The earth turns 360 degrees in 24 hours: 15 degrees an hour,")
+  tp("     15 minutes of arc a minute, 15 seconds of arc a second.")
+  tp("  2. At the equator one minute of arc of longitude is one nautical mile.")
+  tp("     So one second of clock error is a quarter of a mile of longitude.")
+  tp("  3. Four seconds is a mile. Forty seconds is ten miles.")
+  tp("  4. A clock error moves your longitude and leaves your latitude alone,")
+  tp("     which is a useful thing to recognise: if a fix is wrong east-west")
+  tp("     but right north-south, suspect the time before anything else.")
+  tb()
+  tp("The practical rules that follow from this:")
+  tb()
+  tp("  - Set your watch against a known source and write down the error and")
+  tp("    the date you checked it.")
+  tp("  - Note the time of a sight to the second, at the instant the body")
+  tp("    touches the horizon.")
+  tp("  - If you are shooting alone, call the time out loud as you take it, or")
+  tp("    take the sight and then read the watch - never the other way round.")
+  tb()
+}
+function les_T2(){
+  thead("T2","GHA and declination")
+  tb()
+  tp("These two numbers are the GP, and the almanac's whole job is to produce")
+  tp("them for a given instant.")
+  tb()
+  tp("  1. Declination is the latitude of the GP. North is positive, south")
+  tp("     negative. The sun's declination swings between about 23.4 degrees")
+  tp("     north in June and 23.4 south in December, and it is what gives us")
+  tp("     seasons.")
+  tp("  2. Greenwich Hour Angle is the longitude of the GP, measured westward")
+  tp("     from Greenwich, and always written 0 to 360 degrees rather than")
+  tp("     east and west.")
+  tp("  3. To convert: a GHA of 45 degrees is longitude 45 degrees west. A GHA")
+  tp("     of 300 degrees is longitude 60 degrees east, because 360 - 300 = 60.")
+  tp("  4. GHA increases by about 15 degrees an hour for every body, because it")
+  tp("     is really a measure of the earth's rotation.")
+  tb()
+  tp("In CELNAV, 'celnav alm' prints GHA and declination for any body at any")
+  tp("time. You can check it against a printed Nautical Almanac page and the")
+  tp("figures will agree to a fraction of a minute of arc.")
+  tb()
+}
+function les_T3(){
+  thead("T3","Aries and SHA: why the stars are different")
+  tb()
+  tp("The sun, moon and planets each get their own GHA in the almanac. The")
+  tp("stars are handled differently, and for a good reason.")
+  tb()
+  tp("  1. The stars are so far away that they do not move relative to one")
+  tp("     another in any human timescale. The whole star sphere turns as one")
+  tp("     rigid thing.")
+  tp("  2. So the almanac gives the hour angle of one imaginary point, the")
+  tp("     First Point of Aries, and then each star's fixed offset from it.")
+  tp("  3. That offset is the Sidereal Hour Angle, SHA, measured westward from")
+  tp("     Aries. Sirius has an SHA of about 259 degrees and will still have")
+  tp("     it in twenty years.")
+  tp("  4. So: GHA of a star = GHA Aries + SHA, subtracting 360 if needed.")
+  tb()
+  tp("One consequence worth knowing: the star sphere gains about four minutes")
+  tp("a day on the sun. A star that crosses your meridian at 2000 tonight will")
+  tp("do it at 1956 tomorrow, and two hours earlier in a month.")
+  tb()
+}
+function les_T4(){
+  thead("T4","LHA: the angle at the pole")
+  tb()
+  tp("GHA is measured from Greenwich. What matters to you is the angle measured")
+  tp("from your own meridian, and that is the Local Hour Angle.")
+  tb()
+  tp("  1. LHA = GHA + your longitude, counting east longitude as positive and")
+  tp("     west as negative, then brought back into the range 0 to 360.")
+  tp("  2. LHA 0 means the body is exactly on your meridian - due north or due")
+  tp("     south of you, and at its highest for the day. That is the noon sight.")
+  tp("  3. LHA 90 means the body is a quarter of the way round the sky to the")
+  tp("     west of you; LHA 270 means a quarter of the way to the east.")
+  tp("  4. LHA is the angle at the pole in the navigational triangle, which is")
+  tp("     the shape the whole reduction is built on. You meet it again in R1.")
+  tb()
+  tp("Worked example. GHA of the sun is 283 degrees 42 minutes; you are in")
+  tp("longitude 40 degrees west. LHA = 283 42 - 40 00 = 243 42. The sun is")
+  tp("243 degrees west of you round the sky - which is another way of saying")
+  tp("116 degrees to the east of you, and therefore still in the morning sky.")
+  tb()
+}
+function les_T5(){
+  thead("T5","Using the almanac in CELNAV")
+  tb()
+  tp("CELNAV computes the almanac rather than tabulating it, so there is no")
+  tp("year to run out and no page to turn.")
+  tb()
+  tp("  1. 'celnav alm \"2026-08-29 07:30:00\" sun,moon,venus' prints GHA,")
+  tp("     declination, semi-diameter and horizontal parallax for those bodies.")
+  tp("  2. Add a star by name - 'celnav alm \"...\" Dubhe' - and it also prints")
+  tp("     the SHA, so you can cross-check against a printed almanac.")
+  tp("  3. 'celnav stars' lists all 57 navigational stars plus Polaris with")
+  tp("     their SHA and declination for the date.")
+  tp("  4. GHA Aries is printed at the top of every almanac page, so you can")
+  tp("     verify the star relation from T3 by hand.")
+  tb()
+  tp("A good habit while you are learning: work a sight from a paper almanac,")
+  tp("then run the same time and body through CELNAV. Where the two disagree")
+  tp("by more than a couple of tenths of a minute, one of you has made a")
+  tp("mistake - and finding out which is the most useful hour you can spend.")
+  tb()
+}
+
+# =====================================================================
+#  Module S -- The sextant and its corrections
+# =====================================================================
+function les_S1(){
+  thead("S1","Taking a sight")
+  tb()
+  tp("The instrument work is most of the accuracy. The arithmetic that follows")
+  tp("is exact; your sight is not.")
+  tb()
+  tp("  1. Pre-set roughly. For a star, set the sextant to the altitude you")
+  tp("     expect - CELNAV's planning list gives it - and the star will be near")
+  tp("     the horizon in the mirror when you look along the bearing.")
+  tp("  2. Bring the body down to the horizon, then rock the sextant gently")
+  tp("     side to side. The body swings in an arc; the lowest point of that")
+  tp("     arc is true vertical. Touch it to the horizon there.")
+  tp("  3. Sun: bring the lower limb - the bottom edge - to sit on the horizon.")
+  tp("     Use the shades. Never look at the sun without them.")
+  tp("  4. Note the time at the instant of contact, then read the arc.")
+  tb()
+  tp("Three practical points that matter more than they sound:")
+  tb()
+  tp("  - Take three or four sights of the same body in quick succession and")
+  tp("    keep them all. Their scatter tells you what your sights are worth.")
+  tp("  - Shoot from as high as you can safely stand, and know that height.")
+  tp("  - In a seaway, wait for the top of the roll so that you see a true")
+  tp("    horizon rather than the back of a wave.")
+  tb()
+}
+function les_S2(){
+  thead("S2","Index error and dip")
+  tb()
+  tp("Two corrections come off before anything else. Both are about you and")
+  tp("your instrument, not about the sky.")
+  tb()
+  tp("  INDEX ERROR is the sextant reading when it should read zero.")
+  tp("  1. Set the sextant to zero and look at the horizon. If the two images")
+  tp("     do not line up, the difference is the index error.")
+  tp("  2. If the reading is on the arc - a positive reading - the error is")
+  tp("     subtracted. Off the arc, it is added. Check it every day; it moves.")
+  tb()
+  tp("  DIP is because you are not at sea level.")
+  tp("  3. From a height, the visible horizon is slightly below true")
+  tp("     horizontal, so every altitude you measure is slightly too big.")
+  tp("  4. Dip in minutes of arc is about 1.76 times the square root of your")
+  tp("     height of eye in metres. From 3 metres that is 3.0 minutes - three")
+  tp("     miles of error if you forget it.")
+  tb()
+  tp("Take both off Hs and you have Ha, the apparent altitude.")
+  tb()
+}
+function les_S3(){
+  thead("S3","Refraction")
+  tb()
+  tp("The atmosphere bends light downwards as it comes in, so every body")
+  tp("appears higher than it really is. Refraction is always subtracted.")
+  tb()
+  tp("  1. It depends almost entirely on altitude. At 45 degrees it is one")
+  tp("     minute of arc. At 20 degrees, about 2.6. At 10 degrees, 5.3. At the")
+  tp("     horizon it reaches about 34 minutes - more than the sun's diameter.")
+  tp("  2. That is why the setting sun you can see is already, geometrically,")
+  tp("     below the horizon.")
+  tp("  3. Temperature and pressure change it by a few per cent. CELNAV asks")
+  tp("     for both; they matter for low sights and are almost irrelevant")
+  tp("     above 25 degrees.")
+  tp("  4. Below about 15 degrees, refraction depends on the real temperature")
+  tp("     profile between you and the horizon, which no formula knows. That is")
+  tp("     the reason low sights are less trustworthy, not the sextant.")
+  tb()
+  tp("Practical rule: prefer bodies between 15 and 70 degrees. Above 70 the")
+  tp("azimuth changes quickly with position; below 15 the refraction is a guess.")
+  tb()
+}
+function les_S4(){
+  thead("S4","Semi-diameter and parallax")
+  tb()
+  tp("Two more corrections, needed only for the sun and moon.")
+  tb()
+  tp("  SEMI-DIAMETER, because the sun and moon are discs, not points.")
+  tp("  1. You measured an edge; you want the centre. The sun's semi-diameter")
+  tp("     is about 16 minutes, the moon's about 15 to 16.")
+  tp("  2. Lower limb: add it. Upper limb: subtract it. Stars and planets are")
+  tp("     points, so there is nothing to do.")
+  tb()
+  tp("  PARALLAX, because you are on the surface of the earth, not at its")
+  tp("  centre, and the almanac gives positions as seen from the centre.")
+  tp("  3. For the sun this is at most 0.15 minutes - one sixth of a mile, and")
+  tp("     usually ignorable but free to include.")
+  tp("  4. For the moon it is enormous: up to about 61 minutes, a full degree.")
+  tp("     A moon sight worked without parallax is 60 miles wrong. It is")
+  tp("     largest when the moon is on the horizon and zero when overhead,")
+  tp("     which is why the correction carries a cosine of the altitude.")
+  tb()
+}
+function les_S5(){
+  thead("S5","The whole chain, and the size of each part")
+  tb()
+  tp("In order, always: Hs, then index error and dip to get Ha, then refraction,")
+  tp("parallax and semi-diameter to get Ho. Ho is what a perfect observer at the")
+  tp("centre of the earth would have measured, and it is the number the")
+  tp("reduction uses.")
+  tb()
+  tp("Below is a real sun sight with every correction drawn to scale, so you")
+  tp("can see which ones actually matter.")
+  tb()
+}
+# =====================================================================
+#  Module R -- Reduction, the fix, and errors
+# =====================================================================
+function les_R1(){
+  thead("R1","The assumed position and the navigational triangle")
+  tb()
+  tp("You cannot compute your position directly. You compute what a sight")
+  tp("would have looked like from a position you assume, and then compare.")
+  tb()
+  tp("  1. Take an assumed position - in CELNAV, your DR itself.")
+  tp("  2. Draw three points on the sky as seen from there: your zenith Z")
+  tp("     straight overhead, the elevated pole P, and the body itself.")
+  tp("  3. Those three points make a spherical triangle, and every quantity in")
+  tp("     sight reduction is one of its parts:")
+  tb()
+  tp("       side Z to P    = 90 - your latitude          (co-latitude)")
+  tp("       side P to body = 90 - the declination        (polar distance)")
+  tp("       side Z to body = 90 - the altitude           (zenith distance)")
+  tp("       angle at P     = LHA")
+  tp("       angle at Z     = the azimuth of the body")
+  tb()
+  tp("  4. You know the first two sides and the angle between them, so the")
+  tp("     triangle is fully determined. Solving it gives the third side and")
+  tp("     the angle at Z - which is to say, the altitude and bearing the body")
+  tp("     would have had from your assumed position.")
+  tb()
+}
+function les_R2(){
+  thead("R2","Hc and Zn")
+  tb()
+  tp("Solving that triangle gives two numbers, and CELNAV prints both.")
+  tb()
+  tp("  1. Hc, the computed altitude:")
+  tb()
+  tp("         sin Hc = sin(lat) sin(dec) + cos(lat) cos(dec) cos(LHA)")
+  tb()
+  tp("  2. Zn, the true bearing of the body from the assumed position, taken")
+  tp("     from the same triangle and given as 000 to 360 degrees true.")
+  tp("  3. Hc is what you would have measured if you really had been at the")
+  tp("     assumed position. Ho is what you did measure. They differ because")
+  tp("     you are not there.")
+  tp("  4. Zn is the direction of the body's GP from you - which is also the")
+  tp("     direction in which the circle of position runs away from you, and")
+  tp("     therefore the direction along which the whole comparison is made.")
+  tb()
+  tp("Two lines of trigonometry replace a book of tables. The tables were only")
+  tp("ever a way of doing this arithmetic without a calculator.")
+  tb()
+}
+function les_R3(){
+  thead("R3","The intercept: toward or away")
+  tb()
+  tp("Here is where the sight finally tells you something about your position.")
+  tb()
+  tp("  1. The intercept is simply Ho minus Hc, in minutes of arc - which are")
+  tp("     nautical miles.")
+  tp("  2. A bigger altitude means you are closer to the GP. So if Ho is")
+  tp("     greater than Hc, you are nearer the body than the assumed position")
+  tp("     was: the intercept is TOWARD, in the direction Zn.")
+  tp("  3. If Ho is less than Hc, you are further away: AWAY, in the opposite")
+  tp("     direction.")
+  tp("  4. The old mnemonic is 'computed greater, away' - if Hc is the greater")
+  tp("     of the two, plot away from the body.")
+  tb()
+  tp("Example. Ho is 19 degrees 24.8 minutes, Hc is 19 degrees 23.3 minutes.")
+  tp("The difference is 1.5 minutes, so 1.5 miles, and Ho is the larger:")
+  tp("1.5 miles TOWARD the body along its azimuth.")
+  tb()
+}
+function les_R4(){
+  thead("R4","Plotting the line of position")
+  tb()
+  tp("Three steps, and they are the same whether you use paper or the screen.")
+  tb()
+  tp("  1. Mark the assumed position.")
+  tp("  2. Draw the azimuth line from it, in the direction Zn.")
+  tp("  3. Measure the intercept along that line - toward the body or away from")
+  tp("     it - and mark the point. That point is on your circle of position.")
+  tp("  4. Through that point draw a line at right angles to the azimuth. That")
+  tp("     is the line of position. You are somewhere on it.")
+  tb()
+  tp("Why at right angles: the azimuth points at the GP, and the circle of")
+  tp("position is centred on the GP, so the circle - and the straight line we")
+  tp("use in its place - must cross the azimuth square on.")
+  tb()
+  tp("On CELNAV's plot the assumed position is the + at the centre, the dotted")
+  tp("line is the azimuth, the letter marks the end of the intercept, and the")
+  tp("lettered line through it is the LOP.")
+  tb()
+}
+function les_R5(){
+  thead("R5","Crossing, running, and knowing when to doubt it")
+  tb()
+  tp("  CROSSING. Two LOPs from bodies well apart in azimuth cross at your")
+  tp("  position. Three give you a check: a small triangle means good sights,")
+  tp("  a large one means at least one is wrong.")
+  tb()
+  tp("  RUNNING. Sights taken minutes or hours apart were taken from different")
+  tp("  places, because the boat moved. Each earlier LOP is advanced along the")
+  tp("  course made good by the distance run, and the fix is taken from the")
+  tp("  advanced lines. Set course and speed and CELNAV does this for you; the")
+  tp("  classic case is the sun line in the morning advanced to noon.")
+  tb()
+  tp("  DOUBTING. Two things tell you how much to trust a fix:")
+  tp("  1. The residuals - how far each LOP misses the final answer. This is")
+  tp("     your observing error, and under a mile is good work from a small")
+  tp("     boat.")
+  tp("  2. The geometry - how far one minute of sight error moves the fix.")
+  tp("     Bodies bunched in one quarter of the sky give a long thin error")
+  tp("     ellipse and a confident-looking fix that is badly wrong along one")
+  tp("     axis. CELNAV prints this in miles and warns you when the cut is weak.")
+  tb()
+  tp("  Bodies about 120 degrees apart in azimuth give the tightest fix, which")
+  tp("  is why the planning list suggests three with the widest spread.")
+  tb()
+}
+
+# ---------------------------------------------------------------------
+#  Looking down on the north pole: GHA, longitude and LHA
+# ---------------------------------------------------------------------
+function lha_diagram(gha,lon,   w,h,cx,cy,rx,ry,t,lha,lw,r,rr,cc){
+  w=61; h=23; cx=int(w/2); cy=int(h/2); rx=cx-7; ry=cy-2
+  gclear(w,h)
+  lw  = nrm360(-lon)
+  lha = nrm360(gha + lon)
+  for(t=0;t<=gha;t+=0.8)  gputw(cy-ry*0.55*cosd(t), cx+rx*0.55*sind(t), "-")
+  for(t=0;t<=lha;t+=0.8)  gputw(cy-ry*0.80*cosd(lw+t), cx+rx*0.80*sind(lw+t), "=")
+  for(t=0;t<360;t+=0.5) gput(cy-ry*cosd(t), cx+rx*sind(t), ".")
+  for(r=0.10;r<=1.0;r+=0.025){
+    gput(cy-ry*r,                    cx,                    "|")
+    gput(cy-ry*r*cosd(lw),  cx+rx*r*sind(lw),  "o")
+    gput(cy-ry*r*cosd(gha), cx+rx*r*sind(gha), "*")
+  }
+  gput(cy,cx,"N")
+  gputs(cy-ry-1, cx-4, "Greenwich")
+  rr=cy-(ry+1.6)*cosd(lw);  cc=cx+(rx+2)*sind(lw);  gputs(rr, cc-(lw>180?5:0), "you")
+  rr=cy-(ry+1.6)*cosd(gha); cc=cx+(rx+2)*sind(gha); gputs(rr, cc-(gha>180?3:0), "GP")
+  return 0
+}
+# ---------------------------------------------------------------------
+#  Diagrams belonging to particular lessons
+# ---------------------------------------------------------------------
+function les_fig(id,   la,lo,zd,b){
+  if(id=="F3"){
+    gl_init(67,25, 25, -30); gl_graticule(0); gl_limb()
+    gl_circle(20,-35,40,"o"); gl_mark(20,-35,"*"); gl_label(20,-35,"GP",2,0)
+    dest(20,-35,335,40); gl_mark(DP_LAT,DP_LON,"@"); gl_label(DP_LAT,DP_LON,"you",-4,0)
+    dest(20,-35,60,40);  gl_mark(DP_LAT,DP_LON,"@")
+    dest(20,-35,150,40); gl_mark(DP_LAT,DP_LON,"@")
+    gl_mark(90,0,"N")
+    gshow()
+    tb(); tp("Altitude 50 degrees, so the zenith distance is 40 degrees, so you are")
+    tp("2400 miles from the GP. Every @ satisfies the sight equally well.")
+  } else if(id=="F4"){
+    gl_init(67,25, 25, -25); gl_graticule(0); gl_limb()
+    gl_circle(20,-35,40,"o"); gl_mark(20,-35,"*"); gl_label(20,-35,"1",2,0)
+    gl_circle(45,-5,32,"x");  gl_mark(45,-5,"*");  gl_label(45,-5,"2",2,0)
+    gl_mark(90,0,"N")
+    gshow()
+    tb(); tp("Two bodies, two circles, and they cross in two places. Your dead")
+    tp("reckoning tells you which crossing is yours - they are a long way apart.")
+  } else if(id=="F5"){
+    lop_zoom(40,60); gshow()
+  } else if(id=="T4"){
+    lha_diagram(283.7,-40); gshow()
+    tb()
+    tp("  |  the Greenwich meridian      o  yours      *  the body's meridian")
+    tp("  ---  GHA, measured west from Greenwich")
+    tp("  ===  LHA, measured west from your own meridian")
+    tp("  Looking down on the north pole. West is clockwise.")
+    tb()
+    tp("GHA 283 42', longitude 040 00'W, so LHA = 283 42 - 40 00 = 243 42'.")
+  } else if(id=="S5"){
+    B_NAME="Sun"; B_SD=15.9; B_HP=0.15
+    tp("A sun sight: Hs 34 12.0', lower limb, index error 1.5' on the arc,")
+    tp("height of eye 4 m, 15 C, 1013 mb.")
+    tb()
+    corr_bars(34.2,1.5,4.0,15,1013,"L")
+    tb()
+    tp("Semi-diameter and dip dominate; refraction is small at this altitude;")
+    tp("the sun's parallax is almost nothing. For the moon the picture is")
+    tp("entirely different - parallax alone can be a whole degree.")
+  } else if(id=="R1"){
+    tri_diagram(35,20,310)
+    arc_mid(90,0,TRI_HC,TRI_ZN); tri_label(AM_ALT,AM_AZ,"90-Hc",-2,1)
+    arc_mid(90,0,35,0);          tri_label(AM_ALT,AM_AZ,"90-L",1,0)
+    arc_mid(35,0,TRI_HC,TRI_ZN); tri_label(AM_ALT,AM_AZ,"90-d",1,-1)
+    gshow()
+    tb(); tp("Latitude 35 N, declination 20 N, LHA 310. Z is your zenith at the")
+    tp("centre, P the pole, * the body. The rim is your horizon.")
+    printf "  Solving it gives Hc %.1f degrees and Zn %.0f degrees true.\n", TRI_HC, TRI_ZN
+  } else if(id=="R4"){
+    LZN[1]=27; LP[1]=1.5; LLBL[1]="a"
+    LZN[2]=128; LP[2]=-19.0; LLBL[2]="b"
+    plot_sheet(2,0,0,0,"ONE SIGHT PLOTTED, AND A SECOND CROSSING IT")
+  } else if(id=="R5"){
+    runfix_fig(110,-22,240,5,245,20); gshow()
+    tb()
+    tp("  .  the LOP from the first sight, where it fell at the time")
+    tp("  =  the same LOP advanced along the run")
+    tp("  |  the LOP from the second sight     >  the run     @  the fix")
+  }
+  return 0
+}
+
+# =====================================================================
+#  Check questions
+# =====================================================================
+function ques(id,show){
+  if(id=="F1"){ if(show){ tp("Q. You measure an altitude of 62 degrees. What is the zenith distance?")
+      tp("     a) 62 degrees      b) 28 degrees      c) 152 degrees") }
+    else { Q_ANS="b"; Q_WHY="90 - 62 = 28 degrees, which is 1680 miles from the GP." } }
+  else if(id=="F2"){ if(show){ tp("Q. What does a body's declination tell you?")
+      tp("     a) the latitude of its GP   b) the longitude of its GP   c) its altitude") }
+    else { Q_ANS="a"; Q_WHY="Declination is the latitude of the GP; GHA gives the longitude." } }
+  else if(id=="F3"){ if(show){ tp("Q. A sight gives a zenith distance of 30 degrees. How far are you from the GP?")
+      tp("     a) 30 miles        b) 300 miles       c) 1800 miles") }
+    else { Q_ANS="c"; Q_WHY="30 degrees times 60 miles per degree = 1800 nautical miles." } }
+  else if(id=="F4"){ if(show){ tp("Q. Two circles of position cross in two places. What decides which one is you?")
+      tp("     a) the brighter body   b) your dead reckoning   c) the higher altitude") }
+    else { Q_ANS="b"; Q_WHY="The crossings are usually hundreds of miles apart, so a rough DR settles it." } }
+  else if(id=="F5"){ if(show){ tp("Q. Why can a line of position be drawn straight?")
+      tp("     a) the circle really is straight   b) over a few tens of miles the")
+      tp("        curvature is a fraction of a mile   c) because the earth is flat locally") }
+    else { Q_ANS="b"; Q_WHY="Across 60 miles a typical circle departs from the chord by about 0.2 miles." } }
+  else if(id=="T1"){ if(show){ tp("Q. Your watch is 20 seconds fast and you do not allow for it. How wrong is the fix?")
+      tp("     a) 5 miles of longitude   b) 20 miles of longitude   c) 5 miles of latitude") }
+    else { Q_ANS="a"; Q_WHY="Four seconds is one mile, so 20 seconds is five - and it is longitude, not latitude." } }
+  else if(id=="T2"){ if(show){ tp("Q. A body has GHA 300 degrees. What longitude is its GP in?")
+      tp("     a) 300 degrees west   b) 60 degrees east   c) 60 degrees west") }
+    else { Q_ANS="b"; Q_WHY="GHA is measured west, so 300 west is the same place as 60 east." } }
+  else if(id=="T3"){ if(show){ tp("Q. How do you get the GHA of a star?")
+      tp("     a) it is tabulated for each star   b) GHA Aries plus the star's SHA")
+      tp("     c) GHA of the sun plus the star's SHA") }
+    else { Q_ANS="b"; Q_WHY="One hour angle for the whole star sphere, plus each star's fixed offset." } }
+  else if(id=="T4"){ if(show){ tp("Q. GHA is 210 degrees and you are in longitude 30 degrees east. What is LHA?")
+      tp("     a) 180 degrees     b) 240 degrees     c) 330 degrees") }
+    else { Q_ANS="b"; Q_WHY="LHA = GHA + longitude east = 210 + 30 = 240 degrees." } }
+  else if(id=="T5"){ if(show){ tp("Q. Why does CELNAV never need an almanac update?")
+      tp("     a) it stores fifty years of tables   b) it computes the positions")
+      tp("     c) it downloads them when it can") }
+    else { Q_ANS="b"; Q_WHY="Positions come from orbital theory in the script, so nothing expires." } }
+  else if(id=="S1"){ if(show){ tp("Q. Why do you rock the sextant while taking a sight?")
+      tp("     a) to steady your hand   b) to find true vertical - the lowest point of the swing")
+      tp("     c) to clear the mirrors") }
+    else { Q_ANS="b"; Q_WHY="A sextant not held vertical always reads too high. The bottom of the arc is vertical." } }
+  else if(id=="S2"){ if(show){ tp("Q. Your height of eye is 9 metres. Roughly what is the dip?")
+      tp("     a) 1.8 minutes     b) 5.3 minutes     c) 9 minutes") }
+    else { Q_ANS="b"; Q_WHY="1.76 times the square root of 9 = 1.76 x 3 = 5.3 minutes, always subtracted." } }
+  else if(id=="S3"){ if(show){ tp("Q. Which sight is least affected by uncertainty in refraction?")
+      tp("     a) a body at 8 degrees   b) a body at 25 degrees   c) a body at 60 degrees") }
+    else { Q_ANS="c"; Q_WHY="Refraction shrinks fast with altitude - about 0.6 minutes at 60 degrees." } }
+  else if(id=="S4"){ if(show){ tp("Q. You take an upper-limb sight of the sun. What do you do with semi-diameter?")
+      tp("     a) add about 16 minutes   b) subtract about 16 minutes   c) ignore it") }
+    else { Q_ANS="b"; Q_WHY="Upper limb subtract, lower limb add - you are correcting to the centre." } }
+  else if(id=="S5"){ if(show){ tp("Q. Which correction is by far the largest for a low moon sight?")
+      tp("     a) refraction      b) parallax        c) dip") }
+    else { Q_ANS="b"; Q_WHY="The moon's parallax reaches about 61 minutes - over a degree, or 60 miles." } }
+  else if(id=="R1"){ if(show){ tp("Q. In the navigational triangle, what is the side from the pole to the body?")
+      tp("     a) 90 minus latitude   b) 90 minus declination   c) 90 minus altitude") }
+    else { Q_ANS="b"; Q_WHY="Polar distance: 90 minus the declination. The angle at the pole is LHA." } }
+  else if(id=="R2"){ if(show){ tp("Q. What is Hc?")
+      tp("     a) the altitude you measured   b) the altitude you would have measured")
+      tp("        from the assumed position   c) the corrected sextant reading") }
+    else { Q_ANS="b"; Q_WHY="Hc comes entirely from the assumed position and the almanac - your sextant plays no part in it." } }
+  else if(id=="R3"){ if(show){ tp("Q. Ho is 40 12.0' and Hc is 40 19.0'. What do you plot?")
+      tp("     a) 7 miles toward the body   b) 7 miles away from the body")
+      tp("     c) 31 miles toward the body") }
+    else { Q_ANS="b"; Q_WHY="Hc is the greater, so away: computed greater, away. The difference is 7.0 minutes = 7 miles." } }
+  else if(id=="R4"){ if(show){ tp("Q. Which way does the line of position run?")
+      tp("     a) along the azimuth   b) at right angles to the azimuth   c) east and west") }
+    else { Q_ANS="b"; Q_WHY="The circle is centred on the GP, so it crosses the azimuth square on." } }
+  else if(id=="R5"){ if(show){ tp("Q. Three stars all bore between 040 and 070 degrees. What is wrong with the fix?")
+      tp("     a) nothing, three sights is three sights   b) the LOPs are nearly parallel,")
+      tp("        so the position is poorly fixed along one axis   c) the stars are too bright") }
+    else { Q_ANS="b"; Q_WHY="A narrow spread gives a long thin error ellipse. CELNAV reports this in miles." } }
+  else { Q_ANS=""; Q_WHY="" }
+  return 0
+}
+
+# =====================================================================
+#  Syllabus and lesson dispatch
+# =====================================================================
+function syl_init(){
+  if(SYL_READY) return
+  SYL = "F1|Foundations|What a sight actually measures;" \
+        "F2|Foundations|The geographical position;" \
+        "F3|Foundations|Your altitude puts you on a circle;" \
+        "F4|Foundations|Two circles give a fix;" \
+        "F5|Foundations|Why we never draw the circles;" \
+        "T1|Time and the almanac|Universal Time, and why the clock rules;" \
+        "T2|Time and the almanac|GHA and declination;" \
+        "T3|Time and the almanac|Aries and SHA: why the stars are different;" \
+        "T4|Time and the almanac|LHA: the angle at the pole;" \
+        "T5|Time and the almanac|Using the almanac in CELNAV;" \
+        "S1|Sextant and corrections|Taking a sight;" \
+        "S2|Sextant and corrections|Index error and dip;" \
+        "S3|Sextant and corrections|Refraction;" \
+        "S4|Sextant and corrections|Semi-diameter and parallax;" \
+        "S5|Sextant and corrections|The whole chain, and the size of each part;" \
+        "R1|Reduction and the fix|The assumed position and the triangle;" \
+        "R2|Reduction and the fix|Hc and Zn;" \
+        "R3|Reduction and the fix|The intercept: toward or away;" \
+        "R4|Reduction and the fix|Plotting the line of position;" \
+        "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it"
+  NSYL=split(SYL,SYLROW,";")
+  SYL_READY=1
+  return 0
+}
+function lesson(id){
+  if(id=="F1")les_F1(); else if(id=="F2")les_F2(); else if(id=="F3")les_F3()
+  else if(id=="F4")les_F4(); else if(id=="F5")les_F5()
+  else if(id=="T1")les_T1(); else if(id=="T2")les_T2(); else if(id=="T3")les_T3()
+  else if(id=="T4")les_T4(); else if(id=="T5")les_T5()
+  else if(id=="S1")les_S1(); else if(id=="S2")les_S2(); else if(id=="S3")les_S3()
+  else if(id=="S4")les_S4(); else if(id=="S5")les_S5()
+  else if(id=="R1")les_R1(); else if(id=="R2")les_R2(); else if(id=="R3")les_R3()
+  else if(id=="R4")les_R4(); else if(id=="R5")les_R5()
+  else { print "  no such lesson: " id; return 1 }
+  return 0
+}
+function cmd_t_syllabus(   i,a,mod,pm,mark,n,d){
+  syl_init()
+  print ""
+  print "  LEARN -- the syllabus"
+  hr()
+  mod=""
+  n=0
+  for(i=1;i<=NSYL;i++){
+    split(SYLROW[i],a,"|")
+    if(a[2]!=mod){ mod=a[2]; printf "\n  %s\n", toupper(mod) }
+    mark = (index("," done ",", "," a[1] ",")>0) ? "x" : " "
+    if(mark=="x") n++
+    printf "   [%s]  %-4s %s\n", mark, a[1], a[3]
+  }
+  hr()
+  printf "  %d of %d lessons done.  Type a lesson code (F1, R3 ...) to open it.\n", n, NSYL
+  print ""
+  return 0
+}
+function cmd_t_lesson(){
+  if(lesson(les)){ print ""; exit 2 }
+  les_fig(les)
+  tb(); hr()
+  ques(les,1)
+  tb()
+  return 0
+}
+function cmd_t_check(){
+  ques(les,0)
+  tb()
+  if(tolower(ans)==Q_ANS){ print "  Correct.  " Q_WHY; print ""; exit 0 }
+  printf "  Not quite - the answer is %s.  %s\n", toupper(Q_ANS), Q_WHY
+  print ""
+  exit 1
+}
+
+# =====================================================================
+#  Drills -- problems generated from the real almanac, with marking
+# =====================================================================
+function drill_body(k,   n,a){
+  n=split("sun,moon,venus,mars,jupiter,saturn,Sirius,Vega,Dubhe,Arcturus,Capella,Antares,Rigel,Spica,Altair,Polaris",a,",")
+  return a[1+int(k*n)]
+}
+function drill_gen(kind,seed,   i,tries,ok,y,mo,d,hh,b){
+  xsrand(seed+0)
+  for(i=0;i<3;i++) xrand()
+  D_LAT = int((xrand()*110-55)*10)/10.0
+  D_LON = int((xrand()*360-180)*10)/10.0
+  D_IE  = int((xrand()*6-3)*10)/10.0
+  D_HE  = int((2+xrand()*10)*10)/10.0
+  D_T   = int(xrand()*30-5)
+  D_P   = 990+int(xrand()*40)
+  ok=0
+  for(tries=0;tries<80 && !ok;tries++){
+    y=2026+int(xrand()*7); mo=1+int(xrand()*12); d=1+int(xrand()*28)
+    hh=xrand()*24
+    D_JD = jdate(y,mo,d) + hh/24.0
+    D_BODY = drill_body(xrand())
+    if(body_at(D_BODY,D_JD)=="ERR") continue
+    reduce_sight(D_LAT,D_LON,B_GHA,B_DEC)
+    if(R_HC<12 || R_HC>72) continue
+    ok=1
+  }
+  if(!ok) return 0
+  jd2cal(D_JD)
+  D_UTC = sprintf("%04d-%02d-%02d %s", CAL_Y,CAL_M,CAL_D, fmt_hms(CAL_FRAC*24))
+  D_JD  = parse_utc(D_UTC)
+  body_at(D_BODY,D_JD)
+  D_GHA=B_GHA; D_DEC=B_DEC; D_SD=B_SD; D_HP=B_HP; D_NAME=B_NAME
+  D_LIMB = (D_NAME=="Sun"||D_NAME=="Moon") ? ((xrand()<0.7)?"L":"U") : "C"
+  reduce_sight(D_LAT,D_LON,D_GHA,D_DEC)
+  D_HC=R_HC; D_ZN=R_ZN; D_LHA=R_LHA
+  # build a plausible Hs by working backwards from an Ho a few miles off Hc
+  D_OFF = int((xrand()*24-12)*10)/10.0            # intercept, nm
+  D_HO  = D_HC + D_OFF/60.0
+  D_HS  = invert_corr(D_HO)
+  return 1
+}
+function invert_corr(ho,   ha,i,refr,par,sd,lim,f){
+  f=(D_P/1010.0)*(283.0/(273.0+D_T))
+  ha=ho
+  for(i=0;i<12;i++){
+    refr=f/tand(ha+7.31/(ha+4.4)); par=D_HP*cosd(ha); sd=D_SD
+    if(D_NAME=="Moon" && sd>0) sd=sd*(1.0+sind(ha)*D_HP/3437.75)
+    lim=(D_LIMB=="L"? sd : (D_LIMB=="U"? -sd : 0))
+    ha = ho - (par-refr+lim)/60.0
+  }
+  return ha + D_IE/60.0 + 1.7594*sqrt(D_HE)/60.0
+}
+function drill_show(kind,   i,zn,p){
+  print ""
+  if(kind=="corr"){
+    print "  DRILL -- sextant corrections"
+    hr()
+    printf "  Body            %s%s\n", D_NAME, (D_LIMB=="L"?", lower limb":(D_LIMB=="U"?", upper limb":"  (a point source)"))
+    printf "  Sextant reading Hs  %s\n", fmt_dm(D_HS,2)
+    printf "  Index error         %+.1f'  (positive = on the arc)\n", D_IE
+    printf "  Height of eye       %.1f m\n", D_HE
+    printf "  Air temperature     %d C        Pressure %d mb\n", D_T, D_P
+    if(D_SD>0) printf "  Semi-diameter       %.1f'      Horizontal parallax %.1f'\n", D_SD, D_HP
+    hr()
+    print "  Work out Ho, the observed altitude."
+  } else if(kind=="alm"){
+    print "  DRILL -- the almanac"
+    hr()
+    printf "  Body   %s\n", D_NAME
+    printf "  Time   %s UT\n", D_UTC
+    hr()
+    print "  Look up (or work out) the GHA and declination."
+  } else if(kind=="red"){
+    print "  DRILL -- sight reduction"
+    hr()
+    printf "  Assumed position    %s   %s\n", fmt_lat(D_LAT), fmt_lon(D_LON)
+    printf "  GHA of the body     %s\n", fmt_dm(D_GHA,3)
+    printf "  Declination         %s%s\n", (D_DEC<0?"S":"N"), fmt_dm(fabs(D_DEC),2)
+    hr()
+    print "  Work out LHA, then Hc and Zn."
+  } else if(kind=="int"){
+    print "  DRILL -- the intercept"
+    hr()
+    printf "  Observed altitude Ho   %s\n", fmt_dm(D_HO,2)
+    printf "  Computed altitude Hc   %s\n", fmt_dm(D_HC,2)
+    printf "  Azimuth Zn             %03d T\n", D_ZN+0.5
+    hr()
+    print "  How far, and which way do you plot it?"
+  } else if(kind=="full"){
+    print "  DRILL -- a complete sight"
+    hr()
+    printf "  %s%s, at %s UT\n", D_NAME, (D_LIMB=="L"?", lower limb":(D_LIMB=="U"?", upper limb":"")), D_UTC
+    printf "  Sextant reading Hs  %s      index error %+.1f'\n", fmt_dm(D_HS,2), D_IE
+    printf "  Height of eye %.1f m         %d C, %d mb\n", D_HE, D_T, D_P
+    printf "  DR position   %s   %s\n", fmt_lat(D_LAT), fmt_lon(D_LON)
+    hr()
+    print "  Work it through to the intercept and the azimuth."
+  } else if(kind=="fix"){
+    print "  DRILL -- a three-star fix"
+    hr()
+    printf "  DR position   %s   %s\n", fmt_lat(D_LAT), fmt_lon(D_LON)
+    print ""
+    print "     sight      Zn        intercept"
+    for(i=1;i<=3;i++)
+      printf "     %-10s %03d T   %6.1f nm %s\n", FX_N[i], FX_Z[i]+0.5, fabs(FX_P[i]), (FX_P[i]>=0?"toward":"away")
+    hr()
+    print "  Plot them and give the fix."
+  } else {
+    print "  No such drill: " kind
+    print "  Try one of: corr  alm  red  int  full  fix"
+    print ""
+    exit 2
+  }
+  print ""
+  return 0
+}
+function fix_gen(seed,   i,base,sp,dn,de,cl){
+  xsrand(seed+0); for(i=0;i<5;i++) xrand()
+  D_LAT = int((xrand()*100-50)*10)/10.0
+  D_LON = int((xrand()*360-180)*10)/10.0
+  base  = xrand()*360
+  sp    = 90+xrand()*60
+  dn    = int((xrand()*30-15)*10)/10.0
+  de    = int((xrand()*30-15)*10)/10.0
+  for(i=1;i<=3;i++){
+    FX_Z[i] = nrm360(base+(i-1)*sp+xrand()*10-5)
+    FX_P[i] = int((dn*cosd(FX_Z[i])+de*sind(FX_Z[i]))*10)/10.0
+    FX_N[i] = drill_body(xrand()*0.4+0.4)
+  }
+  # least squares back out of the rounded intercepts
+  solve3(dn,de)
+  cl=cosd(D_LAT); if(fabs(cl)<0.02) cl=0.02
+  FX_LAT = D_LAT + SOL_N/60.0
+  FX_LON = D_LON + SOL_E/(60.0*cl)
+  return 0
+}
+function solve3(dn,de,   i,A,B,C,D,E2,det){
+  A=0;B=0;C=0;D=0;E2=0
+  for(i=1;i<=3;i++){
+    A+=cosd(FX_Z[i])^2; B+=cosd(FX_Z[i])*sind(FX_Z[i]); C+=sind(FX_Z[i])^2
+    D+=FX_P[i]*cosd(FX_Z[i]); E2+=FX_P[i]*sind(FX_Z[i])
+  }
+  det=A*C-B*B
+  SOL_N=(D*C-E2*B)/det; SOL_E=(A*E2-B*D)/det
+  return 0
+}
+
+# ---- marking ---------------------------------------------------------
+function near(a,b,tol){ return (fabs(a-b)<=tol) }
+function verdict(ok){ return ok ? cw("CORRECT",C_ACC) : "not right" }
+function drill_mark(kind,   ho,got,ok,n,g1,g2,g3,i,dn,de,cl,la,lo,d){
+  ok=1
+  print ""
+  if(kind=="corr"){
+    ho = corrections(D_HS,D_IE,D_HE,D_T,D_P,D_LIMB)
+    g1 = parse_ang(a1)
+    ok = near(g1,ho,0.3/60.0)
+    printf "  Your Ho   %s        %s\n", fmt_dm(g1,2), verdict(ok)
+    hr()
+    B_NAME=D_NAME; B_SD=D_SD; B_HP=D_HP
+    corr_bars(D_HS,D_IE,D_HE,D_T,D_P,D_LIMB)
+    hr()
+    printf "  Correct Ho is %s.\n", fmt_dm(ho,2)
+  } else if(kind=="alm"){
+    g1 = parse_ang(a1); g2 = parse_ang(a2)
+    n  = near(nrm180(g1-D_GHA),0,1.0/60.0); i = near(g2,D_DEC,0.5/60.0)
+    ok = (n && i)
+    printf "  Your GHA  %-14s %s\n", fmt_dm(g1,3), verdict(n)
+    printf "  Your Dec  %-14s %s\n", (g2<0?"S":"N") fmt_dm(fabs(g2),2), verdict(i)
+    hr()
+    printf "  %s at %s UT:\n", D_NAME, D_UTC
+    printf "     GHA %s      Dec %s%s\n", fmt_dm(D_GHA,3), (D_DEC<0?"S":"N"), fmt_dm(fabs(D_DEC),2)
+    if(D_SD>0) printf "     SD  %.1f'          HP  %.1f'\n", D_SD, D_HP
+  } else if(kind=="red"){
+    g1 = parse_ang(a1); g2 = parse_ang(a2)
+    n = near(g1,D_HC,0.3/60.0); i = near(nrm180(g2-D_ZN),0,0.6)
+    ok = (n && i)
+    printf "  Your Hc   %-14s %s\n", fmt_dm(g1,2), verdict(n)
+    printf "  Your Zn   %-14s %s\n", sprintf("%.1f T",g2), verdict(i)
+    hr()
+    printf "  LHA = GHA + longitude = %s + (%s) = %s\n", fmt_dm(D_GHA,3), fmt_lon(D_LON), fmt_dm(D_LHA,3)
+    printf "  sin Hc = sin(%.4f) sin(%.4f) + cos(%.4f) cos(%.4f) cos(%.4f)\n", D_LAT,D_DEC,D_LAT,D_DEC,D_LHA
+    printf "  Hc = %s          Zn = %.1f T\n", fmt_dm(D_HC,2), D_ZN
+  } else if(kind=="int"){
+    g1 = a1+0
+    n = near(fabs(g1),fabs(D_OFF),0.5)
+    i = ((g1>=0) == (D_OFF>=0))
+    ok = (n && i)
+    printf "  Your intercept  %.1f nm %s     %s\n", fabs(g1), (g1>=0?"toward":"away"), verdict(ok)
+    hr()
+    printf "  Ho - Hc = %s - %s = %.1f' = %.1f nm %s\n", fmt_dm(D_HO,2), fmt_dm(D_HC,2),
+           fabs(D_OFF), fabs(D_OFF), (D_OFF>=0?"TOWARD":"AWAY")
+    print  "  Ho the greater means you are nearer the body: plot toward it."
+  } else if(kind=="full"){
+    ho = corrections(D_HS,D_IE,D_HE,D_T,D_P,D_LIMB)
+    g1 = a1+0; g2 = parse_ang(a2)
+    n = near(fabs(g1),fabs(D_OFF),0.8) && ((g1>=0)==(D_OFF>=0))
+    i = near(nrm180(g2-D_ZN),0,1.0)
+    ok = (n && i)
+    printf "  Your intercept  %-16s %s\n", sprintf("%.1f nm %s",fabs(g1),(g1>=0?"toward":"away")), verdict(n)
+    printf "  Your azimuth    %-16s %s\n", sprintf("%.1f T",g2), verdict(i)
+    hr()
+    printf "  Hs  %s\n", fmt_dm(D_HS,2)
+    B_NAME=D_NAME; B_SD=D_SD; B_HP=D_HP
+    corr_bars(D_HS,D_IE,D_HE,D_T,D_P,D_LIMB)
+    printf "  GHA %s   Dec %s%s   LHA %s\n", fmt_dm(D_GHA,3), (D_DEC<0?"S":"N"), fmt_dm(fabs(D_DEC),2), fmt_dm(D_LHA,3)
+    printf "  Hc  %s   Zn %.1f T\n", fmt_dm(D_HC,2), D_ZN
+    printf "  Intercept = Ho - Hc = %.1f nm %s\n", fabs(D_OFF), (D_OFF>=0?"TOWARD":"AWAY")
+    LZN[1]=D_ZN; LP[1]=D_OFF; LLBL[1]="a"
+    plot_sheet(1,0,0,0,"YOUR LINE OF POSITION")
+  } else if(kind=="fix"){
+    la = parse_ang(a1); lo = parse_ang(a2)
+    d  = sqrt(((la-FX_LAT)*60)^2 + (nrm180(lo-FX_LON)*60*cosd(FX_LAT))^2)
+    ok = (d <= 2.0)
+    printf "  Your fix   %s  %s      out by %.1f nm   %s\n", fmt_lat(la), fmt_lon(lo), d, verdict(ok)
+    hr()
+    printf "  Fix   %s   %s\n", fmt_lat(FX_LAT), fmt_lon(FX_LON)
+    printf "  which is %.1f nm %s and %.1f nm %s of the DR.\n",
+       fabs(SOL_N),(SOL_N>=0?"N":"S"), fabs(SOL_E),(SOL_E>=0?"E":"W")
+    for(i=1;i<=3;i++){ LZN[i]=FX_Z[i]; LP[i]=FX_P[i]; LLBL[i]=substr("abc",i,1) }
+    plot_sheet(3,SOL_N,SOL_E,1,"THE PLOT")
+  }
+  print ""
+  exit (ok?0:1)
+}
+
+# =====================================================================
+#  The annotated live reduction -- one real sight, explained line by line
+# =====================================================================
+function W_setup(){
+  W_UTC="2026-08-29 07:30:00"; W_BODY="Dubhe"; W_HS=parse_ang("19 32.1")
+  W_IE=1.5; W_HE=3.0; W_T=18; W_P=1013
+  W_LAT=parse_ang("35 00 N"); W_LON=parse_ang("040 00 W")
+  W_JD=parse_utc(W_UTC)
+  body_at(W_BODY,W_JD)
+  W_GHA=B_GHA; W_DEC=B_DEC
+  W_HO=corrections(W_HS,W_IE,W_HE,W_T,W_P,"C")
+  W_HA=C_HA; W_DIP=C_DIP; W_REF=C_REF
+  reduce_sight(W_LAT,W_LON,W_GHA,W_DEC)
+  W_HC=R_HC; W_ZN=R_ZN; W_LHA=R_LHA
+  W_INT=(W_HO-W_HC)*60.0
+  return 0
+}
+function cmd_t_walk(   n){
+  W_setup()
+  n=step+0
+  print ""
+  printf "  WALKTHROUGH  step %d of 10\n", n
+  hr()
+  if(n==1){
+    tp("The situation.")
+    tb()
+    tp("  Morning twilight in the North Atlantic. You believe you are near")
+    printf "  %s  %s, and you have no way on.\n", fmt_lat(W_LAT), fmt_lon(W_LON)
+    tb()
+    tp("  You put the sextant on Dubhe, bring it to the horizon, and at")
+    printf "  %s UT you read %s off the arc.\n", W_UTC, fmt_dm(W_HS,2)
+    tb()
+    tp("  Your index error is +1.5' on the arc and your eye is 3 m above the")
+    tp("  water. It is 18 C and 1013 mb.")
+    tb()
+    tp("  That is everything the reduction will use. Nothing else is needed,")
+    tp("  and nothing else is allowed to creep in.")
+  } else if(n==2){
+    tp("What we are trying to do.")
+    tb()
+    tp("  The sight puts you somewhere on a circle centred on Dubhe's")
+    tp("  geographical position. We cannot draw a circle two thousand miles")
+    tp("  across, so instead we ask a smaller question:")
+    tb()
+    tp("     if I really were at my DR, what altitude would Dubhe have had?")
+    tb()
+    tp("  Compare that with what you actually measured, and the difference")
+    tp("  tells you how far your DR is from the circle - and the azimuth")
+    tp("  tells you in which direction. That is the whole method.")
+  } else if(n==3){
+    tp("Step 1 - the almanac. Where is Dubhe's GP?")
+    tb()
+    printf "     GHA  %s        the longitude of the GP, measured west\n", fmt_dm(W_GHA,3)
+    printf "     Dec  %s%s        the latitude of the GP\n", (W_DEC<0?"S":"N"), fmt_dm(fabs(W_DEC),2)
+    tb()
+    tp("  So at that instant Dubhe was directly overhead a point in the far")
+    printf "  north, latitude %s, longitude %s.\n", fmt_dm(fabs(W_DEC),2) (W_DEC<0?"S":"N"),
+           fmt_dm((W_GHA<180?W_GHA:360-W_GHA),3) (W_GHA<180?"W":"E")
+    tb()
+    tp("  Nothing about you enters here. Two navigators anywhere on earth")
+    tp("  would use the same two numbers for this instant.")
+  } else if(n==4){
+    tp("Step 2 - LHA. Bring it round to your own meridian.")
+    tb()
+    printf "     LHA = GHA + longitude = %s + (%s)\n", fmt_dm(W_GHA,3), fmt_lon(W_LON)
+    printf "         = %s\n", fmt_dm(W_LHA,3)
+    tb()
+    tp("  Longitude west counts as negative. LHA is measured westward from")
+    tp("  you, so 243 degrees west is the same as 117 degrees to the east of")
+    tp("  you - which fits: this is a morning sight and the star is in the")
+    tp("  northern sky, well round to the east.")
+  } else if(n==5){
+    tp("Step 3 - correct the sextant reading.")
+    tb()
+    B_NAME="Star"; B_SD=0; B_HP=0
+    corr_bars(W_HS,W_IE,W_HE,W_T,W_P,"C")
+    tb()
+    tp("  A star is a point of light, so there is no semi-diameter, and it is")
+    tp("  far enough away that parallax does not arise. Only index error, dip")
+    tp("  and refraction apply.")
+    printf "  Ho = %s. That is the sight, cleaned up.\n", fmt_dm(W_HO,2)
+  } else if(n==6){
+    tp("Step 4 - the triangle. This is the geometry the arithmetic solves.")
+    tri_diagram(W_LAT,W_DEC,W_LHA)
+    arc_mid(90,0,TRI_HC,TRI_ZN); tri_label(AM_ALT,AM_AZ,"90-Hc",-2,1)
+    arc_mid(90,0,W_LAT,0);       tri_label(AM_ALT,AM_AZ,"90-L",1,0)
+    arc_mid(W_LAT,0,TRI_HC,TRI_ZN); tri_label(AM_ALT,AM_AZ,"90-d",1,-1)
+    gshow()
+    tb()
+    tp("  Z is your zenith, P the north pole, * is Dubhe. You know the side")
+    tp("  Z-P (90 minus your latitude), the side P-* (90 minus declination),")
+    tp("  and the angle between them at P (that is LHA). Everything else")
+    tp("  follows.")
+  } else if(n==7){
+    tp("Step 5 - solve it for Hc and Zn.")
+    tb()
+    printf "     sin Hc = sin(%.3f) sin(%.3f) + cos(%.3f) cos(%.3f) cos(%.3f)\n",
+           W_LAT, W_DEC, W_LAT, W_DEC, W_LHA
+    printf "     Hc = %s          Zn = %s\n", fmt_dm(W_HC,2), fmt_dm(W_ZN,3)
+    tb()
+    tp("  Hc is the altitude Dubhe would have had if you really were at your")
+    tp("  DR. Zn is the bearing it would have had from there. Note that your")
+    tp("  sextant has played no part at all in these two numbers.")
+  } else if(n==8){
+    tp("Step 6 - compare, and get the intercept.")
+    tb()
+    printf "     Ho (measured)  %s\n", fmt_dm(W_HO,2)
+    printf "     Hc (computed)  %s\n", fmt_dm(W_HC,2)
+    printf "     difference     %.1f minutes of arc = %.1f nautical miles\n", fabs(W_INT), fabs(W_INT)
+    tb()
+    printf "  Ho is the %s, so you are %s the star than the DR was:\n",
+           (W_INT>=0?"greater":"smaller"), (W_INT>=0?"nearer to":"further from")
+    printf "  %.1f miles %s, along Zn %s.\n", fabs(W_INT), (W_INT>=0?"TOWARD":"AWAY"), fmt_dm(W_ZN,3)
+    tb()
+    tp("  A bigger altitude means a smaller zenith distance, and a smaller")
+    tp("  zenith distance means you are closer to the GP. That is the whole")
+    tp("  reason the rule runs that way.")
+  } else if(n==9){
+    tp("Step 7 - plot it.")
+    LZN[1]=W_ZN; LP[1]=W_INT; LLBL[1]="a"
+    plot_sheet(1,0,0,0,"ONE SIGHT, PLOTTED")
+    tb()
+    tp("  From the AP, go along the azimuth by the intercept, and draw the")
+    tp("  line of position square across it. You are somewhere on that line.")
+    tp("  One sight can do no more than this - and it is already worth having,")
+    tp("  because it is a hard constraint on where you can be.")
+  } else if(n==10){
+    tp("Step 8 - cross it with two more.")
+    LZN[1]=W_ZN;  LP[1]=W_INT;  LLBL[1]="a"
+    LZN[2]=128.3; LP[2]=-19.0;  LLBL[2]="b"
+    LZN[3]=269.2; LP[3]=16.2;   LLBL[3]="c"
+    plot_sheet(3,9.9,-16.4,1,"THREE SIGHTS: THE FIX")
+    tb()
+    tp("  Bellatrix and Markab were shot in the same few minutes. Three lines,")
+    tp("  one crossing point, and the fix is about 10 miles north and 16 west")
+    tp("  of where you thought you were.")
+    tb()
+    tp("  That is a complete reduction. Everything else CELNAV does - the")
+    tp("  running fix, the geometry warning, the planning list - is built on")
+    tp("  exactly these eight steps.")
+  }
+  print ""
+  return 0
+}
+
+# =====================================================================
+#  Sandbox: change one thing and watch the triangle move
+# =====================================================================
+function cmd_t_sandbox(   la,de,lh,hc,zn){
+  la=slat+0; de=sdec+0; lh=nrm360(slha+0)
+  tri_diagram(la,de,lh)
+  arc_mid(90,0,TRI_HC,TRI_ZN); tri_label(AM_ALT,AM_AZ,"90-Hc",-2,1)
+  arc_mid(90,0,(la>=0?la:-la),(la>=0?0:180)); tri_label(AM_ALT,AM_AZ,"90-L",1,0)
+  arc_mid((la>=0?la:-la),(la>=0?0:180),TRI_HC,TRI_ZN); tri_label(AM_ALT,AM_AZ,"90-d",1,-1)
+  print ""
+  print "  SANDBOX -- the navigational triangle"
+  hr()
+  gshow()
+  hr()
+  printf "  latitude %7.1f    declination %7.1f    LHA %7.1f\n", la, de, lh
+  printf "  %s\n", cw(sprintf("  computed altitude Hc %.2f      azimuth Zn %.1f T", TRI_HC, TRI_ZN), C_ACC)
+  hr()
+  if(TRI_HC<0) print "  The body is below the horizon from here - no sight is possible."
+  else if(TRI_HC>80) print "  Very high: the azimuth swings fast, so a small position error moves Zn a lot."
+  else if(TRI_HC<15) print "  Low: refraction is uncertain down here."
+  if(fabs(nrm180(lh))<3) print "  LHA near zero: the body is on your meridian - this is the noon sight,"
+  if(fabs(nrm180(lh))<3) print "  where altitude alone gives latitude and the azimuth is due north or south."
+  print ""
+  return 0
+}
+
+BEGIN{
+  col_init()
+  if(cmd=="t_syllabus")       cmd_t_syllabus()
+  else if(cmd=="t_lesson")    cmd_t_lesson()
+  else if(cmd=="t_check")     cmd_t_check()
+  else if(cmd=="t_walk")      cmd_t_walk()
+  else if(cmd=="t_sandbox")   cmd_t_sandbox()
+  else if(cmd=="t_drill"){
+    if(kind=="fix"){ fix_gen(seed) } else { if(!drill_gen(kind,seed)){ print "  could not build a problem"; exit 2 } }
+    drill_show(kind)
+  }
+  else if(cmd=="t_mark"){
+    if(kind=="fix"){ fix_gen(seed) } else { if(!drill_gen(kind,seed)){ print "  could not build a problem"; exit 2 } }
+    drill_mark(kind)
+  }
+}
+__CELNAV_TEACH__
+}
+# ---------------------------------------------------------------------
+#  About.  Shared by both tools; each one supplies about_why and
+#  about_sources, which are the parts that differ.
+# ---------------------------------------------------------------------
+about_how() {
+  cat <<'A2'
+
+  HOW IT WAS WRITTEN
+  ---------------------------------------------------------------
+  By Claude, Anthropic's AI model, in conversation with Larry over
+  a few days in August 2026.  He decided what it should do and
+  judged whether it was right.  The code, the mathematics and the
+  tests are Claude's work.
+
+  Three rules were set at the start and never relaxed.
+
+  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs
+  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox
+  on a router.  Nothing is installed.  There is no dependency here
+  that can rot in a year, because there is no dependency.
+
+  NO NETWORK, EVER.  Every number the program needs is inside the
+  file you are running.  That is a constraint on the mathematics
+  and not only on the plumbing: it is why the planetary positions
+  are computed from orbital elements with a correction series
+  fitted here, rather than looked up in a table someone serves.
+
+  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is
+  implemented from a primary source and then validated against an
+  independent implementation - never against itself.
+
+  On that last one, honestly.  An AI writing code is confidently
+  wrong on a regular basis, and so is a person.  The defence is
+  not care, it is testing.  Real errors in this project were found
+  by machinery and by users, and would not have been found by
+  reading the code:
+
+    - One awk implementation ignores the seed you give its random
+      number generator.  A drill could therefore mark its own
+      correct answer wrong.  Found by running the suite under four
+      different awks, not by inspection.
+
+    - Both tools worked out "am I writing to a terminal?" from
+      inside a command substitution, where the answer is always
+      no.  Colour had never once worked, on any terminal, since
+      the day it was written.  The test suite checked that the
+      output is clean when piped - and passed, for entirely the
+      wrong reason.
+
+    - The three green lights of a mine clearance vessel were drawn
+      on two different masts.  A user saw that before any test
+      did, because he tried to account for every light in the
+      picture and could not.
+
+  So: the tests exist because the author is fallible, and the
+  interesting mistakes were caught by the tests and by the people
+  using it.  Which is the argument for sending feedback.
+
+A2
+}
+about_feedback() {
+  cat <<'A3'
+
+  FEEDBACK
+  ---------------------------------------------------------------
+  Please send it.  It is the reason this is public.
+
+A3
+  about_needs
+  cat <<'A3B'
+  The useful report is small and specific:
+
+    what you did        the exact command, or which menu item
+    what you saw        paste it, escape codes and all
+    what you expected   and why - the rule, the sight, the table
+
+  "This is not right, a sailing vessel would not show that" with
+  the picture pasted underneath is worth more than any amount of
+  general praise, and has already fixed real bugs.
+
+  Where:
+
+    https://github.com/larrys614/bashnav/issues
+
+  If you think the program disagrees with the Convention, with an
+  almanac, or with a published tide table, say so plainly.  Assume
+  the program is wrong until it is shown otherwise.  That is the
+  correct prior, and it is how the bugs above were found.
+
+  Corrections to the teaching are as welcome as corrections to the
+  code.  If a lesson is misleading, that is a defect.
+
+A3B
+}
+about_licence() {
+  cat <<'A4'
+
+  LICENCE AND WARRANTY
+  ---------------------------------------------------------------
+  Copyright 2026 M. Larry Sherman.
+  Licensed under the Apache License, Version 2.0.
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  You may use it, including commercially, modify it, and pass it
+  on.  You must keep the copyright and licence notices and say
+  what you changed.  You get an explicit patent grant.  You may
+  not use the author's name to endorse your version.
+
+  Tide station data carries its own terms, which this licence does
+  not change: the NOAA harmonic constants are public domain, and
+  the TICON-4 constants are CC BY 4.0.  Their attribution travels
+  with them.  See the NOTICE file.
+
+  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+  This is a training aid and a calculator.  It is not a certified
+  navigation system, it carries no authority, and it has never
+  been near a type approval.  Nothing in it relieves any vessel,
+  owner, master or crew of the consequences of neglecting to
+  comply with the rules of the road, of neglecting a proper
+  look-out, or of neglecting any precaution required by the
+  ordinary practice of seamen.
+
+  Carry a paper almanac, a paper tide table, and the rules.
+
+A4
+}
+about_menu() {
+  while :; do
+    cat <<'A0'
+
+  ABOUT
+
+    1  Why this exists       who wanted it, and what for
+    2  How it was written    and by what, and what went wrong
+    3  What is tested        and, more to the point, what is not
+    4  Sources               where the numbers come from
+    5  Feedback              what to send, where, and what is worth most
+    6  Licence and warranty  Apache 2.0, and what it does not cover
+
+    x  back
+A0
+    printf "  > "; IFS= read -r ac || return 0
+    case "$ac" in
+      1) about_why ;;
+      2) about_how ;;
+      3) about_tested ;;
+      4) about_sources ;;
+      5) about_feedback ;;
+      6) about_licence ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+about_why() {
+  cat <<'A1'
+
+  WHY THIS EXISTS
+  ---------------------------------------------------------------
+  Larry Sherman asked for it.
+
+  He served in the United States Navy from 1984 to 1990 as an
+  FTG2/SS - a fire control technician, submarines - in USS Alaska
+  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS
+  Greenling (SSN-614).  Two ballistic missile boats and two fast
+  attacks, which is two quite different trades: one hides and one
+  goes looking.  He stood the manoeuvring watch on the fire control
+  tracking party, managing contacts and avoiding collisions through
+  places like the Strait of Gibraltar and the Race - the tide gate
+  at the mouth of Long Island Sound, and the door you go out of
+  from Groton.
+
+  Thirty-six years on he is sailing round the world in the Clipper
+  Race, and he wanted a
+  sight reduction that would work on an iPad in the middle of an
+  ocean: no signal, no subscription, no account to log in to, no
+  almanac to download first.
+
+  And he wanted it to DRAW the solution.  A fix that arrives as
+  three numbers teaches you nothing about whether to believe it.
+  A fix that arrives as three lines on a plot, with the cut
+  between them and an error ellipse around the result, tells you
+  at a glance whether you have a fix or an opinion.  That is why
+  the intercept plot is the point of this program rather than a
+  decoration on it.
+
+  Everything else follows from "no internet".  The almanac is not
+  fetched; it is computed, from orbital theory, inside the file
+  you are running.  There is no table to expire and no server to
+  go away.  It is text, you can read every line of it, and
+  "celnav doctor" will check it against an independent reference
+  in front of you.
+
+A1
+}
+about_sources() {
+  cat <<'A5'
+
+  SOURCES
+  ---------------------------------------------------------------
+  ASTRONOMY
+    Jean Meeus, "Astronomical Algorithms", 2nd edition.  The solar
+    theory is chapter 25 and the lunar main problem chapter 47,
+    with nutation and sidereal time from the same book.
+
+    E. M. Standish, Keplerian elements for approximate positions
+    of the major planets (Jet Propulsion Laboratory).  The raw
+    elements lose several arcminutes on Saturn to the great
+    inequality with Jupiter, so a periodic correction series was
+    fitted here against an independent ephemeris; Saturn is now
+    the most accurate planet in the set.
+
+    Precession and annual aberration by the standard series.
+    Star positions from the Hipparcos and Yale catalogues, with
+    proper motion applied for the date.  Delta T from the
+    Espenak-Meeus polynomials, with the observed plateau after
+    2005.
+
+  METHOD
+    The intercept method - Marcq St Hilaire - as in the Nautical
+    Almanac's sight reduction procedure.  Dip, refraction,
+    semi-diameter, parallax and index error applied in the usual
+    order.  The fix is an iterated least-squares solution of every
+    line of position at once, not a two-body cut, and the error
+    ellipse comes out of the normal matrix.
+
+  CHECKED BY
+    An independent reference ephemeris of JPL grade, over the
+    whole period the program covers, embedded so that the check
+    works with no network.  "celnav doctor" runs it.
+
+A5
+}
+about_tested() {
+  cat <<'A6'
+
+  WHAT IS TESTED, AND WHAT IS NOT
+  ---------------------------------------------------------------
+  THE NUMBERS.  "celnav doctor", which you can run yourself.
+
+    The almanac is checked, body by body and date by date, against
+    an independent reference ephemeris of JPL grade, embedded so
+    that the check works with no network.  It prints the worst
+    error it found in arcminutes.  If that number is not small,
+    nothing downstream of it means anything.
+
+  THE WHOLE CHAIN.  tests/run-tests.sh, under four awks and two
+  shells.
+
+    Three star sights taken from a known position are reduced,
+    and the fix has to come back to the position they were taken
+    from, to a tenth of a minute.  That exercises everything at
+    once: the almanac, dip, refraction, semi-diameter, parallax,
+    index error, the navigational triangle, the least-squares
+    solution and the run.  Every drill must also mark its own
+    correct answer as correct.
+
+  THE GOLDEN FILES.  tests/golden.sh
+
+    The almanac for five dates spread across twenty years, the
+    star list, and four worked reductions - a clean one, the same
+    one on the run, one with a five-mile blunder in it, and a
+    weak cut - captured as text and committed.  Any change to any
+    number turns up as a diff that has to be read and accepted on
+    purpose.
+
+  NOW THE HONEST PART.
+
+  All of that checks the ARITHMETIC.  None of it checks the
+  SEAMANSHIP.
+
+  A test can confirm that the program computes the sun's GHA to
+  within a tenth of a minute.  It cannot tell you whether the
+  advice in the lessons is good practice, whether the order the
+  corrections are explained in is the order you should learn
+  them, or whether the walkthrough matches how a sight is
+  actually taken on a wet deck at dawn.
+
+  Nor does it check the program against a printed Nautical
+  Almanac, which is a different authority from the one it was
+  validated against.  If you have one, that comparison is worth
+  more than anything else you could send.
+
+A6
+}
+about_needs() {
+  cat <<'A7'
+  AND HERE IS WHERE IT IS WORTH MOST.
+
+  1  A FIX THAT DISAGREES WITH YOURS.  If you work a sight by
+     hand or with tables and this program gives you something
+     else, that is the most valuable report there is.  Send the
+     sights, the time, the height of eye, the index error and
+     what you got.  One of us is wrong and it is worth knowing
+     which.
+
+  2  THE ALMANAC AGAINST A PRINTED ONE.  GHA, declination, SD and
+     HP for any body and time, checked against the Nautical
+     Almanac.  It has been validated against a computed reference,
+     never against the book.
+
+  3  THE TEACHING.  Whether the lessons and the walkthrough match
+     how it is really done - and whether anything in them would
+     build a bad habit.  Corrections to the teaching matter as
+     much as corrections to the code.
+
+  4  THE AWKWARD CASES.  A lower limb near the horizon, a very
+     high altitude, extreme temperature or pressure, a sight
+     close to the pole, a moon sight with a large parallax.  The
+     ordinary cases are well covered.  The edges are where the
+     corrections are applied in an order somebody has to check.
+
+A7
+}
+
+# ---- command implementations ---------------------------------------
+do_fix() {
+  if [ ! -s "$SIGHTS" ]; then echo; echo "  No sights in the log.  Enter one first."; echo; return; fi
+  ft="$fixtime"
+  [ -n "$1" ] && ft="$1"
+  engine -v cmd=reduce -v sfile="$SIGHTS" -v drlat="$drlat" -v drlon="$drlon" \
+         -v course="$course" -v speed="$speed" -v fixtime="$ft"
+}
+do_plan() {
+  u="$1"; [ -z "$u" ] && u=$(utcnow)
+  engine -v cmd=plan -v utc="$u" -v drlat="$drlat" -v drlon="$drlon"
+}
+do_almanac() {
+  u="$1"; [ -z "$u" ] && u=$(utcnow)
+  b="$2"; [ -z "$b" ] && b="sun,moon,venus,mars,jupiter,saturn"
+  engine -v cmd=almanac -v utc="$u" -v bodies="$b"
+}
+do_compass() {
+  engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
+         -v body="$2" -v cbrg="$3" -v variation="$4"
+}
+do_stars() { engine -v cmd=stars -v utc="$1"; }
+do_selftest() { engine -v cmd=selftest; }
+
+# ---- interactive: enter a sight ------------------------------------
+ask() {  # ask "prompt" "default" -> sets ANS
+  if [ -n "$2" ]; then printf "  %s [%s]: " "$1" "$2"; else printf "  %s: " "$1"; fi
+  IFS= read -r ANS
+  [ -z "$ANS" ] && ANS="$2"
+}
+enter_sight() {
+  echo
+  echo "  ---- new sight ----------------------------------------------"
+  ask "UT date (YYYY-MM-DD)" "$(utctoday)"; sd="$ANS"
+  ask "UT time (HHMMSS or HH:MM:SS)" ""; st=$(fixtimefmt "$ANS")
+  [ -z "$st" ] && { echo "  no time given - sight discarded"; return; }
+  ask "Body (name, star number, or ? for list)" "Sun"; sb="$ANS"
+  if [ "$sb" = "?" ]; then do_stars; ask "Body" "Sun"; sb="$ANS"; fi
+  case "$(echo "$sb" | tr 'A-Z' 'a-z')" in
+    sun|moon) ask "Limb (L lower / U upper)" "L"; sl=$(echo "$ANS"|tr 'a-z' 'A-Z') ;;
+    *) sl="C" ;;
+  esac
+  ask "Hs sextant altitude (DD MM.M)" ""; sh="$ANS"
+  [ -z "$sh" ] && { echo "  no altitude given - sight discarded"; return; }
+  ask "Index error, arcmin (+ = on the arc)" "$ie"; si="$ANS"
+  ask "Height of eye, metres" "$heye"; se="$ANS"
+  ask "Label (optional)" ""; sx="$ANS"
+  add_sight "$sd $st" "$sb" "$sl" "$sh" "$si" "$se" "$temp" "$press" "$sx"
+  echo "  sight recorded."
+  engine -v cmd=almanac -v utc="$sd $st" -v bodies="$sb"
+}
+set_dr() {
+  echo
+  ask "DR latitude  (e.g. 35 10.4 N)" "$drlat"; drlat="$ANS"
+  ask "DR longitude (e.g. 040 20.1 W)" "$drlon"; drlon="$ANS"
+  ask "Course made good, degrees true" "$course"; course="$ANS"
+  ask "Speed over ground, knots" "$speed"; speed="$ANS"
+  save_conf
+  echo "  DR set."
+}
+set_opts() {
+  echo
+  ask "Height of eye, metres" "$heye"; heye="$ANS"
+  ask "Standard index error, arcmin" "$ie"; ie="$ANS"
+  ask "Air temperature, deg C" "$temp"; temp="$ANS"
+  ask "Pressure, millibars" "$press"; press="$ANS"
+  save_conf
+  echo "  settings saved."
+}
+log_menu() {
+  while :; do
+    echo; list_sights; echo
+    echo "  d N = delete sight N     c = clear all     x = back"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      d\ *) del_sight "${a#d }" ;;
+      c) : > "$SIGHTS"; echo "  log cleared" ;;
+      x|"") return ;;
+    esac
+  done
+}
+help_text() {
+  cat <<'HLP'
+
+  CELNAV -- offline celestial navigation
+
+  Everything is computed from first principles: the almanac is built in,
+  so there is nothing to download and nothing expires.
+
+  THE WORKING CYCLE
+    1. Set your DR position, course and speed (menu 6).
+    2. Before twilight, run sight planning (menu 3) to see which bodies
+       are up, how high, and which three give the best cut.
+    3. Shoot your sights and enter each one (menu 1) with the UT time to
+       the second.  Time matters more than anything: 4 seconds of error
+       is about 1 mile of longitude.
+    4. Reduce and plot (menu 2).  You get the full working for each
+       sight, the least-squares fix, the residuals, and the plot.
+    5. Clear the log (menu 7) before the next round of sights.
+
+  ANGLE FORMATS
+    Latitude    35 10.4 N   or  -35.1733
+    Longitude   040 20.1 W  or  040:20.1W
+    Altitude    32 14.6     (degrees and decimal minutes)
+
+  ON THE RUN
+    Set course and speed and every LOP is advanced to the fix time for
+    you, so a sun-run-sun or a spread of sights over an hour still gives
+    one fix.  The fix time defaults to the last sight in the log.
+
+  COMMAND LINE (for scripting or a quick answer)
+
+    Working
+      celnav plan  [ "YYYY-MM-DD HH:MM:SS" ]   twilight, what is up, best three
+      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP
+      celnav sight "UT" body limb Hs [ie] [heye]    record one sight
+      celnav fix   [ "UT of fix" ]             reduce the log and plot
+      celnav compass "UT" body <bearing> [variation]
+      celnav stars [ "UT" ]                    the 57 stars plus Polaris
+      celnav dr <lat> <lon> [course] [speed]   set the DR
+      celnav log | clear                       list or empty the sight log
+
+    Learning
+      celnav learn                             the training menu
+      celnav lesson <code>                     one lesson, e.g. R3
+      celnav walk                              a real sight, step by step
+      celnav drill [corr|alm|red|int|full|fix] one marked drill
+      celnav sandbox                           the what-if triangle
+      celnav syllabus                          the lesson list and progress
+
+    Setup and checking
+      celnav doctor                            check awk, clock, data folder
+      celnav test                              the self test on its own
+      celnav day | night | plain               colour mode
+      celnav where | version | reinstall | help
+
+HLP
+}
+banner() {
+  echo
+  echo "  ==============================================================="
+  echo "   CELNAV $CELNAV_VERSION   celestial navigation, no internet needed"
+  echo "  ==============================================================="
+  printf "   DR %s  %s      course %03.0f T   speed %s kn\n" "$drlat" "$drlon" "$course" "$speed"
+  printf "   eye %s m   index error %s'   %s C  %s mb   sights logged: %s   [%s]\n" \
+         "$heye" "$ie" "$temp" "$press" "$(nsights)" "$cmode"
+  echo "  ---------------------------------------------------------------"
+}
+menu() {
+  while :; do
+    banner
+    cat <<'M'
+    1  Enter a sight              5  Compass check
+    2  Reduce sights -> FIX       6  Set DR, course and speed
+    3  Sight planning / stars     7  Sight log
+    4  Almanac for a time         8  Sextant and weather settings
+
+    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox
+
+    s  Star list   t  Self test   d  Check setup   c  Colour
+    a  About      h  Help       q  Quit
+M
+    printf "  > "
+    IFS= read -r c || exit 0
+    case "$c" in
+      1) enter_sight ;;
+      2) printf "  Fix time (blank = time of last sight): "; IFS= read -r ft
+         if [ -n "$ft" ]; then
+           case "$ft" in *-*) ;; *) ft="$(utctoday) $(fixtimefmt "$ft")" ;; esac
+         fi
+         do_fix "$ft" ;;
+      3) printf "  UT for planning (blank = now): "; IFS= read -r u
+         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
+         do_plan "$u" ;;
+      4) printf "  UT (blank = now): "; IFS= read -r u
+         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
+         printf "  Bodies (blank = sun,moon,planets): "; IFS= read -r b
+         do_almanac "$u" "$b" ;;
+      5) printf "  UT (blank = now): "; IFS= read -r u; [ -z "$u" ] && u=$(utcnow)
+         case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac
+         printf "  Body: "; IFS= read -r b
+         printf "  Compass bearing observed: "; IFS= read -r cb
+         printf "  Variation from chart (E +, W -): "; IFS= read -r vr
+         do_compass "$u" "$b" "$cb" "$vr" ;;
+      6) set_dr ;;
+      7) log_menu ;;
+      8) set_opts ;;
+      9) train_menu ;;
+      s|S) do_stars ;;
+      t|T) do_selftest ;;
+      d|D) doctor ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           [ -n "$v" ] && set_colour "$v" ;;
+      a|A) about_menu ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+
+# =====================================================================
+#  Training mode
+# =====================================================================
+pause() { printf "  -- press return --"; IFS= read -r _junk; }
+
+do_lesson() {
+  teach -v cmd=t_lesson -v les="$1" || return 1
+  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
+  [ -z "$av" ] && return 0
+  if teach -v cmd=t_check -v les="$1" -v ans="$av"; then mark_done "$1"; fi
+}
+learn_menu() {
+  while :; do
+    teach -v cmd=t_syllabus -v done="$lessons"
+    printf "  Lesson code, n for the next one you have not done, or x to go back: "
+    IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      n|N)  nx=""
+            for L in F1 F2 F3 F4 F5 T1 T2 T3 T4 T5 S1 S2 S3 S4 S5 R1 R2 R3 R4 R5; do
+              case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+            done
+            if [ -z "$nx" ]; then echo "  All twenty done. Try the drills."; else do_lesson "$nx"; fi ;;
+      *)    do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+walk_mode() {
+  s=1
+  while [ "$s" -le 10 ]; do
+    teach -v cmd=t_walk -v step="$s"
+    printf "  return = next, b = back, x = leave: "; IFS= read -r a
+    case "$a" in x|X) return ;; b|B) [ "$s" -gt 1 ] && s=$((s-1)) ;; *) s=$((s+1)) ;; esac
+  done
+  echo "  That is the whole method. The drills will let you do it yourself."
+}
+drill_one() {
+  k="$1"; sd=$(newseed)
+  teach -v cmd=t_drill -v kind="$k" -v seed="$sd" || return 1
+  case "$k" in
+    corr) printf "  Ho = "; IFS= read -r x1; x2="" ;;
+    alm)  printf "  GHA = "; IFS= read -r x1; printf "  Dec (e.g. N21 14.3) = "; IFS= read -r x2 ;;
+    red)  printf "  Hc = ";  IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
+    int)  printf "  Intercept, + toward / - away, in nm = "; IFS= read -r x1; x2="" ;;
+    full) printf "  Intercept, + toward / - away, nm = "; IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
+    fix)  printf "  Fix latitude  = "; IFS= read -r x1; printf "  Fix longitude = "; IFS= read -r x2 ;;
+  esac
+  [ -z "$x1" ] && { echo "  skipped."; return 0; }
+  dtry=$((dtry+1))
+  if teach -v cmd=t_mark -v kind="$k" -v seed="$sd" -v a1="$x1" -v a2="$x2"; then dok=$((dok+1)); fi
+  save_prog
+}
+drill_menu() {
+  while :; do
+    echo
+    echo "  DRILLS                                     score so far: $dok of $dtry"
+    echo "  ---------------------------------------------------------------"
+    echo "   1  Sextant corrections      Hs to Ho"
+    echo "   2  The almanac              time and body to GHA and Dec"
+    echo "   3  Sight reduction          AP, GHA, Dec to Hc and Zn"
+    echo "   4  The intercept            Ho and Hc to miles, toward or away"
+    echo "   5  A complete sight         everything, end to end"
+    echo "   6  A three-star fix         three LOPs to a position"
+    echo "   m  Mixed - one of each, at random        r  reset the score"
+    echo "   x  back"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      1) drill_one corr ;; 2) drill_one alm ;; 3) drill_one red ;;
+      4) drill_one int ;;  5) drill_one full ;; 6) drill_one fix ;;
+      m|M) for k in corr alm red int full fix; do drill_one "$k"; done ;;
+      r|R) dok=0; dtry=0; save_prog; echo "  score reset" ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+sandbox_mode() {
+  sl=35; sd=20; sh=310
+  while :; do
+    teach -v cmd=t_sandbox -v slat="$sl" -v sdec="$sd" -v slha="$sh"
+    echo "   l = latitude    d = declination    h = LHA    x = leave"
+    printf "  change what? "; IFS= read -r a
+    case "$a" in
+      l|L) printf "  latitude (-90 to 90, north +): "; IFS= read -r v; [ -n "$v" ] && sl="$v" ;;
+      d|D) printf "  declination (-90 to 90): "; IFS= read -r v; [ -n "$v" ] && sd="$v" ;;
+      h|H) printf "  LHA (0 to 360): "; IFS= read -r v; [ -n "$v" ] && sh="$v" ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+train_menu() {
+  while :; do
+    load_prog
+    ndone=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]')
+    [ -n "$ndone" ] || ndone=0
+    echo
+    echo "  ==============================================================="
+    echo "   LEARN AND PRACTISE          lessons $ndone of 20   drills $dok/$dtry"
+    echo "  ==============================================================="
+    echo "   1  Lessons              twenty of them, from first principles"
+    echo "   2  Walkthrough          one real sight, explained line by line"
+    echo "   3  Drills               problems with answers, marked"
+    echo "   4  Sandbox              change one thing, watch the triangle move"
+    echo
+    echo "   x  back to the navigation menu"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      1) learn_menu ;; 2) walk_mode ;; 3) drill_menu ;; 4) sandbox_mode ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+set_colour() {
+  case "$1" in
+    day|night|plain) cmode="$1"; save_conf; paint
+       echo "  colour mode: $cmode" ;;
+    *) echo "  usage: day | night | plain" ;;
+  esac
+}
+
+doctor() {
+  echo
+  echo "  CELNAV environment check"
+  echo "  ---------------------------------------------------------------"
+  printf "  shell            : %s\n" "${0##*/} (running under $(ps -p $$ -o comm= 2>/dev/null || echo sh))"
+  printf "  awk in use       : %s\n" "$AWK"
+  if awk_has_math "$AWK"; then echo "  awk maths        : OK (sin/cos/atan2/sqrt/log/exp present)"
+  else echo "  awk maths        : MISSING -- install gawk (see message above)"; fi
+  printf "  data directory   : %s" "$CELNAV_HOME"
+  #  subshell: see src/common/05-home.sh for why this is not optional
+  if mkdir -p "$CELNAV_HOME" 2>/dev/null && ( : > "$CELNAV_HOME/.wtest" ) 2>/dev/null; then
+     rm -f "$CELNAV_HOME/.wtest"; echo "  (writable)"
+  else echo "  (NOT WRITABLE)"; fi
+  printf "  engine file      : %s" "$ENGINE"
+  [ -f "$ENGINE" ] && echo "  (installed)" || echo "  (not yet written)"
+  printf "  UTC clock        : %s\n" "$(utcnow)"
+  echo "  ---------------------------------------------------------------"
+  echo "  Set your watch against a known time source before you shoot."
+  echo "  4 seconds of clock error is about 1 mile of longitude."
+  echo
+  do_selftest
+}
+
+# ---- entry point ----------------------------------------------------
+pick_awk
+install_engine
+load_conf
+load_prog
+case "$1" in
+  ""|menu) paint; menu ;;
+  learn)   paint; train_menu ;;
+  lesson)  shift; do_lesson "$(echo "${1:-F1}" | tr 'a-z' 'A-Z')" ;;
+  walk)    paint; walk_mode ;;
+  drill)   shift; if [ -n "$1" ]; then drill_one "$1"; else paint; drill_menu; fi ;;
+  sandbox) paint; sandbox_mode ;;
+  syllabus) teach -v cmd=t_syllabus -v done="$lessons" ;;
+  day|night|plain) set_colour "$1" ;;
+  plan)    shift; do_plan "$1" ;;
+  alm|almanac) shift; do_almanac "$1" "$2" ;;
+  sight)   shift
+           [ $# -lt 4 ] && { echo "usage: celnav sight \"UT\" body limb Hs [ie] [heye]"; exit 2; }
+           add_sight "$1" "$2" "$3" "$4" "${5:-$ie}" "${6:-$heye}" "$temp" "$press" ""
+           echo "sight recorded (${1})" ;;
+  fix)     shift; do_fix "$1" ;;
+  compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
+  stars)   shift; do_stars "$1" ;;
+  dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
+           save_conf; echo "DR set: $drlat $drlon  course $course  speed $speed" ;;
+  log)     list_sights ;;
+  clear)   : > "$SIGHTS"; echo "sight log cleared" ;;
+  test|selftest) do_selftest ;;
+  doctor|check) doctor ;;
+  about)   paint; about_menu ;;
+  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
+  where)   echo "engine:  $ENGINE"; echo "sights:  $SIGHTS"; echo "config:  $CONF" ;;
+  help|-h|--help) help_text ;;
+  version|--version) echo "celnav $CELNAV_VERSION" ;;
+  *) echo "celnav: there is no command '$1'."
+     echo
+     echo "  Working    plan  alm  sight  fix  compass  stars  dr  log  clear"
+     echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
+     echo "  Setup      day  night  plain  about  doctor  where  version"
+     echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"
+     echo
+     echo "  'celnav help' explains each of them."
+     exit 2 ;;
+esac
+__BN_PAYLOAD_celnav__
+}
+extract_colregs() {
+  cat > "$DEST/colregs" <<'__BN_PAYLOAD_colregs__'
+#!/bin/sh
+# ---------------------------------------------------------------------
+#  Where a tool keeps its engine, its config and your log.
+#
+#  ON iOS YOU CANNOT WRITE IN $HOME.  a-Shell's own README: "In iOS, you
+#  cannot write in the ~ directory, only in ~/Documents/, ~/Library/ and
+#  ~/tmp."  $HOME there is the app's data container --
+#  /private/var/mobile/Containers/Data/Application/<uuid> -- and mkdir
+#  in it is refused.
+#
+#  Every tool in this suite defaulted to $HOME/.<tool>, so not one of
+#  them would start on an iPad: the platform the whole project exists
+#  for.  It printed "cannot create /private/var/mobile/Containers/..."
+#  and stopped.  Nobody noticed because every machine the tests run on
+#  has a writable $HOME.
+#
+#  So: use the first place we can actually create AND write in.  $HOME
+#  is tried first, so nothing changes on macOS, Linux, the BSDs or
+#  Termux.  ~/Documents is what a-Shell gives you.
+# ---------------------------------------------------------------------
+bn_home() {                       # bn_home <dotfolder>  ->  prints path
+  for bn_h_base in "$HOME" "$HOME/Documents" "$HOME/Library"; do
+    [ -n "$bn_h_base" ] || continue
+    bn_h_dir="$bn_h_base/$1"
+    #  The write probe MUST sit inside its own subshell.  Twice over:
+    #  a failing redirection is set up before the 2>/dev/null that was
+    #  meant to silence it, so the error reaches the terminal anyway;
+    #  and ":" is a POSIX *special* built-in, so under dash a
+    #  redirection error on it makes the whole shell EXIT.  The tool
+    #  would print "cannot create ..." and vanish.  ( ) contains both.
+    if mkdir -p "$bn_h_dir" 2>/dev/null && ( : > "$bn_h_dir/.wtest" ) 2>/dev/null
+    then
+      rm -f "$bn_h_dir/.wtest"
+      printf '%s\n' "$bn_h_dir"
+      return 0
+    fi
+  done
+  #  Nothing was writable.  Name the path the user expects, so the
+  #  caller's own error message is one they can act on, and fail there.
+  printf '%s\n' "$HOME/$1"
+  return 1
+}
+# =====================================================================
+#  colregs -- the international rules of the road, drawn in characters
+#  Part of Bash Navigation Software.  Pure POSIX sh + awk, no network.
+#
+#  A TRAINING AID ONLY.  The COLREGs themselves govern; see the notice
+#  printed by "colregs about".
+# =====================================================================
+COLREGS_VERSION=1.15
+
+: "${COLREGS_HOME:=$(bn_home .colregs)}"
+ENGINE="$COLREGS_HOME/engine-$COLREGS_VERSION.awk"
+CONTACTS="$COLREGS_HOME/contacts-$COLREGS_VERSION.awk"
+REVIEW="$COLREGS_HOME/review-$COLREGS_VERSION.awk"
+#  where a review issue goes; override with GH_USER to test against a fork
+GH_USER=${GH_USER:-larrys614}
+CONF="$COLREGS_HOME/colregs.conf"
+PROG="$COLREGS_HOME/progress"
+
+cmode=day
+#  How a contact's bearing off your own head is spoken. Which one is
+#  right depends on who is listening, so it is a setting, not a choice
+#  made here: rn (Red/Green), usn (Port/Starboard), rel360, words, none.
+rstyle=rn
+#  Note: [ -t 1 ] must be tested HERE, at the top level, and not
+#  inside cmode_now.  Inside a command substitution stdout is a
+#  pipe, so the test is always false and every terminal would be
+#  told it was plain.  That bug ate the colour on real terminals.
+ISTTY=0; [ -t 1 ] && ISTTY=1
+lessons=""; sok=0; stry=0
+
+awk_has_math() {
+  $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
+}
+pick_awk() {
+  if [ -n "$COLREGS_AWK" ]; then AWK="$COLREGS_AWK"; return 0; fi
+  for a in awk gawk mawk nawk original-awk "busybox awk"; do
+    if awk_has_math "$a"; then AWK="$a"; return 0; fi
+  done
+  AWK=awk
+  cat >&2 <<'NOMATH'
+colregs: no awk with trigonometric functions was found.
+  On macOS:         nothing to do - the built-in awk already has it.
+  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk
+  On Debian:        sudo apt install gawk
+NOMATH
+  return 1
+}
+load_conf() {
+  [ -f "$CONF" ] || return 0
+  while IFS='=' read -r k v; do
+    case "$k" in cmode) cmode="$v" ;; rstyle) rstyle="$v" ;; esac
+  done < "$CONF"
+}
+save_conf() { mkdir -p "$COLREGS_HOME"
+  { echo "cmode=$cmode"; echo "rstyle=$rstyle"; } > "$CONF"; }
+load_prog() {
+  [ -f "$PROG" ] || return 0
+  while IFS='=' read -r k v; do
+    case "$k" in lessons) lessons="$v" ;; sok) sok="$v" ;; stry) stry="$v" ;; esac
+  done < "$PROG"
+}
+save_prog() {
+  mkdir -p "$COLREGS_HOME"
+  { echo "lessons=$lessons"; echo "sok=$sok"; echo "stry=$stry"; } > "$PROG"
+}
+mark_done() {
+  case ",$lessons," in *,"$1",*) return 0 ;; esac
+  if [ -z "$lessons" ]; then lessons="$1"; else lessons="$lessons,$1"; fi
+  save_prog
+}
+paint() {
+  [ "$cmode" = plain ] && return 0
+  [ "$ISTTY" = 1 ] || return 0
+  case "$cmode" in
+    night) printf '\033[40m\033[31m\033[2J\033[H' ;;
+    day)   printf '\033[40m\033[37m\033[2J\033[H' ;;
+  esac
+}
+unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
+cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
+eng() { $AWK -f "$ENGINE" -f "$CONTACTS" -f "$REVIEW" -v cmode="$(cmode_now)" -v rstyle="$rstyle" "$@" </dev/null; }
+newseed() { echo $(( ( $(date +%s 2>/dev/null || echo 99) + $$ ) % 999983 )); }
+
+# ---- engine extraction (written once, then reused) -----------------
+install_engine() {
+  if [ -f "$ENGINE" ] && [ -f "$CONTACTS" ] && [ -f "$REVIEW" ]; then
+    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
+  fi
+  mkdir -p "$COLREGS_HOME" 2>/dev/null || {
+    echo "colregs: cannot create $COLREGS_HOME" >&2; exit 1; }
+  cat > "$ENGINE" <<'__COLREGS_ENGINE__'
+# =====================================================================
+#  colregs -- the engine
+#  Lights, shapes, encounters, sound signals and the rules themselves,
+#  drawn in characters.  Pure POSIX awk.
+# =====================================================================
+
+function d2r(x){ return x*0.0174532925199432958 }
+function sind(x){ return sin(x*0.0174532925199432958) }
+function cosd(x){ return cos(x*0.0174532925199432958) }
+function fabs(x){ return (x<0)?-x:x }
+function nrm360(x){ x=x-360*int(x/360); if(x<0) x+=360; return x }
+function nrm180(x){ x=nrm360(x); if(x>180) x-=360; return x }
+
+# ---- colour ----------------------------------------------------------
+#  day   : white on black, lights in their true colours
+#  night : everything red, because dark adaptation is worth more than
+#          a pretty screen.  Every light also carries its letter, so the
+#          pattern is still unambiguous with no colour at all.
+function col_init(   e){
+  if(COL_READY) return
+  e=sprintf("%c",27)
+  if(cmode=="night"){
+    C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"
+    K_W=e "[1;31m"; K_R=e "[1;31m"; K_G=e "[1;31m"; K_Y=e "[1;31m"
+  } else if(cmode=="day"){
+    C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"
+    K_W=e "[1;97m"; K_R=e "[1;91m"; K_G=e "[1;92m"; K_Y=e "[1;93m"
+  } else {
+    C_BASE=""; C_ACC=""; C_DIM=""; K_W=""; K_R=""; K_G=""; K_Y=""
+  }
+  C_RST=C_BASE
+  if(cmode=="night"){ C_PANEL=e "[40m" e "[31m"; C_EOL=e "[K" C_BASE }
+  else if(cmode=="day"){ C_PANEL=e "[40m" e "[37m"; C_EOL=e "[K" C_BASE }
+  else { C_PANEL=""; C_EOL="" }
+  COL_READY=1
+  return 0
+}
+function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
+function kcol(c){ col_init()
+  if(c=="R") return K_R; if(c=="G") return K_G; if(c=="Y") return K_Y; return K_W }
+
+# ---- canvas ----------------------------------------------------------
+# ---- a reproducible pseudo-random generator -------------------------
+#  awk's own srand()/rand() is not reproducible across implementations:
+#  mawk re-seeds from the clock even when handed an explicit seed, which
+#  would make a drill and its marking disagree.  MINSTD is exact in
+#  double precision and gives the same stream everywhere.
+function xsrand(s,   i){
+  RS_ = int(s) % 2147483647
+  if(RS_ <= 0) RS_ += 2147483646
+  for(i=0;i<8;i++) RS_ = (16807*RS_) % 2147483647
+  return 0
+}
+function xrand(){ RS_ = (16807*RS_) % 2147483647; return RS_/2147483647.0 }
+
+function gclear(w,h,   r,c){ col_init(); PW=w; PH=h
+  for(r=0;r<h;r++) for(c=0;c<w;c++){ G[r,c]=" "; GC[r,c]="" } }
+function gput(r,c,ch){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW){ G[r,c]=ch; GC[r,c]="" } }
+function gputc(r,c,ch,col){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW){ G[r,c]=ch; GC[r,c]=col } }
+function gputw(r,c,ch){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW&&G[r,c]==" "){ G[r,c]=ch; GC[r,c]="" } }
+function gputwc(r,c,ch,col){ r=int(r+0.5); c=int(c+0.5)
+  if(r>=0&&r<PH&&c>=0&&c<PW&&G[r,c]==" "){ G[r,c]=ch; GC[r,c]=col } }
+function gputs(r,c,s,   i){ for(i=1;i<=length(s);i++) gput(r,c+i-1,substr(s,i,1)) }
+function gputsc(r,c,s,col,   i){ for(i=1;i<=length(s);i++) gputc(r,c+i-1,substr(s,i,1),col) }
+#  The drawing is always painted as its own black panel with light text,
+#  whatever the terminal profile is set to - otherwise white artwork on a
+#  white Terminal background is invisible.  Only the lamps carry colour.
+function gshow(   r,c,line,cur,last,cc,r0){
+  r0=0
+  if(!G_NOCROP)
+  for(r=0;r<PH;r++){ last=-1
+    for(c=0;c<PW;c++) if(G[r,c]!=" ") last=c
+    if(last>=0){ r0=r; break }
+  }
+  for(r=r0;r<PH;r++){
+    last=-1
+    for(c=0;c<PW;c++) if(G[r,c]!=" ") last=c
+    line=""; cur=""
+    for(c=0;c<=last;c++){
+      cc=GC[r,c]
+      if(cc!=cur){ line=line (cc==""? C_PANEL : cc); cur=cc }
+      line=line G[r,c]
+    }
+    print "  " C_PANEL line C_EOL
+  }
+  return 0
+}
+function hr(){ print "  ----------------------------------------------------------------------" }
+function tp(s){ print "  " s }
+function tb(){ print "" }
+
+# =====================================================================
+#  Lights.  Each light is  x,y,h,arc,colour
+#    x   fore-and-aft position, +0.5 bow to -0.5 stern
+#    y   athwartships, + to starboard
+#    h   height above the waterline, 0 to 1
+#    arc M masthead 225 deg | S starboard 112.5 | P port 112.5
+#        T sternlight 135  | A all round        | Y towing (as stern)
+#    colour W R G Y
+#  Visibility is decided by the arc and the bearing of the observer from
+#  the vessel, so the same table draws the vessel from any angle.
+# =====================================================================
+function lights_init(   i,n,a){
+  if(LT_READY) return
+  MF = "0.15,0,0.72,M,W"                    # masthead, forward
+  MA = "-0.10,0,0.92,M,W"                   # masthead, aft and higher
+  SG = "0.06,0.11,0.42,S,G"                 # starboard sidelight
+  SR = "0.06,-0.11,0.42,P,R"                # port sidelight
+  ST = "-0.46,0,0.36,T,W"                   # sternlight
+  TY = "-0.46,0,0.50,T,Y"                   # towing light, yellow
+  LT_READY=1
+  return 0
+}
+function ar(x,y,h,c){ return sprintf("%.3f,%.3f,%.3f,A,%s,",x,y,h,c) }
+#  Same, but out on a yard: the drawing joins these to their partner with
+#  a spar, so three greens read as one on the mast and two on the yard
+#  rather than as three greens scattered across the sky.
+function yd(x,y,h,c){ return sprintf("%.3f,%.3f,%.3f,A,%s,yard",x,y,h,c) }
+
+# vessel table: key | short name | rule | lights (semicolon list) | note
+function ves_init(   i,n,a){
+  if(VES_READY) return
+  lights_init()
+  VT[1]  = "power50|Power-driven vessel under 50 m, under way|Rule 23|" MF ";" SG ";" SR ";" ST "|One masthead light, sidelights, sternlight."
+  VT[2]  = "power50p|Power-driven vessel of 50 m or more, under way|Rule 23|" MF ";" MA ";" SG ";" SR ";" ST "|Two masthead lights, the after one higher."
+  VT[3]  = "sail|Sailing vessel under way|Rule 25|" SG ";" SR ";" ST "|Sidelights and a sternlight. No masthead light - that is the whole point."
+  VT[4]  = "sailrg|Sailing vessel, optional all-round pair|Rule 25|" SG ";" SR ";" ST ";" ar(0.15,0,0.80,"R") ";" ar(0.15,0,0.70,"G") "|Red over green at the masthead, with normal sidelights and sternlight."
+  VT[5]  = "anchor|Vessel at anchor, under 50 m|Rule 30|" ar(0.35,0,0.70,"W") "|A single all-round white light where it can best be seen."
+  VT[6]  = "anchor50|Vessel at anchor, 50 m or more|Rule 30|" ar(0.38,0,0.80,"W") ";" ar(-0.35,0,0.55,"W") "|Two all-round whites, forward one higher, and the decks lit."
+  VT[7]  = "aground|Vessel aground|Rule 30|" ar(0.35,0,0.72,"W") ";" ar(0.10,0,0.88,"R") ";" ar(0.10,0,0.78,"R") "|Anchor light or lights, plus two all-round reds in a vertical line."
+  VT[8]  = "nuc|Not under command, making no way|Rule 27|" ar(0.10,0,0.88,"R") ";" ar(0.10,0,0.78,"R") "|Two all-round reds. Nothing else if she is not moving through the water."
+  VT[9]  = "nucway|Not under command, making way|Rule 27|" ar(0.10,0,0.88,"R") ";" ar(0.10,0,0.78,"R") ";" SG ";" SR ";" ST "|Two all-round reds, and because she is making way, sidelights and sternlight too."
+  VT[10] = "ram|Restricted in her ability to manoeuvre|Rule 27|" ar(0.10,0,0.99,"R") ";" ar(0.10,0,0.89,"W") ";" ar(0.10,0,0.79,"R") ";" MF ";" SG ";" SR ";" ST "|Red, white, red in a vertical line. Making way, so the ordinary lights as well.|the lower two of her three lights are red over white, which on its own is a vessel fishing. The third light, red on top, is what makes her restricted in her ability to manoeuvre."
+  VT[11] = "draught|Constrained by her draught|Rule 28|" ar(0.10,0,0.99,"R") ";" ar(0.10,0,0.89,"R") ";" ar(0.10,0,0.79,"R") ";" MF ";" SG ";" SR ";" ST "|Three all-round reds in a vertical line, over the ordinary power-driven lights."
+  VT[12] = "trawl|Vessel trawling|Rule 26|" ar(0.15,0,0.88,"G") ";" ar(0.15,0,0.76,"W") ";" SG ";" SR ";" ST "|Green over white. Green for a trawl dragged along the bottom.|green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground."
+  VT[13] = "fishing|Fishing, other than trawling|Rule 26|" ar(0.15,0,0.88,"R") ";" ar(0.15,0,0.76,"W") ";" SG ";" SR ";" ST "|Red over white. The old rhyme: red over white, fishing at night.|red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel."
+  VT[14] = "pilot|Pilot vessel on duty|Rule 29|" ar(0.15,0,0.88,"W") ";" ar(0.15,0,0.76,"R") ";" SG ";" SR ";" ST "|White over red: pilot ahead. Sidelights and sternlight when under way.|white over red is the pilot; red over white is fishing. They are the same two colours the other way up, and it is the commonest mistake made at night."
+  VT[15] = "tow200|Towing, tow under 200 m|Rule 24|" MF ";" "0.15,0,0.84,M,W" ";" SG ";" SR ";" ST ";" TY "|Two masthead lights in a vertical line, and a yellow towing light above the sternlight."
+  VT[16] = "tow200p|Towing, tow over 200 m|Rule 24|" MF ";" "0.15,0,0.84,M,W" ";" "0.15,0,0.96,M,W" ";" SG ";" SR ";" ST ";" TY "|Three masthead lights in a vertical line - the tow is longer than 200 m."
+  VT[17] = "towed|Vessel being towed|Rule 24|" SG ";" SR ";" ST "|Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her."
+  #  Rule 27(f): one green at or near the foremast head and one at each
+  #  end of the FORE YARD - all three on the same mast. They used to be
+  #  given different fore-and-aft positions, which threw the two yard
+  #  lights off to one side and made them impossible to account for.
+  VT[18] = "mineclear|Mine clearance vessel|Rule 27|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.98,"G") ";" yd(0.15,0.15,0.82,"G") ";" yd(0.15,-0.15,0.82,"G") "|Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.|The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not."
+  VT[19] = "hover|Air-cushion vessel in non-displacement mode|Rule 23|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.60,"Y") "|The ordinary power-driven lights plus an all-round flashing yellow."
+  VT[20] = "sail7|Sailing vessel under 7 m, or a vessel under oars|Rule 25|" ar(0.0,0,0.35,"W") "|If she carries nothing else she must show a torch or lantern in time to prevent collision."
+  NVES=20
+  VES_READY=1
+  return 0
+}
+function ves_find(key,   i,a){
+  ves_init()
+  for(i=1;i<=NVES;i++){ split(VT[i],a,"|"); if(a[1]==key) return i }
+  return 0
+}
+# is a light with this arc visible from bearing th (0 = dead ahead of her)?
+
+# ---------------------------------------------------------------------
+#  The second question a lookout asks: which way is she going?
+#  It follows from which lights you can see, not from what she is.
+# ---------------------------------------------------------------------
+function motion_of(idx,th,   a,n,L,i,f,g,r,w,m,key){
+  ves_init()
+  split(VT[idx],a,"|"); key=a[1]; n=split(a[4],L,";")
+  g=0;r=0;w=0;m=0
+  for(i=1;i<=n;i++){
+    split(L[i],f,",")
+    if(!arc_vis(f[4],th)) continue
+    if(f[4]=="S") g=1
+    else if(f[4]=="P") r=1
+    else if(f[4]=="T") w=1
+    else if(f[4]=="M") m=1
+  }
+  MO_G=g; MO_R=r; MO_W=w; MO_M=m
+  if(key=="anchor"||key=="anchor50"||key=="aground"||key=="sail7") return 5
+  if(key=="nuc") return 5
+  if(g&&r) return 1
+  if(g) return 2
+  if(r) return 3
+  if(w) return 4
+  return 5
+}
+function motion_text(k){
+  if(k==1) return "End on, or nearly: she is coming straight at you."
+  if(k==2) return "Crossing from your left to your right."
+  if(k==3) return "Crossing from your right to your left."
+  if(k==4) return "Going away from you - you are overtaking her."
+  return "She is not under way, or not making way through the water."
+}
+function motion_why(k,idx,   a){
+  split(VT[idx],a,"|")
+  if(k==1) return "Both sidelights at once means you are within a degree or two of her bow, and she of yours. Her red appears on your right and her green on your left, because she is facing you. Rule 14: neither of you stands on - each alters to starboard and you pass port to port."
+  if(k==2) return "Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk."
+  if(k==3) return "Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear."
+  if(k==4) return "A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear."
+  return "No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped."
+}
+
+function light_sig(idx,th,   a,n,L,i,f,cnt,j,t1,t2,sig){
+  ves_init()
+  split(VT[idx],a,"|"); n=split(a[4],L,";")
+  cnt=0
+  for(i=1;i<=n;i++){
+    split(L[i],f,",")
+    if(!arc_vis(f[4],th)) continue
+    cnt++; SGH[cnt]=f[3]+0
+    #  what you can actually judge: the colour, and how far the light sits
+    #  left or right of the others.  Absolute height is not something you can
+    #  measure at night, so it is deliberately left out.
+    SGC[cnt]=f[5] sprintf("%d", int(((f[1]+0)*sind(th) - (f[2]+0)*cosd(th))/0.06 + 100))
+  }
+  for(i=2;i<=cnt;i++){ t1=SGH[i]; t2=SGC[i]; j=i-1
+    while(j>=1 && SGH[j]<t1){ SGH[j+1]=SGH[j]; SGC[j+1]=SGC[j]; j-- }
+    SGH[j+1]=t1; SGC[j+1]=t2 }
+  sig=""
+  for(i=1;i<=cnt;i++) sig=sig SGC[i] ","
+  return sig
+}
+function arc_vis(arc,th){
+  th=nrm180(th)
+  if(arc=="A") return 1
+  if(arc=="M") return (fabs(th)<=112.5)
+  #  Sidelights meet at the bow, but Annex I allows the cut-off to fall up
+  #  to 3 degrees outside the prescribed sector, and in practice there is a
+  #  small arc right ahead where both are seen. Without that overlap the
+  #  picture claims you are dead ahead of her while showing one sidelight.
+  if(arc=="S") return (th>=-2.5 && th<=112.5)
+  if(arc=="P") return (th<=2.5  && th>=-112.5)
+  if(arc=="T" || arc=="Y") return (fabs(th)>=112.5)
+  return 0
+}
+
+# ---- draw one vessel's lights as seen from bearing th ----------------
+function draw_lights(key,th,   i,idx,a,n,L,j,f,w,h,sea,us,vs,cx,u,v,hw,c,col,maxv,cnt,r0,ylo,yhi,yv){
+  idx=ves_find(key); if(idx==0){ print "  unknown vessel: " key; return 1 }
+  split(VT[idx],a,"|")
+  V_NAME=a[2]; V_RULE=a[3]; V_NOTE=a[5]; V_TRAP=a[6]; V_IDX=idx; V_TH=th
+  n=split(a[4],L,";")
+  w=67; h=17; sea=h-3; cx=int(w/2); us=(w-8)/1.5; vs=sea-1
+  gclear(w,h)
+  G_NOCROP=1
+  gputsc(0,0,"masthead height",C_DIM)
+  gputsc(sea-1,0,"deck",C_DIM)
+  for(i=0;i<w;i++) gputw(sea+1,i,"~")
+  hw = (1.00*fabs(sind(th)) + 0.22*fabs(cosd(th)))/2.0
+  for(i=-hw;i<=hw;i+=0.01) gputw(sea, cx+i*us, "=")
+  gputw(sea, cx-hw*us, "\\"); gputw(sea, cx+hw*us, "/")
+  # a faint line under each light, so the vertical grouping is plain
+  cnt=0
+  for(i=1;i<=n;i++){
+    split(L[i],f,",")
+    if(!arc_vis(f[4],th)) continue
+    u = (f[1]+0)*sind(th) - (f[2]+0)*cosd(th)
+    for(v=0;v<=(f[3]+0);v+=0.02) gputwc(sea-v*vs, cx+u*us, ":", C_DIM)
+  }
+  #  the yard the outboard lights are hung from, drawn before the lights
+  #  so the lights sit on top of it
+  ylo=99; yhi=-99; yv=-1
+  for(i=1;i<=n;i++){
+    split(L[i],f,",")
+    if(f[6]!="yard" || !arc_vis(f[4],th)) continue
+    u = (f[1]+0)*sind(th) - (f[2]+0)*cosd(th)
+    if(u<ylo) ylo=u
+    if(u>yhi) yhi=u
+    yv = f[3]+0
+  }
+  if(yv>=0 && yhi>ylo)
+    for(u=ylo;u<=yhi;u+=0.01) gputwc(sea-yv*vs, cx+u*us, "-", C_DIM)
+  for(i=1;i<=n;i++){
+    split(L[i],f,",")
+    if(!arc_vis(f[4],th)) continue
+    u = (f[1]+0)*sind(th) - (f[2]+0)*cosd(th)
+    v = f[3]+0
+    c = f[5]
+    gputc(sea - v*vs, cx + u*us, c, kcol(c))
+    cnt++
+  }
+  V_SEEN=cnt
+  return 0
+}
+# ---- the relative-bearing vocabulary --------------------------------
+#  One set of words, used for where SHE is from you and for where YOU
+#  are from her, so the same phrase always means the same angle.
+#  The boundaries are conventional, not legal: they are centred on the
+#  old points of the compass - broad on the bow is four points, 45
+#  degrees; broad on the quarter is four points from astern, 135.
+function rel_phrase(rel,poss,ahead,   t,s){
+  if(ahead=="") ahead=5
+  t=nrm180(rel); s=(t<0)?"port":"starboard"; t=fabs(t)
+  if(t<=ahead)  return "right ahead"
+  if(t>=180-ahead) return "right astern"
+  if(t<35)  return "fine on " poss " " s " bow"
+  if(t<65)  return "broad on " poss " " s " bow"
+  if(t<115) return "on " poss " " s " beam"
+  if(t<145) return "broad on " poss " " s " quarter"
+  return "fine on " poss " " s " quarter"
+}
+#  Red for port, green for starboard - the sidelights, which is the whole
+#  reason the convention is remembered. Nought to 180 each side.
+function red_green(rel,   t){
+  t=nrm180(rel)
+  if(fabs(t)<=0.5)      return "right ahead"
+  if(fabs(t)>=179.5)    return "right astern"
+  if(t<0) return sprintf("Red %d", int(-t+0.5))
+  return sprintf("Green %d", int(t+0.5))
+}
+#  Four ways of saying the same angle. The style is a setting because
+#  which one is right depends entirely on who is listening.
+function rel_style(rel,   t,d,s){
+  t=nrm180(rel)
+  if(rstyle=="words") return rel_phrase(rel,"the")
+  if(rstyle=="rel360") return sprintf("%03d relative", nrm360(rel))
+  if(rstyle=="none")  return ""
+  if(fabs(t)<=0.5)   return "right ahead"
+  if(fabs(t)>=179.5) return "right astern"
+  d = int(fabs(t)+0.5); s = (t<0) ? "port" : "starboard"
+  if(rstyle=="usn") return sprintf("%s %d", (t<0)?"Port":"Starboard", d)
+  return sprintf("%s %d", (t<0)?"Red":"Green", d)      # rn, the default
+}
+#  The other way of saying it, for the line that follows the report when
+#  he still cannot find her. Never the same form twice.
+function rel_other(rel){
+  if(rstyle=="words") return red_green(rel)
+  return rel_phrase(rel,"your")
+}
+function aspect_words(th,   t,p){
+  t=nrm180(th); p=rel_phrase(th,"her",2.5)
+  if(p=="right ahead")  return "You are right ahead of her: you are looking at her bow."
+  if(p=="right astern") return "You are right astern of her: you are looking at her stern."
+  if(index(p,"beam")>0) return "You are " p ": you see her whole " ((t<0)?"port":"starboard") " side."
+  return "You are " p "."
+}
+function show_lights(key,th){
+  if(draw_lights(key,th)) return 1
+  print ""
+  printf "  %s\n", cw("WHAT DO YOU SEE?",C_ACC)
+  hr()
+  gshow()
+  hr()
+  #  Browsing tells you the aspect.  The quiz must not: Q2 is asking
+  #  you to work the aspect out from the lights themselves.
+  if(!Q_NOASPECT) printf "  %s\n", aspect_words(th)
+  printf "  Letters are the colours: %s white  %s red  %s green  %s yellow\n",
+     cw("W",K_W), cw("R",K_R), cw("G",K_G), cw("Y",K_Y)
+  #  Left-and-right is where a light sits along her hull, seen from close
+  #  to, and it reads backwards to a seaman's eye: a sidelight looks as
+  #  though it ought to be forward, toward the bow, and it is drawn aft
+  #  of the masts.  That is not the drawing being wrong.  Annex I 3(b)
+  #  says the sidelights "shall not be placed in front of the forward
+  #  masthead lights", so aft of the masts is where they belong - and at
+  #  a bow aspect you are looking across her beam more than along her
+  #  length, which swings her starboard light further to your left
+  #  still.  It is the same geometry as bow-on, where her green is on
+  #  your left and her red on your right; it just fades out as she comes
+  #  beam-on.  None of it survives to any real range: a 5 m offset at
+  #  2 miles is a fifteenth of a degree.  Height and colour are what you
+  #  actually get.  This question has been asked twice; hence the note.
+  printf "  %s\n", cwd("Sideways spacing is where the lights sit along her hull, close to.")
+  printf "  %s\n", cwd("Annex I keeps sidelights abaft the forward masthead light, so a")
+  printf "  %s\n", cwd("sidelight falls toward her stern here, never toward her bow. And")
+  printf "  %s\n", cwd("at a bow aspect you see across her beam more than along her length,")
+  printf "  %s\n", cwd("so her green swings left - as it does bow-on. Not a heading cue:")
+  printf "  %s\n", cwd("at any real range every one of them is in line.")
+  print ""
+  return 0
+}
+function reveal_lights(){
+  printf "  %s\n", cw(V_NAME,C_ACC)
+  printf "  %s.  %s\n", V_RULE, V_NOTE
+  if(V_TRAP!="") printf "  %s %s\n", cw("Watch out:",C_ACC), V_TRAP
+  if(V_IDX>0){
+    print ""
+    printf "  %s\n", cw(motion_text(motion_of(V_IDX,V_TH)),C_ACC)
+    printf "  %s\n", motion_why(motion_of(V_IDX,V_TH),V_IDX)
+  }
+  print ""
+  return 0
+}
+
+# =====================================================================
+#  Day shapes.  Black shapes on a mast: what the lights become by day.
+# =====================================================================
+function shp_init(){
+  if(SHP_READY) return
+  # key | name | rule | glyph stack, top first, separated by ; | note
+  SH[1] = "anchor|Vessel at anchor|Rule 30|ball|One black ball, forward, where it can best be seen."
+  SH[2] = "aground|Vessel aground|Rule 30|ball;ball;ball|Three balls in a vertical line."
+  SH[3] = "nuc|Not under command|Rule 27|ball;ball|Two balls in a vertical line."
+  SH[4] = "ram|Restricted in her ability to manoeuvre|Rule 27|ball;diamond;ball|Ball, diamond, ball. The diamond in the middle is the one to remember."
+  SH[5] = "draught|Constrained by her draught|Rule 28|cyl|A black cylinder."
+  SH[6] = "motorsail|Sailing vessel also under power|Rule 25|conedn|A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing."
+  SH[7] = "fishing|Vessel fishing|Rule 26|hourglass|Two cones with their points together. Under 20 m may show a basket instead."
+  SH[8] = "tow200p|Towing, tow over 200 m|Rule 24|diamond|A diamond, shown by the towing vessel and by the tow."
+  SH[9] = "mineclear|Mine clearance|Rule 27|ball;ballpair|Three balls: one at the foremast head and one at each end of the fore yard."
+  SH[10]= "divers|Vessel with divers down|Rule 27|flagA|A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre."
+  NSHP=10
+  SHP_READY=1
+  return 0
+}
+function glyph_rows(g,n){
+  if(g=="ball"){      GLY[1]="(O)"; return 1 }
+  if(g=="diamond"){   GLY[1]="/|\\"; GLY[2]="\\|/"; return 2 }
+  if(g=="cyl"){       GLY[1]="[#]"; GLY[2]="[#]"; return 2 }
+  if(g=="conedn"){    GLY[1]="\\|/"; GLY[2]=" V "; return 2 }
+  if(g=="coneup"){    GLY[1]=" A "; GLY[2]="/|\\"; return 2 }
+  if(g=="hourglass"){ GLY[1]="\\|/"; GLY[2]=" X "; GLY[3]="/|\\"; return 3 }
+  if(g=="flagA"){     GLY[1]="+---\\"; GLY[2]="|   >"; GLY[3]="+---/"; return 3 }
+  if(g=="ballpair"){  GLY[1]="(O)---+---(O)"; return 1 }
+  GLY[1]="???"; return 1
+}
+function shp_find(key,   i,a){ shp_init()
+  for(i=1;i<=NSHP;i++){ split(SH[i],a,"|"); if(a[1]==key) return i }
+  return 0 }
+function draw_shapes(key,   idx,a,n,st,i,j,rows,w,h,sea,cx,r,g,OCC){
+  G_NOCROP=0
+  idx=shp_find(key); if(idx==0){ print "  unknown shape: " key; return 1 }
+  split(SH[idx],a,"|")
+  S_NAME=a[2]; S_RULE=a[3]; S_NOTE=a[5]
+  n=split(a[4],st,";")
+  w=61; h=18; sea=h-3; cx=int(w/2)
+  gclear(w,h)
+  for(i=0;i<w;i++) gputwc(sea+1,i,"~",C_DIM)
+  for(i=-6;i<=6;i++) gputw(sea,cx+i,"=")
+  gputw(sea,cx-7,"\\"); gputw(sea,cx+7,"/")
+  r=sea-1
+  for(i=0;i<h;i++) OCC[i]=0
+  for(i=n;i>=1;i--){
+    rows=glyph_rows(st[i])
+    for(j=rows;j>=1;j--){ gputsc(r, cx-int(length(GLY[j])/2), GLY[j], C_ACC); OCC[r]=1; r-- }
+    r--
+  }
+  for(i=r+1;i<sea;i++) if(!OCC[i]) gputwc(i,cx,"|",C_DIM)
+  return 0
+}
+function show_shapes(key){
+  if(draw_shapes(key)) return 1
+  print ""
+  printf "  %s\n", cw("WHAT IS SHE SHOWING?",C_ACC)
+  hr(); gshow(); hr()
+  print ""
+  return 0
+}
+function reveal_shapes(){
+  printf "  %s\n", cw(S_NAME,C_ACC)
+  printf "  %s.  %s\n", S_RULE, S_NOTE
+  print ""
+  return 0
+}
+
+# =====================================================================
+#  Encounters.  A plan view, head up, you in the middle.
+# =====================================================================
+function arrowchar(hdg,   h){
+  h=nrm360(hdg)
+  if(h<22.5||h>=337.5) return "^"
+  if(h<67.5)  return "/"
+  if(h<112.5) return ">"
+  if(h<157.5) return "\\"
+  if(h<202.5) return "v"
+  if(h<247.5) return "/"
+  if(h<292.5) return "<"
+  return "\\"
+}
+function draw_plan(bg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
+  w=63; h=25; cx=int(w/2); cy=int(h/2); rx=cx-2; ry=cy-1
+  gclear(w,h)
+  for(t=0;t<360;t+=1.0){
+    gputwc(cy-ry*cosd(t), cx+rx*sind(t), ".", C_DIM)
+    gputwc(cy-ry*0.5*cosd(t), cx+rx*0.5*sind(t), ".", C_DIM)
+  }
+  for(t=0;t<360;t+=30) gputwc(cy-ry*1.0*cosd(t), cx+rx*1.0*sind(t), "+", C_DIM)
+  # you, head up
+  gputc(cy-1,cx,"^",C_ACC); gputc(cy,cx,"|",C_ACC)
+  gputsc(cy+1,cx-1,"YOU",C_ACC)
+  # the other vessel
+  tr = cy - ry*rng*cosd(bg)
+  tc = cx + rx*rng*sind(bg)
+  ch = arrowchar(thdg)
+  dr = -cosd(thdg); dc = sind(thdg)
+  m = fabs(dr); if(fabs(dc)>m) m=fabs(dc)
+  dr=dr/m; dc=dc/m
+  for(i=1;i<=4;i++) gputw(tr - dr*i, tc - dc*i, ":")
+  gput(tr,tc,ch)
+  gputs(tr + (tr<cy?-1:1), tc+2, tlab)
+  gputsc(0,cx-6,"HEAD  UP",C_DIM)
+  return 0
+}
+function enc_init(){
+  if(ENC_READY) return
+  # own | target label | brglo | brghi | target heading | answer | options | why | rule
+  EC[1]="You are a power-driven vessel under way.|a power-driven vessel, both her sidelights and two masthead lights in line|352|8|180|d|"\
+"Stand on: keep your course and speed.;Give way: alter to port and pass down her starboard side.;Sound one short blast and hold on.;Alter course to starboard, and expect her to do the same.|"\
+"Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.|Rule 14"
+  EC[2]="You are a power-driven vessel under way.|a power-driven vessel showing her red sidelight|030|100|290|b|"\
+"Stand on: she must keep clear of you.;Give way: alter to starboard and pass under her stern.;Give way: alter to port to cut across ahead of her.;Slow down and let her decide.|"\
+"She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.|Rule 15"
+  EC[3]="You are a power-driven vessel under way.|a power-driven vessel showing her green sidelight|260|330|070|a|"\
+"Stand on: keep your course and speed, and watch her.;Give way: alter to starboard.;Give way: alter to port.;Stop your engines at once.|"\
+"She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.|Rule 17"
+  EC[4]="You are a power-driven vessel making 18 knots.|a power-driven vessel dead ahead making 8 knots, showing only her sternlight|350|010|000|b|"\
+"Stand on: you are the faster vessel.;Give way: you are overtaking, so keep clear until you are finally past and clear.;Sound two short blasts and pass down her port side.;Alter to starboard only if she alters first.|"\
+"You are coming up on her from more than 22.5 degrees abaft her beam - you can see only her sternlight, which is the test. Any subsequent alteration of bearing does not make you a crossing vessel: you remain the give-way vessel until finally past and clear.|Rule 13"
+  EC[5]="You are a power-driven vessel making 8 knots.|a large power-driven vessel coming up astern, fine on your port quarter|170|200|000|a|"\
+"Stand on: keep your course and speed.;Give way: alter to starboard.;Give way: slow down and let her pass.;Alter to port to open the distance.|"\
+"She is overtaking you, so she must keep out of your way. You are the stand-on vessel and should hold your course and speed so that she can plan around you.|Rule 13"
+  EC[6]="You are a power-driven vessel under way.|a sailing vessel under sail alone, on your starboard bow|020|080|300|b|"\
+"Stand on: she is smaller than you.;Give way: keep out of her way.;Give way only if she is on your starboard side.;Sound five short blasts.|"\
+"A power-driven vessel under way keeps out of the way of a sailing vessel. Which side she is on does not come into it, and neither does her size.|Rule 18"
+  EC[7]="You are a sailing vessel under sail alone.|a power-driven vessel on your port bow|300|350|080|a|"\
+"Stand on: she must keep out of your way.;Give way: alter to starboard.;Give way: tack away.;Bear away and pass under her stern.|"\
+"She is a power-driven vessel and you are under sail, so she keeps clear. Stand on - but keep watching, and be ready to act under Rule 17 if she does nothing.|Rule 18"
+  EC[8]="You are a power-driven vessel under way.|a vessel showing red over white all-round lights, with sidelights|300|060|150|b|"\
+"Stand on: she is fishing and must keep clear.;Give way: keep well out of her way.;Give way only if she is on your starboard side.;Pass close ahead to give her room astern.|"\
+"Red over white means a vessel engaged in fishing other than trawling. A power-driven vessel keeps out of the way of a vessel engaged in fishing, and you should also expect gear to be streamed a long way astern of her.|Rule 18"
+  EC[9]="You are a power-driven vessel under way.|a vessel showing red, white, red in a vertical line|280|080|170|b|"\
+"Stand on: she is the give-way vessel.;Give way: keep well out of her way.;Sound one short blast and alter to starboard.;Stand on but sound five short blasts.|"\
+"Red over white over red: restricted in her ability to manoeuvre. She may be dredging, laying cable or transferring stores, and she cannot get out of your way. Everything keeps clear of her except a vessel not under command.|Rule 18"
+  EC[10]="You are a power-driven vessel in a deep-water channel.|a vessel showing three all-round red lights in a vertical line|300|060|170|b|"\
+"Stand on: a constrained vessel has no special status.;Give way: avoid impeding her safe passage.;Overtake her quickly on her starboard side.;Anchor until she has passed.|"\
+"Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.|Rule 18(d)"
+  EC[11]="You are a sailing vessel on the port tack.|a sailing vessel on the starboard tack, on your starboard bow|020|070|300|b|"\
+"Stand on: you were there first.;Give way: keep out of her way.;Give way only if she is to windward.;Tack immediately.|"\
+"When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.|Rule 12"
+  EC[12]="You are a sailing vessel to windward.|a sailing vessel to leeward, both of you on the same tack|100|150|020|b|"\
+"Stand on: windward has right of way.;Give way: the windward vessel keeps clear of the leeward vessel.;Give way only in a narrow channel.;Both alter to starboard.|"\
+"With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.|Rule 12"
+  EC[13]="You are a power-driven vessel under way.|a vessel showing two all-round red lights and no sidelights|280|080|000|b|"\
+"Stand on: she is not moving.;Give way: keep well out of her way - she is not under command.;Sound five short blasts and hold on.;Pass close ahead - she cannot move.|"\
+"Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.|Rule 18"
+  EC[14]="You are a power-driven vessel under way in fog, hearing but not seeing her.|a fog signal of one prolonged blast followed by two short, forward of your beam|300|060|170|b|"\
+"Stand on: the signal tells you she will keep clear.;Reduce to bare steerage way - she may be a vessel restricted in her ability to manoeuvre, fishing, towing or under sail.;Alter boldly to port.;Sound five short blasts and continue.|"\
+"One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.|Rule 19"
+  EC[15]="You are a yacht of 11 m, under power, crossing a narrow buoyed channel.|a laden bulk carrier coming down the channel, which she cannot leave|020|090|300|b|"\
+"Stand on: you are crossing and she is on your starboard side, so Rule 15 applies.;Keep clear early: do not impede a vessel that can only navigate within the channel.;Cross ahead quickly to get out of her way.;Anchor in the channel until she has passed.|"\
+"Rule 9(b): a vessel of less than 20 metres or a sailing vessel shall not impede the passage of a vessel which can safely navigate only within a narrow channel. Shall not impede is stronger than give way - keep clear early enough that the question never arises.|Rule 9"
+  EC[16]="You are a 12 m yacht under sail, crossing a traffic separation scheme.|a container ship following the lane, fine on your starboard bow|030|080|300|b|"\
+"Stand on: you are under sail, so power keeps clear of you.;Keep clear: a sailing vessel shall not impede a power-driven vessel following a lane, and cross on a heading at right angles to the flow.;Motor along the lane until there is a gap.;Cross at a shallow angle to spend less time in the lane.|"\
+"Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede the safe passage of a power-driven vessel following a traffic lane. And Rule 10(c) says cross on a heading as nearly as practicable at right angles to the flow - heading, not ground track, because a beam-on aspect is what makes you visible and predictable.|Rule 10"
+  EC[17]="You are a coaster overtaking a slower vessel in a narrow channel.|the vessel ahead, whose agreement you need before you pass|350|010|000|c|"\
+"Alter to starboard and pass, sounding one short blast.;Pass on whichever side has more water, without signalling.;Sound two prolonged and one short - I intend to overtake you on your starboard side - and wait for her answer.;Call her on VHF and pass when she does not object.|"\
+"Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.|Rule 9(e)"
+  EC[18]="You are a power-driven vessel in thick fog, hearing but not seeing her.|two prolonged blasts, about two seconds apart, from fine on the port bow|300|010|000|b|"\
+"Stand on: two prolonged means she is stopped, so she is no danger.;Reduce to the least speed at which you can be kept on course, and be ready to take all way off.;Alter boldly to port and pass down her starboard side.;Sound five short blasts and hold your speed.|"\
+"Two prolonged blasts is a power-driven vessel under way but stopped and making no way. In restricted visibility there is no stand-on vessel: Rule 19(e) requires you to reduce to bare steerage way on hearing a fog signal apparently forward of the beam, and if necessary take all your way off.|Rule 19"
+  EC[19]="You are a yacht under sail alone.|a vessel showing two all-round red lights and nothing else|280|080|000|b|"\
+"Stand on: you are under sail, so everything keeps clear of you.;Keep well out of her way: she is not under command and cannot manoeuvre at all.;Pass close under her stern to see what is wrong.;Sound five short blasts.|"\
+"Being under sail does not put you at the top of the order. Rule 18(b): a sailing vessel keeps out of the way of a vessel not under command, of one restricted in her ability to manoeuvre, and of one engaged in fishing.|Rule 18(b)"
+  EC[20]="You are a sailing vessel, and the vessel to windward is on the same tack.|another sailing vessel to windward, converging|020|080|300|a|"\
+"Stand on: the windward vessel keeps clear of the leeward vessel.;Give way: you are the leeward vessel and must bear away.;Give way: tack immediately.;Both alter to starboard.|"\
+"Rule 12(a)(ii): when two sailing vessels have the wind on the same side, the vessel which is to windward keeps out of the way of the vessel to leeward. You are to leeward, so you stand on.|Rule 12"
+  EC[21]="You are a power-driven vessel in a deep-water route.|a loaded tanker showing three all-round red lights in a vertical line|300|060|170|b|"\
+"Stand on: she has no special status under Rule 18.;Avoid impeding her safe passage - she may have very little water under her keel.;Overtake her briskly on her starboard side.;Cross close ahead of her to clear the route.|"\
+"Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.|Rule 18(d)"
+  EC[22]="You are a power-driven vessel under way.|a seaplane on the water, ahead and to starboard|020|070|280|a|"\
+"Stand on: a seaplane on the water keeps well clear of all vessels.;Give way: an aircraft has right of way.;Give way: alter to starboard and pass astern of her.;Stop your engines.|"\
+"Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.|Rule 18(e)"
+  EC[23]="You are a power-driven vessel under way.|a vessel showing three all-round green lights, one at the masthead and one at each yardarm|300|060|170|c|"\
+"Stand on: green lights mean she is under way and keeping clear.;Give way: alter to starboard and pass a cable astern of her.;Keep at least 1000 metres clear of her: she is engaged in mine clearance.;Sound one short blast and pass close ahead.|"\
+"Rule 27(f): three all-round greens marks a vessel engaged in mine clearance operations. Other vessels shall keep at least 1000 metres clear of her - much further than ordinary avoiding action.|Rule 27(f)"
+  EC[24]="You are a power-driven vessel closing the coast at night.|two all-round red lights in a line, with a white light below and forward, and no sidelights|300|060|000|b|"\
+"Stand on: she is showing red over red, so she is not under command and under way.;Keep clear: anchor lights with two all-round reds means she is aground, so there is shoal water where she sits.;Close her to offer assistance without altering course.;Sound one prolonged blast and hold on.|"\
+"Rule 30(d): a vessel aground shows the anchor lights plus two all-round reds in a vertical line. The important part is not only that she cannot move - it is that you now know exactly where the shoal is.|Rule 30(d)"
+  EC[25]="You are entering a busy anchorage after dark.|a single all-round white light, low down, not moving, fine on the starboard bow|350|030|000|b|"\
+"Stand on: a single white light is a sternlight, so she is going away from you.;Treat her as a vessel at anchor and pass well clear: she is not under way and cannot get out of your way.;Assume it is a small boat under oars and hold your course.;Sound two short blasts and pass down her port side.|"\
+"One all-round white is a vessel of under 50 metres at anchor. A single white light is genuinely ambiguous at first sight - it may be a sternlight, an anchor light or a small craft - so the answer is to keep watching the bearing and pass well clear until you know which.|Rule 30"
+  EC[26]="You are a power-driven vessel approaching a pilot station.|a pilot vessel showing white over red, with sidelights and a sternlight, crossing from your port side|280|340|070|a|"\
+"Stand on: she is crossing from your port side, and being a pilot vessel gives her no special status.;Give way: pilot vessels always have right of way.;Give way: sound one short blast and alter to starboard.;Stop and let her cross.|"\
+"White over red - pilot ahead. Rule 29 says what a pilot vessel shows, not that she is privileged. Unless she is also restricted in her ability to manoeuvre, the ordinary steering rules apply, and here she is on your port side crossing.|Rule 29"
+  EC[27]="You are a yacht under sail alone, overhauling a fishing boat that is under way and making 5 knots.|the vessel ahead, showing only her sternlight|350|010|000|b|"\
+"Stand on: you are under sail, so she keeps clear of you.;Give way: you are overtaking, and Rule 13 overrides the order of Rule 18.;Give way only if she starts fishing.;Sound one short blast and pass to starboard.|"\
+"Rule 13 applies notwithstanding anything contained in Rules 4 to 18 - so an overtaking vessel keeps clear whatever the two vessels are. Sailing does not help you here, and you only see her sternlight, which is the test for overtaking.|Rule 13"
+  EC[28]="You are a power-driven vessel crossing ahead of a tug and her tow at night.|three masthead lights in a vertical line, sidelights and a yellow light above her sternlight|020|080|300|c|"\
+"Stand on: the tug is restricted and will keep clear of you.;Give way: alter to port and pass between the tug and her tow.;Give way: alter to starboard and pass well astern of the whole tow - it is more than 200 metres long.;Cross close ahead of the tug to stay clear of the tow.|"\
+"Three masthead lights in a vertical line means the tow exceeds 200 metres. The tow itself may show only sidelights and a sternlight and is easy to miss, and the towline between them is not lit at all. Never pass between a tug and her tow.|Rule 24"
+  NENC=28
+  ENC_READY=1
+  return 0
+}
+function enc_pick(i,   a){
+  enc_init(); split(EC[i],a,"|")
+  ENC_ANS=a[6]; ENC_WHY=a[8]; ENC_RULE=a[9]
+  return 0
+}
+function enc_show(i,seed,   a,o,bg,rng,thdg,n){
+  enc_init()
+  split(EC[i],a,"|")
+  xsrand(seed+0); xrand()
+  bg = a[3]+0; n = a[4]+0
+  if(n < bg) n += 360
+  bg = nrm360(bg + xrand()*(n-bg))
+  rng = 0.55 + xrand()*0.35
+  thdg = nrm360(a[5]+0 + (xrand()*30-15))
+  draw_plan(bg,rng,thdg,"HER")
+  print ""
+  printf "  %s\n", cw("WHAT DO YOU DO?",C_ACC)
+  hr()
+  gshow()
+  hr()
+  printf "  %s\n", a[1]
+  printf "  You see %s, bearing %03d relative, heading as drawn.\n", a[2], bg
+  hr()
+  n=split(a[7],o,";")
+  printf "   a) %s\n   b) %s\n   c) %s\n   d) %s\n", o[1],o[2],o[3],o[4]
+  print ""
+  ENC_ANS=a[6]; ENC_WHY=a[8]; ENC_RULE=a[9]
+  return 0
+}
+function enc_reveal(){
+  printf "  %s -- %s\n", cw(toupper(ENC_ANS) " is right",C_ACC), ENC_RULE
+  printf "  %s\n", ENC_WHY
+  print ""
+  return 0
+}
+
+# =====================================================================
+#  Sound signals.  A script cannot make a noise, so it draws one.
+#    #      one short blast, about a second
+#    ####   one prolonged blast, four to six seconds
+#    * *    distinct strokes on the bell
+#    *****  the bell rung rapidly
+# =====================================================================
+function snd_init(){
+  if(SND_READY) return
+  # key | pattern | meaning | rule | when
+  SD[1] ="stbd|#|I am altering my course to starboard|Rule 34(a)|In sight of one another, power-driven, when manoeuvring as authorised or required by these rules."
+  SD[2] ="port|# #|I am altering my course to port|Rule 34(a)|In sight of one another, power-driven."
+  SD[3] ="astern|# # #|I am operating astern propulsion|Rule 34(a)|Note that this says what the engines are doing, not that the vessel is moving astern."
+  SD[4] ="doubt|# # # # #|I do not understand your intentions, or I doubt you are taking sufficient action|Rule 34(d)|Five or more short and rapid blasts. Use it early and use it loudly; it is the only signal that says something is wrong."
+  SD[5] ="ovtstbd|#### #### #|I intend to overtake you on your starboard side|Rule 34(c)|In a narrow channel or fairway, where overtaking needs the other vessel's cooperation."
+  SD[6] ="ovtport|#### #### # #|I intend to overtake you on your port side|Rule 34(c)|In a narrow channel or fairway."
+  SD[7] ="agree|#### # #### #|I agree: go ahead and overtake|Rule 34(c)|The vessel about to be overtaken answers prolonged, short, prolonged, short."
+  SD[8] ="bend|####|I am approaching a bend where other vessels may be hidden|Rule 34(e)|Answered by any vessel within hearing round the bend with the same signal."
+  SD[9] ="fogpower|####|Power-driven vessel making way through the water|Rule 35(a)|At intervals of not more than two minutes."
+  SD[10]="fogstop|#### ####|Power-driven vessel under way but stopped and making no way|Rule 35(b)|Two prolonged blasts, about two seconds apart, every two minutes."
+  SD[11]="fogram|#### # #|Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing|Rule 35(c)|One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is."
+  SD[12]="fogtowed|#### # # #|A vessel being towed, and manned|Rule 35(e)|One prolonged and three short, sounded immediately after the towing vessel's signal."
+  SD[13]="foganchor|*****|At anchor|Rule 35(g)|The bell rung rapidly for about five seconds, every minute. A vessel of 100 m or more also sounds a gong aft, and any vessel may add one short, one prolonged and one short to warn an approaching vessel."
+  SD[14]="fogaground|* * * ***** * * *|Aground|Rule 35(h)|Three distinct strokes, the rapid ringing, then three distinct strokes again."
+  SD[15]="pilot|# # # #|Pilot vessel on duty - identity signal|Rule 35(k)|Four short blasts, in addition to whatever signal her situation requires."
+  NSND=15
+  SND_READY=1
+  return 0
+}
+function snd_draw(pat,   n,a,i,j,line,ruler,t){
+  line=""; ruler=""
+  n=split(pat,a," ")
+  for(i=1;i<=n;i++){
+    if(i>1){ line=line "   "; ruler=ruler "   " }
+    line=line a[i]
+    for(j=1;j<=length(a[i]);j++) ruler=ruler "-"
+  }
+  print ""
+  printf "        %s\n", cw(line,C_ACC)
+  printf "        %s\n", cw(ruler,C_DIM)
+  printf "        %s\n", cw("time ->",C_DIM)
+  print ""
+  return 0
+}
+function snd_find(key,   i,a){ snd_init()
+  for(i=1;i<=NSND;i++){ split(SD[i],a,"|"); if(a[1]==key) return i }
+  return 0 }
+function snd_show(i,   a){
+  snd_init(); split(SD[i],a,"|")
+  print ""
+  printf "  %s\n", cw("WHAT IS SHE SAYING?",C_ACC)
+  hr()
+  snd_draw(a[2])
+  hr()
+  print "  #  short blast, about one second      ####  prolonged, four to six seconds"
+  print "  *  a stroke on the bell               ***** the bell rung rapidly"
+  print ""
+  SND_MEAN=a[3]; SND_RULE=a[4]; SND_WHEN=a[5]
+  return 0
+}
+function snd_reveal(){
+  printf "  %s\n", cw(SND_MEAN,C_ACC)
+  printf "  %s.  %s\n", SND_RULE, SND_WHEN
+  print ""
+  return 0
+}
+function snd_table(   i,a){
+  snd_init()
+  print ""
+  printf "  %s\n", cw("SOUND SIGNALS",C_ACC)
+  hr()
+  print "  In sight of one another (Rule 34)"
+  for(i=1;i<=8;i++){ split(SD[i],a,"|")
+    printf "    %-18s %s\n", a[2], a[3] }
+  print ""
+  print "  In or near an area of restricted visibility (Rule 35)"
+  for(i=9;i<=15;i++){ split(SD[i],a,"|")
+    printf "    %-18s %s\n", a[2], a[3] }
+  hr()
+  print "  #  short blast (one second)     ####  prolonged blast (four to six seconds)"
+  print "  *  stroke on the bell           ***** bell rung rapidly for five seconds"
+  print ""
+  return 0
+}
+
+# =====================================================================
+#  The rules themselves.  Fifteen lessons, each with a check question.
+# =====================================================================
+function thead(id,title,   i,u){
+  print ""
+  printf "  %s\n", cw(sprintf("%s  %s",id,title),C_ACC)
+  u=""; for(i=0;i<length(title)+6;i++) u=u "-"
+  print "  " u
+  print ""
+}
+function les(id){
+  if(id=="L1"){ thead("L1","Rule 5 - Look-out")
+    tp("Every vessel shall at all times maintain a proper look-out by sight and")
+    tp("hearing as well as by all available means appropriate in the prevailing")
+    tp("circumstances and conditions so as to make a full appraisal of the")
+    tp("situation and of the risk of collision.")
+    tb()
+    tp("  1. It is the first substantive rule, and it is the one most often")
+    tp("     broken. More collisions are put down to a failure of look-out than")
+    tp("     to any other cause.")
+    tp("  2. 'By sight and hearing' means a person, outside, looking and")
+    tp("     listening - not only a radar screen.")
+    tp("  3. 'All available means' does include radar, AIS and VHF, and if you")
+    tp("     have them and do not use them properly, that is a breach too.")
+    tp("  4. 'At all times' has no exceptions for singlehanders, for tiredness,")
+    tp("     or for the middle of an ocean.")
+    tb()
+    tp("The look-out must be able to appraise the situation. Someone at the")
+    tp("wheel who cannot see astern past the sprayhood is not, by themselves, a")
+    tp("proper look-out.")
+    tb() }
+  else if(id=="L2"){ thead("L2","Rule 6 - Safe speed")
+    tp("Every vessel shall at all times proceed at a safe speed so that she can")
+    tp("take proper and effective action to avoid collision and be stopped")
+    tp("within a distance appropriate to the prevailing circumstances.")
+    tb()
+    tp("  1. There is no number in this rule. Safe speed depends on visibility,")
+    tp("     traffic density, manoeuvrability, background lights, the state of")
+    tp("     wind, sea and current, the proximity of hazards and your draught.")
+    tp("  2. If you are using radar there are further factors: its limitations,")
+    tp("     the scale in use, sea and weather clutter, and the possibility that")
+    tp("     small vessels and ice may not be detected at all.")
+    tp("  3. 'Be stopped within a distance appropriate' is the practical test.")
+    tp("     In thick fog with shipping about, that usually means slower than")
+    tp("     feels comfortable.")
+    tp("  4. A sailing vessel is not exempt. Reducing sail is reducing speed.")
+    tb() }
+  else if(id=="L3"){ thead("L3","Rule 7 - Risk of collision")
+    tp("Every vessel shall use all available means appropriate to determine if")
+    tp("risk of collision exists. If there is any doubt, such risk shall be")
+    tp("deemed to exist.")
+    tb()
+    tp("  1. The test is compass bearing. If the compass bearing of an")
+    tp("     approaching vessel does not appreciably change, risk of collision")
+    tp("     exists.")
+    tp("  2. It can exist even with an appreciable bearing change - with a very")
+    tp("     large vessel, a tow, or anything at close range.")
+    tp("  3. Radar must be used properly if fitted and working: long-range")
+    tp("     scanning, and systematic observation of detected objects. A")
+    tp("     glance at the screen is not plotting.")
+    tp("  4. Assumptions shall not be made on the basis of scanty information,")
+    tp("     especially scanty radar information. One AIS target is not a")
+    tp("     picture of the traffic.")
+    tb()
+    tp("Take the bearing with a hand bearing compass over several minutes, or")
+    tp("line her up against a stanchion and keep your head still. Steady")
+    tp("bearing, decreasing range: you are going to hit her.")
+    tb() }
+  else if(id=="L4"){ thead("L4","Rule 8 - Action to avoid collision")
+    tp("Any action shall be positive, made in ample time and with due regard to")
+    tp("good seamanship.")
+    tb()
+    tp("  1. Alterations of course or speed shall be large enough to be readily")
+    tp("     apparent to another vessel observing visually or by radar. A")
+    tp("     succession of small alterations is exactly what the rule forbids.")
+    tp("  2. If there is sea room, an alteration of course alone may be the most")
+    tp("     effective action - provided it is made in good time, is substantial,")
+    tp("     and does not result in another close-quarters situation.")
+    tp("  3. Action to avoid collision shall result in passing at a safe")
+    tp("     distance, and its effectiveness shall be carefully checked until")
+    tp("     the other vessel is finally past and clear.")
+    tp("  4. If necessary to avoid collision or allow more time to assess, slack")
+    tp("     off, stop, or reverse. Taking all way off is always available to you.")
+    tb()
+    tp("A ten degree alteration at four miles is invisible on the other bridge.")
+    tp("Thirty degrees, early, is a signal in itself.")
+    tb() }
+  else if(id=="L5"){ thead("L5","Rule 9 - Narrow channels")
+    tp("A vessel proceeding along the course of a narrow channel or fairway")
+    tp("shall keep as near to the outer limit which lies on her starboard side")
+    tp("as is safe and practicable.")
+    tb()
+    tp("  1. Keep to the starboard side of the channel. That is the whole rule")
+    tp("     in one line.")
+    tp("  2. A vessel of less than 20 metres, or a sailing vessel, shall not")
+    tp("     impede the passage of a vessel which can safely navigate only")
+    tp("     within the channel. Nor shall a vessel engaged in fishing.")
+    tp("  3. Do not cross a channel if it impedes a vessel that can only")
+    tp("     navigate within it. If in doubt about her intentions, the doubt")
+    tp("     signal - five or more short blasts - is available.")
+    tp("  4. Overtaking in a narrow channel needs the other vessel's agreement,")
+    tp("     signalled by sound: two prolonged and one short means you intend to")
+    tp("     pass on her starboard side.")
+    tb()
+    tp("'Shall not impede' is not the same as give way. It means you must keep")
+    tp("clear early enough that the question of who gives way never arises.")
+    tb() }
+  else if(id=="L6"){ thead("L6","Rule 10 - Traffic separation schemes")
+    tp("A vessel using a traffic separation scheme shall proceed in the")
+    tp("appropriate lane in the general direction of traffic flow, keep clear of")
+    tp("the separation line or zone, and normally join or leave at the ends.")
+    tb()
+    tp("  1. If you must join at the side, do so at as small an angle to the")
+    tp("     general direction of flow as practicable.")
+    tp("  2. If you must cross, cross on a heading as nearly as practicable at")
+    tp("     right angles to the direction of flow. Heading, not track - so you")
+    tp("     do not crab across with the tide to make a right-angled ground")
+    tp("     track. This was changed deliberately: a beam-on aspect is what makes")
+    tp("     you visible and predictable.")
+    tp("  3. A vessel under 20 metres, a sailing vessel, or a vessel fishing")
+    tp("     shall not impede the safe passage of a power-driven vessel")
+    tp("     following a lane.")
+    tp("  4. Inshore traffic zones are not for through traffic, with limited")
+    tp("     exceptions - vessels under 20 metres, sailing vessels, fishing")
+    tp("     vessels, and vessels going to or from a place inside the zone.")
+    tb() }
+  else if(id=="L7"){ thead("L7","Rule 12 - Sailing vessels")
+    tp("When two sailing vessels are approaching one another so as to involve")
+    tp("risk of collision:")
+    tb()
+    tp("  1. When each has the wind on a different side, the vessel with the")
+    tp("     wind on her port side shall keep out of the way of the other.")
+    tp("     Port tack gives way to starboard tack.")
+    tp("  2. When both have the wind on the same side, the vessel to windward")
+    tp("     shall keep out of the way of the vessel to leeward. Windward gives")
+    tp("     way - which surprises most people the first time.")
+    tp("  3. If a vessel with the wind on the port side sees a vessel to")
+    tp("     windward and cannot tell whether that vessel has the wind on the")
+    tp("     port or the starboard side, she shall keep out of the way.")
+    tp("  4. The windward side is the side opposite that on which the mainsail")
+    tp("     is carried - or, for a square-rigged vessel, the largest fore-and-")
+    tp("     aft sail.")
+    tb()
+    tp("Note that this rule applies between two sailing vessels only. Rule 18")
+    tp("governs a sailing vessel meeting anything else.")
+    tb() }
+  else if(id=="L8"){ thead("L8","Rule 13 - Overtaking")
+    tp("Any vessel overtaking any other shall keep out of the way of the vessel")
+    tp("being overtaken. This rule overrides everything in the other steering")
+    tp("rules - it applies notwithstanding anything in Rules 4 to 18.")
+    tb()
+    tp("  1. A vessel is overtaking when coming up on another from a direction")
+    tp("     more than 22.5 degrees abaft her beam.")
+    tp("  2. The practical test at night: if you can see only her sternlight,")
+    tp("     and neither of her sidelights, you are overtaking.")
+    tp("  3. When in any doubt whether you are overtaking, assume that you are")
+    tp("     and act accordingly.")
+    tp("  4. Any subsequent alteration of the bearing between the two shall not")
+    tp("     make you a crossing vessel or relieve you of the duty to keep clear")
+    tp("     until you are finally past and clear.")
+    tb()
+    tp("A sailing vessel overtaking a power-driven vessel keeps clear. This is")
+    tp("the case that most often catches sailors out.")
+    tb() }
+  else if(id=="L9"){ thead("L9","Rule 14 - Head-on situation")
+    tp("When two power-driven vessels are meeting on reciprocal or nearly")
+    tp("reciprocal courses so as to involve risk of collision, each shall alter")
+    tp("her course to starboard so that each shall pass on the port side of the")
+    tp("other.")
+    tb()
+    tp("  1. Neither vessel is the stand-on vessel. Both act.")
+    tp("  2. The situation shall be deemed to exist when a vessel sees the other")
+    tp("     ahead or nearly ahead - by night, both sidelights, or the masthead")
+    tp("     lights in a line or nearly in a line.")
+    tp("  3. When in doubt whether such a situation exists, assume that it does")
+    tp("     and act accordingly.")
+    tp("  4. This rule is between power-driven vessels only.")
+    tb()
+    tp("Alter to starboard, early and boldly, and pass port to port: red to red.")
+    tb() }
+  else if(id=="L10"){ thead("L10","Rules 15 and 16 - Crossing, and the give-way vessel")
+    tp("When two power-driven vessels are crossing so as to involve risk of")
+    tp("collision, the vessel which has the other on her own starboard side")
+    tp("shall keep out of the way and shall, if the circumstances of the case")
+    tp("admit, avoid crossing ahead of the other vessel.")
+    tb()
+    tp("  1. Starboard side, so at night you see her red sidelight. Red means")
+    tp("     stop: she is on your right and you give way.")
+    tp("  2. Avoid crossing ahead. In practice, alter to starboard and pass")
+    tp("     under her stern: it is the action that is unmistakable from her")
+    tp("     bridge.")
+    tp("  3. Rule 16 tells the give-way vessel to take early and substantial")
+    tp("     action to keep well clear. Early and substantial.")
+    tp("  4. This rule is between power-driven vessels. A crossing sailing")
+    tp("     vessel is a Rule 18 problem.")
+    tb() }
+  else if(id=="L11"){ thead("L11","Rule 17 - Action by the stand-on vessel")
+    tp("Where one vessel is to keep out of the way, the other shall keep her")
+    tp("course and speed. But standing on is not a licence to do nothing.")
+    tb()
+    tp("  1. Normally: keep your course and speed, so that the give-way vessel")
+    tp("     can work out a solution around you.")
+    tp("  2. You MAY take action as soon as it becomes apparent to you that she")
+    tp("     is not taking appropriate action. This is permission, not duty.")
+    tp("  3. You SHALL take such action as will best aid to avoid collision when")
+    tp("     you find yourself so close that collision cannot be avoided by the")
+    tp("     give-way vessel's action alone. This is a duty.")
+    tp("  4. If you are a power-driven vessel taking action in a crossing")
+    tp("     situation, do not alter to port for a vessel on your own port side.")
+    tb()
+    tp("The give-way vessel's obligation does not go away because you have")
+    tp("acted. Both of you remain bound to avoid collision.")
+    tb() }
+  else if(id=="L12"){ thead("L12","Rule 18 - Responsibilities between vessels")
+    tp("Except where Rules 9, 10 and 13 otherwise require, the pecking order")
+    tp("runs from the least manoeuvrable to the most:")
+    tb()
+    tp("     not under command")
+    tp("     restricted in her ability to manoeuvre")
+    tp("     engaged in fishing")
+    tp("     sailing")
+    tp("     power-driven")
+    tb()
+    tp("  1. Each keeps out of the way of everything above it in that list.")
+    tp("  2. A vessel constrained by her draught sits slightly outside the list:")
+    tp("     Rule 18(d) says every vessel shall avoid impeding her safe passage,")
+    tp("     and she must navigate with particular caution.")
+    tp("  3. A seaplane on the water keeps well clear of all vessels; a")
+    tp("     wing-in-ground craft, when taking off, landing or in flight near")
+    tp("     the surface, keeps well clear of all vessels.")
+    tp("  4. The exceptions matter: in a narrow channel, in a traffic scheme,")
+    tp("     and when overtaking, the ordinary order can be reversed.")
+    tb()
+    tp("Sailing vessels are third from the bottom, not at the top. A yacht keeps")
+    tp("out of the way of a fishing vessel, and out of the way of anything not")
+    tp("under command.")
+    tb() }
+  else if(id=="L13"){ thead("L13","Rule 19 - Restricted visibility")
+    tp("This rule applies to vessels not in sight of one another when navigating")
+    tp("in or near an area of restricted visibility. It is a different world")
+    tp("from Rules 11 to 18.")
+    tb()
+    tp("  1. There is no stand-on vessel. Nobody has right of way. The give-way")
+    tp("     and stand-on rules simply do not apply.")
+    tp("  2. Every vessel shall proceed at a safe speed adapted to the")
+    tp("     circumstances, with engines ready for immediate manoeuvre.")
+    tp("  3. A vessel which detects by radar alone another vessel shall")
+    tp("     determine if a close-quarters situation is developing, and if so")
+    tp("     take avoiding action in ample time. If that action is an alteration")
+    tp("     of course, avoid: an alteration to port for a vessel forward of the")
+    tp("     beam other than for a vessel being overtaken, and an alteration")
+    tp("     towards a vessel abeam or abaft the beam.")
+    tp("  4. A vessel which hears apparently forward of her beam the fog signal")
+    tp("     of another vessel, or which cannot avoid a close-quarters situation")
+    tp("     with a vessel forward of her beam, shall reduce to the minimum at")
+    tp("     which she can be kept on course - and if necessary take all her way")
+    tp("     off, and in any event navigate with extreme caution until the")
+    tp("     danger of collision is over.")
+    tb() }
+  else if(id=="L14"){ thead("L14","Rules 20 to 31 - Lights and shapes")
+    tp("Lights are shown from sunset to sunrise, and in restricted visibility,")
+    tp("and may be shown at any other time when it is considered necessary.")
+    tp("Shapes are shown by day.")
+    tb()
+    tp("  1. The arcs are fixed and worth knowing by heart: masthead light 225")
+    tp("     degrees, sidelights 112.5 each, sternlight 135. Sidelights plus")
+    tp("     sternlight make the full circle.")
+    tp("  2. What you see tells you her aspect. Both sidelights: she is nearly")
+    tp("     bow-on. One sidelight and a masthead light: she is crossing. Only a")
+    tp("     white light: she may be a sternlight, an anchor light, or a small")
+    tp("     boat - keep watching until you know which.")
+    tp("  3. All-round lights in a vertical line are the vessel telling you what")
+    tp("     she is doing and what she cannot do. Red over white, fishing at")
+    tp("     night. Red over red, the captain is dead - not under command.")
+    tp("     Red, white, red - restricted in her ability to manoeuvre.")
+    tp("  4. Day shapes carry the same meanings: a ball for anchored, three")
+    tp("     balls aground, two balls not under command, ball-diamond-ball")
+    tp("     restricted, a cone point down for a sailing vessel under power.")
+    tb() }
+  else { thead("L15","Rules 32 to 37 - Sound and light signals")
+    tp("Sound signals fall into two groups, and the difference matters more")
+    tp("than the signals themselves.")
+    tb()
+    tp("  1. Rule 34 signals are for vessels IN SIGHT of one another. They say")
+    tp("     what you are doing right now: one short, I am altering to")
+    tp("     starboard; two short, to port; three short, my engines are going")
+    tp("     astern.")
+    tp("  2. Rule 35 signals are for RESTRICTED VISIBILITY, when you cannot see")
+    tp("     each other. They say what kind of vessel you are: one prolonged")
+    tp("     for a power-driven vessel making way; one prolonged and two short")
+    tp("     for anything from not-under-command to a sailing vessel.")
+    tp("  3. Five or more short and rapid blasts is the doubt signal, and the")
+    tp("     most under-used signal at sea. It means: I do not understand what")
+    tp("     you are doing, or I do not think you are doing enough.")
+    tp("  4. A prolonged blast is four to six seconds. A short blast is about")
+    tp("     one second. Vessels of 100 metres or more carry a bell and a gong;")
+    tp("     under 12 metres you need not carry the equipment, but you must make")
+    tp("     some other efficient sound signal.")
+    tb() }
+  return 0
+}
+function les_q(id,show){
+  if(id=="L1"){ if(show){ tp("Q. Which of these on its own satisfies Rule 5?")
+      tp("     a) a radar with ARPA, watched from the chart table")
+      tp("     b) AIS with a CPA alarm set    c) none of them") }
+    else { Q_A="c"; Q_W="Rule 5 requires sight and hearing as well as all available means. Electronics supplement a look-out; they do not replace one." } }
+  else if(id=="L2"){ if(show){ tp("Q. What speed does Rule 6 specify in fog?")
+      tp("     a) six knots     b) half your normal speed     c) no number at all") }
+    else { Q_A="c"; Q_W="Rule 6 gives factors, not numbers. The test is that you can stop within a distance appropriate to the circumstances." } }
+  else if(id=="L3"){ if(show){ tp("Q. A ship's compass bearing is steady and the range is closing. What does Rule 7 say?")
+      tp("     a) risk of collision exists    b) risk exists only inside two miles")
+      tp("     c) no risk while she is more than 30 degrees off the bow") }
+    else { Q_A="a"; Q_W="A steady compass bearing with decreasing range is the definition of risk of collision. And if in any doubt, risk shall be deemed to exist." } }
+  else if(id=="L4"){ if(show){ tp("Q. Which action best meets Rule 8?")
+      tp("     a) five degrees now, and five more if she does not respond")
+      tp("     b) a single alteration of 30 degrees, made early")
+      tp("     c) hold on until one mile, then alter hard") }
+    else { Q_A="b"; Q_W="Action must be positive, made in ample time, and large enough to be readily apparent to the other vessel visually or by radar." } }
+  else if(id=="L5"){ if(show){ tp("Q. In a narrow channel, which side do you keep to?")
+      tp("     a) the port side     b) the starboard side     c) the deepest water") }
+    else { Q_A="b"; Q_W="As near to the outer limit on your starboard side as is safe and practicable." } }
+  else if(id=="L6"){ if(show){ tp("Q. Crossing a traffic separation scheme, what should be at right angles to the flow?")
+      tp("     a) your heading     b) your ground track     c) your wake") }
+    else { Q_A="a"; Q_W="Rule 10(c) says heading. Do not crab across with the tide to make the track square - a beam-on aspect is what makes you visible." } }
+  else if(id=="L7"){ if(show){ tp("Q. Two sailing vessels, both with the wind on the starboard side. Who gives way?")
+      tp("     a) the vessel to windward     b) the vessel to leeward     c) the overtaking vessel") }
+    else { Q_A="a"; Q_W="Same tack: windward keeps out of the way of leeward." } }
+  else if(id=="L8"){ if(show){ tp("Q. At night you can see another vessel's sternlight and neither sidelight. What are you?")
+      tp("     a) crossing     b) overtaking     c) head-on") }
+    else { Q_A="b"; Q_W="Sternlight only means you are more than 22.5 degrees abaft her beam: you are overtaking, and you keep clear until finally past and clear." } }
+  else if(id=="L9"){ if(show){ tp("Q. Two power-driven vessels meeting head-on. Who is the stand-on vessel?")
+      tp("     a) the larger     b) the one to starboard     c) neither") }
+    else { Q_A="c"; Q_W="In a head-on situation there is no stand-on vessel. Each alters to starboard and they pass port to port." } }
+  else if(id=="L10"){ if(show){ tp("Q. You are power-driven and see another power-driven vessel's red sidelight, crossing. What do you do?")
+      tp("     a) stand on     b) give way, and avoid crossing ahead of her")
+      tp("     c) give way by altering to port") }
+    else { Q_A="b"; Q_W="Her red light means she is on your starboard side. You give way, and Rule 15 says avoid crossing ahead - so alter to starboard and pass under her stern." } }
+  else if(id=="L11"){ if(show){ tp("Q. You are the stand-on vessel and she is doing nothing about it. What does Rule 17 allow?")
+      tp("     a) nothing until collision is unavoidable    b) you may act as soon as it is")
+      tp("        apparent she is not acting    c) you must alter to port") }
+    else { Q_A="b"; Q_W="Rule 17(a)(ii) permits you to act as soon as it becomes apparent she is not taking appropriate action, and 17(b) requires you to act when collision cannot be avoided by her action alone." } }
+  else if(id=="L12"){ if(show){ tp("Q. A yacht under sail meets a vessel engaged in fishing. Who keeps clear?")
+      tp("     a) the fishing vessel     b) the yacht     c) neither, it is a crossing situation") }
+    else { Q_A="b"; Q_W="Rule 18: a sailing vessel keeps out of the way of a vessel engaged in fishing, and of one restricted in her ability to manoeuvre, and of one not under command." } }
+  else if(id=="L13"){ if(show){ tp("Q. In fog, you hear one prolonged and two short forward of the beam. Who is the stand-on vessel?")
+      tp("     a) you     b) she is     c) neither - Rule 19 has no stand-on vessel") }
+    else { Q_A="c"; Q_W="Rule 19 applies to vessels not in sight of one another, and it has no give-way and stand-on. Reduce to the minimum steerage way and, if necessary, take all way off." } }
+  else if(id=="L14"){ if(show){ tp("Q. What arc does a masthead light cover?")
+      tp("     a) 112.5 degrees     b) 225 degrees     c) 360 degrees") }
+    else { Q_A="b"; Q_W="225 degrees, from right ahead to 22.5 degrees abaft the beam on each side. The sidelights cover 112.5 each and the sternlight the remaining 135." } }
+  else { if(show){ tp("Q. What does one prolonged blast mean from a vessel you cannot see, in fog?")
+      tp("     a) I am altering to starboard     b) a power-driven vessel making way")
+      tp("     c) I am approaching a bend") }
+    else { Q_A="b"; Q_W="In restricted visibility (Rule 35) one prolonged every two minutes is a power-driven vessel making way through the water. The same signal in sight of another vessel, at a bend, is Rule 34(e)." } }
+  return 0
+}
+function syl_show(done,   i,a,n,ids,ttl,mark){
+  n=split("L1|Rule 5 - Look-out;L2|Rule 6 - Safe speed;L3|Rule 7 - Risk of collision;" \
+          "L4|Rule 8 - Action to avoid collision;L5|Rule 9 - Narrow channels;" \
+          "L6|Rule 10 - Traffic separation schemes;L7|Rule 12 - Sailing vessels;" \
+          "L8|Rule 13 - Overtaking;L9|Rule 14 - Head-on;" \
+          "L10|Rules 15 and 16 - Crossing and the give-way vessel;" \
+          "L11|Rule 17 - Action by the stand-on vessel;" \
+          "L12|Rule 18 - Responsibilities between vessels;" \
+          "L13|Rule 19 - Restricted visibility;L14|Rules 20-31 - Lights and shapes;" \
+          "L15|Rules 32-37 - Sound signals", ids, ";")
+  print ""
+  printf "  %s\n", cw("THE RULES -- fifteen lessons",C_ACC)
+  hr()
+  ttl=0
+  for(i=1;i<=n;i++){
+    split(ids[i],a,"|")
+    mark = (index("," done ",", "," a[1] ",")>0) ? "x" : " "
+    if(mark=="x") ttl++
+    printf "   [%s]  %-4s %s\n", mark, a[1], a[2]
+  }
+  hr()
+  printf "  %d of %d done.  Type a code (L1 ... L15), or n for the next one.\n", ttl, n
+  print ""
+  return 0
+}
+
+# =====================================================================
+#  Quizzes: pick an item, three distractors, and shuffle
+# =====================================================================
+function pick_opts(nitems,correct,seed,   i,j,t,pool,np){
+  xsrand(seed+0); xrand(); xrand()
+  np=0
+  for(i=1;i<=nitems;i++) if(i!=correct){ np++; pool[np]=i }
+  for(i=np;i>1;i--){ j=1+int(xrand()*i); t=pool[i]; pool[i]=pool[j]; pool[j]=t }
+  OPT[1]=correct; OPT[2]=pool[1]; OPT[3]=pool[2]; OPT[4]=pool[3]
+  for(i=4;i>1;i--){ j=1+int(xrand()*i); t=OPT[i]; OPT[i]=OPT[j]; OPT[j]=t }
+  for(i=1;i<=4;i++) if(OPT[i]==correct) OPT_ANS=substr("abcd",i,1)
+  return 0
+}
+function qpick_lights(seed,   i,c,sig,np,j,t,pool){
+  QZ_MOT=0
+  ves_init(); xsrand(seed+0)
+  for(i=0;i<3;i++) xrand()
+  c = 1+int(xrand()*NVES)
+  QZ_TH = int(xrand()*360)-180
+  QZ_C = c
+  sig = light_sig(c,QZ_TH)
+  # everything that looks exactly the same from this angle
+  QZ_SAME=""
+  np=0
+  for(i=1;i<=NVES;i++){
+    if(i==c) continue
+    if(light_sig(i,QZ_TH)==sig){ QZ_SAME = QZ_SAME (QZ_SAME==""?"":"; ") ves_name(i); continue }
+    np++; pool[np]=i
+  }
+  for(i=np;i>1;i--){ j=1+int(xrand()*i); t=pool[i]; pool[i]=pool[j]; pool[j]=t }
+  OPT[1]=c; OPT[2]=pool[1]; OPT[3]=pool[2]; OPT[4]=pool[3]
+  for(i=4;i>1;i--){ j=1+int(xrand()*i); t=OPT[i]; OPT[i]=OPT[j]; OPT[j]=t }
+  for(i=1;i<=4;i++) if(OPT[i]==c) QZ_ANS=substr("abcd",i,1)
+  #  and the four possible answers to "which way is she going"
+  QZ_MOT = motion_of(c,QZ_TH)
+  np=0
+  for(i=1;i<=5;i++) if(i!=QZ_MOT){ np++; pool[np]=i }
+  for(i=np;i>1;i--){ j=1+int(xrand()*i); t=pool[i]; pool[i]=pool[j]; pool[j]=t }
+  MOPT[1]=QZ_MOT; MOPT[2]=pool[1]; MOPT[3]=pool[2]; MOPT[4]=pool[3]
+  for(i=4;i>1;i--){ j=1+int(xrand()*i); t=MOPT[i]; MOPT[i]=MOPT[j]; MOPT[j]=t }
+  for(i=1;i<=4;i++) if(MOPT[i]==QZ_MOT) QZ_MANS=substr("abcd",i,1)
+  return 0
+}
+function ves_name(i,   a){ split(VT[i],a,"|"); return a[2] }
+function quiz_lights(seed,   i,a,j,t,pool,np,mc){
+  qpick_lights(seed)
+  split(VT[QZ_C],a,"|")
+  Q_NOASPECT=1
+  show_lights(a[1],QZ_TH)
+  Q_NOASPECT=0
+  printf "  %s\n", cw("Q1  What is she?",C_ACC)
+  for(i=1;i<=4;i++){ split(VT[OPT[i]],a,"|"); printf "     %s) %s\n", substr("abcd",i,1), a[2] }
+  print ""
+  printf "  %s\n", cw("Q2  Which way is she going?",C_ACC)
+  for(i=1;i<=4;i++) printf "     %s) %s\n", substr("abcd",i,1), motion_text(MOPT[i])
+  print ""
+  return 0
+}
+function quiz_lights_reveal(){
+  split(VT[QZ_C],QA,"|")
+  printf "  Q1  %s -- %s\n", cw(toupper(QZ_ANS) " is right",C_ACC), QA[2]
+  printf "      %s.  %s\n", QA[3], QA[5]
+  if(QA[6]!="") printf "      %s %s\n", cw("Watch out:",C_ACC), QA[6]
+  print ""
+  printf "  Q2  %s -- %s\n", cw(toupper(QZ_MANS) " is right",C_ACC), motion_text(QZ_MOT)
+  printf "      %s\n", motion_why(QZ_MOT,QZ_C)
+  printf "      %s\n", aspect_words(QZ_TH)
+  if(QZ_SAME!=""){
+    print ""
+    printf "  %s\n", cw("But from this angle she is genuinely ambiguous.",C_ACC)
+    printf "  These would look exactly the same to you: %s.\n", QZ_SAME
+    print  "  That is a real limitation of a single look, not a fault in the"
+    print  "  question - it is why you keep watching until the bearing, the"
+    print  "  range or a change of aspect tells you which one she is. Those"
+    print  "  were left out of the answers above so the question had one answer."
+  }
+  print ""
+  return 0
+}
+function qpick_shapes(seed,   i,c){
+  shp_init(); xsrand(seed+0)
+  for(i=0;i<3;i++) xrand()
+  c = 1+int(xrand()*NSHP)
+  QZ_C=c; pick_opts(NSHP,c,seed+23); QZ_ANS=OPT_ANS
+  return 0
+}
+function quiz_shapes(seed,   i,a){
+  qpick_shapes(seed)
+  split(SH[QZ_C],a,"|")
+  show_shapes(a[1])
+  for(i=1;i<=4;i++){ split(SH[OPT[i]],a,"|"); printf "   %s) %s\n", substr("abcd",i,1), a[2] }
+  print ""
+  return 0
+}
+function quiz_shapes_reveal(){
+  split(SH[QZ_C],QA,"|")
+  printf "  %s -- %s\n", cw(toupper(QZ_ANS) " is right",C_ACC), QA[2]
+  printf "  %s.  %s\n", QA[3], QA[5]
+  print ""
+  return 0
+}
+function qpick_sound(seed,   i,c){
+  snd_init(); xsrand(seed+0)
+  for(i=0;i<3;i++) xrand()
+  c = 1+int(xrand()*NSND)
+  QZ_C=c; pick_opts(NSND,c,seed+37); QZ_ANS=OPT_ANS
+  return 0
+}
+function quiz_sound(seed,   i,a){
+  qpick_sound(seed)
+  snd_show(QZ_C)
+  for(i=1;i<=4;i++){ split(SD[OPT[i]],a,"|"); printf "   %s) %s\n", substr("abcd",i,1), a[3] }
+  print ""
+  return 0
+}
+function quiz_sound_reveal(){
+  split(SD[QZ_C],QA,"|")
+  printf "  %s -- %s\n", cw(toupper(QZ_ANS) " is right",C_ACC), QA[3]
+  printf "  %s.  %s\n", QA[4], QA[5]
+  print ""
+  return 0
+}
+function colour_check(   e){
+  col_init()
+  print ""
+  printf "  %s\n", cw("COLOUR CHECK",C_ACC)
+  hr()
+  printf "  mode        %s\n", (cmode==""?"plain":cmode)
+  printf "  the lamps   %s  %s  %s  %s\n", cw("W white",K_W), cw("R red",K_R), cw("G green",K_G), cw("Y yellow",K_Y)
+  printf "  the vessel  hull and sea in the panel text colour\n"
+  printf "  %s\n", cw("  faint       masts and droplines, like this",C_DIM)
+  hr()
+  print "  If the four lamps above are not four different colours, your terminal"
+  print "  is not showing them. Try 'colregs day' - and note that colour is turned"
+  print "  off on purpose whenever output is piped to a file or another program."
+  print ""
+  return 0
+}
+function ref_lights(   i,a){
+  ves_init()
+  print ""
+  printf "  %s\n", cw("LIGHTS -- the whole set",C_ACC)
+  hr()
+  for(i=1;i<=NVES;i++){ split(VT[i],a,"|")
+    printf "  %-14s %s\n", a[1], a[2]
+    printf "  %-14s %s  %s\n", "", a[3], a[5] }
+  hr()
+  print "  Show any one from any angle:  colregs light <key> <bearing>"
+  print ""
+  return 0
+}
+function ref_shapes(   i,a){
+  shp_init()
+  print ""
+  printf "  %s\n", cw("DAY SHAPES",C_ACC)
+  hr()
+  for(i=1;i<=NSHP;i++){ split(SH[i],a,"|")
+    printf "  %-12s %-42s %s\n", a[1], a[2], a[3] }
+  hr()
+  print "  Draw any one:  colregs shape <key>"
+  print ""
+  return 0
+}
+
+#  A picture must have exactly one right answer among the four offered.
+function sigcheck(   sd,i,sig,bad,n){
+  bad=0; n=0
+  for(sd=1; sd<=600; sd++){
+    qpick_lights(sd)
+    sig = light_sig(QZ_C,QZ_TH)
+    for(i=1;i<=4;i++){
+      if(OPT[i]==QZ_C) continue
+      if(light_sig(OPT[i],QZ_TH)==sig){
+        printf "  seed %d: %s and %s look identical at %d and are both offered\n",
+               sd, ves_name(QZ_C), ves_name(OPT[i]), QZ_TH
+        bad++
+      }
+    }
+    if(OPT[index("abcd",QZ_ANS)]!=QZ_C){ printf "  seed %d: the marked answer is not the right option\n", sd; bad++ }
+    n++
+  }
+  printf "  checked %d lights questions: %s\n", n, (bad==0 ? "every one has a single right answer" : bad " PROBLEM(S)")
+  exit (bad==0?0:1)
+}
+
+BEGIN{
+  col_init()
+  q1=0; q2=0
+  if(cmd=="sigcheck") sigcheck()
+  else if(cmd=="light"){        show_lights(key, th+0); if(reveal=="1") reveal_lights() }
+  else if(cmd=="shape"){   show_shapes(key); if(reveal=="1") reveal_shapes() }
+  else if(cmd=="reflights") ref_lights()
+  else if(cmd=="colours")   colour_check()
+  else if(cmd=="refshapes") ref_shapes()
+  else if(cmd=="sndtable")  snd_table()
+  else if(cmd=="qlight"){  quiz_lights(seed+0) }
+  else if(cmd=="qlightm"){ qpick_lights(seed+0)
+                           q1 = (tolower(ans)==QZ_ANS); q2 = (tolower(ans2)==QZ_MANS)
+                           if(!q1 || !q2) printf "  %s\n", cw("Not quite.",C_ACC)
+                           quiz_lights_reveal(); exit ((q1&&q2)?0:1) }
+  else if(cmd=="qshape"){  quiz_shapes(seed+0) }
+  else if(cmd=="qshapem"){ qpick_shapes(seed+0)
+                           if(tolower(ans)!=QZ_ANS) printf "  %s\n", cw("Not right.",C_ACC)
+                           quiz_shapes_reveal(); exit (tolower(ans)==QZ_ANS?0:1) }
+  else if(cmd=="qsound"){  quiz_sound(seed+0) }
+  else if(cmd=="qsoundm"){ qpick_sound(seed+0)
+                           if(tolower(ans)!=QZ_ANS) printf "  %s\n", cw("Not right.",C_ACC)
+                           quiz_sound_reveal(); exit (tolower(ans)==QZ_ANS?0:1) }
+  else if(cmd=="enc"){     enc_init(); xsrand(seed+0); xrand()
+                           ENCN = (which!="" ? which+0 : 1+int(xrand()*NENC)); enc_show(ENCN,seed+0) }
+  else if(cmd=="encm"){    enc_init(); xsrand(seed+0); xrand()
+                           ENCN = (which!="" ? which+0 : 1+int(xrand()*NENC))
+                           enc_pick(ENCN)
+                           if(tolower(ans)!=ENC_ANS) printf "  %s\n", cw("Not right.",C_ACC)
+                           enc_reveal(); exit (tolower(ans)==ENC_ANS?0:1) }
+  else if(cmd=="lesson"){  les(les_id); les_q(les_id,1); print "" }
+  else if(cmd=="check"){   les_q(les_id,0)
+                           if(tolower(ans)==Q_A){ printf "\n  %s  %s\n\n", cw("Correct.",C_ACC), Q_W; exit 0 }
+                           printf "\n  Not quite - the answer is %s.  %s\n\n", toupper(Q_A), Q_W; exit 1 }
+  else if(cmd=="syllabus") syl_show(done)
+  else if(cmd=="scen"){    if(!scen_gen(seed+0)){ print "  could not build a scenario"; exit 2 }
+                           scen_show() }
+  else if(cmd=="scenm"){   if(!scen_gen(seed+0)){ print "  could not build a scenario"; exit 2 }
+                           scen_opts()
+                           scen_mark(a1,a2,a3); exit (SCEN_OK?0:1) }
+  else if(cmd=="scenframe"){ if(!scen_gen(seed+0)) exit 2
+                           scen_opts()
+                           SC_PICK = SO_[index("abcd",tolower(ans))>0 ? index("abcd",tolower(ans)) : 1]
+                           cpa_under(SC_PICK)
+                           plot_true((tmin+0)/60.0, SC_PICK)
+                           printf "\n  %s\n", cw(sprintf("  t + %2d min   she bears %03d T, range %.2f nm%s",
+                                    tmin+0, TP_B, TP_R,
+                                    (fabs((tmin+0)-CPA_T)<3.5 ? "   <- closest approach" : "")), C_ACC)
+                           gshow()
+                           if((tmin+0) > CPA_T + 6) exit 3
+                           exit 0 }
+  else if(cmd=="scenout"){ if(!scen_gen(seed+0)) exit 2
+                           scen_opts()
+                           SC_PICK = SO_[index("abcd",tolower(ans))>0 ? index("abcd",tolower(ans)) : 1]
+                           scen_outcome(SC_PICK) }
+  #  contacts: these live in contacts.awk, which is always loaded with
+  #  the engine, so the functions are here by the time we call them
+  else if(cmd=="csyl")     ct_syl(done)
+  else if(cmd=="clesson")  ct_lesson(les_id)
+  else if(cmd=="cref")     ct_ref()
+  else if(cmd=="track"){   if(ct_track(seed+0)) exit 2 }
+  else if(cmd=="trackm")   exit ct_trackm(seed+0,a1,a2,a3)
+  else if(cmd=="ek"){      if(ek_show(seed+0)) exit 2 }
+  else if(cmd=="ekm")      exit ek_mark(seed+0,ans)
+  #  review: the claims a test cannot check, put to a person
+  else if(cmd=="rvlist")   rv_list(rfile)
+  else if(cmd=="rvshow")   exit rv_show(key)
+  else if(cmd=="rvnext")   rv_next(rfile)
+  else if(cmd=="rvreport") rv_report(rfile)
+  else if(cmd=="rvurl")    rv_url(rfile)
+  else if(cmd=="rvcount"){ print rv_build() }
+  else if(cmd=="rvkeys")   rv_keys(which)
+  else if(cmd!=""){ print "colregs: unknown cmd " cmd; exit 2 }
+}
+
+# =====================================================================
+#  Collision avoidance: the radar plot
+#
+#  A developing situation rather than a snapshot. Three timed
+#  observations of bearing and range; you decide whether risk exists,
+#  how close she will come, and what to do. Then you watch it run.
+#
+#  Everything is worked in nautical miles and hours, in a north-up
+#  frame:  E is +x, N is +y, bearings are atan2(E,N).
+# =====================================================================
+function vE(c,s){ return s*sind(c) }
+function vN(c,s){ return s*cosd(c) }
+function brg(e,n){ return nrm360(atan2d(e,n)) }
+function asind(x){ if(x>=1) return 90; if(x<=-1) return -90
+  return atan2d(x,sqrt(1-x*x)) }
+function atan2d(y,x){ return 57.2957795130823209*atan2(y,x) }
+function acosd(x){ if(x>=1) return 0; if(x<=-1) return 180
+  return atan2d(sqrt(1-x*x),x) }
+
+function scen_class(k){
+  # key | description | rel-bearing lo | hi | cpa band | target kind
+  if(k==1) return "cross_stbd|crossing from starboard|20|95|near|power"
+  if(k==2) return "cross_port|crossing from port|265|340|near|power"
+  if(k==3) return "headon|meeting head-on|352|8|near|power"
+  if(k==4) return "overtaking|you overtaking her|345|15|near|slow"
+  if(k==5) return "overtaken|she overtaking you|160|200|near|fast"
+  if(k==6) return "clear|passing clear|20|340|far|power"
+  if(k==7) return "sail|a sailing vessel crossing|20|340|near|sail"
+  if(k==8) return "fishing|a vessel engaged in fishing|300|60|near|fishing"
+  if(k==9) return "ram|a vessel restricted in her ability to manoeuvre|300|60|near|ram"
+  return "cross_stbd|crossing from starboard|20|95|near|power"
+}
+function scen_gen(seed,   i,a,k,lo,hi,rb,d,T,side,beta,alpha,thr,vr,p0e,p0n,vte,vtn,ok,band){
+  xsrand(seed+0)
+  for(i=0;i<4;i++) xrand()
+  ok=0
+  for(i=0;i<400 && !ok;i++){
+    k = 1+int(xrand()*9)
+    split(scen_class(k),a,"|")
+    SC_KEY=a[1]; SC_DESC=a[2]; lo=a[3]+0; hi=a[4]+0; band=a[5]; SC_KIND=a[6]
+    SC_CO = int(xrand()*360)
+    SC_SO = 6 + int(xrand()*11)
+    if(hi<lo) rb = nrm360(lo + xrand()*(hi+360-lo)); else rb = lo + xrand()*(hi-lo)
+    SC_B0 = nrm360(SC_CO + rb)
+    SC_R0 = 6 + xrand()*4
+    if(band=="far"){ SC_CPA = 3.4 + xrand()*1.8; SC_BAND=4 }
+    else {
+      SC_BAND = 1 + int(xrand()*3)
+      if(SC_BAND==1) SC_CPA = 0.15 + xrand()*0.3
+      else if(SC_BAND==2) SC_CPA = 0.85 + xrand()*0.3
+      else SC_CPA = 1.85 + xrand()*0.3
+    }
+    T = (16 + xrand()*22)/60.0                    # time to CPA, hours
+    side = (xrand()<0.5) ? 1 : -1
+    p0e = SC_R0*sind(SC_B0); p0n = SC_R0*cosd(SC_B0)
+    beta = brg(-p0e,-p0n)                          # from her, towards us
+    alpha = asind(SC_CPA/SC_R0)
+    thr = nrm360(beta + side*alpha)                # relative-motion direction
+    vr = sqrt(SC_R0*SC_R0 - SC_CPA*SC_CPA)/T
+    vte = vr*sind(thr) + vE(SC_CO,SC_SO)
+    vtn = vr*cosd(thr) + vN(SC_CO,SC_SO)
+    SC_ST = sqrt(vte*vte+vtn*vtn)
+    SC_CT = brg(vte,vtn)
+    SC_TCPA = T*60.0
+    if(SC_ST<3.5 || SC_ST>26) continue
+    if(SC_KEY=="headon"   && fabs(nrm180(SC_CT-(SC_CO+180)))>25) continue
+    if(SC_KEY=="overtaking" && (fabs(nrm180(SC_CT-SC_CO))>25 || SC_ST>SC_SO-2)) continue
+    if(SC_KEY=="overtaken"  && (fabs(nrm180(SC_CT-SC_CO))>25 || SC_ST<SC_SO+3)) continue
+    if(SC_KEY=="clear" && SC_CPA<3.0) continue
+    ok=1
+  }
+  if(!ok) return 0
+  SC_P0E=p0e; SC_P0N=p0n
+  SC_VRE=vr*sind(thr); SC_VRN=vr*cosd(thr)
+  # three observations, six minutes apart, with the scatter a hand bearing
+  # compass actually gives you
+  for(i=0;i<3;i++){
+    T=i*0.1
+    OB_E[i]=SC_P0E+SC_VRE*T; OB_N[i]=SC_P0N+SC_VRN*T
+    OB_R[i]=sqrt(OB_E[i]^2+OB_N[i]^2)
+    OB_B[i]=brg(OB_E[i],OB_N[i])
+    OB_BN[i]=nrm360(OB_B[i] + (xrand()*3.0-1.5))     # bearing scatter
+    OB_RN[i]=OB_R[i] + (xrand()*0.16-0.08)           # range scatter
+    OB_T[i]=i*6
+  }
+  scen_answers()
+  return 1
+}
+# what the rules make of it
+function scen_answers(   rb,rbher){
+  rb    = nrm180(SC_B0 - SC_CO)              # she bears this, from your bow
+  rbher = nrm180(nrm360(SC_B0+180) - SC_CT)  # you bear this, from her bow
+  SC_RB=rb
+  if(SC_CPA >= 3.0){ SC_ACT="none"; SC_RULE="Rule 7"
+    SC_WHY="The bearing is drawing steadily and she will pass three miles or more off. There is no risk of collision, so no action is called for - but keep taking the bearing, because that is the only thing that tells you it stays true." }
+  else if(SC_KIND=="sail" || SC_KIND=="fishing" || SC_KIND=="ram"){
+    SC_ACT="giveway"; SC_RULE="Rule 18"
+    SC_WHY="You are a power-driven vessel and she is " ((SC_KIND=="sail")?"under sail":((SC_KIND=="fishing")?"engaged in fishing":"restricted in her ability to manoeuvre")) ". You keep out of her way, whichever side she is on." }
+  else if(SC_KEY=="overtaking"){ SC_ACT="overtake"; SC_RULE="Rule 13"
+    SC_WHY="You are coming up on her from more than 22.5 degrees abaft her beam, so you are overtaking. You keep out of her way, and you stay the give-way vessel until you are finally past and clear." }
+  else if(SC_KEY=="overtaken"){ SC_ACT="standon"; SC_RULE="Rule 13"
+    SC_WHY="She is overtaking you, so she must keep out of your way. Hold your course and speed so that she can plan around you - and watch her." }
+  else if(SC_KEY=="headon"){ SC_ACT="headon"; SC_RULE="Rule 14"
+    SC_WHY="Reciprocal courses, and closing. Neither of you is the stand-on vessel: each alters to starboard so that you pass port to port." }
+  else if(rb>=0 && rb<112.5){ SC_ACT="giveway"; SC_RULE="Rule 15"
+    SC_WHY="She is crossing from your starboard side, so you give way - and Rule 15 says avoid crossing ahead of her. A bold alteration to starboard takes you under her stern." }
+  else { SC_ACT="standon"; SC_RULE="Rule 17"
+    SC_WHY="She is crossing from your port side, so she keeps out of your way and you stand on. Hold your course and speed, but be ready to act the moment it is clear she is not." }
+  return 0
+}
+function act_text(k){
+  if(k=="none")     return "No risk of collision: hold your course and speed, and keep checking the bearing."
+  if(k=="standon")  return "Stand on: hold your course and speed; she must keep out of your way."
+  if(k=="giveway")  return "Give way: a bold alteration to starboard, passing under her stern."
+  if(k=="headon")   return "Both alter to starboard, and pass port to port."
+  if(k=="overtake") return "Give way: you are overtaking; keep well clear until finally past and clear."
+  if(k=="slow")     return "Give way: take off speed and let her pass ahead."
+  return "?"
+}
+
+# ---- the relative plot: you at the centre, north up -------------------
+function plot_rel(solution,   w,h,cx,cy,i,sc,mx,e,n,t,r,c,tc,ce,cn,step){
+  w=61; h=25; cx=int(w/2); cy=int(h/2)
+  mx=SC_R0*1.15
+  sc=(cy-1)/mx
+  gclear(w,h)
+  for(t=0;t<360;t+=0.7){
+    gputwc(cy-(cy-1)*cosd(t), cx+(cx-1)*sind(t), ".", C_DIM)
+    gputwc(cy-(cy-1)*0.5*cosd(t), cx+(cx-1)*0.5*sind(t), ".", C_DIM)
+  }
+  gputsc(0,cx-1,"N",C_DIM)
+  gputsc(cy,0,"W",C_DIM); gputsc(cy,w-1,"E",C_DIM)
+  gputsc(h-1,cx-1,"S",C_DIM)
+  if(solution){
+    step=0.04
+    for(t=-0.02;t<=1.6;t+=step){
+      e=SC_P0E+SC_VRE*(SC_TCPA/60.0)*t; n=SC_P0N+SC_VRN*(SC_TCPA/60.0)*t
+      gputwc(cy-n*sc*(cy-1)/mx/sc*1, cx+e*sc*(cx-1)/mx/sc*1, "-", C_DIM)
+    }
+  }
+  for(i=0;i<3;i++){
+    r=cy-OB_N[i]*(cy-1)/mx; c=cx+OB_E[i]*(cx-1)/mx
+    gputc(r,c,sprintf("%d",i+1),C_ACC)
+  }
+  if(solution){
+    tc=SC_TCPA/60.0
+    ce=SC_P0E+SC_VRE*tc; cn=SC_P0N+SC_VRN*tc
+    gputc(cy-cn*(cy-1)/mx, cx+ce*(cx-1)/mx, "X", C_ACC)
+    gputsc(cy-cn*(cy-1)/mx, cx+ce*(cx-1)/mx+2, "CPA", C_ACC)
+  }
+  gputc(cy,cx,"+",C_ACC)
+  gputsc(cy+1,cx-1,"YOU",C_ACC)
+  return 0
+}
+function scen_show(   i,o,n){
+  print ""
+  printf "  %s\n", cw("COLLISION AVOIDANCE -- a radar plot",C_ACC)
+  hr()
+  printf "  You are a power-driven vessel, steering %03d T at %d knots.\n", SC_CO, SC_SO
+  printf "  Visibility is good and you have her in sight.\n"
+  hr()
+  print "  Three observations, six minutes apart:"
+  print ""
+  printf "      %-8s %-12s %s\n","time","bearing","range"
+  for(i=0;i<3;i++)
+    printf "      %-8s %03.0f T        %.1f nm\n", sprintf("%02d min",OB_T[i]), OB_BN[i], OB_RN[i]
+  print ""
+  if(SC_KIND=="sail")         print "  She is under sail alone."
+  else if(SC_KIND=="fishing") print "  She shows red over white: she is engaged in fishing."
+  else if(SC_KIND=="ram")     print "  She shows red over white over red: restricted in her ability to manoeuvre."
+  else                        print "  She is a power-driven vessel."
+  plot_rel(0)
+  hr(); gshow(); hr()
+  print "  The marks are where she was, relative to you, at each observation."
+  print ""
+  printf "  %s\n", cw("Q1  Is there a risk of collision?",C_ACC)
+  print "     a) Yes - the bearing is steady and the range is closing"
+  print "     b) No - the bearing is drawing and she will pass well clear"
+  print "     c) Three observations are not enough to say"
+  print ""
+  printf "  %s\n", cw("Q2  How close will she come?",C_ACC)
+  print "     a) under half a mile    b) about one mile"
+  print "     c) about two miles      d) three miles or more"
+  print ""
+  printf "  %s\n", cw("Q3  What do you do?",C_ACC)
+  scen_opts()
+  for(i=1;i<=4;i++) printf "     %s) %s\n", substr("abcd",i,1), act_text(SO_[i])
+  print ""
+  return 0
+}
+function scen_opts(   i,j,t,pool,np,seedx){
+  # four actions, always including the right one
+  np=0
+  split("none standon giveway headon overtake slow",pool," ")
+  SO_N=0
+  SO_[1]=SC_ACT
+  j=1
+  for(i=1;i<=6;i++){
+    if(pool[i]==SC_ACT) continue
+    if(pool[i]=="headon" && SC_ACT!="headon" && j>3) continue
+    j++; if(j<=4) SO_[j]=pool[i]
+  }
+  # shuffle, reproducibly
+  xsrand(SC_CO*1000+SC_SO*37+int(SC_CPA*100))
+  for(i=4;i>1;i--){ j=1+int(xrand()*i); t=SO_[i]; SO_[i]=SO_[j]; SO_[j]=t }
+  for(i=1;i<=4;i++) if(SO_[i]==SC_ACT) SC_A3=substr("abcd",i,1)
+  SC_A1 = (SC_CPA<3.0) ? "a" : "b"
+  SC_A2 = substr("abcd",SC_BAND,1)
+  return 0
+}
+
+# ---- own position under a chosen action ------------------------------
+#  The alteration is made at the third observation, twelve minutes in.
+function act_course(k){ if(k=="giveway"||k=="headon") return nrm360(SC_CO+30)
+                        if(k=="overtake") return nrm360(SC_CO+35); return SC_CO }
+function act_speed(k){  if(k=="slow") return SC_SO*0.35; return SC_SO }
+function ownE(t,k,   td){ td=0.2
+  if(t<=td) return vE(SC_CO,SC_SO)*t
+  return vE(SC_CO,SC_SO)*td + vE(act_course(k),act_speed(k))*(t-td) }
+function ownN(t,k,   td){ td=0.2
+  if(t<=td) return vN(SC_CO,SC_SO)*t
+  return vN(SC_CO,SC_SO)*td + vN(act_course(k),act_speed(k))*(t-td) }
+function tgtE(t){ return SC_P0E + vE(SC_CT,SC_ST)*t }
+function tgtN(t){ return SC_P0N + vN(SC_CT,SC_ST)*t }
+function rng_at(t,k,   de,dn){ de=tgtE(t)-ownE(t,k); dn=tgtN(t)-ownN(t,k)
+  return sqrt(de*de+dn*dn) }
+function cpa_under(k,   t,r,best,bt){ best=1e9
+  for(t=0.2;t<=2.0;t+=0.002){ r=rng_at(t,k); if(r<best){ best=r; bt=t } }
+  CPA_T=bt*60.0
+  return best }
+
+# ---- true-motion plot: the two tracks on the water -------------------
+function plot_true(tnow,k,   w,h,i,t,mnE,mxE,mnN,mxN,sc,cx,cy,e,n,r,c,pad,de,dn){
+  w=63; h=23
+  mnE=0;mxE=0;mnN=0;mxN=0
+  for(t=0;t<=tnow+0.001;t+=0.02){
+    e=ownE(t,k); n=ownN(t,k)
+    if(e<mnE)mnE=e; if(e>mxE)mxE=e; if(n<mnN)mnN=n; if(n>mxN)mxN=n
+    e=tgtE(t); n=tgtN(t)
+    if(e<mnE)mnE=e; if(e>mxE)mxE=e; if(n<mnN)mnN=n; if(n>mxN)mxN=n
+  }
+  pad=0.8
+  mnE-=pad; mxE+=pad; mnN-=pad; mxN+=pad
+  sc=(w-4)/(mxE-mnE); if((h-3)/((mxN-mnN)*0.5) < sc) sc=(h-3)/((mxN-mnN)*0.5)
+  cx=(mnE+mxE)/2; cy=(mnN+mxN)/2
+  gclear(w,h)
+  for(t=0;t<=tnow+0.001;t+=0.01){
+    gputwc(h/2-(ownN(t,k)-cy)*sc*0.5, w/2+(ownE(t,k)-cx)*sc, ".", C_DIM)
+    gputwc(h/2-(tgtN(t)-cy)*sc*0.5,   w/2+(tgtE(t)-cx)*sc,   ",", C_DIM)
+  }
+  gputc(h/2-(ownN(tnow,k)-cy)*sc*0.5, w/2+(ownE(tnow,k)-cx)*sc, "A", C_ACC)
+  gputc(h/2-(tgtN(tnow)-cy)*sc*0.5,   w/2+(tgtE(tnow)-cx)*sc,   "B", C_ACC)
+  gputs(h/2-(ownN(tnow,k)-cy)*sc*0.5+1, w/2+(ownE(tnow,k)-cx)*sc-1, "you")
+  gputsc(0,1,"north up, true motion    A you    B her",C_DIM)
+  gputsc(h-1,1,sprintf("%.1f nm per column",1/sc),C_DIM)
+  TP_R = rng_at(tnow,k)
+  de=tgtE(tnow)-ownE(tnow,k); dn=tgtN(tnow)-ownN(tnow,k)
+  TP_B = brg(de,dn)
+  return 0
+}
+function scen_mark(a1,a2,a3,   ok,c1,c2,c3,cpa0,cpaN,i){
+  print ""
+  c1=(tolower(a1)==SC_A1); c2=(tolower(a2)==SC_A2); c3=(tolower(a3)==SC_A3)
+  ok=(c1&&c2&&c3)
+  printf "  Q1 risk      you said %s   %s\n", toupper(a1), (c1?cw("right",C_ACC):"the answer is " toupper(SC_A1))
+  printf "  Q2 how close you said %s   %s\n", toupper(a2), (c2?cw("right",C_ACC):"the answer is " toupper(SC_A2))
+  printf "  Q3 action    you said %s   %s\n", toupper(a3), (c3?cw("right",C_ACC):"the answer is " toupper(SC_A3))
+  hr()
+  printf "  Her true course and speed:   %03d T at %.1f knots\n", SC_CT, SC_ST
+  printf "  Closest point of approach:   %.1f nm, in %.0f minutes\n", SC_CPA, SC_TCPA
+  hr()
+  print "  How the plot gives you that. The three marks lie on a straight line -"
+  print "  her motion relative to you. Extend it: the nearest it passes to the"
+  print "  centre is the CPA, and how long she takes to get there is the time to it."
+  print ""
+  print "  Her true course comes from the vector triangle:"
+  printf "     your vector      %03d T  %4.1f kn  over 12 minutes\n", SC_CO, SC_SO
+  printf "     relative vector  %03d T  %4.1f kn  (the line through the marks)\n",
+         brg(SC_VRE,SC_VRN), sqrt(SC_VRE^2+SC_VRN^2)
+  printf "     her true vector  %03d T  %4.1f kn  = yours plus the relative one\n", SC_CT, SC_ST
+  plot_rel(1)
+  hr(); gshow(); hr()
+  printf "  %s -- %s\n", cw(act_text(SC_ACT),C_ACC), SC_RULE
+  printf "  %s\n", SC_WHY
+  print ""
+  SCEN_OK = ok
+  return 0
+}
+function scen_outcome(k,   c0,cn,t0,tn){
+  c0=cpa_under("none"); t0=CPA_T
+  cn=cpa_under(k);      tn=CPA_T
+  printf "\n  You chose: %s\n", act_text(k)
+  printf "  If you hold on:            %.2f nm at %.0f minutes\n", c0, t0
+  printf "  With the action you chose: %.2f nm at %.0f minutes  %s\n", cn, tn,
+     (cn>c0+0.15 ? cw("- opened up",C_ACC) : (cn<c0-0.05 ? cw("- CLOSER. That is the wrong way.",C_ACC) : "- barely changed"))
+  print ""
+  return 0
+}
+__COLREGS_ENGINE__
+  cat > "$CONTACTS" <<'__COLREGS_CONTACTS__'
+# =====================================================================
+#  colregs -- contacts.  Managing them the way a tracking party does:
+#  by bearing drift, in relative motion, with the arithmetic done in
+#  your head before the plot has caught up.
+#
+#  Units throughout are yards, knots and minutes. A knot is 2000 yards
+#  in an hour in fire-control arithmetic, so 33 1/3 yards a minute.
+# =====================================================================
+function ktym(){ return 33.3333333 }
+
+#  Bearing of a relative position, and the signed drift between two.
+function rbrg(x,y){ return nrm360(atan2d(x,y)) }
+function sgn180(a){ a=nrm360(a); return (a>180)?a-360:a }
+
+# ---------------------------------------------------------------------
+#  THE PLOT.  Own ship at the centre, head up, and the contact drawn
+#  where she is RELATIVE to own ship. That is the only plot that answers
+#  "does she pass ahead of me or astern", because in relative motion she
+#  travels in a straight line and the answer is just which side of the
+#  centre the line goes.
+# ---------------------------------------------------------------------
+function ct_plot(px,py,vx,vy,nobs,dt,showcpa,
+                 i,w,h,cx,cy,mx,xs,ys,t,x,y,tc,cpx,cpy,rr,tend,st){
+  w=67; h=19; cx=int(w/2); cy=int(h/2)
+  rr = vx*vx+vy*vy
+  tc = (rr>1e-9) ? -(px*vx+py*vy)/rr : 0
+  if(tc<0) tc=0
+  cpx=px+vx*tc; cpy=py+vy*tc
+  CT_CPA = sqrt(cpx*cpx+cpy*cpy); CT_TCPA = tc
+  CT_AHEAD = (cpy>0) ? 1 : 0
+  mx=0
+  for(i=0;i<nobs;i++){ t=i*dt; x=px+vx*t; y=py+vy*t
+    if(fabs(x)>mx) mx=fabs(x)
+    if(fabs(y)>mx) mx=fabs(y) }
+  if(showcpa){ if(fabs(cpx)>mx) mx=fabs(cpx)
+               if(fabs(cpy)>mx) mx=fabs(cpy) }
+  if(mx<=0) mx=1
+  mx=mx*1.08
+  ys=(cy-1)/mx; xs=ys*2.0
+  gclear(w,h); G_NOCROP=1
+  #  own ship's track: the line she has to cross to get from one side of
+  #  you to the other. Which side she crosses it is the whole question.
+  for(i=0;i<h;i++) gputc(i,cx,"|",C_DIM)
+  #  her track, drawn over it, so a crossing shows as a crossing
+  tend = (showcpa && tc>(nobs-1)*dt) ? tc : (nobs-1)*dt
+  if(tend>0)
+    for(t=0;t<=tend;t+=tend/500.0){
+      x=px+vx*t; y=py+vy*t
+      gputc(cy-y*ys, cx+x*xs, ".", C_DIM) }
+  gputsc(cy-1,cx-1,"^^^",C_ACC)
+  gputc(cy,cx,"Y",C_ACC)
+  if(showcpa) gputc(cy-cpy*ys, cx+cpx*xs, "*", C_ACC)
+  #  the observations go on last: a mark you took is never hidden
+  for(i=0;i<nobs;i++){ t=i*dt; x=px+vx*t; y=py+vy*t
+    gputc(cy-y*ys, cx+x*xs, sprintf("%d",i+1), "") }
+  gputsc(0,0,sprintf("%d yd across",int(mx*2/100+0.5)*100),C_DIM)
+  gshow()
+  return 0
+}
+
+# =====================================================================
+#  Generating a contact.  True frame first (north up), because that is
+#  what a bearing is; then rotated head up for the plot.
+# =====================================================================
+function ct_gen(seed,   try,rb,ok,i,t,x,y,b0,b12,tc0,cr,vxp,vyp,pxp,pyp,band,d){
+  xsrand(seed+0)
+  #  Aim for a spread of outcomes rather than whatever the geometry
+  #  happens to throw up: one run in five is a genuine collision.
+  CG_WANT = (xrand()<0.2) ? 1 : (2 + int(xrand()*3))
+  for(try=0; try<6000; try++){
+    CG_OC = int(xrand()*360)
+    CG_OS = 8 + int(xrand()*13)
+    rb    = -80 + xrand()*160
+    CG_TB = nrm360(CG_OC + rb)
+    CG_R0 = 9000 + int(xrand()*90)*100
+    CG_CC = int(xrand()*360)
+    CG_CS = 4 + int(xrand()*17)
+    CG_PX = CG_R0*sind(CG_TB);  CG_PY = CG_R0*cosd(CG_TB)
+    CG_VX = CG_CS*ktym()*sind(CG_CC) - CG_OS*ktym()*sind(CG_OC)
+    CG_VY = CG_CS*ktym()*cosd(CG_CC) - CG_OS*ktym()*cosd(CG_OC)
+    if(CG_PX*CG_VX + CG_PY*CG_VY >= 0) continue            # not closing
+    CG_TC = -(CG_PX*CG_VX+CG_PY*CG_VY)/(CG_VX*CG_VX+CG_VY*CG_VY)
+    if(CG_TC < 14 || CG_TC > 50) continue                  # 12 min of marks must fit
+    CG_CPA = sqrt((CG_PX+CG_VX*CG_TC)^2 + (CG_PY+CG_VY*CG_TC)^2)
+    #  head-up frame: own course is +y, so her track crossing x=0 is her
+    #  crossing your bow or your stern
+    pxp =  CG_PX*cosd(CG_OC) - CG_PY*sind(CG_OC)
+    pyp =  CG_PX*sind(CG_OC) + CG_PY*cosd(CG_OC)
+    vxp =  CG_VX*cosd(CG_OC) - CG_VY*sind(CG_OC)
+    vyp =  CG_VX*sind(CG_OC) + CG_VY*cosd(CG_OC)
+    CG_PXP=pxp; CG_PYP=pyp; CG_VXP=vxp; CG_VYP=vyp
+    if(fabs(vxp) < 1e-6) continue
+    tc0 = -pxp/vxp
+    if(tc0 <= 0.5) continue            # she must actually cross your track
+    CG_AHEAD = ((pyp+vyp*tc0) > 0) ? 1 : 0
+    #  drift over the twelve minutes of the run
+    b0  = rbrg(CG_PX, CG_PY)
+    b12 = rbrg(CG_PX+CG_VX*12, CG_PY+CG_VY*12)
+    d   = sgn180(b12-b0)
+    if(fabs(d) > 0.6 && fabs(d) < 4.0) continue     # neither clearly one nor the other
+    CG_DRIFT = (fabs(d)<=0.6) ? "steady" : ((d>0) ? "right" : "left")
+    #  a steady bearing is a collision, so the answer to "ahead or astern"
+    #  has to be "neither" - keep those cases genuinely tight
+    #  A steady bearing IS the collision, so the two must agree
+    if(CG_DRIFT=="steady" && CG_CPA > 900) continue
+    if(CG_DRIFT!="steady" && CG_CPA < 900) continue
+    #  CPA band, kept clear of its own boundaries
+    if(CG_CPA<1000)      band=1
+    else if(CG_CPA<3000) band=2
+    else if(CG_CPA<6000) band=3
+    else                 band=4
+    if(band==1 && CG_CPA>870) continue
+    if(band==2 && (CG_CPA<1180 || CG_CPA>2650)) continue
+    if(band==3 && (CG_CPA<3400 || CG_CPA>5400)) continue
+    if(band==4 && (CG_CPA<6800 || CG_CPA>14000)) continue
+    if(sqrt((CG_PX+CG_VX*12)^2+(CG_PY+CG_VY*12)^2) < 4000) continue
+    if(band != CG_WANT) continue
+    CG_BAND=band
+    if(CG_DRIFT=="steady") CG_AHEAD = -1        # neither: she is CBDR
+    return 1
+  }
+  return 0
+}
+function ct_obs(i){ return i*3 }
+function ct_brg(i){ return rbrg(CG_PX+CG_VX*ct_obs(i), CG_PY+CG_VY*ct_obs(i)) }
+function ct_rng(i){ return sqrt((CG_PX+CG_VX*ct_obs(i))^2 + (CG_PY+CG_VY*ct_obs(i))^2) }
+
+# =====================================================================
+#  The exercise: you have the plot, and the OOD is waiting.
+# =====================================================================
+function ct_track(seed,   i,b,r){
+  if(!ct_gen(seed)){ print "  could not build a contact for that seed"; return 1 }
+  print ""
+  printf "  %s\n", cw("TRACKING PARTY -- you have the plot",C_ACC)
+  hr()
+  printf "  Own ship steady on course %s, speed %s knots.\n",
+     cw(sprintf("%03d",CG_OC),C_ACC), cw(sprintf("%d",CG_OS),C_ACC)
+  printf "  Night orders: nothing is to come inside %s.\n", cw("3,000 yards",C_ACC)
+  print ""
+  #  the relative column is as wide as the style needs, and vanishes
+  #  entirely when the style is a true bearing and nothing else
+  if(rstyle=="none") printf "      %-8s %-8s %9s\n", "time", "bearing", "range"
+  else printf "      %-8s %-8s %-23s %9s\n", "time", "bearing", "relative", "range"
+  for(i=0;i<5;i++){
+    b=ct_brg(i); r=ct_rng(i)
+    if(rstyle=="none")
+      printf "      %04d     %03d      %9s\n", ct_obs(i), int(b+0.5)%360, ct_yd(r)
+    else
+      printf "      %04d     %03d      %-23s %9s\n", ct_obs(i), int(b+0.5)%360,
+         rel_style(b-CG_OC), ct_yd(r) }
+  hr()
+  print ""
+  printf "  %s\n", cw("Q1  Which way is her bearing drawing?",C_ACC)
+  print  "     a) left      b) right      c) steady"
+  print ""
+  printf "  %s\n", cw("Q2  Where does she go?",C_ACC)
+  print  "     a) she will cross ahead of you"
+  print  "     b) she will pass astern of you"
+  print  "     c) neither - the bearing is steady, and she is on a collision course"
+  print ""
+  printf "  %s\n", cw("Q3  Roughly what is her CPA?",C_ACC)
+  print  "     a) under 1,000 yards          b) 1,000 to 3,000 yards"
+  print  "     c) 3,000 to 6,000 yards       d) over 6,000 yards"
+  print ""
+  return 0
+}
+function ct_yd(v,   n,s,o){    # 14200 -> 14,200
+  n=sprintf("%d", int(v/100+0.5)*100); s=""
+  while(length(n)>3){ s="," substr(n,length(n)-2) s; n=substr(n,1,length(n)-3) }
+  return n s
+}
+function ct_cpaline(){
+  if(CG_CPA<250) return sprintf("CPA nil - she hits you in %d minutes", int(CG_TC+0.5))
+  return sprintf("CPA %s yards at %d minutes", ct_yd(CG_CPA), int(CG_TC+0.5)) }
+function ct_ans1(){ return (CG_DRIFT=="left")?"a":((CG_DRIFT=="right")?"b":"c") }
+function ct_ans2(){ return (CG_AHEAD<0)?"c":((CG_AHEAD==1)?"a":"b") }
+function ct_ans3(){ return substr("abcd",CG_BAND,1) }
+
+function ct_trackm(seed,a1,a2,a3,   ok,n,rb,side,toward,rep,rel){
+  if(!ct_gen(seed)) return 1
+  a1=tolower(substr(a1,1,1)); a2=tolower(substr(a2,1,1)); a3=tolower(substr(a3,1,1))
+  n=0
+  if(a1==ct_ans1()) n++
+  if(a2==ct_ans2()) n++
+  if(a3==ct_ans3()) n++
+  print ""
+  ct_plot(CG_PXP,CG_PYP,CG_VXP,CG_VYP,5,3,1)
+  printf "  %s\n", cwd("Y = you, head up. 1 to 5 = her, three minutes apart. * = CPA.")
+  printf "  %s\n", cwd("The upright line is your own track. Which side of you she")
+  printf "  %s\n", cwd("crosses it is the whole question.")
+  print ""
+  printf "  Q1  bearing %s   %s\n", cw((CG_DRIFT=="steady")?"steady":("drawing " CG_DRIFT),C_ACC),
+     (a1==ct_ans1()? cw("- right",C_ACC) : "- you said " toupper(a1==""?"-":a1))
+  rb = sgn180(CG_TB - CG_OC)
+  side = (rb<0) ? "port" : "starboard"
+  toward = ((rb<0 && CG_DRIFT=="right") || (rb>0 && CG_DRIFT=="left"))
+  if(CG_DRIFT=="steady")
+    printf "      She is on your %s bow and the bearing is %s,\n", side, cw("not changing",C_ACC)
+  else
+    printf "      She is on your %s bow and the bearing is drawing %s,\n", side,
+       cw((toward ? "TOWARD your bow" : "AWAY from your bow"),C_ACC)
+  if(CG_DRIFT=="steady"){
+    printf "      which is the one thing that means collision. Constant bearing,\n"
+    printf "      decreasing range. Rule 7(d)(i). Act now.\n"
+  } else if(toward){
+    printf "      so she is going to cross ahead of you. The miss is being built\n"
+    printf "      in front of your bow, and it shrinks to nothing if the drift\n"
+    printf "      stops. This is the one you keep calling out.\n"
+  } else {
+    printf "      so she cannot cross ahead of you. A contact drawing away from\n"
+    printf "      your bow passes astern - the relative track is a straight line\n"
+    printf "      and the bearing can never come back.\n"
+  }
+  print ""
+  printf "  Q2  %s   %s\n",
+     cw((CG_AHEAD<0)?"neither - she is CBDR":((CG_AHEAD==1)?"she crosses ahead":"she passes astern"),C_ACC),
+     (a2==ct_ans2()? cw("- right",C_ACC) : "- you said " toupper(a2==""?"-":a2))
+  printf "  Q3  %s   %s\n",
+     cw(ct_cpaline(),C_ACC),
+     (a3==ct_ans3()? cw("- right",C_ACC) : "- you said " toupper(a3==""?"-":a3))
+  print ""
+  rel = rel_style(ct_brg(4)-CG_OC)
+  rep = sprintf("Master 2, bearing %03d, %s%s, range %s, CPA %s at %d minutes.",
+        int(ct_brg(4)+0.5)%360,
+        (rel=="") ? "" : (rel ", "),
+        (CG_DRIFT=="steady") ? "steady" : ("drawing " CG_DRIFT),
+        ct_yd(ct_rng(4)),
+        (CG_CPA<250) ? "nil" : ct_yd(CG_CPA), int(CG_TC+0.5))
+  printf "  %s\n", cw("What you would say:",C_ACC)
+  printf "  \"%s\"\n", rep
+  printf "  %s\n", cwd(sprintf("(and if he still cannot find her: she is %s.)",
+     rel_other(ct_brg(4)-CG_OC)))
+  if(CG_CPA < 3000)
+    printf "  \"%s\"\n", (CG_CPA<250) ? "Recommend coming right immediately to open the bearing." : "That is inside night orders. Recommend a course change."
+  print ""
+  printf "  %s\n", cw(sprintf("%d of 3.",n),C_ACC)
+  print ""
+  return (n==3)?0:1
+}
+
+# ---------------------------------------------------------------------
+#  The relative-bearing rose, drawn from the definitions rather than
+#  laid out by hand, so it cannot disagree with rel_phrase().
+# ---------------------------------------------------------------------
+function ct_rose(   w,h,cx,cy,rx,ry,t,i,lab,c,r){
+  w=67; h=17; cx=int(w/2); cy=int(h/2); rx=cx-11; ry=cy-2
+  gclear(w,h); G_NOCROP=1
+  for(t=0;t<360;t+=1.2) gputwc(cy-ry*cosd(t), cx+rx*sind(t), ".", C_DIM)
+  for(t=-135;t<=135;t+=45){
+    if(t==0) continue
+    for(r=0.25;r<=1.0;r+=0.04) gputwc(cy-ry*r*cosd(t), cx+rx*r*sind(t), "/", C_DIM) }
+  for(i=1;i<=ry;i++) gputwc(cy-i,cx,"|",C_DIM)
+  gputsc(cy-1,cx-1,"^^^",C_ACC); gputc(cy,cx,"Y",C_ACC)
+  gputsc(0,cx-7,"000 RIGHT AHEAD",C_ACC)
+  gputsc(h-1,cx-8,"180 RIGHT ASTERN",C_ACC)
+  gputsc(cy-int(ry*0.72), cx+int(rx*0.72)+2, "Green 45", "")
+  gputsc(cy-int(ry*0.72), cx-int(rx*0.72)-10, "Red 45", "")
+  gputsc(cy, cx+rx+2, "Green 90", "")
+  gputsc(cy, cx-rx-8, "Red 90", "")
+  gputsc(cy+int(ry*0.72), cx+int(rx*0.72)+2, "Green 135", "")
+  gputsc(cy+int(ry*0.72), cx-int(rx*0.72)-9, "Red 135", "")
+  gshow()
+  return 0
+}
+
+# =====================================================================
+#  The lessons.
+# =====================================================================
+function ct_lesson(id,   x){
+  if(id=="C1"){ thead("C1","Relative motion - the only plot that answers the question")
+    tp("You cannot steer a ship by watching how a contact moves over the ground.")
+    tp("What matters is how she moves relative to YOU, and in relative motion")
+    tp("she does something very simple: she travels in a straight line.")
+    tb()
+    tp("Put yourself at the centre and plot where she is relative to you every")
+    tp("three minutes. Those marks fall on a straight line. Extend it. Where it")
+    tp("passes you is the CPA, and which side of you it passes is the whole")
+    tp("question - ahead, or astern.")
+    tb()
+    ct_plot(-9000,13000,760,-1120,5,3,1)
+    tp(cwd("Y = you, head up.  1 to 5 = her, three minutes apart.  * = CPA"))
+    tb()
+    tp("Two things follow, and everything else in this section comes out of them:")
+    tb()
+    tp("  1. Because the line is straight, the bearing sweeps one way and one")
+    tp("     way only. It can never reverse. Whatever it is doing now, it will")
+    tp("     go on doing until somebody alters course.")
+    tp("  2. If the line goes through the centre, the bearing does not change")
+    tp("     at all - and that is a collision.")
+    tb() }
+  else if(id=="C2"){ thead("C2","Drift toward the bow, and drift away from it")
+    tp("This is the whole trade, and it is one sentence:")
+    tb()
+    tp("  " cw("A bearing drawing AWAY from your bow will pass astern of you.",C_ACC))
+    tp("  " cw("A bearing drawing TOWARD your bow will cross ahead of you.",C_ACC))
+    tb()
+    tp("On the left, drawing left: she goes down your side and astern.")
+    tp("On the left, drawing right: she is going to cross your bow.")
+    tp("On the right, drawing right: astern.  On the right, drawing left: ahead.")
+    tb()
+    tp("This is not a rule of thumb. It is a consequence of the straight line in")
+    tp("C1: the bearing sweeps one way, so a contact drawing away from your bow")
+    tp("can never come back to it. There are no exceptions and no edge cases.")
+    tb()
+    tp("Which is why one of the two is a report and the other is a warning.")
+    tp("Drawing away, the miss is behind you and it is getting bigger. Drawing")
+    tp("toward, the miss is being built in front of your bow - and it shrinks to")
+    tp("nothing the moment the drift slows. A contact drawing slowly toward your")
+    tp("bow is a collision that has not finished making up its mind.")
+    tb()
+    tp("Say it as a pair, always, because one word without the other is useless:")
+    tb()
+    tp("  " cw("\"On the left, drawing left.\"   \"On the left, drawing right.\"",C_ACC))
+    tb() }
+  else if(id=="C3"){ thead("C3","Constant bearing, decreasing range")
+    tp("Rule 7(d)(i): risk of collision shall be deemed to exist if the compass")
+    tp("bearing of an approaching vessel does not appreciably change.")
+    tb()
+    tp("Deemed. Not estimated, not assessed - deemed. You do not get to argue")
+    tp("with it, and you do not wait for the range to confirm it.")
+    tb()
+    ct_plot(-7000,11000,466,-733,5,3,1)
+    tp(cwd("A steady bearing. The line goes through the middle. That is all a"))
+    tp(cwd("collision is: two ships keeping the same bearing on each other."))
+    tb()
+    tp("But read the second half of the rule, which is the half that kills people:")
+    tb()
+    tp("  " cw("7(d)(ii): such risk may sometimes exist even when an appreciable",C_ACC))
+    tp("  " cw("bearing change is evident, particularly when approaching a very",C_ACC))
+    tp("  " cw("large vessel or a tow, or when approaching a vessel at close range.",C_ACC))
+    tb()
+    tp("Three reasons, and they are all about the ship being bigger than the dot")
+    tp("you are plotting:")
+    tb()
+    tp("  1. " cw("A very large vessel.",C_ACC) " You take the bearing of her bridge.")
+    tp("     She is 300 metres long. Her bow is a cable and a half from the mark")
+    tp("     you plotted, and it is the bow that reaches you.")
+    tp("  2. " cw("A tow.",C_ACC) " The tug draws clear beautifully. The barge 200 metres")
+    tp("     astern of her on a wire does not, and at night you may not see it.")
+    tp("  3. " cw("Close range.",C_ACC) " Bearing drift goes as range squared. At two miles a")
+    tp("     degree a minute is comfortable; at four cables the same drift rate")
+    tp("     is a miss of a few yards.")
+    tb() }
+  else if(id=="C4"){ thead("C4","The report")
+    tp("The report exists so that a man who is not looking at the plot can act on")
+    tp("it without asking a question. It has a fixed shape for the same reason a")
+    tp("helm order does.")
+    tb()
+    tp("  " cw("\"Master 2, bearing 311, Red 20, drawing left, range 14,200,",C_ACC))
+    tp("  " cw("   CPA 4,100 yards at 18 minutes.\"",C_ACC))
+    tb()
+    tp("   " cw("Master 2",C_ACC) "     which contact. Numbered so that nobody has to say")
+    tp("                \"the one on the left\" with four of them on the left.")
+    tp("   " cw("bearing 311",C_ACC) "  where she is. True, and said in three digits,")
+    tp("                because that is what goes on the plot and what")
+    tp("                agrees with the radar.")
+    tp("   " cw("Red 20",C_ACC) "       where to LOOK. Twenty degrees off the port bow.")
+    tp("                Nobody at the wheel can turn 311 true into a")
+    tp("                direction to point his face in, and he should not")
+    tp("                have to. See C7 - and note that this half of the")
+    tp("                report goes stale the moment you alter course.")
+    tp("   " cw("drawing left",C_ACC) " what she is DOING. A word, not a number, because")
+    tp("                this is the part the OOD acts on and he must not have")
+    tp("                to work it out from two bearings in his head.")
+    tp("   " cw("range 14,200",C_ACC) " how long you have.")
+    tp("   " cw("CPA and time",C_ACC) " how bad it gets, and when.")
+    tb()
+    tp("Bearing before drift, always. The bearing tells him where to look; the")
+    tp("drift tells him whether to care. Reversed, he spends the first half of")
+    tp("the sentence not knowing which contact you mean.")
+    tb()
+    tp("And say the drift even when there is not any. " cw("\"Steady\"",C_ACC) " is the most")
+    tp("important word in the report. Silence about the drift reads as \"I have")
+    tp("not looked\", which is the same as \"steady\" but arrives too late.")
+    tb()
+    tp("What he does with it: nothing at all, if she is drawing away and the CPA")
+    tp("is outside night orders. That is most of them, and the discipline is to")
+    tp("report those the same way and in the same voice as the one that is not.")
+    tb() }
+  else if(id=="C7"){ thead("C7","Relative bearings - so he can find her")
+    tp("A true bearing is for the plot. A relative bearing is for the eye.")
+    tb()
+    tp("Nobody standing at the wheel on a black night can turn 311 degrees")
+    tp("true into a direction to look in. He would have to remember the")
+    tp("heading, subtract, and work out which side the answer fell on, while")
+    tp("steering. Tell him she is fine on the starboard bow and his head is")
+    tp("already turning.")
+    tb()
+    ct_rose()
+    tb()
+    tp("Two ways of saying the number, and you will hear both.")
+    tb()
+    tp("  " cw("Red and Green.",C_ACC) " Red 20 is 20 degrees to port, Green 30 is 30")
+    tp("  to starboard, nought to 180 each side. Royal Navy and British")
+    tp("  practice, and the reason it sticks is that the colours are the")
+    tp("  sidelights: your own red light looks out over your port bow, so")
+    tp("  Red is port. It is unambiguous over a bad intercom because the")
+    tp("  side is a word, not a number that can be misheard.")
+    tb()
+    tp("  " cw("Port and starboard.",C_ACC) " \"Port 20\", \"Starboard 30\". The same thing")
+    tp("  in plainer words. United States practice also uses the full")
+    tp("  circle - \"bearing 340 relative\" - measured clockwise from your")
+    tp("  own bow, which is neater on a plot and worse in the dark.")
+    tb()
+    tp("And the words, which need no number at all:")
+    tb()
+    tp("    " cw("right ahead",C_ACC) "                       000")
+    tp("    " cw("fine on the bow",C_ACC) "         out to about 35")
+    tp("    " cw("broad on the bow",C_ACC) "                   045")
+    tp("    " cw("on the beam",C_ACC) "                        090")
+    tp("    " cw("broad on the quarter",C_ACC) "               135")
+    tp("    " cw("fine on the quarter",C_ACC) "     in from about 145")
+    tp("    " cw("right astern",C_ACC) "                       180")
+    tb()
+    tp("Broad on the bow is four points, and four points is 45 degrees.")
+    tp("Broad on the quarter is four points the other way from astern.")
+    tp("Everything in the middle is fine, and everything near the beam is")
+    tp("the beam. The edges are convention, not law - nobody will correct")
+    tp("you for calling 40 degrees fine rather than broad, and nobody will")
+    tp("misunderstand you either. That is the point of them.")
+    tb()
+    tp(cw("  Now the trap, and it is a real one.",C_ACC))
+    tb()
+    tp("A relative bearing changes when SHE moves. It also changes when YOU")
+    tp("move, by exactly as much, and it cannot tell you which happened.")
+    tb()
+    tp("Alter twenty degrees to starboard and every contact on the board")
+    tp("draws twenty degrees left, all at once, with nothing at all having")
+    tp("changed out in the water. A contact that holds Green 30 through your")
+    tp("turn has in fact swung twenty degrees - which is the opposite of the")
+    tp("comfort a steady relative bearing seems to offer.")
+    tb()
+    tp("So: " cw("bearing drift is measured in TRUE bearings, or on a steady",C_ACC))
+    tp(cw("  course, and never across a turn.",C_ACC) " Everything in C2 and C3")
+    tp("assumes it. If you take marks either side of an alteration and read")
+    tp("the drift off them, you will get a confident answer that is wholly")
+    tp("invented. Take the marks, alter, settle, and start a fresh plot.")
+    tb()
+    tp("This is also, from the other end, exactly why Ekelund works: the")
+    tp("change you put in yourself is known, so it can be subtracted out.")
+    tb()
+    tp("On a yacht it is the same problem in cheaper equipment. A hand")
+    tp("bearing compass gives you a magnetic bearing you can plot. A pair")
+    tp("of eyes and a shroud gives you a relative bearing, instantly, in")
+    tp("the dark, with no instrument at all - and the shroud stays where it")
+    tp("is only while you hold your course. Steer straight for the two")
+    tp("minutes you are watching her, or the drift is worthless.")
+    tb()
+    tp("Which of these this program uses is a setting, because the right")
+    tp("answer depends entirely on who is listening.  " cw("colregs style",C_ACC) ", or s")
+    tp("from the contacts menu, and it describes each one before you pick.")
+    tb()
+    tp("Say both, when it matters: the true bearing so it can be plotted,")
+    tp("the relative so it can be seen.")
+    tb()
+    tp("  " cw("\"Master 2, bearing 311, Red 20, drawing left, range 14,200.\"",C_ACC))
+    tb() }
+  else if(id=="C5"){ thead("C5","The arithmetic you do in your head")
+    tp("The plot is the truth, but it is always four minutes old. These get you")
+    tp("close enough to open your mouth now.")
+    tb()
+    tp(cw("  The three-minute rule",C_ACC))
+    tp("  Yards in three minutes = speed in knots times 100.")
+    tp("  12 knots is 1,200 yards in three minutes. That is why marks are taken")
+    tp("  every three minutes: the range change IS the speed, with two noughts.")
+    tb()
+    tp(cw("  The six-minute rule",C_ACC))
+    tp("  Miles in six minutes = speed divided by 10. 15 knots, 1.5 miles.")
+    tb()
+    tp(cw("  Time to CPA",C_ACC))
+    tp("  Range divided by closing rate. Closing rate is the range change per")
+    tp("  minute - read it straight off two marks, no trigonometry.")
+    tp("  8,000 yards closing 600 a minute is thirteen minutes. That is the")
+    tp("  number that decides whether you have time to be polite about it.")
+    tb()
+    tp(cw("  One in sixty, for the CPA itself",C_ACC))
+    tp("  " cw("One degree at one mile is about 35 yards.",C_ACC) " So:")
+    tb()
+    tp("     CPA  =  range in miles  x  degrees she still has to drift  x  35")
+    tb()
+    tp("  She will drift, from now until CPA, at the rate she is drifting now.")
+    tp("  So take the drift per minute, multiply by the minutes to CPA, and that")
+    tp("  is the degrees. Worked: 4 miles, drifting 1.5 degrees a minute, 13")
+    tp("  minutes to run. 1.5 x 13 = 20 degrees. 4 x 20 x 35 = 2,800 yards.")
+    tb()
+    tp("  It is rough. It is meant to be. It tells you which side of the night")
+    tp("  orders you are on before the plot can, and that is the whole job.")
+    tb() }
+  else if(id=="C6"){ thead("C6","Ekelund - range out of a course change")
+    tp("On a steady course, bearing rate alone cannot give you range. A slow")
+    tp("contact close in and a fast one far out produce exactly the same drift,")
+    tp("and no amount of watching will separate them.")
+    tb()
+    tp("So you change the geometry yourself. Run a leg, note the bearing rate;")
+    tp("alter course or speed, settle, run another leg, note it again. Her")
+    tp("motion across your line of sight has not changed - she is doing what she")
+    tp("was doing. Every bit of the change in bearing rate is YOURS, and it is")
+    tp("yours by a known amount. That gives you the range:")
+    tb()
+    tp("  " cw("range in kiloyards  =  1.91 x (change in your speed across the",C_ACC))
+    tp("  " cw("                        line of sight, knots)",C_ACC))
+    tp("  " cw("                        / (change in bearing rate, deg per min)",C_ACC))
+    tb()
+    tp("  Your speed across the line of sight is your speed times the sine of")
+    tp("  the angle between your course and her bearing. Beam on, all of it;")
+    tp("  dead ahead, none of it.")
+    tb()
+    tp("  The 1.91 is just units: 2,000 yards to the mile over 60 minutes,")
+    tp("  times 57.3 degrees to the radian.")
+    tb()
+    tp("Worked. She bears 040. You are on 000 at 12 knots and her bearing is")
+    tp("opening 0.9 degrees a minute. You come round to 090, still 12 knots,")
+    tp("and it settles at 2.4 a minute.")
+    tb()
+    tp("  across, leg 1 = 12 x sin(000 - 040) = -7.7 knots")
+    tp("  across, leg 2 = 12 x sin(090 - 040) =  9.2 knots")
+    tp("  range = 1.91 x (9.2 - -7.7) / (0.9 - 2.4) = 1.91 x 16.9 / -1.5")
+    tp("        = -21.5 ... take the size: 21,500 yards.")
+    tb()
+    tp("Three things will ruin it, and they are worth knowing better than the")
+    tp("formula:")
+    tp("  1. She manoeuvres during the legs. The whole method assumes she did")
+    tp("     not, and it cannot tell you that she did - it just gives you a")
+    tp("     confident wrong answer.")
+    tp("  2. The legs are too short, or you take the rate before the ship has")
+    tp("     settled on the new course.")
+    tp("  3. You barely changed your speed across the line of sight. Then the")
+    tp("     top of the fraction is small, the bottom is smaller, and the noise")
+    tp("     runs the answer. Turn far enough to matter.")
+    tb()
+    tp("Which is the real lesson of it: a solution you have not manoeuvred")
+    tp("against is a guess wearing a number.")
+    tb() }
+  return 0
+}
+
+# =====================================================================
+#  Ekelund drill: two legs, two bearing rates, how far off is she?
+# =====================================================================
+#  NOT a parameter called tb: tb() is the blank-line helper in the engine,
+#  and awk will not let a function name be used as a variable. gawk lets
+#  it pass; mawk refuses to parse the file at all.
+function ek_across(sp,co,bg){ return sp*sind(co-bg) }
+function ek_rate(R,bg,cs,cc,os,oc){
+  return ((ek_across(cs,cc,bg) - ek_across(os,oc,bg))*ktym()/R)*57.2957795130823 }
+function ek_gen(seed,   try,r1,r2,a1,a2,est,band,eband){
+  xsrand(seed+0)
+  EK_WANT = 1 + int(xrand()*4)
+  for(try=0; try<6000; try++){
+    EK_R  = 5000 + int(xrand()*300)*100
+    EK_TB = int(xrand()*360)
+    EK_CC = int(xrand()*360); EK_CS = 4 + int(xrand()*17)
+    EK_C1 = int(xrand()*360); EK_S1 = 6 + int(xrand()*15)
+    EK_C2 = int(xrand()*360); EK_S2 = 6 + int(xrand()*15)
+    a1 = ek_across(EK_S1,EK_C1,EK_TB); a2 = ek_across(EK_S2,EK_C2,EK_TB)
+    if(fabs(a2-a1) < 6) continue                  # too small a change to be worth it
+    r1 = ek_rate(EK_R,EK_TB,EK_CS,EK_CC,EK_S1,EK_C1)
+    r2 = ek_rate(EK_R,EK_TB,EK_CS,EK_CC,EK_S2,EK_C2)
+    EK_R1 = int(r1*10+(r1<0?-0.5:0.5))/10         # what the plot would give you
+    EK_R2 = int(r2*10+(r2<0?-0.5:0.5))/10
+    if(fabs(EK_R1)>9 || fabs(EK_R2)>9) continue
+    if(fabs(EK_R1-EK_R2) < 0.6) continue
+    est = 1909.86*(a2-a1)/(EK_R1-EK_R2)
+    if(est<0) est=-est
+    if(fabs(est-EK_R)/EK_R > 0.06) continue       # rounding must not move the answer
+    EK_EST = est
+    band  = (EK_R<8000)?1:((EK_R<15000)?2:((EK_R<25000)?3:4))
+    eband = (est<8000)?1:((est<15000)?2:((est<25000)?3:4))
+    if(band!=eband || band!=EK_WANT) continue
+    if(band==1 && EK_R>7200) continue
+    if(band==2 && (EK_R<8900 || EK_R>13800)) continue
+    if(band==3 && (EK_R<16200 || EK_R>23200)) continue
+    if(band==4 && EK_R<27000) continue
+    EK_A1=a1; EK_A2=a2; EK_BAND=band
+    return 1
+  }
+  return 0
+}
+function ek_show(seed){
+  if(!ek_gen(seed)){ print "  could not build a leg pair"; return 1 }
+  print ""
+  printf "  %s\n", cw("EKELUND -- how far off is she?",C_ACC)
+  hr()
+  printf "  She bears %s and holds her course and speed throughout.\n", cw(sprintf("%03d",EK_TB),C_ACC)
+  print  "  You have bearings only. No range."
+  print ""
+  printf "     leg 1   own course %03d, speed %2d   bearing rate %+5.1f deg/min\n", EK_C1, EK_S1, EK_R1
+  printf "     leg 2   own course %03d, speed %2d   bearing rate %+5.1f deg/min\n", EK_C2, EK_S2, EK_R2
+  print ""
+  print  "     (a bearing rate is + when the bearing is drawing right)"
+  hr()
+  print ""
+  printf "  %s\n", cw("How far off is she?",C_ACC)
+  print  "     a) under 8,000 yards           b) 8,000 to 15,000 yards"
+  print  "     c) 15,000 to 25,000 yards      d) over 25,000 yards"
+  print ""
+  return 0
+}
+function ek_mark(seed,ans,   ok){
+  if(!ek_gen(seed)) return 1
+  ans=tolower(substr(ans,1,1))
+  ok = (ans==substr("abcd",EK_BAND,1))
+  print ""
+  if(!ok) printf "  %s\n", cw("Not quite.",C_ACC)
+  printf "  %s\n", cw(sprintf("%s is right -- she is %s yards off.",
+     toupper(substr("abcd",EK_BAND,1)), ct_yd(EK_R)),C_ACC)
+  print ""
+  printf "     across the line of sight, leg 1 = %2d x sin(%03d - %03d) = %+6.1f kt\n",
+     EK_S1, EK_C1, EK_TB, EK_A1
+  printf "     across the line of sight, leg 2 = %2d x sin(%03d - %03d) = %+6.1f kt\n",
+     EK_S2, EK_C2, EK_TB, EK_A2
+  printf "     change in across = %+.1f     change in rate = %+.1f deg/min\n",
+     EK_A2-EK_A1, EK_R1-EK_R2
+  printf "     range = 1.91 x %.1f / %.1f = %s yards\n",
+     EK_A2-EK_A1, EK_R1-EK_R2, ct_yd(EK_EST)
+  print ""
+  print  "  Her motion across your line of sight never changed. All of the"
+  print  "  change in bearing rate was yours, and you knew exactly how much"
+  print  "  of it you put in. That is the whole trick."
+  print ""
+  return ok?0:1
+}
+
+# =====================================================================
+function ct_syl(done,   i,n,ids,a,ttl,mark){
+  n=split("C1|Relative motion - the only plot that answers the question;" \
+          "C2|Drift toward the bow, and drift away from it;" \
+          "C3|Constant bearing, decreasing range;" \
+          "C4|The report;" \
+          "C5|The arithmetic you do in your head;" \
+          "C6|Ekelund - range out of a course change;" \
+          "C7|Relative bearings - so he can find her", ids, ";")
+  print ""
+  printf "  %s\n", cw("CONTACTS -- seven lessons",C_ACC)
+  hr()
+  ttl=0
+  for(i=1;i<=n;i++){
+    split(ids[i],a,"|")
+    mark = (index("," done ",", "," a[1] ",")>0) ? "x" : " "
+    if(mark=="x") ttl++
+    printf "   [%s]  %-4s %s\n", mark, a[1], a[2]
+  }
+  hr()
+  printf "  %d of %d done.  Type a code (C1 ... C7), t to track a contact,\n", ttl, n
+  print  "  e for an Ekelund leg pair, or return to go back."
+  print ""
+  return 0
+}
+function ct_ref(){
+  print ""
+  printf "  %s\n", cw("CONTACTS -- the card",C_ACC)
+  hr()
+  print  "  Away from your bow  ->  she passes ASTERN. Always. No exceptions."
+  print  "  Toward your bow     ->  she CROSSES AHEAD. The miss is in front"
+  print  "                          of you, and it shrinks as the drift slows."
+  print  "  No drift at all     ->  collision. Rule 7(d)(i). Deemed, not judged."
+  print ""
+  print  "  On the left, drawing left ... she goes astern."
+  print  "  On the left, drawing right ... she crosses your bow."
+  print  "  On the right, drawing right ... astern.  Drawing left ... ahead."
+  print ""
+  print  "  Risk anyway, even with good drift -- Rule 7(d)(ii):"
+  print  "    a very large vessel   you plotted her bridge, her bow is nearer"
+  print  "    a tow                 the tug clears, the barge astern does not"
+  print  "    close range           drift goes as range squared"
+  print ""
+  printf "  Report:  Master 2, bearing 311, %sdrawing left,\n",
+     (rel_style(-20)=="") ? "" : (rel_style(-20) ", ")
+  print  "           range 14,200, CPA 4,100 yards at 18 minutes."
+  print  "           Bearing before drift. Say \"steady\" out loud."
+  print  "           True for the plot, relative for the eye."
+  print ""
+  print  "  Relative:  Red = port, Green = starboard, 0 to 180 each side."
+  print  "    000 right ahead   ~35 fine on the bow   045 broad on the bow"
+  print  "    090 on the beam   135 broad on the quarter   180 right astern"
+  print  "  Relative bearings move when YOU turn. Drift is measured in"
+  print  "  TRUE bearings, or on a steady course. Never across a turn."
+  print ""
+  print  "  3 min : yards = knots x 100      6 min : miles = knots / 10"
+  print  "  time to CPA = range / closing rate per minute"
+  print  "  CPA  =  miles  x  degrees left to drift  x  35"
+  print  "  Ekelund kyd = 1.91 x change in speed across / change in rate"
+  hr()
+  print ""
+  return 0
+}
+__COLREGS_CONTACTS__
+  cat > "$REVIEW" <<'__COLREGS_REVIEW__'
+# =====================================================================
+#  colregs -- review.  The claims a test cannot check, put to a person
+#  one at a time, with the picture in front of them.
+#
+#  Nothing here touches the network.  The session is local, the answers
+#  are a file in your own home directory, and submitting is a URL the
+#  program prints for you to open - so there is no credential in this
+#  code to leak and no server for anybody to run.
+# =====================================================================
+
+#  Every reviewable claim, in a fixed order, as  key | section | title
+function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x){
+  if(RV_READY) return RV_N
+  ves_init(); shp_init(); enc_init(); snd_init()
+  RV_N=0
+  #  encounters first: they say what to DO, so a wrong one is the
+  #  most dangerous thing in the program
+  for(i=1;i<=NENC;i++){
+    split(EC[i],a,"|")
+    RV_N++; RV_K[RV_N]=sprintf("enc-%d",i-1); RV_S[RV_N]="enc"
+    RV_T[RV_N]=substr(a[2],1,58); RV_I[RV_N]=i
+  }
+  #  the distinct give-way calls the lights quiz can make
+  cnt=0
+  for(i=1;i<=NVES;i++){
+    split(VT[i],a,"|")
+    for(t=0;t<360;t+=45){
+      m=motion_of(i,t)
+      k = a[2] "\t" motion_text(m) "\t" motion_why(m,i)
+      if(k in RVSEEN) continue
+      RVSEEN[k]=1; cnt++; MOK[cnt]=k
+    }
+  }
+  #  sorted, so the order does not depend on the order vessels happen
+  #  to be listed in
+  for(i=2;i<=cnt;i++){ x=MOK[i]; j=i-1
+    while(j>=1 && MOK[j]>x){ MOK[j+1]=MOK[j]; j-- }
+    MOK[j+1]=x }
+  for(i=1;i<=cnt;i++){
+    split(MOK[i],a,"\t")
+    RV_N++; RV_K[RV_N]=sprintf("mot-%d",i-1); RV_S[RV_N]="mot"
+    RV_T[RV_N]=substr(a[1] " -- " a[2],1,58); RV_M[RV_N]=MOK[i]
+  }
+  for(i=1;i<=NVES;i++){
+    split(VT[i],a,"|")
+    RV_N++; RV_K[RV_N]=sprintf("lig-%d",i-1); RV_S[RV_N]="lig"
+    RV_T[RV_N]=substr(a[2],1,58); RV_I[RV_N]=i
+  }
+  j=0
+  for(i=1;i<=15;i++){
+    Q_A=""; les_q("L" i,0)
+    if(Q_A=="") continue
+    RV_N++; RV_K[RV_N]=sprintf("les-%d",j); RV_S[RV_N]="les"
+    RV_T[RV_N]="Lesson L" i; RV_I[RV_N]=i; j++
+  }
+  for(i=1;i<=NSND;i++){
+    split(SD[i],a,"|")
+    RV_N++; RV_K[RV_N]=sprintf("snd-%d",i-1); RV_S[RV_N]="snd"
+    RV_T[RV_N]=substr(a[3],1,58); RV_I[RV_N]=i
+  }
+  for(i=1;i<=NSHP;i++){
+    split(SH[i],a,"|")
+    RV_N++; RV_K[RV_N]=sprintf("shp-%d",i-1); RV_S[RV_N]="shp"
+    RV_T[RV_N]=substr(a[2],1,58); RV_I[RV_N]=i
+  }
+  RV_READY=1
+  return RV_N
+}
+function rv_secname(s){
+  if(s=="enc") return "Encounter verdicts - who gives way, and what to do"
+  if(s=="mot") return "Give-way calls from her lights"
+  if(s=="lig") return "The light tables"
+  if(s=="les") return "Rules lesson answers"
+  if(s=="snd") return "Sound signals"
+  if(s=="shp") return "Day shapes"
+  return s
+}
+function rv_secrule(s){
+  if(s=="enc") return "Rules 8 to 19"
+  if(s=="mot") return "Rules 12 to 18"
+  if(s=="lig") return "Rules 20 to 31 and Annex I"
+  if(s=="les") return "the Convention itself"
+  if(s=="snd") return "Rules 34 and 35, Annex III"
+  if(s=="shp") return "Rules 24 to 30"
+  return ""
+}
+function rv_find(key,   i){ rv_build()
+  for(i=1;i<=RV_N;i++) if(RV_K[i]==key) return i
+  return 0 }
+
+#  Written as plain ifs rather than nested ternaries split over lines:
+#  awk permits a newline after a comma or an operator, but not after the
+#  ':' of a conditional. gawk accepts it anyway, mawk does not, and the
+#  file then fails to parse at all.
+function rv_colour(c){
+  if(c=="W") return "white"
+  if(c=="R") return "red"
+  if(c=="G") return "green"
+  if(c=="Y") return "yellow"
+  return c
+}
+function rv_arc(a){
+  if(a=="A") return "all-round 360"
+  if(a=="M") return "masthead 225"
+  if(a=="S") return "starboard side 112.5"
+  if(a=="P") return "port side 112.5"
+  if(a=="T") return "stern 135"
+  if(a=="Y") return "towing 135"
+  return a
+}
+
+# ---- show one claim, in full ----------------------------------------
+function rv_show(key,   i,s,a,n,O,j,idx,parts){
+  i=rv_find(key); if(i==0){ print "  no such item: " key; return 1 }
+  s=RV_S[i]
+  print ""
+  printf "  %s\n", cw(sprintf("%s   %s", RV_K[i], rv_secname(s)),C_ACC)
+  printf "  %s\n", cwd("check against " rv_secrule(s))
+  hr()
+  if(s=="enc"){
+    idx=RV_I[i]; split(EC[idx],a,"|")
+    printf "  You are %s\n", tolower(substr(a[1],9))
+    printf "  You see %s.\n", a[2]
+    print ""
+    n=split(a[7],O,";")
+    for(j=1;j<=n;j++) printf "     %s) %s\n", substr("abcd",j,1), O[j]
+    print ""
+    printf "  %s   %s\n", cw("The program says " toupper(a[6]),C_ACC), a[9]
+    printf "  %s\n", a[8]
+  }
+  else if(s=="mot"){
+    split(RV_M[i],a,"\t")
+    printf "  Vessel   %s\n", a[1]
+    printf "  %s   %s\n", cw("The program says",C_ACC), a[2]
+    print ""
+    printf "  %s\n", a[3]
+  }
+  else if(s=="lig"){
+    idx=RV_I[i]; split(VT[idx],a,"|")
+    G_NOCROP=1
+    draw_lights(a[1], 305); gshow()
+    printf "  %s\n", cwd("drawn from 305 - use 'colregs light " a[1] " <brg>' for any angle")
+    print ""
+    printf "  %s   %s.  %s\n", cw(a[2],C_ACC), a[3], a[5]
+    if(a[6]!="") printf "  %s %s\n", cw("Watch out:",C_ACC), a[6]
+    print ""
+    n=split(a[4],O,";")
+    for(j=1;j<=n;j++){
+      split(O[j],parts,",")
+      printf "     %-6s %-22s height %.2f   %+.2f along   %+.2f across\n",
+        rv_colour(parts[5]), rv_arc(parts[4]),
+        parts[3]+0, parts[1]+0, parts[2]+0
+    }
+  }
+  else if(s=="les"){
+    idx=RV_I[i]
+    les_q("L" idx,1)
+    Q_A=""; les_q("L" idx,0)
+    print ""
+    printf "  %s   %s\n", cw("The program says " toupper(Q_A),C_ACC), Q_W
+    printf "  %s\n", cwd("the lesson body itself is 'colregs lesson L" idx "'")
+  }
+  else if(s=="snd"){
+    idx=RV_I[i]; split(SD[idx],a,"|")
+    printf "  %s\n", cw(a[2],C_ACC)
+    printf "  %s   %s\n", a[3], a[4]
+    print ""
+    printf "  %s\n", a[5]
+  }
+  else if(s=="shp"){
+    idx=RV_I[i]; split(SH[idx],a,"|")
+    draw_shapes(a[1]); gshow()
+    print ""
+    printf "  %s   %s\n", cw(a[2],C_ACC), a[3]
+    printf "  %s\n", a[5]
+  }
+  hr()
+  return 0
+}
+# ---- the list, with what has been answered so far -------------------
+function rv_list(rfile,   i,line,f,n,done,fl,s,lastsec){
+  rv_build()
+  while((getline line < rfile) > 0){
+    n=split(line,f,"\t"); if(n<2) continue
+    ST_[f[1]]=f[2]; if(n>=3) NT_[f[1]]=f[3]
+  }
+  close(rfile)
+  print ""
+  printf "  %s\n", cw("REVIEW -- the claims no test can check",C_ACC)
+  hr()
+  done=0; fl=0
+  for(i=1;i<=RV_N;i++){
+    if(RV_S[i]!=lastsec){
+      lastsec=RV_S[i]
+      printf "\n  %s   %s\n", cw(rv_secname(lastsec),C_ACC), cwd(rv_secrule(lastsec))
+    }
+    s = (RV_K[i] in ST_) ? ST_[RV_K[i]] : ""
+    if(s=="ok") done++
+    if(s=="flag"){ done++; fl++ }
+    printf "   [%s] %-8s %s\n",
+      (s=="ok"?"x":(s=="flag"?cw("!",C_ACC):" ")), RV_K[i], RV_T[i]
+  }
+  hr()
+  printf "  %d of %d looked at, %s flagged.\n", done, RV_N, (fl?cw(fl "",C_ACC):"0")
+  print ""
+  return 0
+}
+function rv_next(rfile,   i,line,f,n){
+  rv_build()
+  while((getline line < rfile) > 0){
+    n=split(line,f,"\t"); if(n<2) continue
+    ST_[f[1]]=f[2]
+  }
+  close(rfile)
+  for(i=1;i<=RV_N;i++) if(!(RV_K[i] in ST_)){ print RV_K[i]; return 0 }
+  print ""
+  return 0
+}
+
+function rv_keys(sec,   i){
+  rv_build()
+  for(i=1;i<=RV_N;i++) if(sec=="" || RV_S[i]==sec) print RV_K[i]
+  return 0
+}
+
+# ---- the report ------------------------------------------------------
+function rv_load(rfile,   line,f,n){
+  while((getline line < rfile) > 0){
+    n=split(line,f,"\t"); if(n<2) continue
+    ST_[f[1]]=f[2]; NT_[f[1]] = (n>=3) ? f[3] : ""
+  }
+  close(rfile)
+  return 0
+}
+#  What the program claims for one item, in one line, so an issue can be
+#  acted on without anybody having to go and look it up.
+function rv_claim(i,   s,a,idx){
+  s=RV_S[i]; idx=RV_I[i]
+  if(s=="enc"){ split(EC[idx],a,"|")
+    return "\"" a[2] "\" -- program says " toupper(a[6]) " (" a[9] ")" }
+  if(s=="mot"){ split(RV_M[i],a,"\t")
+    return a[1] " -- program says: " a[2] }
+  if(s=="lig"){ split(VT[idx],a,"|")
+    return a[2] " (" a[3] ") -- " a[5] }
+  if(s=="les"){ Q_A=""; les_q("L" idx,0)
+    return "Lesson L" idx " -- program says " toupper(Q_A) }
+  if(s=="snd"){ split(SD[idx],a,"|")
+    return a[2] " = " a[3] " (" a[4] ")" }
+  if(s=="shp"){ split(SH[idx],a,"|")
+    return a[2] " (" a[3] ") -- " a[4] }
+  return RV_T[i]
+}
+function rv_report(rfile,   i,nf,nn,nok,body,lastsec){
+  rv_build(); rv_load(rfile)
+  nf=0; nn=0; nok=0
+  for(i=1;i<=RV_N;i++){
+    if(!(RV_K[i] in ST_)) continue
+    if(ST_[RV_K[i]]=="flag") nf++
+    else { nok++; if(NT_[RV_K[i]]!="") nn++ }
+  }
+  print "### colregs review"
+  print ""
+  printf "colregs %s. %d of %d claims looked at: %d flagged as wrong or misleading, %d marked correct.\n",
+     rvver, nf+nok, RV_N, nf, nok
+  if(rvwho!="") printf "\nReviewer: %s\n", rvwho
+  if(rvdrill!="") printf "\nDrill record: %s\n", rvdrill
+  if(rvcredit=="yes" && rvwho!="") print "\nHappy to be credited."
+  else if(rvcredit=="no") print "\nPlease do not credit me."
+  if(nf>0){
+    print ""
+    print "### Flagged"
+    print ""
+    for(i=1;i<=RV_N;i++){
+      if(!(RV_K[i] in ST_) || ST_[RV_K[i]]!="flag") continue
+      printf "- **%s** %s  \n", RV_K[i], rv_claim(i)
+      if(NT_[RV_K[i]]!="") printf "  > %s\n", NT_[RV_K[i]]
+      else print "  > (no note given)"
+    }
+  }
+  if(nn>0){
+    print ""
+    print "### Notes on claims marked correct"
+    print ""
+    for(i=1;i<=RV_N;i++){
+      if(!(RV_K[i] in ST_) || ST_[RV_K[i]]=="flag" || NT_[RV_K[i]]=="") continue
+      printf "- **%s** %s  \n", RV_K[i], rv_claim(i)
+      printf "  > %s\n", NT_[RV_K[i]]
+    }
+  }
+  if(nf==0 && nn==0){
+    print ""
+    printf "Nothing flagged. %d claims checked and found correct.\n", nok
+  }
+  print ""
+  print "---"
+  print "Sent from `colregs review`. The tool never touched the network -"
+  print "this issue was opened by hand from a link it printed."
+  return 0
+}
+# ---- percent-encoding, for the issue link ---------------------------
+function rv_hexinit(   i){
+  if(HEXR) return
+  for(i=0;i<256;i++) ORD_[sprintf("%c",i)]=i
+  HEXR=1
+}
+function rv_enc(s,   i,c,o,n){
+  rv_hexinit()
+  o=""
+  for(i=1;i<=length(s);i++){
+    c=substr(s,i,1)
+    if(c ~ /[A-Za-z0-9._~-]/) o=o c
+    else { n=ORD_[c]; if(n=="") n=63; o=o sprintf("%%%02X", n) }
+  }
+  return o
+}
+function rv_url(rfile,   line,body,t,i,nf){
+  rv_build(); rv_load(rfile)
+  nf=0
+  for(i=1;i<=RV_N;i++) if((RV_K[i] in ST_) && ST_[RV_K[i]]=="flag") nf++
+  body=""
+  while((getline line < rbody) > 0) body = body line "\n"
+  close(rbody)
+  t = sprintf("colregs review: %d flagged", nf)
+  #  No labels= parameter. A label that does not exist in the repository
+  #  is one more thing that has to have been set up correctly before a
+  #  stranger's careful review will go anywhere, and the title already
+  #  says what this is. Maintainers can label it themselves.
+  printf "https://github.com/%s/bashnav/issues/new?title=%s&body=%s\n",
+     (rvrepo!=""?rvrepo:"larrys614"), rv_enc(t), rv_enc(body)
+  return 0
+}
+__COLREGS_REVIEW__
+}
+# ---------------------------------------------------------------------
+#  About.  Shared by both tools; each one supplies about_why and
+#  about_sources, which are the parts that differ.
+# ---------------------------------------------------------------------
+about_how() {
+  cat <<'A2'
+
+  HOW IT WAS WRITTEN
+  ---------------------------------------------------------------
+  By Claude, Anthropic's AI model, in conversation with Larry over
+  a few days in August 2026.  He decided what it should do and
+  judged whether it was right.  The code, the mathematics and the
+  tests are Claude's work.
+
+  Three rules were set at the start and never relaxed.
+
+  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs
+  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox
+  on a router.  Nothing is installed.  There is no dependency here
+  that can rot in a year, because there is no dependency.
+
+  NO NETWORK, EVER.  Every number the program needs is inside the
+  file you are running.  That is a constraint on the mathematics
+  and not only on the plumbing: it is why the planetary positions
+  are computed from orbital elements with a correction series
+  fitted here, rather than looked up in a table someone serves.
+
+  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is
+  implemented from a primary source and then validated against an
+  independent implementation - never against itself.
+
+  On that last one, honestly.  An AI writing code is confidently
+  wrong on a regular basis, and so is a person.  The defence is
+  not care, it is testing.  Real errors in this project were found
+  by machinery and by users, and would not have been found by
+  reading the code:
+
+    - One awk implementation ignores the seed you give its random
+      number generator.  A drill could therefore mark its own
+      correct answer wrong.  Found by running the suite under four
+      different awks, not by inspection.
+
+    - Both tools worked out "am I writing to a terminal?" from
+      inside a command substitution, where the answer is always
+      no.  Colour had never once worked, on any terminal, since
+      the day it was written.  The test suite checked that the
+      output is clean when piped - and passed, for entirely the
+      wrong reason.
+
+    - The three green lights of a mine clearance vessel were drawn
+      on two different masts.  A user saw that before any test
+      did, because he tried to account for every light in the
+      picture and could not.
+
+  So: the tests exist because the author is fallible, and the
+  interesting mistakes were caught by the tests and by the people
+  using it.  Which is the argument for sending feedback.
+
+A2
+}
+about_feedback() {
+  cat <<'A3'
+
+  FEEDBACK
+  ---------------------------------------------------------------
+  Please send it.  It is the reason this is public.
+
+A3
+  about_needs
+  cat <<'A3B'
+  The useful report is small and specific:
+
+    what you did        the exact command, or which menu item
+    what you saw        paste it, escape codes and all
+    what you expected   and why - the rule, the sight, the table
+
+  "This is not right, a sailing vessel would not show that" with
+  the picture pasted underneath is worth more than any amount of
+  general praise, and has already fixed real bugs.
+
+  Where:
+
+    https://github.com/larrys614/bashnav/issues
+
+  If you think the program disagrees with the Convention, with an
+  almanac, or with a published tide table, say so plainly.  Assume
+  the program is wrong until it is shown otherwise.  That is the
+  correct prior, and it is how the bugs above were found.
+
+  Corrections to the teaching are as welcome as corrections to the
+  code.  If a lesson is misleading, that is a defect.
+
+A3B
+}
+about_licence() {
+  cat <<'A4'
+
+  LICENCE AND WARRANTY
+  ---------------------------------------------------------------
+  Copyright 2026 M. Larry Sherman.
+  Licensed under the Apache License, Version 2.0.
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  You may use it, including commercially, modify it, and pass it
+  on.  You must keep the copyright and licence notices and say
+  what you changed.  You get an explicit patent grant.  You may
+  not use the author's name to endorse your version.
+
+  Tide station data carries its own terms, which this licence does
+  not change: the NOAA harmonic constants are public domain, and
+  the TICON-4 constants are CC BY 4.0.  Their attribution travels
+  with them.  See the NOTICE file.
+
+  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+  This is a training aid and a calculator.  It is not a certified
+  navigation system, it carries no authority, and it has never
+  been near a type approval.  Nothing in it relieves any vessel,
+  owner, master or crew of the consequences of neglecting to
+  comply with the rules of the road, of neglecting a proper
+  look-out, or of neglecting any precaution required by the
+  ordinary practice of seamen.
+
+  Carry a paper almanac, a paper tide table, and the rules.
+
+A4
+}
+about_menu() {
+  while :; do
+    cat <<'A0'
+
+  ABOUT
+
+    1  Why this exists       who wanted it, and what for
+    2  How it was written    and by what, and what went wrong
+    3  What is tested        and, more to the point, what is not
+    4  Sources               where the numbers come from
+    5  Feedback              what to send, where, and what is worth most
+    6  Licence and warranty  Apache 2.0, and what it does not cover
+
+    x  back
+A0
+    printf "  > "; IFS= read -r ac || return 0
+    case "$ac" in
+      1) about_why ;;
+      2) about_how ;;
+      3) about_tested ;;
+      4) about_sources ;;
+      5) about_feedback ;;
+      6) about_licence ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+about_why() {
+  cat <<'A1'
+
+  WHY THIS EXISTS
+  ---------------------------------------------------------------
+  Larry Sherman asked for it.
+
+  He served in the United States Navy from 1984 to 1990 as an
+  FTG2/SS - a fire control technician, submarines - in USS Alaska
+  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS
+  Greenling (SSN-614).  Two ballistic missile boats and two fast
+  attacks, which is two quite different trades: one hides and one
+  goes looking.  He stood the manoeuvring watch on the fire control
+  tracking party, managing contacts and avoiding collisions through
+  places like the Strait of Gibraltar and the Race - the tide gate
+  at the mouth of Long Island Sound, and the door you go out of
+  from Groton.
+
+  Thirty-six years on he is sailing round the world in the
+  Clipper Race, and he wanted a few things that would work on an
+  iPad in the middle of an ocean: no signal, no subscription, no
+  account to log in to, no data to download first.
+
+  So: the rules of the road, drawn.  You learn lights by looking
+  at lights, from the angle you would actually see them, and by
+  being asked what you see and getting it wrong.  Reciting Rule 25
+  does not teach you to recognise a sailing vessel at two miles on
+  a black night.  Being shown one, guessing, and being told why
+  you were wrong does.
+
+  The contacts section is the method he was taught in the Navy,
+  written down: on the left drawing left, on the left drawing
+  right, and what each of those means before the plot catches up.
+
+  Everything follows from "no internet".  The light patterns, the
+  rules, the drills and the plotting are all inside the single
+  file you are running.  It is text.  You can read every line of
+  it, and you should be able to check it.
+
+A1
+}
+about_sources() {
+  cat <<'A5'
+
+  SOURCES
+  ---------------------------------------------------------------
+  THE RULES
+    The International Regulations for Preventing Collisions at
+    Sea, 1972, as amended - the Convention itself, including
+    Annex I on the positioning of lights and Annex III on sound
+    signal appliances.  Published by the International Maritime
+    Organization.
+
+    Rule text is quoted only in short extracts, for teaching.
+    Where this program and the Convention differ, the Convention
+    is right and this program has a bug in it.
+
+  THE PICTURES
+    Each vessel is a table of lights - position along the hull,
+    position across it, height, arc of visibility, colour - and
+    the drawing is computed from the bearing you ask for.  So the
+    same table draws her from any angle, and a mistake in the
+    table shows up as a picture that cannot be accounted for.
+    Annex I is what the numbers are built from.
+
+  CONTACTS
+    Relative-motion analysis as it is done on a warship's plot.
+    The rule at the centre of it - a bearing drawing away from
+    your bow can never cross ahead of you - was tested against
+    700,000 randomly generated geometries before it was written
+    down, and is re-checked against 400 more on every test run.
+    Ekelund's range formula was derived from scratch rather than
+    quoted, and is checked to floating point on every run.
+
+  CHECKED BY
+    A test suite that runs the tools under four different awk
+    implementations and requires every drill to mark its own
+    correct answer as correct.  Run it yourself: tests/run-tests.sh
+    in the repository.
+
+A5
+}
+about_tested() {
+  cat <<'A6'
+
+  WHAT IS TESTED, AND WHAT IS NOT
+  ---------------------------------------------------------------
+  Two suites run on every change, under four different awk
+  implementations and two shells.
+
+  THE INVARIANTS.  tests/run-tests.sh
+
+    - every drill marks its own correct answer as correct
+    - every lights question has exactly one right answer: six
+      hundred are generated and checked, and no two vessels may
+      look identical from the angle being asked about
+    - the light tables satisfy Annex I wherever Annex I is
+      geometry rather than judgement - sidelights paired, level,
+      opposite each other and no higher than three quarters of
+      the masthead light; the arcs summing to a full circle with
+      no gap; no two lights in the same place
+    - a bearing drawing away from your bow never crosses ahead.
+      Four hundred fresh geometries every run, and seven hundred
+      thousand were checked before the lesson was written
+    - Ekelund recovers the range the geometry was built from
+    - Red, Green, the words and the side agree at every degree of
+      the circle
+    - colour appears on a terminal, and never when piped
+
+  THE GOLDEN FILES.  tests/golden.sh
+
+    Every screen the program can produce deterministically is
+    captured as text and committed - about twenty-six thousand
+    lines of it. Any change to any of it turns up as a diff that
+    somebody has to read and accept on purpose. That is how a
+    small edit to one function gets caught quietly changing
+    forty other screens.
+
+  NOW THE HONEST PART.
+
+  None of that can tell you whether Rule 27 says what this
+  program says it says.
+
+  A test can check that the quiz marks answer C as correct. It
+  cannot check that C is the right answer. It can check that a
+  light table is geometrically consistent. It cannot check that a
+  mine clearance vessel shows those lights. It can check that
+  encounter 14 marks the answer the author intended. It cannot
+  check that the vessel which gives way in it is the one the
+  Convention says gives way - nor even that one of the other
+  three options is not equally defensible.
+
+  Those are judgements against a document, and they need a person
+  holding the document. Which is what the next screen is about.
+
+A6
+}
+about_needs() {
+  cat <<'A7'
+  AND HERE IS WHERE IT IS WORTH MOST.
+
+  These are the claims no test can check, in the order of how
+  much damage a wrong one would do.
+
+  1  WHO GIVES WAY, AND WHAT TO DO.  The twenty-eight encounters,
+     and the sixty-five distinct give-way calls the lights quiz
+     can make.  A wrong light table makes you misname a ship.  A
+     wrong verdict here makes you TURN THE WRONG WAY, which is
+     the difference between a training aid that is imperfect and
+     one that is dangerous.  This logic was written backwards
+     once during development and caught by hand, by a reader, not
+     by any test.  Rules 12 to 18.
+
+  2  THE LIGHT TABLES.  Twenty vessels, and every picture,
+     question and answer is computed from them.  Two errors in
+     them have already been found by users - both by somebody
+     looking at a picture, trying to account for every light in
+     it, and failing.  That is the most productive thing you can
+     do with this program.  Rules 20 to 31 and Annex I.
+
+  3  THE LESSONS.  They paraphrase the rules rather than quote
+     them.  A paraphrase that is nearly right is worse than one
+     that is obviously wrong, because nobody checks it.
+
+  4  DISTRACTORS THAT ARE ALSO CORRECT.  The lights questions are
+     proved to have a single right answer.  The encounters are
+     not.  An option that is also defensible would mark you wrong
+     for being right, and only a person can notice that.
+
+  And there is a tool for exactly this: "colregs review".  It walks
+  through every one of those claims, one at a time, with the drawing
+  in front of you, and builds a report you can send as a GitHub
+  issue.  It does not send anything itself - it prints a link and
+  you open it, so there is no credential in this program to leak and
+  no server for anybody to run.  Credit is opt-in and by name; no
+  email address is asked for or kept.
+
+  5  WHAT IS MISSING.  No test notices an absent vessel, an
+     absent rule, or an exception that goes unmentioned.  Only
+     somebody who knows the rules will see the hole.
+
+A7
+}
+# ---------------------------------------------------------------------
+#  Review: the claims a test cannot check, put to a person one at a
+#  time.  Entirely local.  Nothing here opens a socket; submitting
+#  means the program prints a link and YOU open it, so there is no
+#  credential in this file to leak and no service for anyone to run.
+# ---------------------------------------------------------------------
+rv_file() { echo "$COLREGS_HOME/review.tsv"; }
+rv_save() {   # key state note
+  mkdir -p "$COLREGS_HOME"
+  n=$(printf '%s' "$3" | tr '\t\n' '  ')
+  printf '%s\t%s\t%s\n' "$1" "$2" "$n" >> "$(rv_file)"
+}
+rv_ask_note() {
+  printf "  What is wrong with it? (one line, return to skip): "
+  IFS= read -r RVNOTE || RVNOTE=""
+}
+rv_one() {   # $1 = key ; returns 1 to stop
+  eng -v cmd=rvshow -v key="$1" || return 1
+  printf "  %s  [r] correct   [f] wrong   [c] correct, but a comment\n" "$1"
+  printf "  [return] skip   [q] stop : "
+  IFS= read -r v || return 1
+  case "$v" in
+    r|R) rv_save "$1" ok "" ;;
+    f|F) rv_ask_note; rv_save "$1" flag "$RVNOTE" ;;
+    c|C) rv_ask_note; rv_save "$1" ok "$RVNOTE" ;;
+    q|Q|x|X) return 1 ;;
+    *) : ;;
+  esac
+  return 0
+}
+rv_run() {   # $1 = section, or empty for "carry on from where I left off"
+  if [ -n "$1" ]; then
+    #  NOT  while read k ... done < keyfile :  that redirects the loop
+    #  body's stdin to the key file, so every prompt inside rv_one reads
+    #  a KEY instead of the answer the person typed, and the whole
+    #  section scrolls past unanswered. The keys are plain tokens, so
+    #  word-splitting a single variable is safe and leaves stdin alone.
+    rvkeys=$(eng -v cmd=rvkeys -v which="$1")
+    for k in $rvkeys; do
+      rv_one "$k" || break
+    done
+  else
+    while :; do
+      k=$(eng -v cmd=rvnext -v rfile="$(rv_file)")
+      [ -z "$k" ] && { echo; echo "  Every claim has been looked at.  Thank you."; echo; break; }
+      rv_one "$k" || break
+    done
+  fi
+}
+rv_submit() {
+  RV=$(rv_file)
+  if [ ! -s "$RV" ]; then echo; echo "  Nothing reviewed yet."; echo; return; fi
+  cat <<'S1'
+
+  SENDING IT BACK
+  ---------------------------------------------------------------
+  This builds a report and prints a link that opens a GitHub issue
+  with the report already in it.  The program does not send it -
+  you do, by opening the link.  Nothing leaves this machine until
+  you press return in your browser.
+
+  GitHub signs the issue with your account, so it is not anonymous
+  and there is no email for anybody to collect.
+
+S1
+  printf "  A name to put on it (return to leave it off): "; IFS= read -r who
+  cr=""
+  if [ -n "$who" ]; then
+    printf "  Credit you in CONTRIBUTORS if a correction lands? [y/N] "
+    IFS= read -r c
+    case "$c" in y|Y) cr=yes ;; *) cr=no ;; esac
+  fi
+  dr=""
+  if [ "$stry" -gt 0 ] 2>/dev/null; then
+    printf "  Include your drill record (%s of %s)? [y/N] " "$sok" "$stry"
+    IFS= read -r c
+    case "$c" in y|Y) dr="$sok of $stry" ;; esac
+  fi
+  B="$COLREGS_HOME/review-report.md"
+  eng -v cmd=rvreport -v rfile="$RV" -v rvver="$COLREGS_VERSION" \
+      -v rvwho="$who" -v rvcredit="$cr" -v rvdrill="$dr" > "$B"
+  U=$(eng -v cmd=rvurl -v rfile="$RV" -v rbody="$B" -v rvrepo="$GH_USER")
+  n=$(printf '%s' "$U" | wc -c | tr -d ' ')
+  echo
+  if [ "$n" -lt 7000 ]; then
+    echo "  Open this, check it reads the way you meant, and submit:"
+    echo
+    echo "$U"
+    echo
+    echo "  If that link says the page could not be found, the repository"
+    echo "  is not published yet - nothing you did is wrong, and nothing"
+    echo "  has been lost. The report is a file on this machine either"
+    echo "  way, and you can send it whenever the repository is up."
+  else
+    #  Too long for a URL. Say so plainly rather than silently truncating
+    #  somebody's careful work.
+    echo "  Your review is too long to fit in a link ($n characters)."
+    echo "  It is written out here instead:"
+    echo
+    echo "    $B"
+    echo
+    echo "  Open a new issue and paste or attach that file:"
+    echo
+    echo "    https://github.com/${GH_USER}/bashnav/issues/new"
+  fi
+  echo
+  echo "  The report is also saved at $B"
+  echo
+}
+review_menu() {
+  while :; do
+    cat <<'M'
+
+  REVIEW -- help make it right
+
+  The test suite proves the program works. It cannot prove that what
+  it says about the rules is true. That needs somebody with the
+  Convention open, going through the claims one at a time.
+
+    1  Carry on from where I left off
+    2  Encounter verdicts        who gives way, and what to do
+    3  Give-way calls from her lights
+    4  The light tables
+    5  Rules lesson answers      6  Sound signals      7  Day shapes
+    8  What I have answered so far
+    9  Send it back
+
+    x  back
+M
+    printf "  > "; IFS= read -r c || return 0
+    case "$c" in
+      1) rv_run "" ;;
+      2) rv_run enc ;;  3) rv_run mot ;;  4) rv_run lig ;;
+      5) rv_run les ;;  6) rv_run snd ;;  7) rv_run shp ;;
+      8) eng -v cmd=rvlist -v rfile="$(rv_file)" ;;
+      9) rv_submit ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+# ---------------------------------------------------------------------
+pause() { printf "  -- press return --"; IFS= read -r _j; }
+ask1() { printf "  Your answer (a/b/c/d, or return to skip): "; IFS= read -r ANS; }
+
+run_quiz() {   # $1 = qlight|qshape|qsound  $2 = mark cmd
+  while :; do
+    sd=$(newseed)
+    eng -v cmd="$1" -v seed="$sd"
+    ANS2=""
+    if [ "$1" = qlight ]; then
+      printf "  Q1 what is she    (a/b/c/d, or return to skip): "; IFS= read -r ANS
+      [ -z "$ANS" ] && return 0
+      printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
+    else
+      ask1
+      [ -z "$ANS" ] && return 0
+    fi
+    stry=$((stry+1))
+    if eng -v cmd="$2" -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_enc() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=enc -v seed="$sd"
+    ask1
+    [ -z "$ANS" ] && return 0
+    stry=$((stry+1))
+    if eng -v cmd=encm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_scen() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=scen -v seed="$sd" || return 0
+    printf "  Q1 risk       (a/b/c)   : "; IFS= read -r q1
+    [ -z "$q1" ] && return 0
+    printf "  Q2 how close  (a/b/c/d) : "; IFS= read -r q2
+    printf "  Q3 action     (a/b/c/d) : "; IFS= read -r q3
+    stry=$((stry+1))
+    if eng -v cmd=scenm -v seed="$sd" -v a1="$q1" -v a2="$q2" -v a3="$q3"; then
+      sok=$((sok+1))
+    fi
+    save_prog
+    printf "  Watch it run? [Y/n] "; IFS= read -r w
+    case "$w" in
+      n|N) ;;
+      *)  t=12
+          while [ "$t" -le 90 ]; do
+            eng -v cmd=scenframe -v seed="$sd" -v ans="$q3" -v tmin="$t"
+            rc=$?
+            [ "$rc" -eq 3 ] && break
+            printf "  -- return for the next six minutes, x to stop -- "; IFS= read -r z
+            case "$z" in x|X|q|Q) break ;; esac
+            t=$((t+6))
+          done
+          eng -v cmd=scenout -v seed="$sd" -v ans="$q3" ;;
+    esac
+    printf "  another scenario? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+do_lesson() {
+  eng -v cmd=lesson -v les_id="$1" || return 1
+  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
+  [ -z "$av" ] && return 0
+  if eng -v cmd=check -v les_id="$1" -v ans="$av"; then mark_done "$1"; fi
+}
+rules_menu() {
+  while :; do
+    eng -v cmd=syllabus -v done="$lessons"
+    printf "  Lesson code, n for the next one, or x to go back: "; IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      n|N) nx=""
+           for L in L1 L2 L3 L4 L5 L6 L7 L8 L9 L10 L11 L12 L13 L14 L15; do
+             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+           done
+           if [ -z "$nx" ]; then echo "  All fifteen done."; else do_lesson "$nx"; fi ;;
+      *)   do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+# ---- contacts: bearing drift, the report, and the tracking party ----
+do_clesson() { eng -v cmd=clesson -v les_id="$1" && mark_done "$1"; }
+run_track() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=track -v seed="$sd" || return 0
+    printf "  Q1 drift          (a/b/c, or return to skip): "; IFS= read -r t1
+    [ -z "$t1" ] && return 0
+    printf "  Q2 ahead/astern   (a/b/c): "; IFS= read -r t2
+    printf "  Q3 CPA            (a/b/c/d): "; IFS= read -r t3
+    stry=$((stry+1))
+    if eng -v cmd=trackm -v seed="$sd" -v a1="$t1" -v a2="$t2" -v a3="$t3"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another contact? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_ekelund() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=ek -v seed="$sd" || return 0
+    printf "  How far off (a/b/c/d, or return to skip): "; IFS= read -r ANS
+    [ -z "$ANS" ] && return 0
+    stry=$((stry+1))
+    if eng -v cmd=ekm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+style_name() {
+  case "$1" in
+    rn)     echo "Red and Green" ;;
+    usn)    echo "Port and starboard" ;;
+    rel360) echo "Relative, full circle" ;;
+    words)  echo "Words only" ;;
+    none)   echo "True bearing only" ;;
+    *)      echo "$1" ;;
+  esac
+}
+style_menu() {
+  while :; do
+    cat <<'S0'
+
+  REPORTING STYLE
+  ---------------------------------------------------------------
+  How this program says where a contact lies relative to your own
+  head.  It changes the report and the relative column on the
+  plot.  The true bearing is always given as well, because that is
+  what goes on the chart and what agrees with the radar - this
+  setting only decides how the same angle is said out loud.
+
+  1  Red and Green            "bearing 311, Red 20, drawing left"
+     Royal Navy and British practice.  Red is port and Green is
+     starboard because those are your own sidelights, which is why
+     it is remembered.  The side is carried by a word rather than a
+     digit, so it survives a bad intercom, a following sea and a
+     tired listener.  Nought to 180 each side.
+
+  2  Port and starboard       "bearing 311, Port 20, drawing left"
+     The same information in plainer words, and common in United
+     States and merchant practice.  Longer to say, and the one
+     least likely to be misunderstood by somebody who has never
+     met the Red and Green convention.
+
+  3  Relative, full circle    "bearing 311, 340 relative, ..."
+     Measured clockwise from your own bow, 000 to 359.  Neat on a
+     plot and in a written message.  Worse in the dark, because
+     the listener has to work out for himself which side 340 is
+     on, which is exactly the sum you were trying to save him.
+
+  4  Words only               "bearing 311, fine on the port bow"
+     No number at all.  The slowest to say and the fastest to act
+     on, and the only one that still works when you are shouting
+     to somebody who is not looking at any instrument at all.
+
+  5  True bearing only        "bearing 311, drawing left, ..."
+     No relative bearing.  Correct if whoever you are telling is
+     on the plot rather than on deck.
+
+S0
+    printf "  Now: %s.  Pick 1-5, or x to leave it: " "$(style_name "$rstyle")"
+    IFS= read -r sv || return 0
+    case "$sv" in
+      1) rstyle=rn ;;     2) rstyle=usn ;;  3) rstyle=rel360 ;;
+      4) rstyle=words ;;  5) rstyle=none ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?"; continue ;;
+    esac
+    save_conf
+    printf "  reporting style: %s\n" "$(style_name "$rstyle")"
+    return 0
+  done
+}
+contacts_menu() {
+  while :; do
+    eng -v cmd=csyl -v done="$lessons"
+    printf "  Lesson code, t track, e Ekelund, c card, s report style, x back: "
+    IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      t|T) run_track ;;
+      e|E) run_ekelund ;;
+      c|C) eng -v cmd=cref ;;
+      s|S) style_menu ;;
+      n|N) nx=""
+           for L in C1 C2 C3 C4 C5 C6 C7; do
+             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+           done
+           if [ -z "$nx" ]; then echo "  All seven done."; else do_clesson "$nx"; fi ;;
+      *)   do_clesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+mixed_drill() {
+  for k in qlight qshape qsound enc qlight; do
+    sd=$(newseed)
+    case "$k" in
+      enc) eng -v cmd=enc -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
+           stry=$((stry+1)); eng -v cmd=encm -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
+      qlight) eng -v cmd=qlight -v seed="$sd"
+           printf "  Q1 what is she    (a/b/c/d): "; IFS= read -r ANS; [ -z "$ANS" ] && continue
+           printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
+           stry=$((stry+1)); eng -v cmd=qlightm -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2" && sok=$((sok+1)) ;;
+      *)   eng -v cmd="$k" -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
+           stry=$((stry+1)); eng -v cmd="${k}m" -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
+    esac
+    save_prog
+  done
+  echo "  Score so far: $sok of $stry"
+}
+ref_menu() {
+  echo
+  echo "   1  Lights, all of them        2  Day shapes        3  Sound signals"
+  printf "  > "; IFS= read -r a
+  case "$a" in
+    1) eng -v cmd=reflights ;; 2) eng -v cmd=refshapes ;; 3) eng -v cmd=sndtable ;;
+  esac
+}
+help_text() {
+  cat <<'HLP'
+
+  COLREGS -- the rules of the road, drawn in characters
+
+  colregs                  the menu
+  colregs lights           identify vessels by their lights
+  colregs light <key> [brg]  draw one, from any angle
+  colregs shapes           identify vessels by their day shapes
+  colregs shape <key>      draw one
+  colregs encounters       who gives way, and what do you do
+  colregs scenario         a developing situation: plot it, decide, watch it run
+  colregs sound            identify sound signals
+  colregs rules            fifteen lessons on the rules
+  colregs lesson L7        one lesson
+  colregs contacts         bearing drift and contact management
+  colregs track            stand the tracking watch: drift, CPA, the call
+  colregs ekelund          range from a change of course
+  colregs card             the contacts card, on one screen
+  colregs style [rn|usn|rel360|words|none]
+                           how a relative bearing is spoken
+  colregs ref              reference tables
+  colregs colours          check that your terminal shows the lamp colours
+  colregs day|night|plain  colour mode
+  colregs about            why it exists, how it was written, feedback
+  colregs review           check its claims against the Convention, and report
+
+  Bearings are relative to the other vessel: 0 means you are looking
+  at her bow, 090 at her starboard side, 180 at her stern.
+
+HLP
+}
+banner() {
+  echo
+  echo "  ==============================================================="
+  echo "   COLREGS $COLREGS_VERSION   the rules of the road, in characters"
+  echo "  ==============================================================="
+  nl=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]'); [ -n "$nl" ] || nl=0
+  printf "   lessons %s of 15    drills %s/%s    [%s]\n" "$nl" "$sok" "$stry" "$cmode"
+  echo "  ---------------------------------------------------------------"
+}
+menu() {
+  while :; do
+    load_prog
+    banner
+    cat <<'M'
+    1  Lights           what is she, and what is she doing?
+    2  Day shapes       the same meanings, by daylight
+    3  Encounters       who gives way, and what do you do?
+    4  Sound signals    what is she saying?
+    5  The rules        fifteen lessons on the rules themselves
+    6  Mixed drill      one of each, at random
+    7  Collision avoidance   a developing situation: plot it, decide, watch it run
+    8  Contacts         bearing drift, the report, and the tracking party
+
+    r  Reference tables   c  Colour   s  Report style
+    v  Review the rules   a  About   h  Help   q  Quit
+M
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) run_quiz qlight qlightm ;;
+      2) run_quiz qshape qshapem ;;
+      3) run_enc ;;
+      4) run_quiz qsound qsoundm ;;
+      5) rules_menu ;;
+      6) mixed_drill ;;
+      7) run_scen ;;
+      8) contacts_menu ;;
+      r|R) ref_menu ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      s|S) style_menu ;;
+      a|A) about_menu ;;
+      v|V) review_menu ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk
+install_engine
+load_conf
+load_prog
+case "$1" in
+  ""|menu)  paint; menu ;;
+  lights)   paint; run_quiz qlight qlightm ;;
+  shapes)   paint; run_quiz qshape qshapem ;;
+  sound)    paint; run_quiz qsound qsoundm ;;
+  encounters|enc) paint; run_enc ;;
+  scenario|scen|avoid) paint; run_scen ;;
+  rules)    paint; rules_menu ;;
+  contacts|contact) paint; contacts_menu ;;
+  track)    paint; run_track ;;
+  ekelund)  paint; run_ekelund ;;
+  card)     eng -v cmd=cref ;;
+  style)    shift
+            case "$1" in
+              rn|usn|rel360|words|none) rstyle="$1"; save_conf
+                 echo "reporting style: $(style_name "$rstyle")" ;;
+              "") paint; style_menu ;;
+              *) echo "colregs: style is one of rn usn rel360 words none"; exit 2 ;;
+            esac ;;
+  lesson)   shift; do_lesson "$(echo "${1:-L1}" | tr 'a-z' 'A-Z')" ;;
+  light)    shift; eng -v cmd=light -v key="${1:-power50}" -v th="${2:-40}" -v reveal=1 ;;
+  shape)    shift; eng -v cmd=shape -v key="${1:-ram}" -v reveal=1 ;;
+  ref)      paint; ref_menu ;;
+  colours)  eng -v cmd=colours ;;
+  reflights) eng -v cmd=reflights ;;
+  refshapes) eng -v cmd=refshapes ;;
+  refsound)  eng -v cmd=sndtable ;;
+  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
+  about)    paint; about_menu ;;
+  review)   paint; review_menu ;;
+  where)    echo "engine: $ENGINE"; echo "config: $CONF"; echo "progress: $PROG" ;;
+  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
+  version|--version) echo "colregs $COLREGS_VERSION" ;;
+  help|-h|--help) help_text ;;
+  *) echo "colregs: there is no command '$1'."
+     echo
+     echo "  Drills     lights  shapes  encounters  scenario  sound  rules  lesson"
+     echo "  Contacts   contacts  track  ekelund  card  style"
+     echo "  Look up    light <key> [brg]   shape <key>   ref"
+     echo "  Setup      colours  day  night  plain  about  review  where  version"
+     echo
+     echo "  'colregs help' explains each of them."
+     exit 2 ;;
+esac
+__BN_PAYLOAD_colregs__
+}
+extract_tides() {
+  cat > "$DEST/tides" <<'__BN_PAYLOAD_tides__'
+#!/bin/sh
 # ---------------------------------------------------------------------
 #  Where a tool keeps its engine, its config and your log.
 #
@@ -9772,3 +16869,2978 @@ case "$1" in
      echo "  'tides help' explains each of them."
      exit 2 ;;
 esac
+__BN_PAYLOAD_tides__
+}
+extract_decklog() {
+  cat > "$DEST/deck-log" <<'__BN_PAYLOAD_decklog__'
+#!/bin/sh
+# ---------------------------------------------------------------------
+#  Where a tool keeps its engine, its config and your log.
+#
+#  ON iOS YOU CANNOT WRITE IN $HOME.  a-Shell's own README: "In iOS, you
+#  cannot write in the ~ directory, only in ~/Documents/, ~/Library/ and
+#  ~/tmp."  $HOME there is the app's data container --
+#  /private/var/mobile/Containers/Data/Application/<uuid> -- and mkdir
+#  in it is refused.
+#
+#  Every tool in this suite defaulted to $HOME/.<tool>, so not one of
+#  them would start on an iPad: the platform the whole project exists
+#  for.  It printed "cannot create /private/var/mobile/Containers/..."
+#  and stopped.  Nobody noticed because every machine the tests run on
+#  has a writable $HOME.
+#
+#  So: use the first place we can actually create AND write in.  $HOME
+#  is tried first, so nothing changes on macOS, Linux, the BSDs or
+#  Termux.  ~/Documents is what a-Shell gives you.
+# ---------------------------------------------------------------------
+bn_home() {                       # bn_home <dotfolder>  ->  prints path
+  for bn_h_base in "$HOME" "$HOME/Documents" "$HOME/Library"; do
+    [ -n "$bn_h_base" ] || continue
+    bn_h_dir="$bn_h_base/$1"
+    #  The write probe MUST sit inside its own subshell.  Twice over:
+    #  a failing redirection is set up before the 2>/dev/null that was
+    #  meant to silence it, so the error reaches the terminal anyway;
+    #  and ":" is a POSIX *special* built-in, so under dash a
+    #  redirection error on it makes the whole shell EXIT.  The tool
+    #  would print "cannot create ..." and vanish.  ( ) contains both.
+    if mkdir -p "$bn_h_dir" 2>/dev/null && ( : > "$bn_h_dir/.wtest" ) 2>/dev/null
+    then
+      rm -f "$bn_h_dir/.wtest"
+      printf '%s\n' "$bn_h_dir"
+      return 0
+    fi
+  done
+  #  Nothing was writable.  Name the path the user expects, so the
+  #  caller's own error message is one they can act on, and fail there.
+  printf '%s\n' "$HOME/$1"
+  return 1
+}
+# =====================================================================
+#  deck-log -- the boat's records: deck, engine, provisions.
+#  Part of Bash Navigation Software.  Pure POSIX sh + awk, no network.
+#
+#  A LOG IS A RECORD.  It has standing after an incident and is read by
+#  people who were not there.  So: append only, never edited in place,
+#  corrections are new entries that reference the old one, and every
+#  timestamp is UTC.  See docs/DECK-LOG.md.
+# =====================================================================
+DECKLOG_VERSION=1.1
+
+: "${DECKLOG_HOME:=$(bn_home .bashnav)}"
+LOG="$DECKLOG_HOME/log"
+BOAT="$DECKLOG_HOME/boat"
+CONF="$DECKLOG_HOME/decklog.conf"
+ENGINE="$DECKLOG_HOME/decklog-$DECKLOG_VERSION.awk"
+
+cmode=day
+#  [ -t 1 ] must be tested HERE and not inside cmode_now: inside a
+#  command substitution stdout is a pipe, the test is always false, and
+#  every terminal gets told it is plain.  See docs/HACKING.md.
+ISTTY=0; [ -t 1 ] && ISTTY=1
+units=metric
+who=""
+
+awk_has_math() {
+  $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
+}
+pick_awk() {
+  if [ -n "$DECKLOG_AWK" ]; then AWK="$DECKLOG_AWK"; return 0; fi
+  for a in awk gawk mawk nawk original-awk "busybox awk"; do
+    if awk_has_math "$a"; then AWK="$a"; return 0; fi
+  done
+  AWK=awk
+  echo "deck-log: no usable awk found." >&2
+  return 1
+}
+load_conf() {
+  [ -f "$CONF" ] || return 0
+  while IFS='=' read -r k v; do
+    case "$k" in cmode) cmode="$v" ;; units) units="$v" ;; who) who="$v" ;; esac
+  done < "$CONF"
+}
+save_conf() {
+  mkdir -p "$DECKLOG_HOME"
+  { echo "cmode=$cmode"; echo "units=$units"; echo "who=$who"; } > "$CONF"
+}
+paint() {
+  [ "$cmode" = plain ] && return 0
+  [ "$ISTTY" = 1 ] || return 0
+  case "$cmode" in
+    night) printf '\033[40m\033[31m\033[2J\033[H' ;;
+    day)   printf '\033[40m\033[37m\033[2J\033[H' ;;
+  esac
+}
+unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
+cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
+
+eng() {
+  $AWK -f "$ENGINE" -v cmode="$(cmode_now)" -v LOG="$LOG" -v BOAT="$BOAT" \
+       -v units="$units" -v who="$who" -v now="$(utcstamp)" "$@" </dev/null
+}
+utcstamp() { date -u '+%Y-%m-%dT%H:%MZ'; }
+utcday()   { date -u '+%Y-%m-%d'; }
+
+# ---------------------------------------------------------------------
+#  Appending.
+#
+#  awk BUILDS and VALIDATES the record; the shell appends it with a
+#  single >> of one line.  Two reasons.  One append of a short line is
+#  as close to atomic as this platform gets, which matters when iOS can
+#  suspend the app mid-write.  And there is then exactly one place that
+#  knows the format, which is the awk record layer.
+#
+#  Fields are handed over in a temp file as  key<TAB>value  so a value
+#  may contain anything a person can type, including | and =.
+# ---------------------------------------------------------------------
+FIELDS=""
+fld_start() {
+  #  Not /tmp: iOS gives an app Documents, Library and its own tmp,
+  #  and nothing promises a /tmp at all.  DECKLOG_HOME was probed for
+  #  writability at startup, so it is the one place known to work.
+  FIELDS="$DECKLOG_HOME/.fields.$$"
+  : > "$FIELDS"
+}
+#  fld k v   - skip nothing: an empty value is a DECLINED field and is
+#  recorded as such.  Callers pass "-" for declined and "/" for not
+#  observable, and both are real answers.
+fld() { printf '%s\t%s\n' "$1" "$2" >> "$FIELDS"; }
+fld_commit() {
+  type=$1
+  mkdir -p "$DECKLOG_HOME"
+  rec=$(eng -v cmd=mkrec -v type="$type" -v fields="$FIELDS")
+  rm -f "$FIELDS"; FIELDS=""
+  [ -n "$rec" ] || { echo "  deck-log: refused to write a malformed record" >&2; return 1; }
+  printf '%s\n' "$rec" >> "$LOG" || return 1
+  return 0
+}
+
+# ---- engine extraction (written once, then reused) -----------------
+install_engine() {
+  if [ -f "$ENGINE" ]; then
+    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
+  fi
+  mkdir -p "$DECKLOG_HOME" 2>/dev/null || {
+    echo "deck-log: cannot create $DECKLOG_HOME" >&2; exit 1; }
+  cat > "$ENGINE" <<'__DECKLOG_ENGINE__'
+# =====================================================================
+#  deck-log -- the record layer.
+#
+#  This file is the one irreversible decision in the whole tool.  The log
+#  is append-only, so every record written today has to still parse in
+#  five years, in a version nobody has written yet.  Adding a key later
+#  is free - a reader ignores keys it does not know.  Changing the SHAPE
+#  is not, ever.
+#
+#  Format, one record per line:
+#
+#      YYYY-MM-DDThh:mmZ|type|key=value|key=value|...|~
+#
+#  THE TRAILING ~ IS A COMPLETENESS MARKER, and it is there because of a
+#  bug this format had before the truncation test found it.
+#
+#  Kill the app mid-write and the half-line left on disk is STRUCTURALLY
+#  PERFECT: right timestamp, right type, every field a well-formed
+#  key=value.  Nothing distinguishes it from a finished record, so a
+#  reader accepts it and you silently lose the fields that never made it
+#  to disk - an engine entry with the part but not the hours, and no
+#  indication anything is missing.  In an append-only log that is
+#  permanent, and it is exactly the failure that would matter in an
+#  inquiry.
+#
+#  So a record is complete only if its last field is a bare ~.  A
+#  truncation cannot forge one: | is percent-encoded inside values, so
+#  the sequence |~ appears nowhere else.  One character of noise, and
+#  ANY reader in any language in any decade can tell a whole record from
+#  half of one without knowing anything about our software.
+#
+#  - the timestamp is UTC.  Always.  Display in whatever the user likes.
+#  - `type` is three characters or fewer: nav wx eng pro inv cel tid con
+#    cor chart.  A reader that does not know a type skips the record.
+#  - keys are [a-z0-9_] only, so they never need encoding
+#  - VALUES ARE PERCENT-ENCODED for the four characters that can hurt.
+#
+#  POSIX awk only.  See docs/HACKING.md.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+#  Encoding.
+#
+#  Free text goes in this log - a note typed at 0400, the verbatim text
+#  off an engine plate - and it will contain the delimiters:
+#
+#      note=belt squeals, replaced 30 Aug|check again at 1300hrs
+#      plate=4JH4-TE  S/N E12345  E/G 3TNV88=B
+#
+#  Unescaped, those still LOOK like records.  They just have the wrong
+#  number of fields and the tail is gone, and in an append-only log that
+#  damage is permanent and silent.
+#
+#  Only four characters are encoded, so ordinary text stays literal and
+#  the log is still readable by eye and by grep - which matters for a
+#  file somebody may have to interpret after an incident with no
+#  software to hand.
+# ---------------------------------------------------------------------
+function lg_enc(s){
+  gsub(/%/,  "%25", s)      # first, or it would double-encode the rest
+  gsub(/\|/, "%7C", s)
+  gsub(/=/,  "%3D", s)
+  gsub(/\n/, "%0A", s)
+  return s
+}
+function lg_dec(s){
+  #  %25 last, for the same reason in reverse
+  gsub(/%0A/, "\n", s)
+  gsub(/%3D/, "=",  s)
+  gsub(/%7C/, "|",  s)
+  gsub(/%25/, "%",  s)
+  return s
+}
+
+# ---------------------------------------------------------------------
+#  Building a record.
+#
+#  Callers hand over parallel arrays of keys and values rather than a
+#  formatted string, so there is exactly one place that knows the
+#  delimiters and exactly one place that encodes.
+# ---------------------------------------------------------------------
+function lg_make(ts, type, k, v, n,   i, out){
+  out = ts "|" type
+  for(i=1; i<=n; i++){
+    if(k[i]=="") continue
+    out = out "|" k[i] "=" lg_enc(v[i])
+  }
+  return out "|~"                     # the completeness marker
+}
+
+# ---------------------------------------------------------------------
+#  Parsing.
+#
+#  Fills LG[key] with decoded values, sets LG_TS and LG_TYPE, and
+#  returns 1 for a good record.  Returns 0 and sets LG_ERR otherwise -
+#  it never aborts, because a damaged tail must not take the whole log
+#  with it.
+# ---------------------------------------------------------------------
+function lg_parse(line,   n, f, i, p, key, val){
+  for(key in LG) delete LG[key]
+  LG_TS=""; LG_TYPE=""; LG_ERR=""; LG_NF=0
+  if(line=="" || substr(line,1,1)=="#"){ LG_ERR="blank or comment"; return 0 }
+  n = split(line, f, "|")
+  if(n < 3){ LG_ERR="too few fields"; return 0 }
+  if(!lg_ts_ok(f[1])){ LG_ERR="bad timestamp: " f[1]; return 0 }
+  if(f[2] !~ /^[a-z][a-z0-9]{0,4}$/){ LG_ERR="bad type: " f[2]; return 0 }
+  #  The record must be COMPLETE.  Without this a half-written line
+  #  parses cleanly and quietly loses whatever never reached the disk.
+  if(f[n] != "~"){ LG_ERR="incomplete record (no terminator)"; return 0 }
+  LG_TS = f[1]; LG_TYPE = f[2]
+  for(i=3; i<n; i++){
+    p = index(f[i], "=")
+    if(p < 2){ LG_ERR="field " i " is not key=value: " f[i]; return 0 }
+    key = substr(f[i], 1, p-1)
+    val = substr(f[i], p+1)
+    if(key !~ /^[a-z0-9_]+$/){ LG_ERR="bad key: " key; return 0 }
+    LG[key] = lg_dec(val)
+    LG_NF++
+  }
+  return 1
+}
+
+#  A timestamp this reader will accept for ever: YYYY-MM-DDThh:mmZ
+function lg_ts_ok(s){
+  if(length(s)!=17) return 0
+  return (s ~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]Z$/)
+}
+
+# ---------------------------------------------------------------------
+#  Reading a whole log.
+#
+#  A record that will not parse is COUNTED and SKIPPED, never fatal.
+#  The app is suspended by iOS, the battery dies, a-Shell is killed
+#  mid-write - a half-written last line must not make the log
+#  unreadable, and it must not silently swallow the good records above
+#  it either.  So: LG_GOOD and LG_BAD, and the caller decides what to
+#  say about it.
+# ---------------------------------------------------------------------
+function lg_read(file, want,   line, i){
+  LG_N=0; LG_GOOD=0; LG_BAD=0; LG_BADLINE=""
+  while((getline line < file) > 0){
+    if(line=="" || substr(line,1,1)=="#") continue
+    if(!lg_parse(line)){
+      LG_BAD++
+      if(LG_BADLINE=="") LG_BADLINE = line
+      continue
+    }
+    LG_GOOD++
+    if(want!="" && LG_TYPE!=want) continue
+    LG_N++
+    LR_TS[LG_N]   = LG_TS
+    LR_TYPE[LG_N] = LG_TYPE
+    LR_LINE[LG_N] = line
+  }
+  close(file)
+  return LG_N
+}
+
+#  Re-parse the nth record kept by lg_read, so LG[] refers to it.
+function lg_at(i){
+  if(i<1 || i>LG_N) return 0
+  return lg_parse(LR_LINE[i])
+}
+# =====================================================================
+#  Colour, shared.
+#
+#  day    light text on a black panel
+#  night  deep red on black, no green at all, because rebuilding dark
+#         adaptation takes twenty minutes and a bright screen costs
+#         every one of them
+#  plain  no escape sequences whatsoever - chosen automatically when
+#         stdout is not a terminal, so redirected output is clean text
+#
+#  The panel is painted rather than only setting a foreground colour:
+#  a user on a light terminal profile otherwise gets white on white.
+# =====================================================================
+function col_init(   e){
+  if(COL_READY) return
+  e=sprintf("%c",27)
+  if(cmode=="night"){
+    C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"
+    C_WARN=e "[1;31m"; C_NO=e "[1;31m"; C_OK=e "[1;31m"
+  } else if(cmode=="day"){
+    C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"
+    C_WARN=e "[1;91m"; C_NO=e "[1;91m"; C_OK=e "[1;92m"
+  } else {
+    C_BASE=""; C_ACC=""; C_DIM=""; C_WARN=""; C_NO=""; C_OK=""
+  }
+  C_RST=C_BASE; COL_READY=1
+  return 0
+}
+function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
+function hr(){ print "  ----------------------------------------------------------------------" }
+# =====================================================================
+#  deck-log -- registry, derived views, and the entry helpers.
+#
+#  THE THREE LAYERS, and it matters that they stay separate:
+#
+#    registry   facts about the boat.  Equipment, parts, minimums,
+#               stowage.  Changes rarely.  Lives in BOAT.
+#    log        events.  What happened.  Append only.  Lives in LOG.
+#    views      holdings, open defects, what is due, the shopping list.
+#               COMPUTED, NEVER STORED.
+#
+#  So there is no stored inventory.  The catalogue is registry; the
+#  count is derived by replaying the log.  A stored count is the obvious
+#  design and it is the one that goes wrong: it drifts from the log, and
+#  then you have two numbers and no way to know which one lied.
+# =====================================================================
+
+
+# ---------------------------------------------------------------------
+#  The registry.  Same encoding as the log so there is one escaping
+#  rule in the tool, not two.
+#
+#      eq|id=eng.main|make=Yanmar|model=4JH4-TE|serial=E12345|...|~
+#      pt|id=impeller|number=Jabsco 17937-0001|fits=eng.main|min=2|...|~
+# ---------------------------------------------------------------------
+function bt_read(file,   line, id){
+  EQ_N=0; PT_N=0
+  while((getline line < file) > 0){
+    if(line=="" || substr(line,1,1)=="#") continue
+    if(!lg_parse("2000-01-01T00:00Z|" line)) continue
+    id = LG["id"]
+    if(id=="") continue
+    if(LG_TYPE=="eq"){
+      EQ_N++; EQ_ID[EQ_N]=id
+      EQ_MAKE[EQ_N]=LG["make"]; EQ_MODEL[EQ_N]=LG["model"]
+      EQ_SER[EQ_N]=LG["serial"]; EQ_NAME[EQ_N]=LG["name"]
+      EQ_PLATE[EQ_N]=LG["plate"]; EQ_IDX[id]=EQ_N
+    } else if(LG_TYPE=="pt"){
+      PT_N++; PT_ID[PT_N]=id
+      PT_NUM[PT_N]=LG["number"]; PT_FITS[PT_N]=LG["fits"]
+      PT_MIN[PT_N]=LG["min"]+0; PT_STOW[PT_N]=LG["stow"]
+      PT_NAME[PT_N]=LG["name"]; PT_IDX[id]=PT_N
+    }
+  }
+  close(file)
+  return EQ_N + PT_N
+}
+function bt_make(type, k, v, n,   rec){
+  #  the registry line is a record without a timestamp
+  rec = lg_make("2000-01-01T00:00Z", type, k, v, n)
+  sub(/^[^|]*\|/, "", rec)
+  return rec
+}
+
+# ---------------------------------------------------------------------
+#  Inventory, derived.
+#
+#  Replay the log: a stocktake SETS the holding, a use subtracts, a
+#  restock adds.  `fits` is honoured, so a part consumed against the
+#  main engine does not move the generator's holding of the same part.
+# ---------------------------------------------------------------------
+#  KEYED BY PART ALONE, and that is a correction.
+#
+#  The first version keyed the holding by part AND by the equipment the
+#  job recorded, which looks careful and is wrong.  A spare belongs to
+#  the locker, not to a machine.  The moment somebody cannibalises the
+#  main engine's impeller for the generator in an emergency - which is
+#  exactly when a boat does that - the job records fits=gen, a second
+#  bucket appears from nowhere, the main engine's holding never goes
+#  down, and the shopping list quietly stops asking for the part you
+#  just used.
+#
+#  So: `fits` in the REGISTRY says what a part is for, and `eq`/`fits`
+#  on a JOB says where it went - useful history, both of them.  Neither
+#  divides the stock.  Two engines needing different impellers are two
+#  parts with two ids, which is what they are in the locker.
+function inv_build(logfile,   i, part, q){
+  for(part in HOLD) delete HOLD[part]
+  lg_read(logfile, "")
+  for(i=1; i<=LG_N; i++){
+    if(!lg_at(i)) continue
+    part = LG["part"]
+    if(part=="") continue
+    q = LG["qty"]
+    if(LG_TYPE=="inv" && LG["action"]=="stocktake"){ HOLD[part] = LG["count"]+0; continue }
+    if(LG_TYPE=="inv" && LG["action"]=="restock"){   HOLD[part] += q+0; continue }
+    if(LG_TYPE=="eng" || LG_TYPE=="pro"){
+      if(q!="") HOLD[part] -= q+0
+    }
+  }
+  return 0
+}
+function inv_hold(part, fits){
+  if(part in HOLD) return HOLD[part]
+  return 0
+}
+
+# ---------------------------------------------------------------------
+#  Open defects.  An inspection that finds something opens an item; it
+#  stays open until a job records closes=<timestamp>.  This is the piece
+#  the log alone does not give you: a finding is not an event that is
+#  over when it is written.
+# ---------------------------------------------------------------------
+function def_build(logfile,   i, ts, c){
+  DEF_N=0
+  for(i in CLOSED) delete CLOSED[i]
+  lg_read(logfile, "")
+  for(i=1; i<=LG_N; i++){
+    if(!lg_at(i)) continue
+    c = LG["closes"]
+    if(c!="") CLOSED[c]=LG_TS
+  }
+  for(i=1; i<=LG_N; i++){
+    if(!lg_at(i)) continue
+    if(LG["state"]!="a") continue
+    ts = LG_TS
+    if(ts in CLOSED) continue
+    DEF_N++
+    DEF_TS[DEF_N]=ts; DEF_EQ[DEF_N]=LG["eq"]
+    DEF_ITEM[DEF_N]=LG["insp"]; DEF_NOTE[DEF_N]=LG["note"]
+  }
+  return DEF_N
+}
+# =====================================================================
+#  deck-log -- the screens, and the command dispatch.
+# =====================================================================
+
+#  The VOS menus.  These are 0-9 codes because that is what they are in
+#  the standard, so a menu here is the standard and not a coarsening of
+#  it.  The codes a human estimates by eye are menus; the numbers an
+#  instrument reads are typed.
+function menus_init(){
+  if(MEN_READY) return
+  m("cloud", "TOTAL CLOUD, eighths of sky",
+    "0=clear;1=1/8;2=2/8;3=3/8;4=4/8;5=5/8;6=6/8;7=7/8;8=overcast")
+  m("sea",   "SEA STATE, Douglas",
+    "0=glassy;1=rippled;2=smooth, wavelets;3=slight;4=moderate;5=rough;6=very rough;7=high;8=very high;9=phenomenal")
+  m("vis",   "VISIBILITY",
+    "0=under 50 m;1=50-200 m;2=200-500 m;3=500 m - 1 km;4=1-2 km;5=2-4 km;6=4-10 km;7=10-20 km;8=20-50 km;9=over 50 km")
+  m("ptend", "PRESSURE over the last 3 hours - the SHAPE, not the amount",
+    "0=rising, then steady;1=rising, then rising faster;2=rising steadily;3=falling or steady, then rising;4=steady;5=falling, then steady;6=falling, then falling faster;7=falling steadily;8=steady or rising, then falling")
+  m("cl",    "LOW CLOUD",
+    "0=none;1=cumulus, fair;2=cumulus, towering;3=cumulonimbus, no anvil;4=stratocumulus from cumulus;5=stratocumulus;6=stratus;7=ragged stratus, bad weather;8=cumulus and stratocumulus;9=cumulonimbus with anvil")
+  m("cm",    "MIDDLE CLOUD",
+    "0=none;1=altostratus, thin;2=altostratus, thick;3=altocumulus, thin;4=altocumulus, patches;5=altocumulus, bands thickening;6=altocumulus from cumulus;7=altocumulus in layers;8=altocumulus, turrets;9=altocumulus, chaotic")
+  m("ch",    "HIGH CLOUD",
+    "0=none;1=cirrus, wisps;2=cirrus, dense;3=cirrus from anvil;4=cirrus, thickening;5=cirrus and cirrostratus below 45 deg;6=cirrus and cirrostratus above 45 deg;7=cirrostratus, whole sky;8=cirrostratus, part sky;9=cirrocumulus")
+  MEN_READY=1
+  return 0
+}
+function m(k,t,o){ MN_K[++MN_N]=k; MN_T[k]=t; MN_O[k]=o; return 0 }
+
+function menu_show(key,   n, a, i, p, code, txt, cols, half){
+  menus_init()
+  if(!(key in MN_T)) return 0
+  print ""
+  printf "  %s\n", cw(MN_T[key], C_ACC)
+  n = split(MN_O[key], a, ";")
+  half = int((n+1)/2)
+  for(i=1; i<=half; i++){
+    p = index(a[i], "="); code=substr(a[i],1,p-1); txt=substr(a[i],p+1)
+    printf "    %s  %-34s", code, txt
+    if(i+half<=n){
+      p = index(a[i+half], "="); code=substr(a[i+half],1,p-1); txt=substr(a[i+half],p+1)
+      printf "  %s  %s", code, txt
+    }
+    print ""
+  }
+  printf "    %s  %-34s  %s  %s\n", "/", "cannot be seen from here", "-", "not observed"
+  return n
+}
+function menu_ok(key, ans,   n, a, i, p){
+  menus_init()
+  if(ans=="-" || ans=="/") return 1
+  n = split(MN_O[key], a, ";")
+  for(i=1;i<=n;i++){ p=index(a[i],"="); if(substr(a[i],1,p-1)==ans) return 1 }
+  return 0
+}
+
+#  Plausibility, as a question rather than a rejection.  An instrument
+#  reading wrongly is itself worth logging, so "no, that is what I read"
+#  has to be accepted.
+function implausible(key, val,   x){
+  if(val=="-" || val=="/" || val=="") return ""
+  x = val+0
+  if(key=="mslp"){ if(x<870 || x>1090) return sprintf("%.1f hPa is outside anything recorded on earth", x) }
+  if(key=="wspd"){ if(x<0  || x>250)   return sprintf("%g knots", x) }
+  if(key=="wdir"){ if(x<0  || x>360)   return sprintf("%g is not a compass direction", x) }
+  if(key=="airt" || key=="seat" || key=="dewp"){
+    if(x<-60 || x>60) return sprintf("%g degrees", x) }
+  if(key=="sog"){ if(x<0 || x>60) return sprintf("%g knots", x) }
+  if(key=="crs"){ if(x<0 || x>360) return sprintf("%g is not a course", x) }
+  return ""
+}
+
+# =====================================================================
+#  Dispatch
+# =====================================================================
+BEGIN{
+  col_init()
+
+  # ---- build a record from a key<TAB>value file --------------------
+  if(cmd=="mkrec"){
+    n=0
+    while((getline line < fields) > 0){
+      p = index(line, "\t")
+      if(p<2) continue
+      K[++n] = substr(line,1,p-1)
+      V[n]   = substr(line,p+1)
+    }
+    close(fields)
+    rec = lg_make(now, type, K, V, n)
+    #  never write a record this reader cannot read back
+    if(!lg_parse(rec)){ exit 2 }
+    print rec
+    exit 0
+  }
+
+  else if(cmd=="menu"){ menu_show(what) }
+  else if(cmd=="menuok"){ exit (menu_ok(what, ans) ? 0 : 1) }
+  else if(cmd=="check"){ s=implausible(what, ans); if(s!=""){ print s; exit 1 } exit 0 }
+
+  # ---- the log, most recent last ----------------------------------
+  else if(cmd=="recent"){
+    k = (n=="" ? 12 : n+0)
+    lg_read(LOG, "")
+    print ""
+    printf "  %s\n", cw("THE LOG", C_ACC)
+    hr()
+    if(LG_N==0) printf "  %s\n", cwd("nothing logged yet")
+    for(i = (LG_N>k ? LG_N-k+1 : 1); i<=LG_N; i++){
+      if(!lg_at(i)) continue
+      line = ""
+      if(LG_TYPE=="nav") line = sprintf("crs %-4s %5s kn  wind %-8s sea %s",
+            LG["crs"], LG["sog"], LG["wind"], LG["sea"])
+      else if(LG_TYPE=="wx") line = sprintf("%s hPa  tend %-2s cloud %-2s vis %s",
+            LG["mslp"], LG["ptend"], LG["cloud"], LG["vis"])
+      else if(LG_TYPE=="eng") line = sprintf("%s %s %s", LG["eq"],
+            (LG["job"]!="" ? "job " LG["job"] : "insp " LG["insp"] " = " LG["state"]),
+            (LG["note"]!="" ? "- " LG["note"] : ""))
+      else if(LG_TYPE=="pro") line = sprintf("%s %s", LG["item"], LG["qty"])
+      else if(LG_TYPE=="inv") line = sprintf("%s %s %s", LG["action"], LG["part"], LG["count"] LG["qty"])
+      else if(LG_TYPE=="cor") line = sprintf("correction to %s", LG["ref"])
+      else line = "-"
+      printf "  %s %-4s %s\n", cwd(substr(LG_TS,1,16)), LG_TYPE, line
+    }
+    hr()
+    if(LG_BAD>0) printf "  %s\n", cw(sprintf("%d damaged record(s) skipped - the log is still readable", LG_BAD), C_WARN)
+    printf "  %s\n", cwd(sprintf("%d records", LG_GOOD))
+    print ""
+  }
+
+  # ---- what is aboard, derived ------------------------------------
+  else if(cmd=="holdings"){
+    bt_read(BOAT); inv_build(LOG)
+    print ""
+    printf "  %s\n", cw("SPARES ABOARD", C_ACC)
+    hr()
+    if(PT_N==0) printf "  %s\n", cwd("no parts in the registry yet - deck-log part add")
+    for(i=1;i<=PT_N;i++){
+      h = inv_hold(PT_ID[i], PT_FITS[i])
+      short = PT_MIN[i] - h
+      printf "  %-22s %3d  %s\n", substr(PT_NAME[i]!=""?PT_NAME[i]:PT_ID[i],1,22), h,
+        (short>0 ? cw(sprintf("%d short of %d", short, PT_MIN[i]), C_WARN) : cwd(sprintf("min %d", PT_MIN[i])))
+      if(PT_NUM[i]!="")  printf "    %s\n", cwd(PT_NUM[i] (PT_FITS[i]!="" ? "   fits " PT_FITS[i] : ""))
+      if(PT_STOW[i]!="") printf "    %s\n", cwd("stowed: " PT_STOW[i])
+    }
+    hr()
+    print ""
+  }
+
+  #  the same numbers with nothing drawn, for the shell and for tests.
+  #  Parsing the drawn screen breaks the first time a part is called
+  #  "raw water impeller" instead of "impeller" - which it is.
+  else if(cmd=="holdraw"){
+    bt_read(BOAT); inv_build(LOG)
+    for(i=1;i<=PT_N;i++)
+      printf "%s|%d|%d|%d\n", PT_ID[i], inv_hold(PT_ID[i], PT_FITS[i]),
+             PT_MIN[i], (PT_MIN[i] - inv_hold(PT_ID[i], PT_FITS[i]))
+  }
+
+  # ---- the screen for the chandlery -------------------------------
+  else if(cmd=="shopping"){
+    bt_read(BOAT); inv_build(LOG)
+    print ""
+    printf "  %s%s\n", cw("SHOPPING LIST", C_ACC), (port!="" ? "                     " port : "")
+    hr()
+    any=0
+    for(i=1;i<=PT_N;i++){
+      h = inv_hold(PT_ID[i], PT_FITS[i]); short = PT_MIN[i] - h
+      if(short<=0) continue
+      any++
+      printf "  %-24s x%d   %s\n", substr(PT_NAME[i]!=""?PT_NAME[i]:PT_ID[i],1,24), short,
+             cwd(sprintf("have %d, want %d", h, PT_MIN[i]))
+      if(PT_NUM[i]!="") printf "    %s\n", PT_NUM[i]
+      if(PT_FITS[i]!="" && (PT_FITS[i] in EQ_IDX)){
+        j = EQ_IDX[PT_FITS[i]]
+        printf "    %s\n", cwd(sprintf("fits: %s %s  s/n %s", EQ_MAKE[j], EQ_MODEL[j], EQ_SER[j]))
+      }
+      if(PT_STOW[i]!="") printf "    %s\n", cwd("stow: " PT_STOW[i])
+      print ""
+    }
+    if(!any) printf "  %s\n", cwd("nothing short of its minimum")
+    hr()
+    printf "  %s\n", cwd("Everything the chandler will ask, on one screen, with no signal.")
+    print ""
+  }
+
+  # ---- open defects ------------------------------------------------
+  else if(cmd=="defects"){
+    bt_read(BOAT); n=def_build(LOG)
+    print ""
+    printf "  %s\n", cw("OPEN ITEMS", C_ACC)
+    hr()
+    if(n==0) printf "  %s\n", cwd("nothing outstanding")
+    for(i=1;i<=n;i++){
+      printf "  %-14s %-12s %s\n", DEF_ITEM[i], DEF_EQ[i], cwd("found " substr(DEF_TS[i],1,10))
+      if(DEF_NOTE[i]!="") printf "    %s\n", DEF_NOTE[i]
+    }
+    hr()
+    printf "  %s\n", cwd("An item stays here until a job records that it closed it.")
+    print ""
+  }
+
+  # ---- the registry ------------------------------------------------
+  else if(cmd=="equip"){
+    bt_read(BOAT)
+    print ""
+    printf "  %s\n", cw("EQUIPMENT", C_ACC)
+    hr()
+    if(EQ_N==0) printf "  %s\n", cwd("nothing yet - deck-log equip add")
+    for(i=1;i<=EQ_N;i++){
+      printf "  %-12s %s %s\n", EQ_ID[i], EQ_MAKE[i], EQ_MODEL[i]
+      if(EQ_SER[i]!="")   printf "    %s\n", cwd("serial " EQ_SER[i])
+      if(EQ_PLATE[i]!="") printf "    %s\n", cwd("plate: " EQ_PLATE[i])
+    }
+    hr(); print ""
+  }
+  else if(cmd=="equiplist"){ bt_read(BOAT); for(i=1;i<=EQ_N;i++) print EQ_ID[i] }
+  else if(cmd=="partlist"){  bt_read(BOAT); for(i=1;i<=PT_N;i++) print PT_ID[i] }
+  else if(cmd=="mkeq"){
+    n=0
+    while((getline line < fields) > 0){
+      p=index(line,"\t"); if(p<2) continue
+      K[++n]=substr(line,1,p-1); V[n]=substr(line,p+1)
+    }
+    close(fields)
+    print bt_make(type, K, V, n)
+  }
+
+  # ---- how long since the last entry -------------------------------
+  else if(cmd=="since"){
+    lg_read(LOG, "")
+    if(LG_N==0){ print "" ; exit 0 }
+    print LR_TS[LG_N]
+  }
+
+  else { printf "  deck-log: unknown cmd %s\n", cmd; exit 2 }
+}
+__DECKLOG_ENGINE__
+}
+
+about_text() {
+  cat <<'ABOUT'
+
+  ===============================================================
+   DECK-LOG -- the boat's records
+  ===============================================================
+
+  WHAT THIS IS
+
+  The deck log, the engine log and the provisions list, kept in one
+  place because they are the same book with different tabs, written by
+  the same person at the same moment.
+
+  A LOG IS A RECORD
+
+  It has standing after an incident, and it is read by people who were
+  not there. So:
+
+    - it is APPEND ONLY. Nothing is ever edited or deleted.
+    - a CORRECTION is a new entry that references the old one, and both
+      stay visible for ever. That is the electronic version of lining
+      through and initialling, which is how it has always been done.
+    - every timestamp is UTC. Display is another matter; the record is
+      UTC, so nobody has to argue later about whose local time it was.
+
+  DECLINING IS AN ANSWER
+
+  Return records "-", meaning asked and not taken. "/" means it could
+  not be observed - dark, fog, behind something. Both are true entries
+  and both are better than a guess. A form that punishes blanks gets
+  invented numbers, and an invented number in a log is worse than a
+  gap, because it looks like data.
+
+  Zero is a reading. "Cloud nil" and "cloud not observed" are different
+  facts and this log can tell them apart.
+
+  WHAT IS DERIVED, AND WHAT IS STORED
+
+  There is no stored inventory. What an impeller IS - its number, what
+  it fits, how many to carry - is registry. How many you HAVE is worked
+  out by replaying the log. So the count can never disagree with the
+  log, because it is the log.
+
+  THE OBSERVATION FOLLOWS THE VOS STANDARD
+
+  NOAA's Voluntary Observing Ship programme defines what a ship
+  observes and how it is coded, so the coded fields here are theirs,
+  not ours. Learn this form and you have learned the professional one,
+  and your log is comparable with every other marine observation ever
+  taken.
+
+  WHO WROTE IT
+
+  M. Larry Sherman had the ideas and the sea time. Claude wrote the
+  code. Part of Bash Navigation Software, with celnav, colregs and
+  tides.
+
+  https://github.com/larrys614/bashnav
+
+  Apache License 2.0.
+
+ABOUT
+}
+
+#  ask_menu <key> <fieldname>   - a coded field: one keypress, no return
+ask_menu() {
+  eng -v cmd=menu -v what="$1"
+  while :; do
+    printf "  > "; IFS= read -r a || { fld "$2" "-"; return 0; }
+    [ -z "$a" ] && { fld "$2" "-"; return 0; }
+    if eng -v cmd=menuok -v what="$1" -v ans="$a" >/dev/null 2>&1; then
+      fld "$2" "$a"; return 0
+    fi
+    echo "  ?"
+  done
+}
+
+#  ask_num <fieldname> <prompt> [last]
+#
+#  A MEASUREMENT GETS NO DEFAULT.  The pressure at 1800 is not the 1500
+#  reading unless changed - it is a new reading or it is nothing.  `last`
+#  is shown for orientation only; return declines and records "-".
+ask_num() {
+  k=$1; prompt=$2; last=$3
+  while :; do
+    if [ -n "$last" ]; then printf "  %-34s %s\n" "$prompt" "$(printf '\033[90mlast: %s\033[0m' "$last" 2>/dev/null || echo "last: $last")"
+    else printf "  %s\n" "$prompt"; fi
+    printf "  > "; IFS= read -r a || { fld "$k" "-"; return 0; }
+    case "$a" in
+      "")  fld "$k" "-"; return 0 ;;
+      "/") fld "$k" "/"; return 0 ;;
+    esac
+    if msg=$(eng -v cmd=check -v what="$k" -v ans="$a"); then
+      fld "$k" "$a"; return 0
+    fi
+    #  a question, not a rejection: an instrument reading wrongly is
+    #  itself worth logging
+    printf "  %s\n" "$msg"
+    printf "  is that really what you read? [y] yes, log it  [n] type it again  > "
+    IFS= read -r y || return 0
+    case "$y" in y|Y) fld "$k" "$a"; return 0 ;; esac
+  done
+}
+
+#  ask_state <fieldname> <prompt> [carried]
+#
+#  STATE CARRIES FORWARD, because it genuinely persists: at 1800 the
+#  course really is what it was at 1500 unless somebody changed it.
+#  Return ACCEPTS the carried value here - the opposite of ask_num, and
+#  the screen makes clear which you are looking at.
+ask_state() {
+  k=$1; prompt=$2; carried=$3
+  if [ -n "$carried" ]; then printf "  %-34s [%s] " "$prompt" "$carried"
+  else printf "  %-34s " "$prompt"; fi
+  IFS= read -r a || { fld "$k" "${carried:--}"; return 0; }
+  [ -z "$a" ] && a="$carried"
+  [ -z "$a" ] && a="-"
+  fld "$k" "$a"
+}
+ask_text() {
+  printf "  %s " "$2"; IFS= read -r a || a=""
+  [ -z "$a" ] && a="-"
+  fld "$1" "$a"
+}
+
+last_of() { eng -v cmd=recent -v n=40 2>/dev/null | $AWK -v k="$1" '$0 ~ k {print}' | tail -1; }
+
+# ---------------------------------------------------------------------
+#  The three-hourly entry.
+# ---------------------------------------------------------------------
+do_entry() {
+  load_conf
+  echo
+  echo "  ==============================================================="
+  printf "   %s   %s\n" "$(utcstamp)" "deck log entry"
+  echo "  ==============================================================="
+  echo
+  fld_start
+  ask_state lat "latitude  (e.g. 41 14.0N)"  "$LAST_LAT"
+  ask_state lon "longitude (e.g. 072 05.0W)" "$LAST_LON"
+  ask_state crs "course steered, true"       "$LAST_CRS"
+  ask_state sog "speed over ground, knots"   "$LAST_SOG"
+  echo
+  printf "  %s\n" "TRUE wind - not apparent. Apparent changes on every tack."
+  ask_num wdir "wind direction, degrees true" ""
+  ask_num wspd "wind speed, knots" ""
+  ask_menu sea sea
+  ask_text note "anything worth recording:"
+  fld who "${who:--}"
+  fld_commit nav || return 1
+  echo
+  echo "  logged."
+  echo
+  printf "  weather observation as well? [Y/n] "; IFS= read -r a || a=n
+  case "$a" in n|N) ;; *) do_wx ;; esac
+  return 0
+}
+
+do_wx() {
+  echo
+  printf "  %s\n" "  ---- weather ----"
+  fld_start
+  ask_num mslp "sea level pressure, hPa" "$LAST_MSLP"
+  ask_menu ptend ptend
+  ask_num pchg "pressure change over 3 h, hPa (+/-)" ""
+  ask_num airt "air temperature, C" ""
+  ask_num dewp "dew point, C  (or wet bulb)" ""
+  ask_num seat "sea temperature, C" ""
+  ask_menu cloud cloud
+  ask_menu cl cl
+  ask_menu cm cm
+  ask_menu ch ch
+  ask_menu vis vis
+  echo
+  printf "  %s\n" "  swell - separate from the wind sea. Period is the important one."
+  ask_num swdir "swell from, degrees true" ""
+  ask_num swper "swell period, seconds" ""
+  ask_num swht  "swell height, metres" ""
+  fld who "${who:--}"
+  fld_commit wx || return 1
+  echo; echo "  weather logged."; echo
+}
+
+# ---------------------------------------------------------------------
+#  Engine
+# ---------------------------------------------------------------------
+CHECKLIST="oil_filter:oil and filter;fuel_pri:primary fuel filter;fuel_sec:secondary fuel filter;fuel_leaks:fuel system, leaks and damage;hoses:hoses and fittings;air:air filter;strainer:sea water strainer;impeller:water pump impeller;cooling:cooling system, leaks;coolant:antifreeze level and strength;hx:heat exchanger and coolers;anodes:sacrificial anodes;trans:transmission fluid;cables:throttle and shift cables;belts:belt tension and wear;batt:battery condition and connections;mounts:engine and motor mounts;sump:sump and oil pad"
+
+pick_equip() {
+  list=$(eng -v cmd=equiplist)
+  [ -z "$list" ] && { echo "  no equipment in the registry yet - deck-log equip add"; return 1; }
+  echo
+  i=1; for e in $list; do echo "    $i  $e"; i=$((i+1)); done
+  printf "  > "; IFS= read -r n || return 1
+  case "$n" in *[!0-9]*|"") return 1 ;; esac
+  EQ=$(printf '%s\n' $list | $AWK -v n="$n" 'NR==n{print}')
+  [ -n "$EQ" ] || return 1
+  return 0
+}
+
+do_inspect() {
+  pick_equip || return 1
+  echo
+  echo "  $EQ - inspection.   o = ok   a = needs attention   - = not checked   / = could not reach"
+  echo
+  IFS=';'
+  for item in $CHECKLIST; do
+    key=${item%%:*}; label=${item#*:}
+    printf "  %-38s " "$label"
+    IFS= read -r s </dev/tty 2>/dev/null || s="-"
+    case "$s" in o|O) s=o ;; a|A) s=a ;; /) s=/ ;; *) s=- ;; esac
+    note=""
+    if [ "$s" = a ]; then printf "    what is wrong? "; IFS= read -r note </dev/tty 2>/dev/null || note=""; fi
+    fld_start
+    fld eq "$EQ"; fld insp "$key"; fld state "$s"; fld note "${note:--}"; fld who "${who:--}"
+    fld_commit eng || true
+    IFS=';'
+  done
+  unset IFS
+  echo
+  echo "  inspection logged."
+  eng -v cmd=defects
+}
+
+do_job() {
+  pick_equip || return 1
+  echo
+  printf "  what was done? (e.g. oil and filter, impeller) "; IFS= read -r job || return 1
+  [ -z "$job" ] && return 0
+  parts=$(eng -v cmd=partlist)
+  part=""; qty=""
+  if [ -n "$parts" ]; then
+    echo
+    echo "  part used?"
+    i=1; for p in $parts; do echo "    $i  $p"; i=$((i+1)); done
+    echo  "    return  none"
+    printf "  > "; IFS= read -r n || n=""
+    case "$n" in
+      ''|*[!0-9]*) ;;
+      *) part=$(printf '%s\n' $parts | $AWK -v n="$n" 'NR==n{print}')
+         [ -n "$part" ] && { printf "  how many? [1] "; IFS= read -r qty; [ -z "$qty" ] && qty=1; } ;;
+    esac
+  fi
+  printf "  engine hours now? "; IFS= read -r hrs || hrs=""
+  printf "  does this close an open item? [y/N] "; IFS= read -r c || c=n
+  closes=""
+  case "$c" in
+    y|Y) eng -v cmd=defects
+         printf "  paste the date-time of the item it closes (YYYY-MM-DDTHH:MMZ): "
+         IFS= read -r closes || closes="" ;;
+  esac
+  fld_start
+  fld eq "$EQ"; fld job "$job"
+  [ -n "$part" ] && { fld part "$part"; fld qty "${qty:-1}"; fld fits "$EQ"; }
+  fld hrs "${hrs:--}"; fld who "${who:--}"
+  [ -n "$closes" ] && fld closes "$closes"
+  fld_commit eng || return 1
+  echo
+  echo "  logged."
+  #  the one line that matters, said while they are still standing there
+  if [ -n "$part" ]; then eng -v cmd=holdings | grep -A2 -i "$part" | head -4; fi
+  echo
+}
+
+# ---------------------------------------------------------------------
+#  Registry
+# ---------------------------------------------------------------------
+add_equip() {
+  echo
+  printf "  short id (e.g. eng.main, gen, watermaker): "; IFS= read -r id || return 1
+  [ -z "$id" ] && return 0
+  printf "  make: ";   IFS= read -r make
+  printf "  model: ";  IFS= read -r model
+  printf "  serial: "; IFS= read -r ser
+  echo "  now the WHOLE plate, verbatim - every number on it, including"
+  echo "  the ones neither of us understands. It is the one the chandler"
+  echo "  asks for that a tidy form leaves out."
+  printf "  plate: "; IFS= read -r plate
+  fld_start
+  fld id "$id"; fld make "$make"; fld model "$model"; fld serial "$ser"; fld plate "$plate"
+  mkdir -p "$DECKLOG_HOME"
+  line=$(eng -v cmd=mkeq -v type=eq -v fields="$FIELDS"); rm -f "$FIELDS"; FIELDS=""
+  [ -n "$line" ] && printf '%s\n' "$line" >> "$BOAT"
+  echo "  added."
+}
+add_part() {
+  echo
+  printf "  short id (e.g. impeller): "; IFS= read -r id || return 1
+  [ -z "$id" ] && return 0
+  printf "  name: ";                       IFS= read -r name
+  printf "  manufacturer's number: ";      IFS= read -r num
+  printf "  fits which equipment id: ";    IFS= read -r fits
+  printf "  minimum to carry: ";           IFS= read -r min
+  printf "  stowed where: ";               IFS= read -r stow
+  printf "  how many aboard right now: ";  IFS= read -r have
+  fld_start
+  fld id "$id"; fld name "$name"; fld number "$num"; fld fits "$fits"
+  fld min "${min:-1}"; fld stow "$stow"
+  mkdir -p "$DECKLOG_HOME"
+  line=$(eng -v cmd=mkeq -v type=pt -v fields="$FIELDS"); rm -f "$FIELDS"; FIELDS=""
+  [ -n "$line" ] && printf '%s\n' "$line" >> "$BOAT"
+  #  the opening holding is a STOCKTAKE EVENT in the log, not a number
+  #  in the registry - so the count is always derived and can never
+  #  disagree with the log
+  if [ -n "$have" ]; then
+    fld_start
+    fld part "$id"; fld fits "$fits"; fld count "$have"; fld action stocktake
+    fld_commit inv || true
+  fi
+  echo "  added."
+}
+do_stocktake() {
+  parts=$(eng -v cmd=partlist)
+  [ -z "$parts" ] && { echo "  no parts in the registry yet"; return 0; }
+  echo
+  echo "  count the locker. Return to skip an item."
+  for p in $parts; do
+    printf "  %-24s " "$p"; IFS= read -r c || c=""
+    [ -z "$c" ] && continue
+    case "$c" in *[!0-9]*) continue ;; esac
+    fld_start; fld part "$p"; fld count "$c"; fld action stocktake; fld who "${who:--}"
+    fld_commit inv || true
+  done
+  echo "  counted."
+}
+
+do_provision() {
+  echo
+  printf "  item (water, fuel, gas, food): "; IFS= read -r item || return 1
+  [ -z "$item" ] && return 0
+  printf "  used or remaining? [u/r] "; IFS= read -r ur
+  printf "  how much: "; IFS= read -r amt
+  printf "  units (l, kg, %%): "; IFS= read -r u
+  fld_start
+  fld item "$item"; fld who "${who:--}"
+  case "$ur" in r|R) fld remain "$amt" ;; *) fld used "$amt" ;; esac
+  fld unit "${u:--}"
+  fld_commit pro || return 1
+  echo "  logged."
+}
+
+do_correct() {
+  eng -v cmd=recent -v n=10
+  echo
+  echo "  A log is never edited. A correction is a NEW entry that points"
+  echo "  at the old one, and both stay visible for ever - the electronic"
+  echo "  version of lining through and initialling."
+  printf "  date-time of the entry to correct (YYYY-MM-DDTHH:MMZ): "; IFS= read -r ref || return 1
+  [ -z "$ref" ] && return 0
+  printf "  which field: "; IFS= read -r k
+  printf "  correct value: "; IFS= read -r v
+  printf "  why: "; IFS= read -r why
+  fld_start
+  fld ref "$ref"; fld field "$k"; fld value "$v"; fld why "${why:--}"; fld who "${who:--}"
+  fld_commit cor || return 1
+  echo "  correction logged. The original entry is untouched."
+}
+
+help_text() {
+  cat <<'HLP'
+
+  DECK-LOG -- the boat's records: deck, engine, provisions
+
+  deck-log                 the menu
+  deck-log entry           a deck log entry (the three-hourly one)
+  deck-log wx              a weather observation on its own
+  deck-log log [n]         the last n entries
+  deck-log inspect         run the engine checklist
+  deck-log job             record work done, and the part it used
+  deck-log open            what is outstanding
+  deck-log spares          what is aboard
+  deck-log shopping        the list for the next port
+  deck-log equip | part    the registry
+  deck-log stocktake       count the locker
+  deck-log correct         correct an earlier entry, properly
+  deck-log day|night|plain colour mode
+  deck-log about | version
+
+  The weather reasoning lives in its own tool: try "weather".
+
+  Every timestamp is UTC. The log is append only: nothing is ever
+  edited or deleted, and a correction is a new entry that references
+  the old one. Both stay visible for ever.
+
+HLP
+}
+
+menu() {
+  while :; do
+    load_conf
+    last=$(eng -v cmd=since)
+    echo
+    echo "  ==============================================================="
+    echo "   DECK-LOG $DECKLOG_VERSION                             $(utcstamp)"
+    echo "  ==============================================================="
+    if [ -n "$last" ]; then echo "   last entry: $last"; else echo "   nothing logged yet"; fi
+    cat <<'M'
+
+    1  Log an entry            5  Spares aboard
+    2  Weather only            6  Shopping list
+    3  Engine inspection       7  The log
+    4  Work done               8  What is outstanding
+
+    p  Provisions   s  Stocktake   e  Equipment   n  New part
+    x  Correct an entry
+
+    c  Colour   a  About   h  Help   q  Quit
+M
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) do_entry ;;      2) do_wx ;;
+      3) do_inspect ;;    4) do_job ;;
+      5) eng -v cmd=holdings ;;
+      6) printf "  which port (return for none): "; IFS= read -r p
+         eng -v cmd=shopping -v port="$p" ;;
+      7) eng -v cmd=recent -v n=20 ;;
+      8) eng -v cmd=defects ;;
+      p|P) do_provision ;;  s|S) do_stocktake ;;
+      e|E) eng -v cmd=equip; printf "  add one? [y/N] "; IFS= read -r y
+           case "$y" in y|Y) add_equip ;; esac ;;
+      n|N) add_part ;;
+      x|X) do_correct ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      a|A) about_text ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk || true
+load_conf
+install_engine
+case "${1:-}" in
+  "")         paint; menu ;;
+  entry)      do_entry ;;
+  wx)         do_wx ;;
+  log)        shift; eng -v cmd=recent -v n="${1:-20}" ;;
+  inspect)    do_inspect ;;
+  job)        do_job ;;
+  open)       eng -v cmd=defects ;;
+  spares)     eng -v cmd=holdings ;;
+  shopping)   shift; eng -v cmd=shopping -v port="${1:-}" ;;
+  equip)      eng -v cmd=equip ;;
+  part)       add_part ;;
+  stocktake)  do_stocktake ;;
+  correct)    do_correct ;;
+  day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
+  about)      about_text ;;
+  help|-h|--help) help_text ;;
+  version)    echo "deck-log $DECKLOG_VERSION" ;;
+  *) echo "  deck-log: no such command: $1"; help_text; exit 2 ;;
+esac
+__BN_PAYLOAD_decklog__
+}
+extract_weather() {
+  cat > "$DEST/weather" <<'__BN_PAYLOAD_weather__'
+#!/bin/sh
+# ---------------------------------------------------------------------
+#  Where a tool keeps its engine, its config and your log.
+#
+#  ON iOS YOU CANNOT WRITE IN $HOME.  a-Shell's own README: "In iOS, you
+#  cannot write in the ~ directory, only in ~/Documents/, ~/Library/ and
+#  ~/tmp."  $HOME there is the app's data container --
+#  /private/var/mobile/Containers/Data/Application/<uuid> -- and mkdir
+#  in it is refused.
+#
+#  Every tool in this suite defaulted to $HOME/.<tool>, so not one of
+#  them would start on an iPad: the platform the whole project exists
+#  for.  It printed "cannot create /private/var/mobile/Containers/..."
+#  and stopped.  Nobody noticed because every machine the tests run on
+#  has a writable $HOME.
+#
+#  So: use the first place we can actually create AND write in.  $HOME
+#  is tried first, so nothing changes on macOS, Linux, the BSDs or
+#  Termux.  ~/Documents is what a-Shell gives you.
+# ---------------------------------------------------------------------
+bn_home() {                       # bn_home <dotfolder>  ->  prints path
+  for bn_h_base in "$HOME" "$HOME/Documents" "$HOME/Library"; do
+    [ -n "$bn_h_base" ] || continue
+    bn_h_dir="$bn_h_base/$1"
+    #  The write probe MUST sit inside its own subshell.  Twice over:
+    #  a failing redirection is set up before the 2>/dev/null that was
+    #  meant to silence it, so the error reaches the terminal anyway;
+    #  and ":" is a POSIX *special* built-in, so under dash a
+    #  redirection error on it makes the whole shell EXIT.  The tool
+    #  would print "cannot create ..." and vanish.  ( ) contains both.
+    if mkdir -p "$bn_h_dir" 2>/dev/null && ( : > "$bn_h_dir/.wtest" ) 2>/dev/null
+    then
+      rm -f "$bn_h_dir/.wtest"
+      printf '%s\n' "$bn_h_dir"
+      return 0
+    fi
+  done
+  #  Nothing was writable.  Name the path the user expects, so the
+  #  caller's own error message is one they can act on, and fail there.
+  printf '%s\n' "$HOME/$1"
+  return 1
+}
+# =====================================================================
+#  weather -- read your own barometer.
+#  Part of Bash Navigation Software.  Pure POSIX sh + awk, no network.
+#
+#  It reasons over the observations in the deck log and it TEACHES the
+#  physics underneath, which is why it is its own tool and not part of
+#  deck-log.  A log records what happened on this boat; a teacher is a
+#  different animal, and trying to be both is how the teaching material
+#  got left out of the first attempt.
+#
+#  IT CANNOT FORECAST, and says so.  No model, no GRIB, no chart it did
+#  not get from you.  What it works from is the one category of weather
+#  data that is never wrong - what you measured yourself - and the only
+#  one still available when the antenna comes down.
+# =====================================================================
+WEATHER_VERSION=1.0
+
+#  the log belongs to deck-log; weather only ever READS it
+: "${DECKLOG_HOME:=$(bn_home .bashnav)}"
+LOG="$DECKLOG_HOME/log"
+: "${WEATHER_HOME:=$DECKLOG_HOME}"
+CONF="$WEATHER_HOME/weather.conf"
+PROG="$WEATHER_HOME/weather.progress"
+ENGINE="$WEATHER_HOME/weather-$WEATHER_VERSION.awk"
+
+cmode=day
+#  [ -t 1 ] at the top level, never inside cmode_now: in a command
+#  substitution stdout is a pipe and every terminal is told it is plain.
+ISTTY=0; [ -t 1 ] && ISTTY=1
+lessons=""; lon=""
+
+awk_has_math() {
+  $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
+}
+pick_awk() {
+  if [ -n "$WEATHER_AWK" ]; then AWK="$WEATHER_AWK"; return 0; fi
+  for a in awk gawk mawk nawk original-awk "busybox awk"; do
+    if awk_has_math "$a"; then AWK="$a"; return 0; fi
+  done
+  AWK=awk; echo "weather: no usable awk found." >&2; return 1
+}
+load_conf() {
+  [ -f "$CONF" ] || return 0
+  while IFS='=' read -r k v; do
+    case "$k" in cmode) cmode="$v" ;; lon) lon="$v" ;; esac
+  done < "$CONF"
+}
+save_conf() { mkdir -p "$WEATHER_HOME"; { echo "cmode=$cmode"; echo "lon=$lon"; } > "$CONF"; }
+load_prog() {
+  [ -f "$PROG" ] || return 0
+  while IFS='=' read -r k v; do case "$k" in lessons) lessons="$v" ;; esac; done < "$PROG"
+}
+save_prog() { mkdir -p "$WEATHER_HOME"; echo "lessons=$lessons" > "$PROG"; }
+mark_done() {
+  case ",$lessons," in *,"$1",*) return 0 ;; esac
+  if [ -z "$lessons" ]; then lessons="$1"; else lessons="$lessons,$1"; fi
+  save_prog
+}
+paint() {
+  [ "$cmode" = plain ] && return 0
+  [ "$ISTTY" = 1 ] || return 0
+  case "$cmode" in
+    night) printf '\033[40m\033[31m\033[2J\033[H' ;;
+    day)   printf '\033[40m\033[37m\033[2J\033[H' ;;
+  esac
+}
+unpaint() { [ "$cmode" = plain ] || { [ "$ISTTY" = 1 ] && printf '\033[0m\n'; }; }
+cmode_now() { if [ "$ISTTY" = 1 ]; then echo "$cmode"; else echo plain; fi; }
+eng() {
+  $AWK -f "$ENGINE" -v cmode="$(cmode_now)" -v LOG="$LOG" -v lon="$lon" \
+       -v now="$(date -u '+%Y-%m-%dT%H:%MZ')" "$@" </dev/null
+}
+
+# ---- engine extraction (written once, then reused) -----------------
+install_engine() {
+  if [ -f "$ENGINE" ]; then
+    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
+  fi
+  mkdir -p "$WEATHER_HOME" 2>/dev/null || {
+    echo "weather: cannot create $WEATHER_HOME" >&2; exit 1; }
+  cat > "$ENGINE" <<'__WEATHER_ENGINE__'
+# =====================================================================
+#  deck-log -- the record layer.
+#
+#  This file is the one irreversible decision in the whole tool.  The log
+#  is append-only, so every record written today has to still parse in
+#  five years, in a version nobody has written yet.  Adding a key later
+#  is free - a reader ignores keys it does not know.  Changing the SHAPE
+#  is not, ever.
+#
+#  Format, one record per line:
+#
+#      YYYY-MM-DDThh:mmZ|type|key=value|key=value|...|~
+#
+#  THE TRAILING ~ IS A COMPLETENESS MARKER, and it is there because of a
+#  bug this format had before the truncation test found it.
+#
+#  Kill the app mid-write and the half-line left on disk is STRUCTURALLY
+#  PERFECT: right timestamp, right type, every field a well-formed
+#  key=value.  Nothing distinguishes it from a finished record, so a
+#  reader accepts it and you silently lose the fields that never made it
+#  to disk - an engine entry with the part but not the hours, and no
+#  indication anything is missing.  In an append-only log that is
+#  permanent, and it is exactly the failure that would matter in an
+#  inquiry.
+#
+#  So a record is complete only if its last field is a bare ~.  A
+#  truncation cannot forge one: | is percent-encoded inside values, so
+#  the sequence |~ appears nowhere else.  One character of noise, and
+#  ANY reader in any language in any decade can tell a whole record from
+#  half of one without knowing anything about our software.
+#
+#  - the timestamp is UTC.  Always.  Display in whatever the user likes.
+#  - `type` is three characters or fewer: nav wx eng pro inv cel tid con
+#    cor chart.  A reader that does not know a type skips the record.
+#  - keys are [a-z0-9_] only, so they never need encoding
+#  - VALUES ARE PERCENT-ENCODED for the four characters that can hurt.
+#
+#  POSIX awk only.  See docs/HACKING.md.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+#  Encoding.
+#
+#  Free text goes in this log - a note typed at 0400, the verbatim text
+#  off an engine plate - and it will contain the delimiters:
+#
+#      note=belt squeals, replaced 30 Aug|check again at 1300hrs
+#      plate=4JH4-TE  S/N E12345  E/G 3TNV88=B
+#
+#  Unescaped, those still LOOK like records.  They just have the wrong
+#  number of fields and the tail is gone, and in an append-only log that
+#  damage is permanent and silent.
+#
+#  Only four characters are encoded, so ordinary text stays literal and
+#  the log is still readable by eye and by grep - which matters for a
+#  file somebody may have to interpret after an incident with no
+#  software to hand.
+# ---------------------------------------------------------------------
+function lg_enc(s){
+  gsub(/%/,  "%25", s)      # first, or it would double-encode the rest
+  gsub(/\|/, "%7C", s)
+  gsub(/=/,  "%3D", s)
+  gsub(/\n/, "%0A", s)
+  return s
+}
+function lg_dec(s){
+  #  %25 last, for the same reason in reverse
+  gsub(/%0A/, "\n", s)
+  gsub(/%3D/, "=",  s)
+  gsub(/%7C/, "|",  s)
+  gsub(/%25/, "%",  s)
+  return s
+}
+
+# ---------------------------------------------------------------------
+#  Building a record.
+#
+#  Callers hand over parallel arrays of keys and values rather than a
+#  formatted string, so there is exactly one place that knows the
+#  delimiters and exactly one place that encodes.
+# ---------------------------------------------------------------------
+function lg_make(ts, type, k, v, n,   i, out){
+  out = ts "|" type
+  for(i=1; i<=n; i++){
+    if(k[i]=="") continue
+    out = out "|" k[i] "=" lg_enc(v[i])
+  }
+  return out "|~"                     # the completeness marker
+}
+
+# ---------------------------------------------------------------------
+#  Parsing.
+#
+#  Fills LG[key] with decoded values, sets LG_TS and LG_TYPE, and
+#  returns 1 for a good record.  Returns 0 and sets LG_ERR otherwise -
+#  it never aborts, because a damaged tail must not take the whole log
+#  with it.
+# ---------------------------------------------------------------------
+function lg_parse(line,   n, f, i, p, key, val){
+  for(key in LG) delete LG[key]
+  LG_TS=""; LG_TYPE=""; LG_ERR=""; LG_NF=0
+  if(line=="" || substr(line,1,1)=="#"){ LG_ERR="blank or comment"; return 0 }
+  n = split(line, f, "|")
+  if(n < 3){ LG_ERR="too few fields"; return 0 }
+  if(!lg_ts_ok(f[1])){ LG_ERR="bad timestamp: " f[1]; return 0 }
+  if(f[2] !~ /^[a-z][a-z0-9]{0,4}$/){ LG_ERR="bad type: " f[2]; return 0 }
+  #  The record must be COMPLETE.  Without this a half-written line
+  #  parses cleanly and quietly loses whatever never reached the disk.
+  if(f[n] != "~"){ LG_ERR="incomplete record (no terminator)"; return 0 }
+  LG_TS = f[1]; LG_TYPE = f[2]
+  for(i=3; i<n; i++){
+    p = index(f[i], "=")
+    if(p < 2){ LG_ERR="field " i " is not key=value: " f[i]; return 0 }
+    key = substr(f[i], 1, p-1)
+    val = substr(f[i], p+1)
+    if(key !~ /^[a-z0-9_]+$/){ LG_ERR="bad key: " key; return 0 }
+    LG[key] = lg_dec(val)
+    LG_NF++
+  }
+  return 1
+}
+
+#  A timestamp this reader will accept for ever: YYYY-MM-DDThh:mmZ
+function lg_ts_ok(s){
+  if(length(s)!=17) return 0
+  return (s ~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]Z$/)
+}
+
+# ---------------------------------------------------------------------
+#  Reading a whole log.
+#
+#  A record that will not parse is COUNTED and SKIPPED, never fatal.
+#  The app is suspended by iOS, the battery dies, a-Shell is killed
+#  mid-write - a half-written last line must not make the log
+#  unreadable, and it must not silently swallow the good records above
+#  it either.  So: LG_GOOD and LG_BAD, and the caller decides what to
+#  say about it.
+# ---------------------------------------------------------------------
+function lg_read(file, want,   line, i){
+  LG_N=0; LG_GOOD=0; LG_BAD=0; LG_BADLINE=""
+  while((getline line < file) > 0){
+    if(line=="" || substr(line,1,1)=="#") continue
+    if(!lg_parse(line)){
+      LG_BAD++
+      if(LG_BADLINE=="") LG_BADLINE = line
+      continue
+    }
+    LG_GOOD++
+    if(want!="" && LG_TYPE!=want) continue
+    LG_N++
+    LR_TS[LG_N]   = LG_TS
+    LR_TYPE[LG_N] = LG_TYPE
+    LR_LINE[LG_N] = line
+  }
+  close(file)
+  return LG_N
+}
+
+#  Re-parse the nth record kept by lg_read, so LG[] refers to it.
+function lg_at(i){
+  if(i<1 || i>LG_N) return 0
+  return lg_parse(LR_LINE[i])
+}
+# =====================================================================
+#  Colour, shared.
+#
+#  day    light text on a black panel
+#  night  deep red on black, no green at all, because rebuilding dark
+#         adaptation takes twenty minutes and a bright screen costs
+#         every one of them
+#  plain  no escape sequences whatsoever - chosen automatically when
+#         stdout is not a terminal, so redirected output is clean text
+#
+#  The panel is painted rather than only setting a foreground colour:
+#  a user on a light terminal profile otherwise gets white on white.
+# =====================================================================
+function col_init(   e){
+  if(COL_READY) return
+  e=sprintf("%c",27)
+  if(cmode=="night"){
+    C_BASE=e "[40m" e "[31m"; C_ACC=e "[1;31m"; C_DIM=e "[2;31m"
+    C_WARN=e "[1;31m"; C_NO=e "[1;31m"; C_OK=e "[1;31m"
+  } else if(cmode=="day"){
+    C_BASE=e "[40m" e "[37m"; C_ACC=e "[1;32m"; C_DIM=e "[90m"
+    C_WARN=e "[1;91m"; C_NO=e "[1;91m"; C_OK=e "[1;92m"
+  } else {
+    C_BASE=""; C_ACC=""; C_DIM=""; C_WARN=""; C_NO=""; C_OK=""
+  }
+  C_RST=C_BASE; COL_READY=1
+  return 0
+}
+function cw(s,c){ col_init(); if(c=="") return s; return c s C_RST }
+function cwd(s){ col_init(); return cw(s,C_DIM) }
+function hr(){ print "  ----------------------------------------------------------------------" }
+# =====================================================================
+#  deck-log -- the weather reasoning.
+#
+#  EVERY RULE SHOWS ITS WORKING.  A forecast handed over without its
+#  reasoning teaches nothing; the explanation is the product.
+#
+#  And it can only ever be as good as the log behind it: this reasons
+#  from observations the user made, and says so.  With no network there
+#  is no model, no GRIB and no chart.  What there is, is the one
+#  category of weather data that is never wrong.
+# =====================================================================
+
+function wx_num(s){ if(s=="" || s=="-" || s=="/") return -9999; return s+0 }
+function wx_has(x){ return (x>-9000) }
+
+#  Angle difference on the circle.  350 against 010 is 20 degrees, not
+#  340, and getting this wrong would misreport every veer near north.
+function wx_d180(a){ while(a>180) a-=360; while(a<-180) a+=360; return a }
+
+#  Minutes between two of our timestamps.  Days from a civil date, so
+#  month ends and leap years come out right without a date library.
+function wx_mins(ts,   y,mo,d,h,mi,a,jd){
+  y=substr(ts,1,4)+0; mo=substr(ts,6,2)+0; d=substr(ts,9,2)+0
+  h=substr(ts,12,2)+0; mi=substr(ts,15,2)+0
+  a = int((14-mo)/12); y2 = y + 4800 - a; m2 = mo + 12*a - 3
+  jd = d + int((153*m2+2)/5) + 365*y2 + int(y2/4) - int(y2/100) + int(y2/400) - 32045
+  return jd*1440 + h*60 + mi
+}
+
+#  Load the observation history: the nav and wx records, newest last.
+function wx_load(logfile,   i, n){
+  WN=0
+  lg_read(logfile, "")
+  for(i=1;i<=LG_N;i++){
+    if(!lg_at(i)) continue
+    if(LG_TYPE!="nav" && LG_TYPE!="wx") continue
+    #  merge records that share a timestamp: a nav entry and the wx
+    #  entry taken with it are one observation
+    if(WN>0 && WT[WN]==LG_TS) n=WN; else { WN++; n=WN; WT[n]=LG_TS
+      WDIR[n]=-9999; WSPD[n]=-9999; WP[n]=-9999; WTEND[n]=""
+      WAIR[n]=-9999; WDEW[n]=-9999; WSEA[n]=-9999; WCLD[n]=-9999
+      WSWP[n]=-9999; WSWD[n]=-9999; WLAT[n]=""
+      WCL[n]=-1; WCM[n]=-1; WCH[n]=-1; WVIS[n]=-1 }
+    if(LG["wdir"]!="") WDIR[n]=wx_num(LG["wdir"])
+    if(LG["wspd"]!="") WSPD[n]=wx_num(LG["wspd"])
+    if(LG["mslp"]!="") WP[n]  =wx_num(LG["mslp"])
+    if(LG["ptend"]!="" && LG["ptend"]!="-") WTEND[n]=LG["ptend"]
+    if(LG["airt"]!="") WAIR[n]=wx_num(LG["airt"])
+    if(LG["dewp"]!="") WDEW[n]=wx_num(LG["dewp"])
+    if(LG["seat"]!="") WSEA[n]=wx_num(LG["seat"])
+    if(LG["cloud"]!="") WCLD[n]=wx_num(LG["cloud"])
+    if(LG["swper"]!="") WSWP[n]=wx_num(LG["swper"])
+    if(LG["swdir"]!="") WSWD[n]=wx_num(LG["swdir"])
+    if(LG["cl"]!="" && LG["cl"]!="-" && LG["cl"]!="/") WCL[n]=LG["cl"]+0
+    if(LG["cm"]!="" && LG["cm"]!="-" && LG["cm"]!="/") WCM[n]=LG["cm"]+0
+    if(LG["ch"]!="" && LG["ch"]!="-" && LG["ch"]!="/") WCH[n]=LG["ch"]+0
+    if(LG["vis"]!="" && LG["vis"]!="-" && LG["vis"]!="/") WVIS[n]=LG["vis"]+0
+    if(LG["lat"]!="") WLAT[n]=LG["lat"]
+  }
+  return WN
+}
+
+#  Northern or southern, from a latitude written as "41 14.0N" or "-33.9"
+function wx_north(s){
+  if(s=="") return 1
+  if(s ~ /[Ss]$/) return 0
+  if(substr(s,1,1)=="-") return 0
+  return 1
+}
+function wx_latdeg(s,   x){
+  x = s+0; if(x<0) x=-x
+  return x
+}
+
+# ---------------------------------------------------------------------
+#  The atmospheric tide.
+#
+#  Solar heating drives a wave that travels westward with the sun, and
+#  it is on every barometer.  In the tropics the glass falls two to
+#  three millibars between mid-morning and mid-afternoon EVERY DAY IN
+#  PERFECT WEATHER, and a sailor who does not know that reads a routine
+#  afternoon fall as a system approaching.
+#
+#  Dominantly SEMIdiurnal - twice a day, not once.  Maxima near 1000
+#  and 2200 local, minima near 0400 and 1600.  Amplitude about 1.4 hPa
+#  in the tropics, falling steeply with latitude.
+#
+#  So the correction is applied BEFORE anything is said about tendency,
+#  and it is said out loud.
+# ---------------------------------------------------------------------
+function wx_tide(ts, lon, lat,   utch, solar, amp, la){
+  utch = substr(ts,12,2)+0 + (substr(ts,15,2)+0)/60.0
+  solar = utch + (lon+0)/15.0
+  while(solar<0) solar+=24; while(solar>=24) solar-=24
+  la = wx_latdeg(lat)
+  amp = 1.4 * cos(la*3.14159265/180.0)^3
+  if(amp<0) amp = -amp
+  #  maxima near 1000 and 2200 local: a cosine of period 12 h peaking there
+  return amp * cos(2*3.14159265*(solar-10.0)/12.0)
+}
+
+# ---------------------------------------------------------------------
+#  Buys Ballot.
+#
+#  Wind direction is where it comes FROM, so with your back to it you
+#  face wdir+180.  The low is 90 degrees to your left in the northern
+#  hemisphere, which is (wdir+180) - 90 = wdir + 90.  To your right in
+#  the southern: wdir + 270.
+#
+#  The first version added and subtracted the 90 the other way round and
+#  pointed at the exact opposite side of the sky - 080 for a low that
+#  was at 260.  Plausible-looking, completely wrong, and the sort of
+#  thing that survives a read-through and not a test.  Sanity check:
+#  a westerly in the northern hemisphere (270) gives 000, and a low to
+#  the north with a westerly is what a mid-latitude depression does.
+function wx_bb(wdir, north,   b){
+  b = north ? wdir + 90 : wdir + 270
+  while(b>=360) b-=360
+  while(b<0)    b+=360
+  return int(b+0.5)%360
+}
+
+# ---------------------------------------------------------------------
+#  The report
+# ---------------------------------------------------------------------
+function wx_say(s){ printf "  %s\n", s; return 0 }
+function wx_why(s){ printf "  %s\n", cwd("   " s); return 0 }
+
+function wx_report(logfile, lon,   n, i, j, dt, dp, dw, tide1, tide2, corr, k)
+{
+  n = wx_load(logfile)
+  print ""
+  printf "  %s\n", cw("WHAT THE LOG SAYS", C_ACC)
+  hr()
+  if(n < 2){
+    wx_say("Not enough observations yet.")
+    wx_why("Almost every rule here needs history, not a snapshot: a tendency")
+    wx_why("is a rate, backing is a change, a front is a sequence. Log a few")
+    wx_why("three-hourly entries and this page starts working.")
+    print ""
+    return 0
+  }
+  j = n
+  #  the most recent earlier observation with a pressure, for the trend
+  for(i=n-1; i>=1; i--) if(wx_has(WP[i]) && wx_has(WP[n])) break
+  k = i
+
+  # ---- pressure -----------------------------------------------------
+  if(k>=1 && wx_has(WP[n]) && wx_has(WP[k])){
+    dt = (wx_mins(WT[n]) - wx_mins(WT[k]))/60.0
+    dp = WP[n] - WP[k]
+    tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
+    corr = dp - (tide2 - tide1)
+    wx_say(sprintf("Pressure %.1f, %+.1f hPa in %.1f hours.", WP[n], dp, dt))
+    if(lon!=""){
+      wx_say(sprintf("Allowing for the daily atmospheric tide: %+.1f hPa.", corr))
+      wx_why(sprintf("the tide alone accounts for %+.1f of that. It is semidiurnal,", tide2-tide1))
+      wx_why("about 1.4 hPa in the tropics and much less in high latitudes,")
+      wx_why("and in the tropics it falls 2-3 mb every afternoon in fine weather.")
+    } else corr = dp
+    if(dt>0){
+      if(corr <= -3.0*(dt/3.0))      wx_say(cw("That is a serious fall. Expect a deepening system and a rising wind.", C_WARN))
+      else if(corr <= -1.5*(dt/3.0)) wx_say("A definite fall. Something is coming.")
+      else if(corr >=  1.5*(dt/3.0)) wx_say("Rising. The gradient is easing or a ridge is building.")
+      else                           wx_say("Near steady.")
+      wx_why("a rate matters more than a level: 1000 hPa steady is a quiet day,")
+      wx_why("1015 falling fast is not.")
+    }
+  } else {
+    wx_say("No pressure trend - fewer than two entries carry a pressure.")
+  }
+
+  # ---- wind: backing or veering, and Buys Ballot --------------------
+  if(k>=1 && wx_has(WDIR[n]) && wx_has(WDIR[k])){
+    dw = wx_d180(WDIR[n] - WDIR[k])
+    print ""
+    if(dw > 10)       wx_say(sprintf("Wind has VEERED %d degrees, %03d to %03d.", int(dw+0.5), WDIR[k], WDIR[n]))
+    else if(dw < -10) wx_say(sprintf("Wind has BACKED %d degrees, %03d to %03d.", int(-dw+0.5), WDIR[k], WDIR[n]))
+    else              wx_say(sprintf("Wind steady in direction, about %03d.", WDIR[n]))
+    if(wx_north(WLAT[n])){
+      if(dw > 10)       wx_why("northern hemisphere: veering with a rising glass usually means the")
+      if(dw > 10)       wx_why("centre has passed to the north of you and the cold front is through.")
+      if(dw < -10)      wx_why("northern hemisphere: backing with a falling glass puts the centre")
+      if(dw < -10)      wx_why("to your north and closing. This is the one to take seriously.")
+    } else {
+      wx_why("southern hemisphere: the sense of all of this reverses.")
+    }
+  }
+  #  Buys Ballot
+  if(wx_has(WDIR[n])){
+    print ""
+    wx_say(sprintf("Back to the wind: the low is roughly %03d from you.",
+           wx_bb(WDIR[n], wx_north(WLAT[n]))))
+    wx_why("Buys Ballot. Stand with your back to the wind: in the northern")
+    wx_why("hemisphere the low is on your left, in the southern, on your right.")
+  }
+
+  # ---- fog -----------------------------------------------------------
+  if(wx_has(WDEW[n]) && wx_has(WSEA[n])){
+    print ""
+    if(WDEW[n] >= WSEA[n] - 0.5){
+      wx_say(cw("Fog is likely: the dew point is at or above the sea temperature.", C_WARN))
+      wx_why("air moving over water colder than its own dew point condenses.")
+    } else {
+      wx_say(sprintf("Fog unlikely: dew point %.1f, sea %.1f, a margin of %.1f.",
+             WDEW[n], WSEA[n], WSEA[n]-WDEW[n]))
+    }
+  }
+
+  # ---- cloud base ----------------------------------------------------
+  if(wx_has(WAIR[n]) && wx_has(WDEW[n])){
+    print ""
+    wx_say(sprintf("Cloud base about %d ft (%d m).",
+           int((WAIR[n]-WDEW[n])*400), int((WAIR[n]-WDEW[n])*125)))
+    wx_why("the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,")
+    wx_why("its dew point falls at 0.5, and the difference is what counts. Not")
+    wx_why("the lapse rate alone: that would put the base a fifth too low.")
+  }
+
+  # ---- the cloud sequence -------------------------------------------
+  wx_cloud(logfile)
+
+  # ---- visibility, which we also used to ask for and ignore ---------
+  if(WVIS[n]>=0 && k>=1 && WVIS[k]>=0 && WVIS[n]!=WVIS[k]){
+    print ""
+    if(WVIS[n] < WVIS[k]){
+      wx_say(sprintf("Visibility is closing in: code %d down to %d.", WVIS[k], WVIS[n]))
+      wx_why("with a falling glass that is usually rain arriving ahead of a front;")
+      wx_why("with the dew point near the sea temperature it is fog.")
+    } else {
+      wx_say(sprintf("Visibility improving: code %d up to %d.", WVIS[k], WVIS[n]))
+    }
+  }
+
+  # ---- swell, the earliest warning there is --------------------------
+  if(wx_has(WSWP[n]) && WSWP[n] >= 12){
+    print ""
+    wx_say(cw(sprintf("A %d-second swell from %03d.", int(WSWP[n]), WSWD[n]), C_ACC))
+    wx_why("long-period swell outruns the storm that made it. This can be the")
+    wx_why("first news of a system, with a steady glass and a clear sky.")
+  }
+  hr()
+  wx_say(cwd("This reasons only from what you logged. It is not a forecast:"))
+  wx_say(cwd("no model, no chart, no GRIB. It is you, reading your own barometer."))
+  print ""
+  return 0
+}
+
+# ---------------------------------------------------------------------
+#  The cloud sequence - the rule those three cloud codes are FOR.
+#
+#  A warm front announces itself hours ahead, in order: cirrus, then
+#  cirrostratus thickening and lowering, then altostratus, then rain.
+#  Reading it needs cloud TYPE over time, which is why the observation
+#  asks for CL, CM and CH separately and why total cover cannot do it.
+#
+#  In the first build we asked for all three and never used them, which
+#  is how you teach somebody to stop filling in a form.
+# ---------------------------------------------------------------------
+function wx_cloud(logfile,   n, i, j, hi, mid, lo, seq, prev){
+  n = WN
+  if(n<2) return 0
+  print ""
+  #  did high cloud appear and then middle cloud follow it?
+  hi=0; mid=0; lo=0
+  for(i=1;i<=n;i++){
+    if(WCH[i]>0) hi=i
+    if(WCM[i]>0 && i>=hi && hi>0) mid=i
+    if(WCL[i]>=6 && mid>0 && i>=mid) lo=i
+  }
+  if(lo>0){
+    printf "  %s\n", cw("The cloud has run the whole warm-front sequence: high, then", C_WARN)
+    printf "  %s\n", cw("middle, and now low stratus. The front is on you or past.", C_WARN)
+  } else if(mid>0 && mid>hi-1){
+    printf "  %s\n", cw("Cirrus has thickened to middle cloud - the classic warm front", C_ACC)
+    printf "  %s\n", cw("sequence, and it is well under way.", C_ACC)
+    printf "  %s\n", cwd("   expect the glass to keep falling, the wind to back, and rain")
+  } else if(hi>0 && WCH[n]>0){
+    printf "  %s\n", "High cloud is in. On its own it means very little -"
+    printf "  %s\n", "but if it thickens and lowers over the next watches, that is a"
+    printf "  %s\n", "warm front announcing itself hours ahead."
+  } else return 0
+  printf "  %s\n", cwd("   cirrus -> cirrostratus -> altostratus -> nimbostratus and rain")
+  return 1
+}
+# =====================================================================
+#  deck-log -- forecast, verify, score.
+#
+#  THE ORDER IS THE POINT.  The user's forecast is committed to the log
+#  BEFORE the app shows any of its own reasoning.  Print the guess first
+#  and the person has not forecast anything - they have read an answer
+#  and agreed with it.  It feels like learning and is not.  Same bug as
+#  the colregs lights quiz telling you the aspect and then asking for
+#  it; house rule now: never tell before you ask.
+#
+#  AND THREE ARE SCORED, not one.  Scoring only the user would make this
+#  an oracle and it is not one: every rule in it is a rule of thumb.
+#  Scoring the rules too keeps it honest, teaches calibration, and lets
+#  the user eventually win - which is the point, because a training tool
+#  that cannot be outgrown is badly built.
+#
+#  The third is PERSISTENCE: "in twelve hours it will be much as it is
+#  now."  It is the honest floor.  Hard to beat at short range, and a
+#  forecast that does not beat it has shown no skill at all.  Standard
+#  practice in operational meteorology, and free.
+# =====================================================================
+
+#  Error points, taken from the WxChallenge: weighted, continuous, low
+#  score wins.  A near miss should score like a near miss, which one
+#  right/wrong verdict per forecast cannot express.
+function sc_pts(field, a, b,   d){
+  if(a<=-9000 || b<=-9000) return -1          # not comparable
+  if(field=="wdir"){ d = wx_d180(a-b); if(d<0) d=-d; return d * 0.1 }
+  d = a-b; if(d<0) d=-d
+  if(field=="wspd") return d * 0.5
+  if(field=="mslp") return d * 1.0
+  if(field=="sea")  return d * 2.0
+  return d
+}
+function sc_label(f){
+  if(f=="wdir") return "wind direction"
+  if(f=="wspd") return "wind speed"
+  if(f=="mslp") return "pressure"
+  if(f=="sea")  return "sea state"
+  return f
+}
+#  distinct short names: truncating the long ones gives "wind" twice,
+#  which is a column of numbers nobody can read
+function sc_short(f){
+  if(f=="wdir") return "dir"
+  if(f=="wspd") return "spd"
+  if(f=="mslp") return "hPa"
+  if(f=="sea")  return "sea"
+  return f
+}
+
+#  A fully developed sea for a given wind, roughly.  Used only to turn a
+#  forecast wind into a forecast sea state; it is a rule of thumb and is
+#  scored like everything else.
+function sc_sea(kt){
+  if(kt<1)  return 0
+  if(kt<7)  return 1
+  if(kt<13) return 2
+  if(kt<19) return 3
+  if(kt<25) return 4
+  if(kt<34) return 5
+  if(kt<41) return 6
+  if(kt<48) return 7
+  if(kt<56) return 8
+  return 9
+}
+
+# ---------------------------------------------------------------------
+#  The two machine forecasters.
+#
+#  Both are deliberately simple and both are honest about it.  The whole
+#  reason they are scored is that nobody, including whoever wrote them,
+#  knows how good they are until a season of observations says so.
+# ---------------------------------------------------------------------
+function sc_persist(n){
+  F_WDIR = WDIR[n]; F_WSPD = WSPD[n]; F_MSLP = WP[n]
+  F_SEA  = (wx_has(WSPD[n]) ? sc_sea(WSPD[n]) : -9999)
+  F_WHY  = "nothing changes"
+  return 0
+}
+function sc_rules(n, k, hours, lon,   dt, dp, dw, rate, damp, p, w, d, tide1, tide2){
+  F_WDIR=-9999; F_WSPD=-9999; F_MSLP=-9999; F_SEA=-9999; F_WHY=""
+  if(k<1){ sc_persist(n); F_WHY="only one observation - nothing but persistence to offer"; return 0 }
+  dt = (wx_mins(WT[n]) - wx_mins(WT[k]))/60.0
+  if(dt<=0){ sc_persist(n); return 0 }
+  #  a trend does not continue for ever: damp it
+  damp = 0.7
+
+  if(wx_has(WP[n]) && wx_has(WP[k])){
+    dp = WP[n] - WP[k]
+    if(lon!=""){
+      tide1 = wx_tide(WT[k], lon, WLAT[k]); tide2 = wx_tide(WT[n], lon, WLAT[n])
+      dp = dp - (tide2 - tide1)
+    }
+    rate = dp/dt
+    F_MSLP = WP[n] + rate*hours*damp
+    F_WHY = sprintf("pressure trend %+.2f hPa/h, damped, carried %g h", rate, hours)
+    #  a falling glass is a rising wind: the classic rule, crudely
+    if(wx_has(WSPD[n])){
+      w = WSPD[n] - rate*hours*2.0
+      if(w<0) w=0
+      F_WSPD = w
+    }
+  } else if(wx_has(WSPD[n])) F_WSPD = WSPD[n]
+
+  if(wx_has(WDIR[n]) && wx_has(WDIR[k])){
+    dw = wx_d180(WDIR[n]-WDIR[k])/dt
+    d = WDIR[n] + dw*hours*damp
+    while(d<0) d+=360
+    while(d>=360) d-=360
+    F_WDIR = d
+    if(F_WHY!="") F_WHY = F_WHY sprintf("; turning %+.1f deg/h, damped", dw)
+  } else F_WDIR = WDIR[n]
+
+  if(wx_has(F_WSPD)) F_SEA = sc_sea(F_WSPD)
+  return 0
+}
+
+#  Find the observation nearest a valid time, within a tolerance.
+function sc_nearest(target, tolmin,   i, d, best, bd){
+  best=0; bd=999999
+  for(i=1;i<=WN;i++){
+    d = wx_mins(WT[i]) - wx_mins(target); if(d<0) d=-d
+    if(d<bd){ bd=d; best=i }
+  }
+  if(best==0 || bd>tolmin) return 0
+  return best
+}
+
+# ---------------------------------------------------------------------
+#  Verify and score.  Reads the fc records out of the log, finds the
+#  observation each was made for, and scores every forecaster on every
+#  field it offered.
+# ---------------------------------------------------------------------
+function sc_verify(logfile,   i, j, by, fo, o, f, p, nf, any, tot, cnt, fields, nfld){
+  wx_load(logfile)
+  nfld = split("wdir wspd mslp sea", fields, " ")
+  for(i in TOT) delete TOT[i]
+  for(i in CNT) delete CNT[i]
+  for(i in FTOT) delete FTOT[i]
+  for(i in FCNT) delete FCNT[i]
+  VN=0
+  lg_read(logfile, "fc")
+  for(i=1;i<=LG_N;i++){
+    if(!lg_at(i)) continue
+    fo = LG["for"]; by = LG["by"]
+    if(fo=="" || by=="") continue
+    o = sc_nearest(fo, 180)
+    if(o==0) continue                       # nothing observed yet
+    VN++
+    VBY[VN]=by; VFOR[VN]=fo; VMADE[VN]=LG_TS; VWHY[VN]=LG["why"]
+    for(j=1;j<=nfld;j++){
+      f = fields[j]
+      if(LG[f]=="" || LG[f]=="-") continue
+      if(f=="wdir") p = sc_pts(f, LG[f]+0, WDIR[o])
+      else if(f=="wspd") p = sc_pts(f, LG[f]+0, WSPD[o])
+      else if(f=="mslp") p = sc_pts(f, LG[f]+0, WP[o])
+      else p = -1
+      if(p<0) continue
+      TOT[by] += p; CNT[by]++
+      FTOT[by SUBSEP f] += p; FCNT[by SUBSEP f]++
+      any=1
+    }
+  }
+  return VN
+}
+
+function sc_report(logfile,   n, by, i, f, fields, nfld, j, names, nn){
+  n = sc_verify(logfile)
+  print ""
+  printf "  %s\n", cw("THE SCORE", C_ACC)
+  hr()
+  if(n==0){
+    printf "  %s\n", cwd("No forecast has reached its valid time yet, or no observation")
+    printf "  %s\n", cwd("has been logged near one. Make a forecast, then log the")
+    printf "  %s\n", cwd("observation it was for, and this page fills in.")
+    print ""
+    return 0
+  }
+  nn = split("you rules persist", names, " ")
+  nfld = split("wdir wspd mslp", fields, " ")
+  printf "  %-10s %8s  %s\n", "", "points", "per field, points per forecast"
+  for(i=1;i<=nn;i++){
+    by = names[i]
+    if(!(by in CNT)) continue
+    printf "  %-10s %8.1f ", by, TOT[by]
+    for(j=1;j<=nfld;j++){
+      f = fields[j]
+      if((by SUBSEP f) in FCNT)
+        printf "  %s %.1f", sc_short(f), FTOT[by SUBSEP f]/FCNT[by SUBSEP f]
+    }
+    print ""
+  }
+  hr()
+  printf "  %s\n", cwd("Lower is better. Half a point per knot, one per millibar, a tenth")
+  printf "  %s\n", cwd("per degree of wind direction - so a near miss scores like one.")
+  print ""
+  if(("persist" in CNT) && ("rules" in CNT)){
+    if(TOT["rules"]/CNT["rules"] > TOT["persist"]/CNT["persist"])
+      printf "  %s\n", cw("The rules are not beating persistence. That is the honest result", C_WARN)
+    if(TOT["rules"]/CNT["rules"] > TOT["persist"]/CNT["persist"])
+      printf "  %s\n", cw("so far, and it is worth knowing.", C_WARN)
+  }
+  if(("you" in CNT) && ("rules" in CNT)){
+    if(TOT["you"]/CNT["you"] < TOT["rules"]/CNT["rules"])
+      printf "  %s\n", cw("You are beating the rule set. Trust yourself over it here.", C_ACC)
+  }
+  print ""
+  return n
+}
+
+#  Round a time forward to the next multiple of 3 hours, <hours> ahead.
+#  Forecasts are made FOR a synoptic hour, so the observation that
+#  verifies one is an entry somebody would have made anyway.
+#
+#  The first version of the inverse conversion below returned the year
+#  4600 for a date in 2026.  Date arithmetic written from memory is a
+#  reliable way to be confidently wrong, which is why there is now a
+#  test that round-trips every day for forty years.
+function sc_jdn(y, mo, d,   a, y2, m2){
+  a = int((14-mo)/12); y2 = y + 4800 - a; m2 = mo + 12*a - 3
+  return d + int((153*m2+2)/5) + 365*y2 + int(y2/4) - int(y2/100) + int(y2/400) - 32045
+}
+#  Fliegel and Van Flandern, the standard inverse.  Sets SC_Y/SC_M/SC_D.
+function sc_civil(jd,   a, b, c, dd, e, m){
+  a = jd + 32044
+  b = int((4*a+3)/146097)
+  c = a - int(146097*b/4)
+  dd = int((4*c+3)/1461)
+  e = c - int(1461*dd/4)
+  m = int((5*e+2)/153)
+  SC_D = e - int((153*m+2)/5) + 1
+  SC_M = m + 3 - 12*int(m/10)
+  SC_Y = 100*b + dd - 4800 + int(m/10)
+  return 0
+}
+function sc_validtime(ts, hours,   y,mo,d,h,tot,jd,rh){
+  y=substr(ts,1,4)+0; mo=substr(ts,6,2)+0; d=substr(ts,9,2)+0
+  h=substr(ts,12,2)+0
+  jd = sc_jdn(y, mo, d)
+  tot = jd*24 + h + hours
+  rh = tot % 3
+  if(rh!=0) tot += (3-rh)
+  jd = int(tot/24); h = tot - jd*24
+  sc_civil(jd)
+  return sprintf("%04d-%02d-%02dT%02d:00Z", SC_Y, SC_M, SC_D, h)
+}
+# =====================================================================
+#  weather -- reasoning over a 500 mb chart the user is holding.
+#
+#  The app cannot fetch a chart and never will.  But a 500 mb chart
+#  arrives by HF RADIOFAX, on an SSB receiver, at sea, with no
+#  connectivity at all - which is exactly the situation the rest of
+#  bashnav is built for.  So this is the reasoning layer over a fax:
+#  read three numbers off it and the rules do the rest, showing every
+#  step.
+#
+#  Rules from Sienkiewicz & Chesneau, Mariner's Guide to the
+#  500-Millibar Chart, NOAA - public domain.  See docs/SOURCES.md.
+# =====================================================================
+function ch_say(s){ printf "  %s\n", s; return 0 }
+function ch_why(s){ printf "  %s\n", cwd("   " s); return 0 }
+
+#  brg    bearing FROM you TO the nearest point of the 564 line
+#  dist   its distance in nm
+#  orient the line's own orientation, as a bearing (either end)
+#  w500   the 500 mb wind speed there, knots
+#  north  1 northern hemisphere, 0 southern
+function ch_report(brg, dist, orient, w500, north,   pole, side, mn, mx, smn, smx){
+  print ""
+  printf "  %s\n", cw("FROM THE 500 MILLIBAR CHART", C_ACC)
+  hr()
+  pole = north ? "north" : "south"
+
+  if(dist=="" || brg==""){
+    ch_say("Give me where the 564 line runs and I will walk the rules.")
+    print ""
+    return 0
+  }
+  ch_say(sprintf("The 5640 m contour is %g nm away, bearing %03d, lying %03d/%03d.",
+         dist+0, brg+0, orient+0, (orient+180)%360))
+  print ""
+
+  # ---- 1. the storm track -------------------------------------------
+  ch_say(cw("The surface storm track", C_ACC) sprintf(" runs parallel to that line, %s of it,", pole))
+  ch_say("between 300 and 600 nm away from it.")
+  ch_why("so the depressions are travelling along " sprintf("%03d/%03d", orient+0, (orient+180)%360) ", not toward you")
+
+  # ---- 2. the gale boundary, which is the one that matters ----------
+  print ""
+  ch_say(cw("All the gale force winds are on the " pole " side of the 564 line.", C_WARN))
+  if(ch_poleward(brg, north)){
+    ch_say(cw("You are on the equatorward side of it. That is the right side.", C_OK))
+    ch_why("stay there and you stay out of the gales - that is the routing rule,")
+    ch_why("and it is why the standard book on this is called Heavy Weather Avoidance")
+  } else {
+    ch_say(cw("The line is equatorward of you, so you are on the gale side of it.", C_WARN))
+    ch_why("getting equatorward of the 564 line is the single most useful thing")
+    ch_why("you can do about the weather from here")
+  }
+
+  # ---- 3 and 4. speed and strength, if the wind was read ------------
+  if(w500!=""){
+    print ""
+    mn = (w500+0)/3.0; mx = (w500+0)/2.0
+    ch_say(sprintf("At %g knots aloft, systems below move at %.0f to %.0f knots.",
+           w500+0, mn, mx))
+    ch_why("a surface low or front travels at a third to a half of the 500 mb wind")
+    if(dist+0 > 0){
+      ch_say(sprintf("So a system 300 nm off would be on you in %.0f to %.0f hours.",
+             300.0/mx, 300.0/mn))
+    }
+    print ""
+    ch_say(sprintf("Behind it, in the cold air, expect about %.0f knots on deck.", (w500+0)/2.0))
+    ch_why("surface wind in the west-to-southwest quadrant is about half the 500 mb")
+    ch_why("wind - which is the number that decides what sail you are carrying")
+  }
+  hr()
+  printf "  %s\n", cwd("Rules from Sienkiewicz and Chesneau, Mariner's Guide to the")
+  printf "  %s\n", cwd("500-Millibar Chart, NOAA. They are rules of thumb: good ones,")
+  printf "  %s\n", cwd("and still rules of thumb.")
+  print ""
+  return 0
+}
+#  Is the 564 line on my POLEWARD side?  If it bears north of me in the
+#  northern hemisphere, I am equatorward of it, which is where I want
+#  to be.
+function ch_poleward(brg, north,   b){
+  b = brg+0
+  while(b<0) b+=360
+  while(b>=360) b-=360
+  if(north) return (b < 90 || b > 270)     # the line lies to my north
+  return (b > 90 && b < 270)               # southern: to my south
+}
+# =====================================================================
+#  weather -- the lessons.
+#
+#  THE ORGANISING RULE, and it is the reason this file is not longer:
+#
+#     Every piece of physics has to earn its place by changing what the
+#     app says or what you would do.  Otherwise it is a lecture with a
+#     barometer attached.
+#
+#  Ordered from what you can see today outward to why the planet works
+#  this way.  Each lesson ends with a question, as in colregs.
+#  Sources are in docs/SOURCES.md; nothing here is copied from anywhere.
+# =====================================================================
+
+function les_init(){
+  if(LES_READY) return
+  LS_N=0
+  les("fluid",    "Air is a fluid, and moist air is lighter")
+  les("data",     "The three kinds of weather data, and which one you have")
+  les("tide",     "The atmospheric tide: why the glass falls every afternoon")
+  les("coriolis", "Coriolis, which is not a force")
+  les("gradient", "Gradient wind, surface wind, and friction")
+  les("lapse",    "Lapse rates, stability, and where the cloud base is")
+  les("cells",    "The heat engine, and the three cells")
+  les("h500",     "The 500 millibar chart and the 564 line")
+  les("cyclone",  "How a tropical cyclone is made, and how to keep away")
+  les("seasons",  "The tilt, the seasons, and an honest boundary")
+  LES_READY=1
+  return 0
+}
+function les(k,t){ LS_N++; LS_K[LS_N]=k; LS_T[LS_N]=t; return 0 }
+
+function lp(s){ printf "  %s\n", s; return 0 }
+function lpd(s){ printf "  %s\n", cwd(s); return 0 }
+function lph(s){ print ""; printf "  %s\n", cw(s,C_ACC); hr(); return 0 }
+
+function lesson_body(k){
+  # ------------------------------------------------------------------
+  if(k=="fluid"){
+    lph("AIR IS A FLUID, AND MOIST AIR IS LIGHTER")
+    lp("Air is a fluid. At the speeds anything on a boat moves it barely")
+    lp("compresses, so it behaves very much like water - and the weather is")
+    lp("fluid dynamics happening to a very large, very thin bath.")
+    print ""
+    lp(cw("And here is the counterintuitive one:",C_ACC))
+    print ""
+    lp("  " cw("Warm MOIST air is LIGHTER than warm DRY air.",C_ACC))
+    print ""
+    lp("Humid air feels heavy. It is not. At the same temperature and pressure")
+    lp("a given volume holds a fixed NUMBER of molecules - so water vapour does")
+    lp("not add molecules to the box, it " cw("replaces",C_ACC) " them:")
+    print ""
+    lp("       H2O  18      pushing out      N2  28")
+    lp("                                     O2  32")
+    print ""
+    lp("Every water molecule that goes in evicts something heavier. Same count,")
+    lp("less mass, lower density.")
+    print ""
+    lp(cw("This is the engine of everything else.",C_ACC) " Warm moist air is buoyant")
+    lp("twice over - once for being warm, once for being wet - which is why the")
+    lp("tropics convect so violently, and why a thunderstorm is a heat engine")
+    lp("rather than a wind event.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="data"){
+    lph("THE THREE KINDS OF WEATHER DATA")
+    lp("Most sailors never learn this, and it decides how much to believe.")
+    print ""
+    lp(cw("OBSERVATION",C_ACC) "   an instrument reading of what is happening now.")
+    lp("               Not a forecast - but it is " cw("true",C_ACC) ".")
+    print ""
+    lp(cw("ANALYSIS",C_ACC) "      a chart drawn from observations and then edited and")
+    lp("               verified " cw("by a human forecaster",C_ACC) ". A surface analysis,")
+    lp("               most national weather service products. The best")
+    lp("               available picture of NOW.")
+    print ""
+    lp(cw("MODEL OUTPUT",C_ACC) "  a computer's projection. What sailors call a GRIB.")
+    lp("               " cw("Nobody has looked at it.",C_NO))
+    print ""
+    lp("The trap is the third. A GRIB arrives in colour, at high resolution, out")
+    lp("to seven days, looking authoritative - and it is a machine's")
+    lp("extrapolation with no human in the loop. Sailors treat it as gospel.")
+    lp("The rule: check you are looking at an analysis, not a model run.")
+    print ""
+    lp(cw("And it places this tool honestly.",C_ACC) " It works entirely in the first")
+    lp("column. Every number in it is something you measured. It cannot")
+    lp("forecast - but what it reasons FROM is the one category that is never")
+    lp("wrong, and the only one still there when the antenna comes down.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="tide"){
+    lph("THE ATMOSPHERIC TIDE")
+    lp("The sun heats the air, the earth turns under it, and a pressure wave")
+    lp("travels westward with the sun. It is on your barometer, every day.")
+    print ""
+    lp("The odd part: the dominant component is " cw("SEMIdiurnal - twice a day",C_ACC) ",")
+    lp("not once. Why once-a-day heating produces a twice-a-day pressure signal")
+    lp("is a genuine puzzle in meteorology.")
+    print ""
+    lp("  amplitude in the tropics     about 1.4 hPa")
+    lp("  maxima                       about 1000 and 2200 local")
+    lp("  minima                       about 0400 and " cw("1600",C_ACC) " local")
+    lp("  and it falls off steeply    ~1.2 hPa at the equator, ~0.2 at 45 deg")
+    print ""
+    lp(cw("Which is a trap worth knowing about.",C_WARN) " In the tropics the glass")
+    lp("falls two to three millibars between mid-morning and mid-afternoon")
+    lp(cw("every single day, in perfect weather.",C_ACC) " A sailor who does not know")
+    lp("that reads a routine afternoon fall as a system approaching.")
+    print ""
+    lpd("This app corrects for it before saying anything about tendency, and")
+    lpd("tells you how much of the change was the tide. Give it your longitude")
+    lpd("- it needs local solar time to know where in the cycle you are.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="coriolis"){
+    lph("CORIOLIS, WHICH IS NOT A FORCE")
+    lp("The earth turns underneath you. Describe anything's motion relative to")
+    lp("the ground and it appears to curve. The \"force\" is the bookkeeping")
+    lp("entry for having chosen a rotating frame - nothing is pushing.")
+    print ""
+    lp("Its size goes as " cw("sin(latitude)",C_ACC) ":")
+    print ""
+    lp("  at the poles     full strength")
+    lp("  at 45 degrees    about 0.7 of it")
+    lp("  " cw("at the equator   ZERO",C_ACC))
+    print ""
+    lp(cw("Two things it buys you.",C_ACC))
+    print ""
+    lp("First: " cw("no tropical cyclone forms within about 5 degrees of the",C_ACC))
+    lp(cw("equator",C_ACC) ", because there is nothing there to spin it up. All that heat")
+    lp("and moisture and no rotation.")
+    print ""
+    lp("Second: it is half of Buys Ballot, which is the most useful rule this")
+    lp("app has. Stand with your back to the wind and the low is on your left")
+    lp("in the northern hemisphere - and on your right in the southern, because")
+    lp("the sense of the rotation reverses.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="gradient"){
+    lph("GRADIENT WIND, SURFACE WIND, AND FRICTION")
+    lp("Well above the sea the wind balances the pressure gradient against")
+    lp("Coriolis and runs " cw("along",C_ACC) " the isobars. That is the gradient wind, and")
+    lp("it is what a weather chart draws.")
+    print ""
+    lp("Down where you are, friction slows the air. Slower air feels less")
+    lp("Coriolis. So pressure wins a little, and the surface wind blows")
+    lp(cw("across",C_ACC) " the isobars, toward the low:")
+    print ""
+    lp("  over water   backed 10-20 degrees, and about 2/3 of gradient speed")
+    lp("  over land    backed 30-40 degrees, and slower still")
+    lp("  " cw("southern hemisphere: veered, not backed",C_ACC))
+    print ""
+    lp(cw("This is the chart-to-deck translation",C_ACC) " - what the isobars mean for")
+    lp("what you will actually get on the wind instrument.")
+    print ""
+    lp("And the same boundary layer does something else you already know about.")
+    lp("Friction slows the lowest air, so wind speed climbs with height, and")
+    lp("the apparent wind aloft is stronger and further aft than at the boom.")
+    lp("That is why a sail is " cw("twisted",C_ACC) ". One piece of physics, two apps.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="lapse"){
+    lph("LAPSE RATES, STABILITY, AND THE CLOUD BASE")
+    lp("Air cools as it rises, because it expands. How fast is the whole game.")
+    print ""
+    lp("  " cw("dry adiabatic",C_ACC) "     about 3.0 C per 1000 ft   an unsaturated parcel")
+    lp("  " cw("saturated",C_ACC) "         about 1.5 C per 1000 ft   condensing gives heat back")
+    lp("  " cw("environmental",C_ACC) "     whatever the air actually does - measured")
+    print ""
+    lp("Compare the environmental rate with the adiabatic and you have")
+    lp(cw("stability",C_ACC) ". If the surrounding air cools FASTER with height than the")
+    lp("parcel does, the parcel stays warmer than its surroundings, keeps")
+    lp("rising, and you get towering cloud. That is instability, and it is why")
+    lp("a saturated parcel can keep going where a dry one would have stopped.")
+    print ""
+    lp(cw("THE CLOUD BASE",C_ACC) " falls straight out of it, and the arithmetic is")
+    lp("something you can do on deck:")
+    print ""
+    lp("  a rising parcel cools at         3.0 C / 1000 ft")
+    lp("  its dew point falls at           0.5 C / 1000 ft")
+    lp("  " cw("so the spread closes at          2.5 C / 1000 ft",C_ACC))
+    print ""
+    lp("  " cw("height (ft) = (air temp - dew point, in C) x 400",C_ACC))
+    print ""
+    lp("400, not 333. " cw("It is not the lapse rate, it is the DIFFERENCE",C_WARN) " between")
+    lp("two of them. Divide by the lapse rate alone and you put the base a")
+    lp("fifth too low. And it is " cw("air",C_ACC) " temperature, not sea temperature - the")
+    lp("sea is a fair proxy offshore and badly wrong near a front.")
+    print ""
+    lp("A field of cumulus with flat bases all at one height IS that level made")
+    lp("visible. Above it, the " cw("trade inversion",C_ACC) " caps the marine layer, and the")
+    lp("flat tops are you looking at the underside of the lid.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="cells"){
+    lph("THE HEAT ENGINE, AND THE THREE CELLS")
+    lp("The tropics take in more energy from the sun than they radiate away.")
+    lp("The poles do the reverse. The atmosphere and the ocean exist, as far as")
+    lp("weather is concerned, to move the difference poleward.")
+    print ""
+    lp("Most of the atmosphere's share travels as " cw("latent heat",C_ACC) " - water")
+    lp("evaporated in the tropics and released as rain somewhere else. The")
+    lp("water cycle is not a side effect of the weather. It is the working")
+    lp("fluid.")
+    print ""
+    lp("  " cw("Hadley",C_ACC) "    rises at the equator, descends near 30 degrees")
+    lp("  " cw("Ferrel",C_ACC) "    30 to 60, and the one you probably sail in")
+    lp("  " cw("Polar",C_ACC) "     60 to the pole")
+    print ""
+    lp("The air descending at 30 degrees has already rained out everything it")
+    lp("had, so it arrives warm and dry. That gives you the subtropical highs,")
+    lp("the horse latitudes, the trade winds on their equatorward side - and")
+    lp("most of the world's deserts sit at that latitude for this reason.")
+    print ""
+    lp(cw("And it closes the loop with the last lesson:",C_ACC) " that same descending")
+    lp("warm air is the inversion capping the marine layer. The lid over your")
+    lp("flat-topped cumulus is the far end of a circulation that started as")
+    lp("thunderstorms on the equator.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="h500"){
+    lph("THE 500 MILLIBAR CHART, AND THE 564 LINE")
+    lp("A 500 mb chart is a " cw("topographic map of a pressure surface",C_ACC) ": the")
+    lp("contours are the HEIGHT at which the pressure is 500 millibars, drawn")
+    lp("in decametres. So \"564\" means the 5,640 metre contour. Low heights are")
+    lp("cold air, high heights are warm.")
+    print ""
+    lp("It is around 18,000 feet, with about half the atmosphere's mass above")
+    lp("and half below - which is why its flow is a fair proxy for where a")
+    lp("whole system gets carried. The " cw("steering level",C_ACC) ".")
+    print ""
+    lp(cw("Five rules a mariner can use from one chart:",C_ACC))
+    print ""
+    lp("  " cw("1.",C_ACC) " The surface storm track lies " cw("300 to 600 nm poleward",C_ACC) " of the")
+    lp("     5640 m contour, and runs " cw("parallel",C_ACC) " to it.")
+    print ""
+    lp("  " cw("2.",C_ACC) " " cw("All the gale force winds are poleward of the 564 line.",C_WARN))
+    lp("     Stay on its equatorward side and you stay out of the gales. This")
+    lp("     is the routing rule, and it is why the standard book on the")
+    lp("     subject is called Heavy Weather Avoidance.")
+    print ""
+    lp("  " cw("3.",C_ACC) " Surface lows and fronts move at " cw("a third to a half",C_ACC) " of the")
+    lp("     500 mb wind speed above them.")
+    print ""
+    lp("  " cw("4.",C_ACC) " Surface wind behind the system, in the cold air to the west")
+    lp("     and southwest, is about " cw("half",C_ACC) " the 500 mb wind speed.")
+    print ""
+    lp("  " cw("5.",C_ACC) " Tighter contours mean stronger wind - the upper-air version of")
+    lp("     close isobars. And the " cw("588",C_ACC) " contour marks the subtropical ridge,")
+    lp("     which is what steers tropical systems.")
+    print ""
+    lp(cw("You do not need the internet for this.",C_ACC) " A 500 mb chart comes in by HF")
+    lp("radiofax, on an SSB receiver, at sea, with no connectivity at all. Read")
+    lp("three numbers off it and " cw("weather chart",C_ACC) " will walk the rules with you.")
+    print ""
+    lpd("From the Mariner's Guide to the 500-Millibar Chart, by Joe Sienkiewicz")
+    lpd("of NOAA's Ocean Prediction Center and Lee Chesneau - US Navy, then OPC,")
+    lpd("who spent his retirement teaching this to sailors. See docs/SOURCES.md.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="cyclone"){
+    lph("HOW A TROPICAL CYCLONE IS MADE, AND HOW TO KEEP AWAY")
+    lp("This is the payoff for the other lessons: it needs all of them.")
+    print ""
+    lp("  " cw("warm deep water",C_ACC) "    about 26.5 C, and 50 m deep, or the storm")
+    lp("                     stirs up cold water and kills itself")
+    lp("  " cw("enough Coriolis",C_ACC) "    so not within ~5 degrees of the equator")
+    lp("  " cw("a moist unstable column",C_ACC) "  moist air is buoyant twice over")
+    lp("  " cw("weak wind shear",C_ACC) "    or the tower is torn apart before it organises")
+    lp("  " cw("something to start it",C_ACC) "  a wave, a trough, an old front")
+    print ""
+    lp("Take any one away and you get a lot of rain and no cyclone. Which is")
+    lp("useful: it tells you which conditions to worry about.")
+    print ""
+    lp(cw("AND AVOIDANCE IS A PROBLEM YOU ALREADY KNOW.",C_ACC))
+    print ""
+    lp("A storm centre has a position, a course and a speed. So do you. You")
+    lp("want the largest possible closest point of approach. " cw("That is exactly",C_ACC))
+    lp(cw("the relative-motion problem from colregs",C_ACC) " - the same vector triangle,")
+    lp("the same bearing drift, the same answer. The dangerous semicircle is")
+    lp("just the half where the storm's own motion adds to its wind.")
+    print ""
+    lpd("Which is why the tools in this suite keep turning out to be the same")
+    lpd("few ideas wearing different hats.")
+    print ""
+    return 1
+  }
+  # ------------------------------------------------------------------
+  if(k=="seasons"){
+    lph("THE TILT, THE SEASONS, AND AN HONEST BOUNDARY")
+    lp("The earth's axis leans " cw("23.5 degrees",C_ACC) " and keeps pointing the same way")
+    lp("as it goes round. So each hemisphere leans toward the sun for half the")
+    lp("year. That is the whole of the seasons - not distance from the sun,")
+    lp("which barely varies and is at its smallest in northern winter.")
+    print ""
+    lp("What it buys you at sea: the whole belt of weather migrates north and")
+    lp("south with it. The equatorial convergence, the subtropical ridge, the")
+    lp("storm tracks. " cw("A cyclone season is a season because the tilt makes it",C_ACC))
+    lp(cw("one",C_ACC) " - warm water and a ridge in the right place at the same time.")
+    print ""
+    lp(cw("Now the honest part.",C_ACC))
+    print ""
+    lp("The axis also wobbles, a full circle every 26,000 years, and the orbit")
+    lp("stretches and relaxes on cycles of 100,000. Those are real and they")
+    lp("drive ice ages.")
+    print ""
+    lp("They are " cw("climate, not weather",C_ACC) ", and " cw("nothing on your passage depends",C_ACC))
+    lp(cw("on them.",C_ACC) " They are in this lesson because they are interesting and")
+    lp("because you asked, and they are labelled so you know which is which.")
+    print ""
+    lpd("Every other lesson here earns its place by changing what you would do.")
+    lpd("This half of this one does not, and pretending otherwise would be the")
+    lpd("beginning of a tool full of things that sound like knowledge.")
+    print ""
+    return 1
+  }
+  return 0
+}
+function lesson_q(k){
+  if(k=="fluid")    return "It is 30 C and very humid. Is that air heavier or lighter than 30 C and dry?|Lighter. Water molecules at 18 replace nitrogen at 28 and oxygen at 32, and a given volume holds a fixed number of molecules. Warm and wet is buoyant twice over, which is what builds thunderstorms."
+  if(k=="data")     return "A seven-day GRIB and a 24-hour surface analysis disagree. Which do you believe?|The analysis. A human forecaster has looked at it and corrected it. The GRIB is a machine's extrapolation that nobody has seen, and the further out it runs the less it is worth."
+  if(k=="tide")     return "You are at 12N. The glass has fallen 2 hPa between 1000 and 1600. Worry?|Probably not - that is very close to the daily atmospheric tide, which is about 1.4 hPa of semidiurnal swing in the tropics with a minimum near 1600. Correct for it before reading anything into it. At 50N the same fall would mean much more."
+  if(k=="coriolis") return "Why does no hurricane ever form on the equator?|Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum."
+  if(k=="gradient") return "The chart shows a 30 knot gradient wind. What do you expect on deck, offshore, in the northern hemisphere?|Around 20 knots - roughly two thirds - and backed 10 to 20 degrees from the isobar direction, because friction slows the surface air, which weakens Coriolis, so pressure gradient wins a little and the wind blows across the isobars toward the low."
+  if(k=="lapse")    return "Air 18 C, dew point 12 C. How high is the cloud base?|About 2,400 ft: a spread of 6 C, and the spread closes at 2.5 C per 1000 ft, so 6 x 400. Not 6 x 333 - the divisor is the DIFFERENCE between the parcel's lapse rate and the dew point's, not the lapse rate itself."
+  if(k=="cells")    return "Why are so many of the world's deserts near 30 degrees latitude?|That is where the Hadley cell descends. The air rose at the equator, rained out everything it had, and comes back down warm and dry. The subtropical highs, the horse latitudes and the deserts are all the same descending branch."
+  if(k=="h500")     return "The 564 line runs east-west 200 nm north of you. Where is the storm track, and are you in the gales?|The track is 300 to 600 nm poleward of the 564 line and parallel to it, so well north of you. And all the gale force winds are poleward of that line - so at 200 nm south of it you are on the right side of it. That is the routing rule."
+  if(k=="cyclone")  return "Sea surface 27 C, moist unstable air, a nice tropical wave - and 40 knots of shear aloft. Cyclone?|No. Shear tears the tower apart before it can organise. Four of the five ingredients is not a storm, which is exactly why knowing the list is useful."
+  if(k=="seasons")  return "Northern winter is when the earth is CLOSEST to the sun. So why is it cold?|Because the seasons are the 23.5 degree tilt, not the distance. The northern hemisphere is leaning away, so the sun is low, the days are short, and the same energy is spread over more ground. The distance varies by about 3 percent and is swamped by it."
+  return ""
+}
+# =====================================================================
+#  weather -- dispatch
+# =====================================================================
+BEGIN{
+  col_init(); les_init()
+
+  if(cmd=="version"){ print "weather engine"; exit 0 }
+
+  else if(cmd=="what"){ wx_report(LOG, lon) }
+  else if(cmd=="score"){ sc_report(LOG) }
+  else if(cmd=="chart"){ ch_report(brg, dist, orient, w500, (north==""?1:north+0)) }
+
+  else if(cmd=="syllabus"){
+    print ""
+    printf "  %s\n", cw("LESSONS", C_ACC)
+    hr()
+    for(i=1;i<=LS_N;i++){
+      mk = (index("," donelist ",", "," LS_K[i] ",")>0) ? "*" : " "
+      printf "   %s %-9s %s\n", mk, LS_K[i], LS_T[i]
+    }
+    hr()
+    printf "  %s\n", cwd("* = done.    weather learn <key>")
+    print ""
+    printf "  %s\n", cwd("Each one earns its place by changing what the app says or what")
+    printf "  %s\n", cwd("you would do. One of them says plainly where that stops being")
+    printf "  %s\n", cwd("true, which is the point of the rule.")
+    print ""
+  }
+  else if(cmd=="lesson"){
+    if(!lesson_body(key)){ printf "  no such lesson: %s\n", key; exit 2 }
+    n=split(lesson_q(key),QA,"|")
+    if(n>=1){ hr(); printf "  %s %s\n", cw("Question:",C_ACC), QA[1]; print "" }
+  }
+  else if(cmd=="lessonq"){ n=split(lesson_q(key),QA,"|"); if(n>=2) print QA[2] }
+  else if(cmd=="lessonlist"){ for(i=1;i<=LS_N;i++) print LS_K[i] }
+
+  #  the machine forecasts, built only after the user's is committed
+  else if(cmd=="fcast"){
+    n = wx_load(LOG)
+    if(n<1) exit 1
+    for(i=n-1;i>=1;i--) if(wx_has(WP[i]) && wx_has(WP[n])) break
+    k=i
+    if(who2=="persist") sc_persist(n); else sc_rules(n, k, hours+0, lon)
+    if(wx_has(F_WDIR)) printf "wdir=%d\n", (F_WDIR+0.5)
+    if(wx_has(F_WSPD)) printf "wspd=%.0f\n", F_WSPD
+    if(wx_has(F_MSLP)) printf "mslp=%.1f\n", F_MSLP
+    if(wx_has(F_SEA))  printf "sea=%d\n",   F_SEA
+    printf "why=%s\n", (F_WHY==""?"-":F_WHY)
+  }
+  else if(cmd=="validat"){ print sc_validtime(now, hours+0) }
+  else if(cmd=="mkrec"){
+    n=0
+    while((getline line < fields) > 0){
+      p = index(line, "\t"); if(p<2) continue
+      K[++n]=substr(line,1,p-1); V[n]=substr(line,p+1)
+    }
+    close(fields)
+    rec = lg_make(now, type, K, V, n)
+    if(!lg_parse(rec)) exit 2
+    print rec
+  }
+  else { printf "  weather: unknown cmd %s\n", cmd; exit 2 }
+}
+__WEATHER_ENGINE__
+}
+
+about_text() {
+  cat <<'ABOUT'
+
+  ===============================================================
+   WEATHER -- read your own barometer
+  ===============================================================
+
+  WHAT THIS IS
+
+  Two things. It reasons over the observations in your deck log and
+  shows its working, and it teaches the physics underneath.
+
+  It is a separate tool from deck-log for a reason. A log records what
+  happened on this boat; a teacher is a different animal. The first
+  attempt put both in one program and the teaching material was the
+  part that got left out.
+
+  WHAT IT CANNOT DO
+
+  Forecast. There is no model here, no GRIB, and no chart it did not
+  get from you by hand. With no network there cannot be.
+
+  What it works from instead is the one category of weather data that
+  is never wrong - what you measured yourself - and the only one still
+  available when the antenna comes down. Celestial is what you do when
+  GPS dies. This is what you do when the sat comms die.
+
+  YOU FORECAST FIRST
+
+  weather forecast asks for yours and writes it down before showing any
+  of its own. Print the machine's guess first and you have not forecast
+  anything, you have agreed with an answer.
+
+  Then it offers two of its own - the rule set, and persistence, which
+  is "in twelve hours it will be much as it is now" - and when the time
+  comes it scores all three against what actually happened.
+
+  Scoring itself as well as you is the point. Every rule in here is a
+  rule of thumb. Some are right seven times in ten, and a rule that is
+  right seven times in ten is genuinely useful once you know that is
+  what it is. And you should be able to beat it in your own waters. A
+  training tool that cannot be outgrown is badly built.
+
+  WHERE IT COMES FROM
+
+  NOAA and the national weather services, which are public domain, and
+  the published literature. The 500 millibar rules are from the
+  Mariner's Guide to the 500-Millibar Chart by Joe Sienkiewicz of
+  NOAA's Ocean Prediction Center and Lee Chesneau. Full citations in
+  docs/SOURCES.md.
+
+  The physics is the part most often taught wrongly, so it is the part
+  checked hardest. If you were told the seasons are about distance from
+  the sun, see "weather learn seasons".
+
+  WHO WROTE IT
+
+  M. Larry Sherman had the ideas and the sea time. Claude wrote the
+  code. Part of Bash Navigation Software.
+
+  https://github.com/larrys614/bashnav
+
+  Apache License 2.0.
+
+ABOUT
+}
+
+FIELDS=""
+#  see src/decklog/10-head.sh: not /tmp, which iOS does not promise
+fld_start(){ FIELDS="$DECKLOG_HOME/.wxfields.$$"; mkdir -p "$DECKLOG_HOME" 2>/dev/null; : > "$FIELDS"; }
+fld(){ printf '%s\t%s\n' "$1" "$2" >> "$FIELDS"; }
+fld_commit(){
+  mkdir -p "$DECKLOG_HOME"
+  rec=$(eng -v cmd=mkrec -v type="$1" -v fields="$FIELDS")
+  rm -f "$FIELDS"; FIELDS=""
+  [ -n "$rec" ] || { echo "  weather: refused to write a malformed record" >&2; return 1; }
+  printf '%s\n' "$rec" >> "$LOG"
+}
+ask(){ printf "  %-38s " "$1"; IFS= read -r a || a=""; [ -z "$a" ] && a="-"; fld "$2" "$a"; }
+
+do_learn() {
+  load_prog
+  if [ -z "$1" ]; then eng -v cmd=syllabus -v donelist="$lessons"; return 0; fi
+  eng -v cmd=lesson -v key="$1" || return 1
+  printf "  your answer (return to see it): "; IFS= read -r a || return 0
+  [ -n "$a" ] && printf "\n  you said: %s\n" "$a"
+  echo
+  printf "  %s\n" "$(eng -v cmd=lessonq -v key="$1")"
+  echo
+  mark_done "$1"
+}
+
+do_chart() {
+  cat <<'C'
+
+  From a 500 mb chart - by radiofax, or one you have on paper. Find the
+  5640 metre contour (marked 564) and read three things off it.
+
+C
+  printf "  bearing from you to the nearest point of it: "; IFS= read -r brg
+  printf "  its distance, nm: ";                            IFS= read -r dist
+  printf "  which way the line itself runs, as a bearing: "; IFS= read -r orient
+  printf "  500 mb wind speed there, knots (return to skip): "; IFS= read -r w500
+  printf "  northern hemisphere? [Y/n] ";                    IFS= read -r nh
+  n=1; case "$nh" in n|N) n=0 ;; esac
+  eng -v cmd=chart -v brg="$brg" -v dist="$dist" -v orient="${orient:-0}" \
+      -v w500="$w500" -v north="$n"
+}
+
+#  YOU FORECAST FIRST. Nothing of mine until yours is written down.
+do_forecast() {
+  printf "  how many hours ahead? [12] "; IFS= read -r hrs || hrs=12
+  [ -z "$hrs" ] && hrs=12
+  case "$hrs" in *[!0-9]*) echo "  ?"; return 1 ;; esac
+  valid=$(eng -v cmd=validat -v hours="$hrs")
+  echo
+  echo "  ==============================================================="
+  echo "   YOUR forecast for $valid"
+  echo "  ==============================================================="
+  echo "   Yours first. Nothing of mine until yours is written down."
+  echo "   Return to leave a field out."
+  echo
+  fld_start
+  fld for "$valid"; fld by user
+  ask "wind direction, degrees true"  wdir
+  ask "wind speed, knots"             wspd
+  ask "sea level pressure, hPa"       mslp
+  ask "sea state, 0-9"                sea
+  fld_commit fc || return 1
+  echo
+  echo "  yours is logged. Now mine."
+  for w in rules persist; do
+    fld_start; fld for "$valid"; fld by "$w"
+    eng -v cmd=fcast -v hours="$hrs" -v who2="$w" | while IFS='=' read -r k v; do
+      [ -n "$k" ] && printf '%s\t%s\n' "$k" "$v" >> "$FIELDS"
+    done
+    fld_commit fc || true
+  done
+  echo
+  $AWK -F'|' -v v="$valid" '
+    /\|fc\|/ && $0 ~ ("for=" v) {
+      by="";wd="";ws="";mp="";sa="";why=""
+      for(i=3;i<=NF;i++){ p=index($i,"="); k=substr($i,1,p-1); x=substr($i,p+1)
+        if(k=="by")by=x; else if(k=="wdir")wd=x; else if(k=="wspd")ws=x
+        else if(k=="mslp")mp=x; else if(k=="sea")sa=x; else if(k=="why")why=x }
+      printf "  %-8s wind %-4s %-4s kn   %-7s hPa   sea %s\n", by, wd, ws, mp, sa
+      if(why!="" && why!="-"){ gsub(/%3D/,"=",why); gsub(/%7C/,"|",why)
+                               printf "     %s\n", why } }' "$LOG"
+  echo
+  echo "  Log the observation for $valid in deck-log when it comes,"
+  echo "  then: weather score"
+  echo
+}
+
+help_text() {
+  cat <<'HLP'
+
+  WEATHER -- read your own barometer
+
+  weather                  the menu
+  weather what             what your log says is coming, with the reasoning
+  weather learn [key]      a lesson; no key lists them
+  weather chart            reason over a 500 mb radiofax chart
+  weather forecast         yours first, then mine, then both are scored
+  weather score            how you, the rules and persistence are doing
+  weather lon <deg>        your longitude, E positive - for the pressure tide
+  weather day|night|plain  colour mode
+  weather about | version
+
+  It reads the deck log; deck-log is what writes it. It never forecasts
+  from a model, because there is no network here and never will be.
+
+HLP
+}
+
+menu() {
+  while :; do
+    load_conf; load_prog
+    echo
+    echo "  ==============================================================="
+    echo "   WEATHER $WEATHER_VERSION   read your own barometer"
+    echo "  ==============================================================="
+    if [ -n "$lon" ]; then echo "   longitude $lon - the pressure tide is corrected for"
+    else echo "   no longitude set: 'weather lon <deg>' to correct the pressure tide"; fi
+    cat <<'M'
+
+    1  What the log says          4  Make a forecast
+    2  A lesson                   5  The score
+    3  From a 500 mb chart
+
+    c  Colour   a  About   h  Help   q  Quit
+M
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) eng -v cmd=what ;;
+      2) printf "  which lesson (return to list): "; IFS= read -r k; do_learn "$k" ;;
+      3) do_chart ;;
+      4) do_forecast ;;
+      5) eng -v cmd=score ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      a|A) about_text ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk || true
+load_conf
+install_engine
+case "${1:-}" in
+  "")        paint; menu ;;
+  what)      eng -v cmd=what ;;
+  learn)     shift; do_learn "$1" ;;
+  chart)     do_chart ;;
+  forecast)  do_forecast ;;
+  score)     eng -v cmd=score ;;
+  lon)       shift; lon="$1"; save_conf; echo "  longitude: $lon" ;;
+  day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
+  about)     about_text ;;
+  help|-h|--help) help_text ;;
+  version)   echo "weather $WEATHER_VERSION" ;;
+  *) echo "  weather: no such command: $1"; help_text; exit 2 ;;
+esac
+__BN_PAYLOAD_weather__
+}
+extract_bashnav() {
+  cat > "$DEST/bashnav" <<'__BN_PAYLOAD_bashnav__'
+#!/bin/sh
+# =====================================================================
+#  bashnav -- one icon, all the tools behind it.
+#  Part of Bash Navigation Software.  Pure POSIX sh, no awk, no network.
+#
+#  On an iPad each tool can have its own home-screen icon through a
+#  Shortcut, but that needs the Shortcuts action set to run IN APP and
+#  not in the extension - the extension has no terminal, so an
+#  interactive menu has nothing to talk to.
+#
+#  This is the version that always works: one icon, one tap, pick from
+#  the list.  It is also the honest answer on a boat, where you are
+#  cold and the screen is wet and finding the right icon among five is
+#  worse than reading a list of five.
+# =====================================================================
+BASHNAV_VERSION=1.0
+
+#  Look next to this script first, then on the PATH, then in the place
+#  iOS actually lets an app write.  A launcher that cannot find the
+#  tools is worse than no launcher.
+here=$(dirname "$0")
+find_tool() {
+  for d in "$here" "$here/bin" "$HOME/Documents" "$HOME/bin" .; do
+    [ -x "$d/$1" ] && { echo "$d/$1"; return 0; }
+  done
+  command -v "$1" 2>/dev/null && return 0
+  return 1
+}
+
+TOOLS="celnav:Celestial navigation, sight reduction and the fix
+colregs:Rules of the road, lights, and collision avoidance
+tides:Tide prediction for 8,334 stations
+deck-log:The boat's records: deck, engine, provisions
+weather:Read your own barometer"
+
+show() {
+  echo
+  echo "  ==============================================================="
+  echo "   BASH NAVIGATION SOFTWARE $BASHNAV_VERSION"
+  echo "  ==============================================================="
+  echo
+  i=1
+  OLDIFS=$IFS; IFS='
+'
+  for line in $TOOLS; do
+    name=${line%%:*}; desc=${line#*:}
+    if p=$(find_tool "$name"); then
+      printf "    %d  %-9s %s\n" "$i" "$name" "$desc"
+    else
+      printf "    %d  %-9s %s\n" "$i" "$name" "-- not found --"
+    fi
+    i=$((i+1))
+  done
+  IFS=$OLDIFS
+  echo
+  echo "    q  Quit"
+  echo
+}
+
+pick() {
+  n=$1
+  i=1
+  OLDIFS=$IFS; IFS='
+'
+  for line in $TOOLS; do
+    name=${line%%:*}
+    if [ "$i" = "$n" ]; then IFS=$OLDIFS; echo "$name"; return 0; fi
+    i=$((i+1))
+  done
+  IFS=$OLDIFS
+  return 1
+}
+
+#  a name straight off the command line: bashnav tides
+if [ -n "${1:-}" ]; then
+  case "$1" in
+    -h|--help|help)
+      echo
+      echo "  bashnav            the menu"
+      echo "  bashnav <tool>     run one directly"
+      echo "  bashnav where      where each tool was found"
+      echo
+      exit 0 ;;
+    version) echo "bashnav $BASHNAV_VERSION"; exit 0 ;;
+    where)
+      OLDIFS=$IFS; IFS='
+'
+      for line in $TOOLS; do
+        name=${line%%:*}
+        if p=$(find_tool "$name"); then printf "  %-9s %s\n" "$name" "$p"
+        else printf "  %-9s not found\n" "$name"; fi
+      done
+      IFS=$OLDIFS
+      exit 0 ;;
+  esac
+  if p=$(find_tool "$1"); then shift; exec "$p" "$@"; fi
+  echo "  bashnav: cannot find $1"
+  echo "  Put the tools beside this script, on your PATH, or in ~/Documents."
+  exit 2
+fi
+
+while :; do
+  show
+  printf "  > "
+  IFS= read -r c || exit 0
+  case "$c" in
+    q|Q) exit 0 ;;
+    "") ;;
+    *[!0-9]*) echo "  ?" ;;
+    *) name=$(pick "$c") || { echo "  ?"; continue; }
+       if p=$(find_tool "$name"); then "$p"
+       else
+         echo
+         echo "  $name is not here yet."
+         echo "  Put it beside this script, on your PATH, or in ~/Documents."
+       fi ;;
+  esac
+done
+__BN_PAYLOAD_bashnav__
+}
+
+for t in $TOOLS; do
+  step "$t"
+  fn=$(printf '%s' "$t" | tr -d '-')       # deck-log -> extract_decklog
+  "extract_$fn" || die "could not write $DEST/$t"
+  chmod +x "$DEST/$t" 2>/dev/null || die "could not make $DEST/$t executable"
+  fine
+done
+say ""
+
+# ---------------------------------------------------------------------
+#  3. Prove they run, here, now.
+#
+#  An installer that reports success without executing anything is how
+#  you find out on watch that it did not work.
+# ---------------------------------------------------------------------
+step "checking they run"
+for t in celnav colregs tides deck-log weather; do
+  v=$("$DEST/$t" version 2>&1) || die "$t would not run: $v"
+  case "$v" in "$t "*) ;; *) die "$t answered '$v', which is not a version" ;; esac
+done
+fine
+
+# ---------------------------------------------------------------------
+#  4. The environment.
+#
+#  a-Shell runs ~/Documents/.profile when it opens a window, so this is
+#  what makes plain "weather" work instead of "./weather".
+#
+#  The *_HOME variables are belt and braces: every tool already probes
+#  for a writable folder by itself.  Setting them makes the answer
+#  explicit and stops it moving if the files ever do.
+# ---------------------------------------------------------------------
+DATA="$DEST"
+writable "$HOME" && DATA="$HOME"
+
+BLOCK=$(cat <<BLK
+# >>> bashnav >>>  managed block, safe to delete, rewritten on reinstall
+export PATH="$DEST:\$PATH"
+export CELNAV_HOME="$DATA/.celnav"
+export COLREGS_HOME="$DATA/.colregs"
+export TIDES_HOME="$DATA/.tides"
+export DECKLOG_HOME="$DATA/.bashnav"
+export WEATHER_HOME="$DATA/.bashnav"
+# <<< bashnav <<<
+BLK
+)
+
+PROF="$DEST/.profile"
+step "environment in .profile"
+if [ -f "$PROF" ]; then
+  [ -f "$PROF.bashnav-backup" ] || cp "$PROF" "$PROF.bashnav-backup" 2>/dev/null
+  #  Replace our block rather than appending a second one.  awk, not
+  #  sed -i: a-Shell's sed may not have -i and this has to work there.
+  awk '/^# >>> bashnav >>>/{skip=1} !skip{print} /^# <<< bashnav <<</{skip=0}' \
+      "$PROF" > "$PROF.new" 2>/dev/null || die "could not rewrite $PROF"
+  mv "$PROF.new" "$PROF" || die "could not replace $PROF"
+fi
+printf '%s\n' "$BLOCK" >> "$PROF" || die "could not write $PROF"
+fine
+
+step "loading it into this window"
+# shellcheck disable=SC1090
+. "$PROF" >/dev/null 2>&1 || true
+case ":${PATH}:" in *":$DEST:"*) fine ;; *) printf 'not this window -- open a new one\n' ;; esac
+say ""
+
+# ---------------------------------------------------------------------
+#  5. Home-screen icons.
+#
+#  A script cannot make one.  On iOS only the Shortcuts app can add to
+#  the home screen, and only when a person does it.  What this can do
+#  is put the command on the clipboard and open Shortcuts at the right
+#  place, so it is a paste rather than typing on glass in a seaway.
+# ---------------------------------------------------------------------
+say "  -------------------------------------------------------------------"
+say "  ICONS ON THE HOME SCREEN"
+say ""
+say "  No script can create one -- on iOS only you can, in Shortcuts."
+say "  Five taps each, and this is the recipe:"
+say ""
+say "    1. Shortcuts app -> + -> search a-Shell -> Execute Command"
+say "    2. Command:  cd $DEST; ./bashnav"
+say "    3. Open the action's options and set it to run IN APP."
+say "       NOT In Extension. The extension has no terminal, so a menu"
+say "       has nothing to draw on and cannot read a keystroke."
+say "    4. Name it, then Share -> Add to Home Screen, and pick an icon."
+say ""
+say "  One icon for the menu, or one each -- change the command to"
+say "  ./bashnav weather, ./bashnav tides, and so on."
+say ""
+if command -v pbcopy >/dev/null 2>&1; then
+  printf 'cd %s; ./bashnav' "$DEST" | pbcopy 2>/dev/null &&
+    say "  The command for step 2 is on your clipboard. Paste it."
+  say ""
+fi
+say "  When you are ready:   open shortcuts://"
+say "  -------------------------------------------------------------------"
+say ""
+say "  Installed. In a new window, type:"
+say ""
+say "     bashnav          the menu"
+say "     weather          or any tool by name"
+say "     celnav doctor    checks your awk, your clock, your folders"
+say ""
+exit 0
