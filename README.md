@@ -11,7 +11,8 @@ Three of them:
 | **[celnav](#celnav)** | Celestial navigation: a computed almanac, sight reduction, the fix, and a training mode that teaches the whole subject from first principles. |
 | **[colregs](#colregs)** | The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, contact management, and lessons on the rules themselves. |
 | **[tides](#tides)** | Harmonic tide prediction for 8,334 stations worldwide: the day's table, the curve, the moon and sun, and the question a tide table exists to answer &mdash; is there enough water. Overhead clearance too, where there are bridges. |
-| **[deck-log](#deck-log)** | The boat's records &mdash; deck, engine, provisions &mdash; kept append-only in UTC, with the spares worked out by replaying the log rather than stored. And the weather reasoned from your own observations, showing its working. |
+| **[deck-log](#deck-log)** | The boat's records &mdash; deck, engine, provisions &mdash; kept append-only in UTC, with the spares worked out by replaying the log rather than stored. |
+| **[weather](#weather)** | Part of `deck-log`. Reasons from the observations you logged and **shows its working**: barometric tendency corrected for the daily atmospheric tide, backing and veering, Buys Ballot, fog, cloud base, and swell as the earliest warning there is. Then you forecast, it forecasts, and both are scored against what actually happened. |
 
 <img src="docs/img/celnav-plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
 
@@ -397,6 +398,13 @@ Everything the chandler will ask, on one screen, with no signal.
 
 </details>
 
+---
+
+## weather
+
+*Part of `deck-log` &mdash; there is no separate binary. It reasons over the
+observations in your log.*
+
 ### What the log says
 
 Given a few three-hourly observations it reasons about what is coming and
@@ -406,7 +414,7 @@ backing and veering; Buys Ballot; fog from dew point against sea temperature;
 cloud base from the spread; and a long-period swell from a new direction, which
 outruns the storm that made it.
 
-### And it keeps score
+### Predict, then compare, then score
 
 `deck-log forecast` asks for **your** forecast first and writes it down before
 showing any of its own &mdash; print the machine's guess first and you have not
