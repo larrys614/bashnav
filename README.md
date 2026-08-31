@@ -105,6 +105,38 @@ confirm it.
 
 ### On an iPad
 
+> ### ⚠ Known problem, being worked on
+>
+> **The tools do not currently run reliably under a-Shell on iOS.** As of
+> 2026-08-31 the menus hang on an iPad after the first screen. The same builds
+> are correct on macOS, Linux and the BSDs, and pass the full test matrix
+> there.
+>
+> Two causes are known and fixed in the source; a third is still open:
+>
+> - **Fixed** &mdash; every tool kept its data in `$HOME`, which iOS refuses to
+>   write. They now find a writable folder (`~/Documents/…` on an iPad).
+> - **Fixed** &mdash; `deck-log` and `weather` used `/tmp`, which iOS does not
+>   promise exists.
+> - **Open** &mdash; the interactive menus stop after the first screen under
+>   a-Shell. Under investigation.
+>
+> The honest reason this got out: **nothing in the test suite runs on iOS.**
+> The suite runs on machines with a writable `$HOME`, a `/tmp` and a
+> conventional shell, so it shared every assumption the code was making. That
+> is being addressed as well as the bugs.
+>
+> **And there is no interrupt key.** The iPad's on-screen keyboard in a-Shell
+> has no Ctrl and no Esc, so a program that stops responding cannot be killed
+> &mdash; the only way out is to open a new a-Shell window and abandon the old
+> one. That is a design constraint, not a footnote: on this platform a tool
+> that can hang is a tool that ends the session. Nothing here may block
+> without a way out.
+>
+> If you are here to use these on a boat today, they are solid on a laptop.
+> The iPad story will be worth having and is not there yet.
+
+
 An iPad has no shell of its own, so you install one, and then one file
 installs everything else.
 
