@@ -154,15 +154,24 @@ Or fetch it, if a-Shell has `curl` (`help -l | grep curl` tells you):
 
 ```sh
 cd ~/Documents
-curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/release/bashnav-ipad.sh
+curl -f -O https://raw.githubusercontent.com/larrys614/bashnav/main/release/bashnav-ipad.sh
 ```
 
-> **A 404 here is almost always a capital letter.** The owner and repository
-> parts of that URL are case-insensitive, but **the branch and the path are
-> not**: `Main`, `Release` or `Bashnav-ipad.sh` each return 404, and iOS
-> capitalises after punctuation by default, so typing the URL by hand on an
-> iPad is a good way to produce one. Paste it, or use `pickFolder` above.
-> A 404 does not mean the file is missing &mdash; check the case first.
+> **The `-f` is not optional.** Without it `curl -O` saves GitHub's error page
+> as a file and **exits 0**. A mistyped URL gives you a perfectly ordinary
+> looking download &mdash; `100 14 100 14` &mdash; and a 14-byte file called
+> `bashnav-ipad.sh` whose entire contents are `404: Not Found`. `-f` makes curl
+> fail loudly and write nothing.
+>
+> **And a 404 here is usually the URL, not a missing file.** One character does
+> it: a real one was `bashnav-pad.sh`, missing the `i`. The owner and repository
+> names are case-insensitive but **the branch and path are not**, so `Main`,
+> `Release` or `Bashnav-ipad.sh` each 404 too &mdash; and iOS capitalises after
+> punctuation by default. Paste the URL rather than typing it, or use
+> `pickFolder` above and avoid it entirely.
+>
+> The installer will catch this even if you miss it: it carries its own length
+> and refuses to run when the file is the wrong size.
 
 **3. Run it.**
 
