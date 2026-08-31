@@ -25,19 +25,18 @@ pick_awk() {
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
   AWK=awk
-  cat >&2 <<'NOMATH'
-celnav: no awk with trigonometric functions was found.
-
-  On macOS:            nothing to do - the built-in awk already has it.
-                       (apk is Alpine's, and only exists inside iSH.)
-  On iSH (Alpine):     apk add gawk
-  On Termux:           pkg install gawk
-  On Debian/Ubuntu:    sudo apt install gawk
-  a-Shell already has a suitable awk built in.
-
-  If your awk is under another name, set it explicitly:
-      CELNAV_AWK=gawk celnav
-NOMATH
+  printf '%s\n' \
+    'celnav: no awk with trigonometric functions was found.' \
+    '' \
+    '  On macOS:            nothing to do - the built-in awk already has it.' \
+    '                       (apk is Alpine'\''s, and only exists inside iSH.)' \
+    '  On iSH (Alpine):     apk add gawk' \
+    '  On Termux:           pkg install gawk' \
+    '  On Debian/Ubuntu:    sudo apt install gawk' \
+    '  a-Shell already has a suitable awk built in.' \
+    '' \
+    '  If your awk is under another name, set it explicitly:' \
+    '      CELNAV_AWK=gawk celnav' >&2
   return 1
 }
 

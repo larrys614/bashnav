@@ -31,13 +31,59 @@ ok()   { printf '  ok    %s\n' "$*"; }
 bad()  { printf '  FAIL  %s\n' "$*"; fail=$((fail+1)); }
 check(){ if [ "$2" = "$3" ]; then ok "$1"; else bad "$1 (got '$3', want '$2')"; fi; }
 
+#  A CHECK THAT HANGS IS WORSE THAN ONE THAT FAILS.
+#
+#  tests/ios-home.sh hung on Larry's Mac and the suite simply stopped,
+#  on a blank line, with no clue which check it was in -- he had to tell
+#  me the last line that printed.  macOS has no timeout(1), so this is a
+#  portable one: run the check in the background, shoot it if it takes
+#  too long, and report that as a FAILURE naming the check.
+#
+#  The output goes to a file rather than a pipe on purpose: a pipe would
+#  keep the reader blocked on the killed child.
+#  guard SECONDS COMMAND...   -> exit status of the command, or 137 if
+#  it had to be killed.  Output is left in $GUARD_OUT for the caller to
+#  print; guard must NOT be called inside $( ), because a command
+#  substitution runs in a subshell where backgrounding and wait do not
+#  behave, and the first version of this silently swallowed every
+#  check's output and turned four passes into four blank failures.
+GUARD_OUT=""
+guard() {
+  g_sec=$1; shift
+  GUARD_OUT="$tmp/guard.out"
+  : > "$GUARD_OUT"
+  "$@" > "$GUARD_OUT" 2>&1 &
+  g_pid=$!
+  ( sleep "$g_sec"; kill -9 "$g_pid" 2>/dev/null ) 2>/dev/null &
+  g_kill=$!
+  wait "$g_pid" 2>/dev/null; g_rc=$?
+  #  Reap the watchdog as well.  bash on macOS prints
+  #  "Terminated: 15 ( sleep ...)" for a killed background job that is
+  #  never waited for -- three lines of alarming noise in the middle of
+  #  a passing run.  dash does not, which is why it looked clean here.
+  kill "$g_kill" 2>/dev/null
+  wait "$g_kill" 2>/dev/null
+  if [ "$g_rc" -ge 128 ]; then
+    printf '  ... TIMED OUT after %ss and was killed. Last step above.\n' "$g_sec" >> "$GUARD_OUT"
+  fi
+  return "$g_rc"
+}
+
 ./build.sh >/dev/null
 
 say ""
 say "syntax"
-for f in bin/celnav bin/colregs; do
-  if sh -n "$f" 2>/dev/null; then ok "$f parses"; else bad "$f parses"; fi
+#  Each tool carries its awk engines as payload AFTER "exit 0", where the
+#  shell stops reading -- that is how they are unpacked without a
+#  heredoc, which a-Shell does not deliver.  "sh -n" has no such stop:
+#  it parses to end of file and chokes on the awk.  So check the part
+#  that is actually parsed, and let the runtime tests below prove the
+#  whole thing runs -- which they do, under every shell in the matrix.
+for f in bin/celnav bin/colregs bin/tides bin/deck-log bin/weather bin/bashnav; do
+  awk '/^exit 0$/{ exit } { print }' "$f" > "$tmp/syn.$$"
+  if sh -n "$tmp/syn.$$" 2>/dev/null; then ok "$f parses"; else bad "$f parses"; fi
 done
+rm -f "$tmp/syn.$$"
 
 for SH in $SHELLS; do
  for AW in $AWKS; do
@@ -455,25 +501,35 @@ WXLOG
     bad "deck-log"
   fi
 
+  #  a heredoc feeding a command that prints: hangs on a-Shell, which is
+  #  the platform this project is for. Every menu was built that way.
+  if [ "$AW" != "$FIRSTAWK" ]; then :   # shell-only: once per shell
+  elif guard 60 sh tests/heredoc-check.sh; then
+    ok "no display text is printed through a heredoc"
+  else
+    head -8 "$GUARD_OUT"
+    bad "a heredoc feeds a command that prints"
+  fi
+
   #  the iPad installer: the one thing between a working repo and a
   #  working iPad, run once, on a boat, with no way to debug it.
   if [ "$AW" != "$FIRSTAWK" ]; then :   # shell-only: once per shell
-  elif o=$(sh tests/ipad-install-check.sh "$SH" 2>&1); then
+  elif guard 180 sh tests/ipad-install-check.sh "$SH"; then
     ok "the iPad installer installs, runs and can be run twice"
-    printf '%s\n' "$o" | grep '^  SKIP' || true
+    grep '^  SKIP' "$GUARD_OUT" || true
   else
-    printf '%s\n' "$o" | head -10
+    head -10 "$GUARD_OUT"
     bad "the iPad installer"
   fi
 
   #  iOS refuses writes in $HOME, and every tool kept its data there.
   #  Not one of them started on the platform this project is for.
   if [ "$AW" != "$FIRSTAWK" ]; then :   # shell-only: once per shell
-  elif o=$(sh tests/ios-home.sh "$SH" 2>&1); then
+  elif guard 180 sh tests/ios-home.sh "$SH"; then
     ok "every tool starts when \$HOME is unwritable, as it is on iOS"
-    printf '%s\n' "$o" | grep '^  SKIP' || true
+    grep '^  SKIP' "$GUARD_OUT" || true
   else
-    printf '%s\n' "$o" | head -10
+    head -10 "$GUARD_OUT"
     bad "a tool cannot run on iOS"
   fi
 
@@ -481,10 +537,10 @@ WXLOG
   #  plainly when it cannot, pass arguments through, and the menu the
   #  README prints must be the menu the program prints.
   if [ "$AW" != "$FIRSTAWK" ]; then :   # shell-only: once per shell
-  elif o=$(sh tests/launcher-check.sh "$SH" 2>&1); then
+  elif guard 60 sh tests/launcher-check.sh "$SH"; then
     ok "the launcher finds every tool and its README menu is current"
   else
-    printf '%s\n' "$o" | head -12
+    head -12 "$GUARD_OUT"
     bad "bashnav launcher"
   fi
 
@@ -715,7 +771,11 @@ WXLOG
     bad "the review session recorded nothing at all"
   fi
   #  and resuming picks up where it stopped rather than starting again
-  nx=$(COLREGS_HOME="$RVH" COLREGS_AWK="$AW" $SH ./bin/colregs review </dev/null 2>/dev/null | head -0
+  #  ">/dev/null" and not "| head -0": head -0 is a GNU extension, macOS
+  #  head calls it an illegal line count, and under set -e that error
+  #  killed the whole suite one line before its summary.  It had been
+  #  there for weeks; nothing noticed, because nothing ran on a Mac.
+  nx=$(COLREGS_HOME="$RVH" COLREGS_AWK="$AW" $SH ./bin/colregs review </dev/null >/dev/null 2>&1
        $AW -f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
            -v cmode=plain -v cmd=rvnext -v rfile="$RVH/review.tsv" </dev/null)
   check "review resumes at the next unanswered claim" "enc-3" "$nx"

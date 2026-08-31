@@ -294,32 +294,31 @@ do_correct() {
 }
 
 help_text() {
-  cat <<'HLP'
-
-  DECK-LOG -- the boat's records: deck, engine, provisions
-
-  deck-log                 the menu
-  deck-log entry           a deck log entry (the three-hourly one)
-  deck-log wx              a weather observation on its own
-  deck-log log [n]         the last n entries
-  deck-log inspect         run the engine checklist
-  deck-log job             record work done, and the part it used
-  deck-log open            what is outstanding
-  deck-log spares          what is aboard
-  deck-log shopping        the list for the next port
-  deck-log equip | part    the registry
-  deck-log stocktake       count the locker
-  deck-log correct         correct an earlier entry, properly
-  deck-log day|night|plain colour mode
-  deck-log about | version
-
-  The weather reasoning lives in its own tool: try "weather".
-
-  Every timestamp is UTC. The log is append only: nothing is ever
-  edited or deleted, and a correction is a new entry that references
-  the old one. Both stay visible for ever.
-
-HLP
+  printf '%s\n' \
+    '' \
+    '  DECK-LOG -- the boat'\''s records: deck, engine, provisions' \
+    '' \
+    '  deck-log                 the menu' \
+    '  deck-log entry           a deck log entry (the three-hourly one)' \
+    '  deck-log wx              a weather observation on its own' \
+    '  deck-log log [n]         the last n entries' \
+    '  deck-log inspect         run the engine checklist' \
+    '  deck-log job             record work done, and the part it used' \
+    '  deck-log open            what is outstanding' \
+    '  deck-log spares          what is aboard' \
+    '  deck-log shopping        the list for the next port' \
+    '  deck-log equip | part    the registry' \
+    '  deck-log stocktake       count the locker' \
+    '  deck-log correct         correct an earlier entry, properly' \
+    '  deck-log day|night|plain colour mode' \
+    '  deck-log about | version' \
+    '' \
+    '  The weather reasoning lives in its own tool: try "weather".' \
+    '' \
+    '  Every timestamp is UTC. The log is append only: nothing is ever' \
+    '  edited or deleted, and a correction is a new entry that references' \
+    '  the old one. Both stay visible for ever.' \
+    ''
 }
 
 menu() {
@@ -331,18 +330,17 @@ menu() {
     echo "   DECK-LOG $DECKLOG_VERSION                             $(utcstamp)"
     echo "  ==============================================================="
     if [ -n "$last" ]; then echo "   last entry: $last"; else echo "   nothing logged yet"; fi
-    cat <<'M'
-
-    1  Log an entry            5  Spares aboard
-    2  Weather only            6  Shopping list
-    3  Engine inspection       7  The log
-    4  Work done               8  What is outstanding
-
-    p  Provisions   s  Stocktake   e  Equipment   n  New part
-    x  Correct an entry
-
-    c  Colour   a  About   h  Help   q  Quit
-M
+    printf '%s\n' \
+      '' \
+      '    1  Log an entry            5  Spares aboard' \
+      '    2  Weather only            6  Shopping list' \
+      '    3  Engine inspection       7  The log' \
+      '    4  Work done               8  What is outstanding' \
+      '' \
+      '    p  Provisions   s  Stocktake   e  Equipment   n  New part' \
+      '    x  Correct an entry' \
+      '' \
+      '    c  Colour   a  About   h  Help   q  Quit'
     printf "  > "; IFS= read -r c || exit 0
     case "$c" in
       1) do_entry ;;      2) do_wx ;;

@@ -40,6 +40,68 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   printf '%s\n' "$HOME/$1"
   return 1
 }
+
+# ---------------------------------------------------------------------
+#  Unpacking the awk engines.
+#
+#  These used to be written with a heredoc:
+#
+#      cat > "$ENGINE" <<'__ENGINE__'
+#      ...the whole engine...
+#      __ENGINE__
+#
+#  a-Shell -- the iPad terminal this project exists for -- DOES NOT
+#  DELIVER A HEREDOC.  Larry ran the three-line test on the device:
+#
+#      cat <<'M'          hangs, and every Return comes back blank,
+#      hello              because cat falls through to the terminal
+#      M
+#
+#  With the output redirected to a file, cat instead sees end of input
+#  straight away and writes NOTHING.  So every engine on that iPad was
+#  ZERO BYTES -- confirmed: wc -c ~/Documents/.celnav/*.awk = 0.  The
+#  tools could never have computed anything; the menus simply hung
+#  first, so that is where it was noticed.
+#
+#  So the payloads now live at the END of each tool, after "exit 0"
+#  where the shell never reads them, between markers, and awk lifts
+#  them out.  No heredoc, and awk is already a hard requirement.
+#
+#  And the result is CHECKED FOR SIZE.  A zero-byte engine must be a
+#  loud failure at install time, not a strange awk error hours later.
+# ---------------------------------------------------------------------
+bn_self() {
+  #  The path to this script.  $0 is it in every normal case; when the
+  #  script was found on PATH by name, ask the shell where it is.
+  if [ -f "$0" ]; then printf '%s\n' "$0"; return 0; fi
+  bn_s_p=$(command -v "$0" 2>/dev/null)
+  if [ -n "$bn_s_p" ] && [ -f "$bn_s_p" ]; then printf '%s\n' "$bn_s_p"; return 0; fi
+  return 1
+}
+#  bn_unpack <TAG> <destination>
+bn_unpack() {
+  bn_u_self=$(bn_self) || {
+    echo "${BN_TOOL:-bashnav}: cannot find my own file to unpack from" >&2; return 1; }
+  [ -n "${AWK:-}" ] || {
+    echo "${BN_TOOL:-bashnav}: no awk was chosen before unpacking" >&2; return 1; }
+  [ -r "$bn_u_self" ] || {
+    echo "${BN_TOOL:-bashnav}: cannot read $bn_u_self" >&2; return 1; }
+  #  </dev/null is the house rule and it is not decoration: awk with no
+  #  readable file argument reads STDIN and sits there forever.  On a
+  #  terminal that is a hang with no message; on an iPad, where there is
+  #  no Ctrl and no Esc, it ends the session.  See docs/ARCHITECTURE.md.
+  $AWK -v s="#__BN_START_$1__" -v e="#__BN_END_$1__" '
+    $0==e { f=0 } f { print } $0==s { f=1 }' "$bn_u_self" > "$2" 2>/dev/null </dev/null || {
+    echo "${BN_TOOL:-bashnav}: could not write $2" >&2; return 1; }
+  if [ ! -s "$2" ]; then
+    echo "${BN_TOOL:-bashnav}: unpacked $1 and got an empty file." >&2
+    echo "  Looked in: $bn_u_self" >&2
+    echo "  The file is probably truncated, or awk ($AWK) cannot read it." >&2
+    rm -f "$2"
+    return 1
+  fi
+  return 0
+}
 # =====================================================================
 #  tides -- harmonic tide prediction, offline
 #  Part of Bash Navigation Software.  https://github.com/larrys614/bashnav
@@ -67,12 +129,11 @@ pick_awk() {
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
   AWK=awk
-  cat >&2 <<'NOMATH'
-tides: no awk with trigonometric functions was found.
-  On macOS:         nothing to do - the built-in awk already has it.
-  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk
-  On Debian:        sudo apt install gawk
-NOMATH
+  printf '%s\n' \
+    'tides: no awk with trigonometric functions was found.' \
+    '  On macOS:         nothing to do - the built-in awk already has it.' \
+    '  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk' \
+    '  On Debian:        sudo apt install gawk' >&2
   return 1
 }
 load_conf() {
@@ -105,7 +166,271 @@ utctoday() { date -u '+%Y-%m-%d'; }
 
 # ---- data extraction (written once, then reused) -------------------
 extract_data() {
-  cat > "$TABLES" <<'__TIDES_TABLES__'
+  bn_unpack TABLES "$TABLES" || exit 1
+  bn_unpack ENGINE "$ENGINE" || exit 1
+  [ "$ISTTY" = 1 ] && printf "extracting the station data, once ... " >&2
+  bn_unpack STATIONS "$STATIONS" || exit 1
+  [ "$ISTTY" = 1 ] && echo "done" >&2
+  return 0
+}
+# ---------------------------------------------------------------------
+install_engine() {
+  if [ -f "$ENGINE" ] && [ -f "$TABLES" ] && [ -f "$STATIONS" ]; then
+    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
+  fi
+  mkdir -p "$TIDES_HOME" 2>/dev/null || { echo "tides: cannot create $TIDES_HOME" >&2; exit 1; }
+  extract_data
+}
+need_station() {
+  [ -n "$station" ] && return 0
+  printf '%s\n' \
+    '' \
+    '  No station chosen yet. A tide is not computable from a position: it' \
+    '  depends on the shape of the coast and the depth of the basin, so it' \
+    '  has to be measured somewhere and that somewhere is a station.' \
+    '' \
+    '    tides near 50.15 -5.07     the stations nearest a position' \
+    '    tides find falmouth        by name' \
+    '    tides use <id>             choose one' \
+    ''
+  return 1
+}
+#  A list is on screen; let the person choose by number.  The numbers
+#  are read back from the engine's quiet output, not scraped off the
+#  drawn list: a station called "Pier 39" would break that the first
+#  time somebody searched for it.
+#  A list is on screen; let the person choose by number.  The numbers
+#  come from the side file the engine wrote during the same run that
+#  drew the list, not from scraping the drawing: a station called
+#  "Pier 39" would break that the first time somebody searched for it.
+pick_from_list() {
+  [ -s "$LISTFILE" ] || return 1
+  printf "  Number to use it, or return to search again: "
+  IFS= read -r n || return 1
+  [ -z "$n" ] && return 1
+  case "$n" in *[!0-9]*) echo "  that is not a number"; return 1 ;; esac
+  row=$($AWK -F'|' -v n="$n" '$1==n{print; exit}' "$LISTFILE")
+  [ -z "$row" ] && { echo "  there is no $n in that list"; return 1; }
+  station=$(printf '%s\n' "$row" | cut -d'|' -f2)
+  stationname=$(printf '%s\n' "$row" | cut -d'|' -f3)
+  save_conf
+  printf "  station: %s\n" "$stationname"
+  printf "  %s\n" "$station"
+  return 0
+}
+#  Declining to pick a station is a normal outcome, not a failure: these
+#  return 0 either way, so a caller running under 'set -e' is not killed
+#  by somebody pressing return.
+do_near() {
+  : > "$LISTFILE"
+  eng -v cmd=near -v lat="$1" -v lon="$2" -v k="${3:-10}" -v rawto="$LISTFILE"
+  pick_from_list || true
+  return 0
+}
+do_find() {
+  : > "$LISTFILE"
+  eng -v cmd=search -v q="$1" -v k="${2:-20}" -v rawto="$LISTFILE"
+  pick_from_list || true
+  return 0
+}
+#  Searching by name from the menu keeps asking until something is
+#  chosen or the person gives up.  A first guess at a station name is
+#  usually wrong, and having to walk back out to the menu to try again
+#  is what makes people stop looking.
+find_loop() {
+  while :; do
+    printf "\n  name, or part of one (return to go back): "
+    IFS= read -r q || return 0
+    [ -z "$q" ] && return 0
+    : > "$LISTFILE"
+    eng -v cmd=search -v q="$q" -v k=20 -v rawto="$LISTFILE"
+    [ -s "$LISTFILE" ] || continue
+    pick_from_list && return 0
+  done
+}
+do_day() {
+  need_station || return 1
+  d="${1:-$(utctoday)}"
+  y=$(echo "$d" | cut -d- -f1); m=$(echo "$d" | cut -d- -f2); dd=$(echo "$d" | cut -d- -f3)
+  eng -v cmd=day -v id="$station" -v yy="$y" -v mm="$m" -v dd="$dd" -v sky="${SKY:-0}" \
+      -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" \
+      -v charted="$CHARTED" -v draft="$DRAFT" -v clear="$CLEAR" -v air="$AIR" -v mast="$MAST"
+}
+help_text() {
+  printf '%s\n' \
+    '' \
+    '  TIDES -- harmonic tide prediction, with no network and no subscription' \
+    '' \
+    '  tides                    the menu' \
+    '  tides near <lat> <lon>   the stations nearest a position' \
+    '  tides find <text>        search for a station by name' \
+    '  tides use <id>           choose a station' \
+    '  tides today [date]       the day'\''s table, curve and depth helper' \
+    '  tides sky [date]         the same, with the moon and sun panel' \
+    '  tides where              which station is chosen, and where the files are' \
+    '  tides day|night|plain    colour mode' \
+    '  tides about              what this is, where the data comes from' \
+    '  tides version' \
+    '' \
+    '  Dates are YYYY-MM-DD.  Times are the station'\''s own standard time -' \
+    '  no summer time, exactly like a printed tide table.' \
+    '' \
+    '  FINDING A STATION' \
+    '' \
+    '  Nobody guesses a station'\''s exact name: the database calls a place' \
+    '  "NEW LONDON  State Pier" or "Chappaquoit Point  West Falmouth' \
+    '  Harbor".  So type part of it and pick from the numbered list.' \
+    '' \
+    '  Every word you type has to appear somewhere in the name, the state' \
+    '  or the country, but in any order and anywhere inside a word, so' \
+    '  "lon new" finds New London just as well as "new london" does.' \
+    '' \
+    '  If you want more control, the text is used as a regular expression' \
+    '  the moment it contains any of  ^ $ . [ ] | ( ) * + ? { } \' \
+    '' \
+    '    tides find "^st mary"        names that start with St Mary' \
+    '    tides find "bay$"            names that end in Bay' \
+    '    tides find "falmouth|mystic" either one' \
+    '    tides find "port.*bay"       Port, then anything, then Bay' \
+    '' \
+    '  A pattern that is not a valid regular expression is searched as' \
+    '  plain text instead rather than refusing to answer.' \
+    '' \
+    '  A tide cannot be computed from a position. It depends on the shape of' \
+    '  the coast and the depth and resonance of the basin, so every place' \
+    '  needs constants somebody measured there. That is why you pick a' \
+    '  station and not a place, and why the nearest one by straight line can' \
+    '  be on the wrong side of a headland.' \
+    ''
+}
+menu() {
+  while :; do
+    load_conf
+    echo
+    echo "  ==============================================================="
+    echo "   TIDES $TIDES_VERSION   harmonic prediction, offline"
+    echo "  ==============================================================="
+    if [ -n "$station" ]; then echo "   station: $stationname"
+    else echo "   no station chosen"; fi
+    printf '%s\n' \
+      '' \
+      '    1  Today' \
+      '    2  Another day' \
+      '    3  Today, with the moon and sun' \
+      '    4  Depth and clearance' \
+      '    5  Choose a station by name' \
+      '    6  Choose a station near a position' \
+      '' \
+      '    c  Colour   a  About   h  Help   q  Quit'
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) SKY=0; do_day ;;
+      2) printf "  date (YYYY-MM-DD): "; IFS= read -r d; SKY=0; do_day "$d" ;;
+      3) SKY=1; do_day ;;
+      4) ask_depth; SKY=0; do_day; CHARTED=""; DRAFT=""; CLEAR=""; AIR=""; MAST="" ;;
+      5) find_loop ;;
+      6) printf "  latitude: "; IFS= read -r la; printf "  longitude: "; IFS= read -r lo
+         [ -n "$la" ] && do_near "$la" "$lo" ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      a|A) about_text ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+ask_depth() {
+  echo
+  echo "  Leave any of these blank to skip it."
+  printf "  charted depth at the spot (m): "; IFS= read -r CHARTED
+  if [ -n "$CHARTED" ]; then
+    printf "  your draught (m): "; IFS= read -r DRAFT
+    printf "  water you want under the keel (m): "; IFS= read -r CLEAR
+  fi
+  printf "  charted height of a bridge (m, above HAT): "; IFS= read -r AIR
+  [ -n "$AIR" ] && { printf "  your air draught (m): "; IFS= read -r MAST; }
+}
+about_text() {
+  printf '%s\n' \
+    '' \
+    '  TIDES -- what it is, and what it is not' \
+    '  ---------------------------------------------------------------' \
+    '  Harmonic prediction from constants measured at each station, with' \
+    '  no network and no subscription. 8,334 stations: 6,090 with their' \
+    '  own harmonic constants and 2,244 that offset from a neighbour,' \
+    '  which is exactly how a printed tide table is built.' \
+    '' \
+    '  CHECKED AGAINST NOAA'\''s OWN PUBLISHED TABLES.  Twenty-four high and' \
+    '  low waters at six stations spanning small and large ranges, mixed' \
+    '  and diurnal regimes: a mean error of 2.4 minutes and 1.0 cm, worst' \
+    '  5.9 minutes and 2.0 cm. The fixture is committed, so the check runs' \
+    '  with no network like everything else here.' \
+    '' \
+    '  WHAT IT DOES NOT KNOW.  The weather. A deep low can raise the sea' \
+    '  half a metre above prediction and a hard high can drop it as far;' \
+    '  wind piles water onto a lee shore and drains a weather one. River' \
+    '  flow after rain does the same. A prediction is the astronomical' \
+    '  tide and nothing else, and on the day the water does what it' \
+    '  likes.' \
+    '' \
+    '  Nor does it know about summer time. Times are the station'\''s own' \
+    '  standard time, exactly like a printed table, because that is what' \
+    '  the offsets in the data are referenced to.' \
+    '' \
+    '  DATA.  NOAA harmonic constants: works of the U.S. federal' \
+    '  government, public domain. TICON-4 harmonic constants: Piccioni,' \
+    '  Dettmering, Schwatke, Passaro and Seitz, CC BY 4.0. Assembled by' \
+    '  way of the neaps tide-database project, CC BY 4.0. That attribution' \
+    '  travels with the data and is not changed by this program'\''s licence.' \
+    '  See NOTICE.' \
+    '' \
+    '  Copyright 2026 M. Larry Sherman.  Apache License 2.0.  NO WARRANTY.' \
+    '  Carry a paper tide table.' \
+    ''
+}
+# ---- entry point ----------------------------------------------------
+pick_awk
+install_engine
+load_conf
+case "$1" in
+  ""|menu) paint; menu ;;
+  near)    shift; do_near "$1" "$2" "${3:-10}" ;;
+  find|search) shift; do_find "$1" ;;
+  use)     shift
+           n=$(eng -v cmd=info -v id="$1" -v yy=2026 -v mm=1 -v dd=1 | cut -d'|' -f2)
+           [ -z "$n" ] && { echo "tides: no station with that id"; exit 2; }
+           station="$1"; stationname="$n"; save_conf; echo "station: $stationname" ;;
+  today)   shift; SKY=0; do_day "$1" ;;
+  sky)     shift; SKY=1; do_day "$1" ;;
+  height)  shift
+           need_station || exit 1
+           d="${1:-$(utctoday)}"; t="${2:-12:00}"
+           eng -v cmd=height -v id="$station" \
+               -v yy=$(echo "$d"|cut -d- -f1) -v mm=$(echo "$d"|cut -d- -f2) \
+               -v dd=$(echo "$d"|cut -d- -f3) \
+               -v hh=$(echo "$t"|cut -d: -f1) -v mi=$(echo "$t"|cut -d: -f2) ;;
+  where)   echo "station: ${stationname:-none} ${station}"
+           echo "engine:  $ENGINE"
+           echo "data:    $STATIONS"
+           echo "config:  $CONF" ;;
+  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
+  about)   about_text ;;
+  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
+  help|-h|--help) help_text ;;
+  version|--version) echo "tides $TIDES_VERSION" ;;
+  *) echo "tides: there is no command '$1'."
+     echo
+     echo "  Working    today  sky  height  near  find  use"
+     echo "  Setup      day  night  plain  about  where  version"
+     echo
+     echo "  'tides help' explains each of them."
+     exit 2 ;;
+esac
+
+exit 0
+#__BN_START_TABLES__
 # generated by src/tides/gen/make_tables.py from UTide v1p0 - do not edit
 function tide_tables_init(   i,n,a){
   if(TT_READY) return
@@ -169,8 +494,8 @@ function tide_tables_init(   i,n,a){
   for(i=1;i<=n;i++){ split(a[i],CF,"|"); HIN[i]=CF[1]+0; HCO[i]=CF[2]+0 }
   TT_READY=1
 }
-__TIDES_TABLES__
-  cat > "$ENGINE" <<'__TIDES_ENGINE__'
+#__BN_END_TABLES__
+#__BN_START_ENGINE__
 # =====================================================================
 #  tides -- harmonic tide prediction
 #  Part of Bash Navigation Software.  Pure POSIX awk, no network.
@@ -1169,9 +1494,8 @@ BEGIN{
   }
   else if(cmd!=""){ print "tides: unknown cmd " cmd; exit 2 }
 }
-__TIDES_ENGINE__
-  [ "$ISTTY" = 1 ] && printf "extracting the station data, once ... " >&2
-  cat > "$STATIONS" <<'__TIDES_STATIONS__'
+#__BN_END_ENGINE__
+#__BN_START_STATIONS__
 # Bash Navigation Software tide station data
 # NOAA harmonics: public domain. TICON-4 harmonics: CC BY 4.0.
 # Assembled from https://github.com/neaps/tide-database (CC BY 4.0).
@@ -9509,266 +9833,4 @@ R|ticon/zollenspieker-5930090-deu-wsv|Zollenspieker|Hamburg|Germany|53.39870|10.
 R|ticon/zuidland-zuidld-nld-rws_hist|Zuidland|South Holland|Netherlands|51.80555|4.28292|60|312|LAT|30|24:138:1257,22:21:1022,29:30:1864,31:9:1848,20:2:608,12:2:3057,13:16:367,11:5:533,10:25:2326,8:8:1815,43:21:1581,3:10:1212,5:16:1823,1:42:2238,2:31:1652,28:4:1614,15:1:921,27:14:1525,30:1:412,6:2:1025,4:38:742,19:4:2301,21:19:2448,23:9:898,26:6:1460,42:7:1394,45:13:2204,25:3:3109,40:2:1153,59:9:1533,67:5:1977,48:1:3143,18:1:2329,9:2:1948,7:2:1601,33:4:601,61:8:2149,54:1:2583,50:2:2950
 R|ticon/zuidoord-zuidod-nld-rws_hist|Zuidoord|South Holland|Netherlands|51.79358|4.25306|60|475|LAT|123|24:132:1510,22:61:1267,29:26:2175,31:3:2297,20:11:3538,12:3:3005,13:16:515,11:8:797,10:28:2478,8:10:1955,43:4:3018,3:34:2984,5:54:1294,1:76:1991,2:60:1394,28:3:2355,15:1:1667,27:15:2684,30:2:3147,6:3:2062,4:19:711,19:7:2569,21:22:2605,23:9:1785,26:13:2096,42:1:2951,45:1:3375,25:23:100,40:1:1160,59:6:968,67:3:1762,48:1:2264,18:2:2184,9:5:3343,7:3:2229,33:4:833,61:6:1662,54:1:1856,50:1:2119
 R|ticon/zwartsluistg-zwa-nld-cmems|Zwartsluis|Overijssel|Netherlands|52.63880|6.07840|60|161|LAT|7|24:9:474,22:2:409,29:5:1476,31:1:1232,12:15:694,13:6:596,11:6:674,10:1:3493,8:1:3526,43:2:2108,3:5:2066,5:3:967,1:69:72,2:61:2327,28:2:494,27:1:353,30:2:1806,6:1:452,4:2:2232,19:1:906,21:1:1246,23:1:187,42:1:1995,45:1:2742,9:1:1009,7:1:2127,33:1:328
-__TIDES_STATIONS__
-  [ "$ISTTY" = 1 ] && echo "done" >&2
-  return 0
-}
-# ---------------------------------------------------------------------
-install_engine() {
-  if [ -f "$ENGINE" ] && [ -f "$TABLES" ] && [ -f "$STATIONS" ]; then
-    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
-  fi
-  mkdir -p "$TIDES_HOME" 2>/dev/null || { echo "tides: cannot create $TIDES_HOME" >&2; exit 1; }
-  extract_data
-}
-need_station() {
-  [ -n "$station" ] && return 0
-  cat <<'NS'
-
-  No station chosen yet. A tide is not computable from a position: it
-  depends on the shape of the coast and the depth of the basin, so it
-  has to be measured somewhere and that somewhere is a station.
-
-    tides near 50.15 -5.07     the stations nearest a position
-    tides find falmouth        by name
-    tides use <id>             choose one
-
-NS
-  return 1
-}
-#  A list is on screen; let the person choose by number.  The numbers
-#  are read back from the engine's quiet output, not scraped off the
-#  drawn list: a station called "Pier 39" would break that the first
-#  time somebody searched for it.
-#  A list is on screen; let the person choose by number.  The numbers
-#  come from the side file the engine wrote during the same run that
-#  drew the list, not from scraping the drawing: a station called
-#  "Pier 39" would break that the first time somebody searched for it.
-pick_from_list() {
-  [ -s "$LISTFILE" ] || return 1
-  printf "  Number to use it, or return to search again: "
-  IFS= read -r n || return 1
-  [ -z "$n" ] && return 1
-  case "$n" in *[!0-9]*) echo "  that is not a number"; return 1 ;; esac
-  row=$($AWK -F'|' -v n="$n" '$1==n{print; exit}' "$LISTFILE")
-  [ -z "$row" ] && { echo "  there is no $n in that list"; return 1; }
-  station=$(printf '%s\n' "$row" | cut -d'|' -f2)
-  stationname=$(printf '%s\n' "$row" | cut -d'|' -f3)
-  save_conf
-  printf "  station: %s\n" "$stationname"
-  printf "  %s\n" "$station"
-  return 0
-}
-#  Declining to pick a station is a normal outcome, not a failure: these
-#  return 0 either way, so a caller running under 'set -e' is not killed
-#  by somebody pressing return.
-do_near() {
-  : > "$LISTFILE"
-  eng -v cmd=near -v lat="$1" -v lon="$2" -v k="${3:-10}" -v rawto="$LISTFILE"
-  pick_from_list || true
-  return 0
-}
-do_find() {
-  : > "$LISTFILE"
-  eng -v cmd=search -v q="$1" -v k="${2:-20}" -v rawto="$LISTFILE"
-  pick_from_list || true
-  return 0
-}
-#  Searching by name from the menu keeps asking until something is
-#  chosen or the person gives up.  A first guess at a station name is
-#  usually wrong, and having to walk back out to the menu to try again
-#  is what makes people stop looking.
-find_loop() {
-  while :; do
-    printf "\n  name, or part of one (return to go back): "
-    IFS= read -r q || return 0
-    [ -z "$q" ] && return 0
-    : > "$LISTFILE"
-    eng -v cmd=search -v q="$q" -v k=20 -v rawto="$LISTFILE"
-    [ -s "$LISTFILE" ] || continue
-    pick_from_list && return 0
-  done
-}
-do_day() {
-  need_station || return 1
-  d="${1:-$(utctoday)}"
-  y=$(echo "$d" | cut -d- -f1); m=$(echo "$d" | cut -d- -f2); dd=$(echo "$d" | cut -d- -f3)
-  eng -v cmd=day -v id="$station" -v yy="$y" -v mm="$m" -v dd="$dd" -v sky="${SKY:-0}" \
-      -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" \
-      -v charted="$CHARTED" -v draft="$DRAFT" -v clear="$CLEAR" -v air="$AIR" -v mast="$MAST"
-}
-help_text() {
-  cat <<'HLP'
-
-  TIDES -- harmonic tide prediction, with no network and no subscription
-
-  tides                    the menu
-  tides near <lat> <lon>   the stations nearest a position
-  tides find <text>        search for a station by name
-  tides use <id>           choose a station
-  tides today [date]       the day's table, curve and depth helper
-  tides sky [date]         the same, with the moon and sun panel
-  tides where              which station is chosen, and where the files are
-  tides day|night|plain    colour mode
-  tides about              what this is, where the data comes from
-  tides version
-
-  Dates are YYYY-MM-DD.  Times are the station's own standard time -
-  no summer time, exactly like a printed tide table.
-
-  FINDING A STATION
-
-  Nobody guesses a station's exact name: the database calls a place
-  "NEW LONDON  State Pier" or "Chappaquoit Point  West Falmouth
-  Harbor".  So type part of it and pick from the numbered list.
-
-  Every word you type has to appear somewhere in the name, the state
-  or the country, but in any order and anywhere inside a word, so
-  "lon new" finds New London just as well as "new london" does.
-
-  If you want more control, the text is used as a regular expression
-  the moment it contains any of  ^ $ . [ ] | ( ) * + ? { } \
-
-    tides find "^st mary"        names that start with St Mary
-    tides find "bay$"            names that end in Bay
-    tides find "falmouth|mystic" either one
-    tides find "port.*bay"       Port, then anything, then Bay
-
-  A pattern that is not a valid regular expression is searched as
-  plain text instead rather than refusing to answer.
-
-  A tide cannot be computed from a position. It depends on the shape of
-  the coast and the depth and resonance of the basin, so every place
-  needs constants somebody measured there. That is why you pick a
-  station and not a place, and why the nearest one by straight line can
-  be on the wrong side of a headland.
-
-HLP
-}
-menu() {
-  while :; do
-    load_conf
-    echo
-    echo "  ==============================================================="
-    echo "   TIDES $TIDES_VERSION   harmonic prediction, offline"
-    echo "  ==============================================================="
-    if [ -n "$station" ]; then echo "   station: $stationname"
-    else echo "   no station chosen"; fi
-    cat <<'M'
-
-    1  Today
-    2  Another day
-    3  Today, with the moon and sun
-    4  Depth and clearance
-    5  Choose a station by name
-    6  Choose a station near a position
-
-    c  Colour   a  About   h  Help   q  Quit
-M
-    printf "  > "; IFS= read -r c || exit 0
-    case "$c" in
-      1) SKY=0; do_day ;;
-      2) printf "  date (YYYY-MM-DD): "; IFS= read -r d; SKY=0; do_day "$d" ;;
-      3) SKY=1; do_day ;;
-      4) ask_depth; SKY=0; do_day; CHARTED=""; DRAFT=""; CLEAR=""; AIR=""; MAST="" ;;
-      5) find_loop ;;
-      6) printf "  latitude: "; IFS= read -r la; printf "  longitude: "; IFS= read -r lo
-         [ -n "$la" ] && do_near "$la" "$lo" ;;
-      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
-           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
-      a|A) about_text ;;
-      h|H|\?) help_text ;;
-      q|Q) unpaint; exit 0 ;;
-      "") ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-ask_depth() {
-  echo
-  echo "  Leave any of these blank to skip it."
-  printf "  charted depth at the spot (m): "; IFS= read -r CHARTED
-  if [ -n "$CHARTED" ]; then
-    printf "  your draught (m): "; IFS= read -r DRAFT
-    printf "  water you want under the keel (m): "; IFS= read -r CLEAR
-  fi
-  printf "  charted height of a bridge (m, above HAT): "; IFS= read -r AIR
-  [ -n "$AIR" ] && { printf "  your air draught (m): "; IFS= read -r MAST; }
-}
-about_text() {
-  cat <<'ABT'
-
-  TIDES -- what it is, and what it is not
-  ---------------------------------------------------------------
-  Harmonic prediction from constants measured at each station, with
-  no network and no subscription. 8,334 stations: 6,090 with their
-  own harmonic constants and 2,244 that offset from a neighbour,
-  which is exactly how a printed tide table is built.
-
-  CHECKED AGAINST NOAA's OWN PUBLISHED TABLES.  Twenty-four high and
-  low waters at six stations spanning small and large ranges, mixed
-  and diurnal regimes: a mean error of 2.4 minutes and 1.0 cm, worst
-  5.9 minutes and 2.0 cm. The fixture is committed, so the check runs
-  with no network like everything else here.
-
-  WHAT IT DOES NOT KNOW.  The weather. A deep low can raise the sea
-  half a metre above prediction and a hard high can drop it as far;
-  wind piles water onto a lee shore and drains a weather one. River
-  flow after rain does the same. A prediction is the astronomical
-  tide and nothing else, and on the day the water does what it
-  likes.
-
-  Nor does it know about summer time. Times are the station's own
-  standard time, exactly like a printed table, because that is what
-  the offsets in the data are referenced to.
-
-  DATA.  NOAA harmonic constants: works of the U.S. federal
-  government, public domain. TICON-4 harmonic constants: Piccioni,
-  Dettmering, Schwatke, Passaro and Seitz, CC BY 4.0. Assembled by
-  way of the neaps tide-database project, CC BY 4.0. That attribution
-  travels with the data and is not changed by this program's licence.
-  See NOTICE.
-
-  Copyright 2026 M. Larry Sherman.  Apache License 2.0.  NO WARRANTY.
-  Carry a paper tide table.
-
-ABT
-}
-# ---- entry point ----------------------------------------------------
-pick_awk
-install_engine
-load_conf
-case "$1" in
-  ""|menu) paint; menu ;;
-  near)    shift; do_near "$1" "$2" "${3:-10}" ;;
-  find|search) shift; do_find "$1" ;;
-  use)     shift
-           n=$(eng -v cmd=info -v id="$1" -v yy=2026 -v mm=1 -v dd=1 | cut -d'|' -f2)
-           [ -z "$n" ] && { echo "tides: no station with that id"; exit 2; }
-           station="$1"; stationname="$n"; save_conf; echo "station: $stationname" ;;
-  today)   shift; SKY=0; do_day "$1" ;;
-  sky)     shift; SKY=1; do_day "$1" ;;
-  height)  shift
-           need_station || exit 1
-           d="${1:-$(utctoday)}"; t="${2:-12:00}"
-           eng -v cmd=height -v id="$station" \
-               -v yy=$(echo "$d"|cut -d- -f1) -v mm=$(echo "$d"|cut -d- -f2) \
-               -v dd=$(echo "$d"|cut -d- -f3) \
-               -v hh=$(echo "$t"|cut -d: -f1) -v mi=$(echo "$t"|cut -d: -f2) ;;
-  where)   echo "station: ${stationname:-none} ${station}"
-           echo "engine:  $ENGINE"
-           echo "data:    $STATIONS"
-           echo "config:  $CONF" ;;
-  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
-  about)   about_text ;;
-  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
-  help|-h|--help) help_text ;;
-  version|--version) echo "tides $TIDES_VERSION" ;;
-  *) echo "tides: there is no command '$1'."
-     echo
-     echo "  Working    today  sky  height  near  find  use"
-     echo "  Setup      day  night  plain  about  where  version"
-     echo
-     echo "  'tides help' explains each of them."
-     exit 2 ;;
-esac
+#__BN_END_STATIONS__

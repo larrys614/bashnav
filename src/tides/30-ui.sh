@@ -8,17 +8,16 @@ install_engine() {
 }
 need_station() {
   [ -n "$station" ] && return 0
-  cat <<'NS'
-
-  No station chosen yet. A tide is not computable from a position: it
-  depends on the shape of the coast and the depth of the basin, so it
-  has to be measured somewhere and that somewhere is a station.
-
-    tides near 50.15 -5.07     the stations nearest a position
-    tides find falmouth        by name
-    tides use <id>             choose one
-
-NS
+  printf '%s\n' \
+    '' \
+    '  No station chosen yet. A tide is not computable from a position: it' \
+    '  depends on the shape of the coast and the depth of the basin, so it' \
+    '  has to be measured somewhere and that somewhere is a station.' \
+    '' \
+    '    tides near 50.15 -5.07     the stations nearest a position' \
+    '    tides find falmouth        by name' \
+    '    tides use <id>             choose one' \
+    ''
   return 1
 }
 #  A list is on screen; let the person choose by number.  The numbers
@@ -83,52 +82,51 @@ do_day() {
       -v charted="$CHARTED" -v draft="$DRAFT" -v clear="$CLEAR" -v air="$AIR" -v mast="$MAST"
 }
 help_text() {
-  cat <<'HLP'
-
-  TIDES -- harmonic tide prediction, with no network and no subscription
-
-  tides                    the menu
-  tides near <lat> <lon>   the stations nearest a position
-  tides find <text>        search for a station by name
-  tides use <id>           choose a station
-  tides today [date]       the day's table, curve and depth helper
-  tides sky [date]         the same, with the moon and sun panel
-  tides where              which station is chosen, and where the files are
-  tides day|night|plain    colour mode
-  tides about              what this is, where the data comes from
-  tides version
-
-  Dates are YYYY-MM-DD.  Times are the station's own standard time -
-  no summer time, exactly like a printed tide table.
-
-  FINDING A STATION
-
-  Nobody guesses a station's exact name: the database calls a place
-  "NEW LONDON  State Pier" or "Chappaquoit Point  West Falmouth
-  Harbor".  So type part of it and pick from the numbered list.
-
-  Every word you type has to appear somewhere in the name, the state
-  or the country, but in any order and anywhere inside a word, so
-  "lon new" finds New London just as well as "new london" does.
-
-  If you want more control, the text is used as a regular expression
-  the moment it contains any of  ^ $ . [ ] | ( ) * + ? { } \
-
-    tides find "^st mary"        names that start with St Mary
-    tides find "bay$"            names that end in Bay
-    tides find "falmouth|mystic" either one
-    tides find "port.*bay"       Port, then anything, then Bay
-
-  A pattern that is not a valid regular expression is searched as
-  plain text instead rather than refusing to answer.
-
-  A tide cannot be computed from a position. It depends on the shape of
-  the coast and the depth and resonance of the basin, so every place
-  needs constants somebody measured there. That is why you pick a
-  station and not a place, and why the nearest one by straight line can
-  be on the wrong side of a headland.
-
-HLP
+  printf '%s\n' \
+    '' \
+    '  TIDES -- harmonic tide prediction, with no network and no subscription' \
+    '' \
+    '  tides                    the menu' \
+    '  tides near <lat> <lon>   the stations nearest a position' \
+    '  tides find <text>        search for a station by name' \
+    '  tides use <id>           choose a station' \
+    '  tides today [date]       the day'\''s table, curve and depth helper' \
+    '  tides sky [date]         the same, with the moon and sun panel' \
+    '  tides where              which station is chosen, and where the files are' \
+    '  tides day|night|plain    colour mode' \
+    '  tides about              what this is, where the data comes from' \
+    '  tides version' \
+    '' \
+    '  Dates are YYYY-MM-DD.  Times are the station'\''s own standard time -' \
+    '  no summer time, exactly like a printed tide table.' \
+    '' \
+    '  FINDING A STATION' \
+    '' \
+    '  Nobody guesses a station'\''s exact name: the database calls a place' \
+    '  "NEW LONDON  State Pier" or "Chappaquoit Point  West Falmouth' \
+    '  Harbor".  So type part of it and pick from the numbered list.' \
+    '' \
+    '  Every word you type has to appear somewhere in the name, the state' \
+    '  or the country, but in any order and anywhere inside a word, so' \
+    '  "lon new" finds New London just as well as "new london" does.' \
+    '' \
+    '  If you want more control, the text is used as a regular expression' \
+    '  the moment it contains any of  ^ $ . [ ] | ( ) * + ? { } \' \
+    '' \
+    '    tides find "^st mary"        names that start with St Mary' \
+    '    tides find "bay$"            names that end in Bay' \
+    '    tides find "falmouth|mystic" either one' \
+    '    tides find "port.*bay"       Port, then anything, then Bay' \
+    '' \
+    '  A pattern that is not a valid regular expression is searched as' \
+    '  plain text instead rather than refusing to answer.' \
+    '' \
+    '  A tide cannot be computed from a position. It depends on the shape of' \
+    '  the coast and the depth and resonance of the basin, so every place' \
+    '  needs constants somebody measured there. That is why you pick a' \
+    '  station and not a place, and why the nearest one by straight line can' \
+    '  be on the wrong side of a headland.' \
+    ''
 }
 menu() {
   while :; do
@@ -139,17 +137,16 @@ menu() {
     echo "  ==============================================================="
     if [ -n "$station" ]; then echo "   station: $stationname"
     else echo "   no station chosen"; fi
-    cat <<'M'
-
-    1  Today
-    2  Another day
-    3  Today, with the moon and sun
-    4  Depth and clearance
-    5  Choose a station by name
-    6  Choose a station near a position
-
-    c  Colour   a  About   h  Help   q  Quit
-M
+    printf '%s\n' \
+      '' \
+      '    1  Today' \
+      '    2  Another day' \
+      '    3  Today, with the moon and sun' \
+      '    4  Depth and clearance' \
+      '    5  Choose a station by name' \
+      '    6  Choose a station near a position' \
+      '' \
+      '    c  Colour   a  About   h  Help   q  Quit'
     printf "  > "; IFS= read -r c || exit 0
     case "$c" in
       1) SKY=0; do_day ;;
@@ -181,43 +178,42 @@ ask_depth() {
   [ -n "$AIR" ] && { printf "  your air draught (m): "; IFS= read -r MAST; }
 }
 about_text() {
-  cat <<'ABT'
-
-  TIDES -- what it is, and what it is not
-  ---------------------------------------------------------------
-  Harmonic prediction from constants measured at each station, with
-  no network and no subscription. 8,334 stations: 6,090 with their
-  own harmonic constants and 2,244 that offset from a neighbour,
-  which is exactly how a printed tide table is built.
-
-  CHECKED AGAINST NOAA's OWN PUBLISHED TABLES.  Twenty-four high and
-  low waters at six stations spanning small and large ranges, mixed
-  and diurnal regimes: a mean error of 2.4 minutes and 1.0 cm, worst
-  5.9 minutes and 2.0 cm. The fixture is committed, so the check runs
-  with no network like everything else here.
-
-  WHAT IT DOES NOT KNOW.  The weather. A deep low can raise the sea
-  half a metre above prediction and a hard high can drop it as far;
-  wind piles water onto a lee shore and drains a weather one. River
-  flow after rain does the same. A prediction is the astronomical
-  tide and nothing else, and on the day the water does what it
-  likes.
-
-  Nor does it know about summer time. Times are the station's own
-  standard time, exactly like a printed table, because that is what
-  the offsets in the data are referenced to.
-
-  DATA.  NOAA harmonic constants: works of the U.S. federal
-  government, public domain. TICON-4 harmonic constants: Piccioni,
-  Dettmering, Schwatke, Passaro and Seitz, CC BY 4.0. Assembled by
-  way of the neaps tide-database project, CC BY 4.0. That attribution
-  travels with the data and is not changed by this program's licence.
-  See NOTICE.
-
-  Copyright 2026 M. Larry Sherman.  Apache License 2.0.  NO WARRANTY.
-  Carry a paper tide table.
-
-ABT
+  printf '%s\n' \
+    '' \
+    '  TIDES -- what it is, and what it is not' \
+    '  ---------------------------------------------------------------' \
+    '  Harmonic prediction from constants measured at each station, with' \
+    '  no network and no subscription. 8,334 stations: 6,090 with their' \
+    '  own harmonic constants and 2,244 that offset from a neighbour,' \
+    '  which is exactly how a printed tide table is built.' \
+    '' \
+    '  CHECKED AGAINST NOAA'\''s OWN PUBLISHED TABLES.  Twenty-four high and' \
+    '  low waters at six stations spanning small and large ranges, mixed' \
+    '  and diurnal regimes: a mean error of 2.4 minutes and 1.0 cm, worst' \
+    '  5.9 minutes and 2.0 cm. The fixture is committed, so the check runs' \
+    '  with no network like everything else here.' \
+    '' \
+    '  WHAT IT DOES NOT KNOW.  The weather. A deep low can raise the sea' \
+    '  half a metre above prediction and a hard high can drop it as far;' \
+    '  wind piles water onto a lee shore and drains a weather one. River' \
+    '  flow after rain does the same. A prediction is the astronomical' \
+    '  tide and nothing else, and on the day the water does what it' \
+    '  likes.' \
+    '' \
+    '  Nor does it know about summer time. Times are the station'\''s own' \
+    '  standard time, exactly like a printed table, because that is what' \
+    '  the offsets in the data are referenced to.' \
+    '' \
+    '  DATA.  NOAA harmonic constants: works of the U.S. federal' \
+    '  government, public domain. TICON-4 harmonic constants: Piccioni,' \
+    '  Dettmering, Schwatke, Passaro and Seitz, CC BY 4.0. Assembled by' \
+    '  way of the neaps tide-database project, CC BY 4.0. That attribution' \
+    '  travels with the data and is not changed by this program'\''s licence.' \
+    '  See NOTICE.' \
+    '' \
+    '  Copyright 2026 M. Larry Sherman.  Apache License 2.0.  NO WARRANTY.' \
+    '  Carry a paper tide table.' \
+    ''
 }
 # ---- entry point ----------------------------------------------------
 pick_awk

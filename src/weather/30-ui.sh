@@ -25,12 +25,11 @@ do_learn() {
 }
 
 do_chart() {
-  cat <<'C'
-
-  From a 500 mb chart - by radiofax, or one you have on paper. Find the
-  5640 metre contour (marked 564) and read three things off it.
-
-C
+  printf '%s\n' \
+    '' \
+    '  From a 500 mb chart - by radiofax, or one you have on paper. Find the' \
+    '  5640 metre contour (marked 564) and read three things off it.' \
+    ''
   printf "  bearing from you to the nearest point of it: "; IFS= read -r brg
   printf "  its distance, nm: ";                            IFS= read -r dist
   printf "  which way the line itself runs, as a bearing: "; IFS= read -r orient
@@ -87,24 +86,23 @@ do_forecast() {
 }
 
 help_text() {
-  cat <<'HLP'
-
-  WEATHER -- read your own barometer
-
-  weather                  the menu
-  weather what             what your log says is coming, with the reasoning
-  weather learn [key]      a lesson; no key lists them
-  weather chart            reason over a 500 mb radiofax chart
-  weather forecast         yours first, then mine, then both are scored
-  weather score            how you, the rules and persistence are doing
-  weather lon <deg>        your longitude, E positive - for the pressure tide
-  weather day|night|plain  colour mode
-  weather about | version
-
-  It reads the deck log; deck-log is what writes it. It never forecasts
-  from a model, because there is no network here and never will be.
-
-HLP
+  printf '%s\n' \
+    '' \
+    '  WEATHER -- read your own barometer' \
+    '' \
+    '  weather                  the menu' \
+    '  weather what             what your log says is coming, with the reasoning' \
+    '  weather learn [key]      a lesson; no key lists them' \
+    '  weather chart            reason over a 500 mb radiofax chart' \
+    '  weather forecast         yours first, then mine, then both are scored' \
+    '  weather score            how you, the rules and persistence are doing' \
+    '  weather lon <deg>        your longitude, E positive - for the pressure tide' \
+    '  weather day|night|plain  colour mode' \
+    '  weather about | version' \
+    '' \
+    '  It reads the deck log; deck-log is what writes it. It never forecasts' \
+    '  from a model, because there is no network here and never will be.' \
+    ''
 }
 
 menu() {
@@ -116,14 +114,13 @@ menu() {
     echo "  ==============================================================="
     if [ -n "$lon" ]; then echo "   longitude $lon - the pressure tide is corrected for"
     else echo "   no longitude set: 'weather lon <deg>' to correct the pressure tide"; fi
-    cat <<'M'
-
-    1  What the log says          4  Make a forecast
-    2  A lesson                   5  The score
-    3  From a 500 mb chart
-
-    c  Colour   a  About   h  Help   q  Quit
-M
+    printf '%s\n' \
+      '' \
+      '    1  What the log says          4  Make a forecast' \
+      '    2  A lesson                   5  The score' \
+      '    3  From a 500 mb chart' \
+      '' \
+      '    c  Colour   a  About   h  Help   q  Quit'
     printf "  > "; IFS= read -r c || exit 0
     case "$c" in
       1) eng -v cmd=what ;;

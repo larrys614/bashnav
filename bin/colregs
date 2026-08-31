@@ -40,6 +40,68 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   printf '%s\n' "$HOME/$1"
   return 1
 }
+
+# ---------------------------------------------------------------------
+#  Unpacking the awk engines.
+#
+#  These used to be written with a heredoc:
+#
+#      cat > "$ENGINE" <<'__ENGINE__'
+#      ...the whole engine...
+#      __ENGINE__
+#
+#  a-Shell -- the iPad terminal this project exists for -- DOES NOT
+#  DELIVER A HEREDOC.  Larry ran the three-line test on the device:
+#
+#      cat <<'M'          hangs, and every Return comes back blank,
+#      hello              because cat falls through to the terminal
+#      M
+#
+#  With the output redirected to a file, cat instead sees end of input
+#  straight away and writes NOTHING.  So every engine on that iPad was
+#  ZERO BYTES -- confirmed: wc -c ~/Documents/.celnav/*.awk = 0.  The
+#  tools could never have computed anything; the menus simply hung
+#  first, so that is where it was noticed.
+#
+#  So the payloads now live at the END of each tool, after "exit 0"
+#  where the shell never reads them, between markers, and awk lifts
+#  them out.  No heredoc, and awk is already a hard requirement.
+#
+#  And the result is CHECKED FOR SIZE.  A zero-byte engine must be a
+#  loud failure at install time, not a strange awk error hours later.
+# ---------------------------------------------------------------------
+bn_self() {
+  #  The path to this script.  $0 is it in every normal case; when the
+  #  script was found on PATH by name, ask the shell where it is.
+  if [ -f "$0" ]; then printf '%s\n' "$0"; return 0; fi
+  bn_s_p=$(command -v "$0" 2>/dev/null)
+  if [ -n "$bn_s_p" ] && [ -f "$bn_s_p" ]; then printf '%s\n' "$bn_s_p"; return 0; fi
+  return 1
+}
+#  bn_unpack <TAG> <destination>
+bn_unpack() {
+  bn_u_self=$(bn_self) || {
+    echo "${BN_TOOL:-bashnav}: cannot find my own file to unpack from" >&2; return 1; }
+  [ -n "${AWK:-}" ] || {
+    echo "${BN_TOOL:-bashnav}: no awk was chosen before unpacking" >&2; return 1; }
+  [ -r "$bn_u_self" ] || {
+    echo "${BN_TOOL:-bashnav}: cannot read $bn_u_self" >&2; return 1; }
+  #  </dev/null is the house rule and it is not decoration: awk with no
+  #  readable file argument reads STDIN and sits there forever.  On a
+  #  terminal that is a hang with no message; on an iPad, where there is
+  #  no Ctrl and no Esc, it ends the session.  See docs/ARCHITECTURE.md.
+  $AWK -v s="#__BN_START_$1__" -v e="#__BN_END_$1__" '
+    $0==e { f=0 } f { print } $0==s { f=1 }' "$bn_u_self" > "$2" 2>/dev/null </dev/null || {
+    echo "${BN_TOOL:-bashnav}: could not write $2" >&2; return 1; }
+  if [ ! -s "$2" ]; then
+    echo "${BN_TOOL:-bashnav}: unpacked $1 and got an empty file." >&2
+    echo "  Looked in: $bn_u_self" >&2
+    echo "  The file is probably truncated, or awk ($AWK) cannot read it." >&2
+    rm -f "$2"
+    return 1
+  fi
+  return 0
+}
 # =====================================================================
 #  colregs -- the international rules of the road, drawn in characters
 #  Part of Bash Navigation Software.  Pure POSIX sh + awk, no network.
@@ -79,12 +141,11 @@ pick_awk() {
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
   AWK=awk
-  cat >&2 <<'NOMATH'
-colregs: no awk with trigonometric functions was found.
-  On macOS:         nothing to do - the built-in awk already has it.
-  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk
-  On Debian:        sudo apt install gawk
-NOMATH
+  printf '%s\n' \
+    'colregs: no awk with trigonometric functions was found.' \
+    '  On macOS:         nothing to do - the built-in awk already has it.' \
+    '  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk' \
+    '  On Debian:        sudo apt install gawk' >&2
   return 1
 }
 load_conf() {
@@ -130,7 +191,838 @@ install_engine() {
   fi
   mkdir -p "$COLREGS_HOME" 2>/dev/null || {
     echo "colregs: cannot create $COLREGS_HOME" >&2; exit 1; }
-  cat > "$ENGINE" <<'__COLREGS_ENGINE__'
+  bn_unpack ENGINE "$ENGINE" || exit 1
+  bn_unpack CONTACTS "$CONTACTS" || exit 1
+  bn_unpack REVIEW "$REVIEW" || exit 1
+}
+# ---------------------------------------------------------------------
+#  About.  Shared by both tools; each one supplies about_why and
+#  about_sources, which are the parts that differ.
+# ---------------------------------------------------------------------
+about_how() {
+  printf '%s\n' \
+    '' \
+    '  HOW IT WAS WRITTEN' \
+    '  ---------------------------------------------------------------' \
+    '  By Claude, Anthropic'\''s AI model, in conversation with Larry over' \
+    '  a few days in August 2026.  He decided what it should do and' \
+    '  judged whether it was right.  The code, the mathematics and the' \
+    '  tests are Claude'\''s work.' \
+    '' \
+    '  Three rules were set at the start and never relaxed.' \
+    '' \
+    '  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs' \
+    '  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox' \
+    '  on a router.  Nothing is installed.  There is no dependency here' \
+    '  that can rot in a year, because there is no dependency.' \
+    '' \
+    '  NO NETWORK, EVER.  Every number the program needs is inside the' \
+    '  file you are running.  That is a constraint on the mathematics' \
+    '  and not only on the plumbing: it is why the planetary positions' \
+    '  are computed from orbital elements with a correction series' \
+    '  fitted here, rather than looked up in a table someone serves.' \
+    '' \
+    '  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is' \
+    '  implemented from a primary source and then validated against an' \
+    '  independent implementation - never against itself.' \
+    '' \
+    '  On that last one, honestly.  An AI writing code is confidently' \
+    '  wrong on a regular basis, and so is a person.  The defence is' \
+    '  not care, it is testing.  Real errors in this project were found' \
+    '  by machinery and by users, and would not have been found by' \
+    '  reading the code:' \
+    '' \
+    '    - One awk implementation ignores the seed you give its random' \
+    '      number generator.  A drill could therefore mark its own' \
+    '      correct answer wrong.  Found by running the suite under four' \
+    '      different awks, not by inspection.' \
+    '' \
+    '    - Both tools worked out "am I writing to a terminal?" from' \
+    '      inside a command substitution, where the answer is always' \
+    '      no.  Colour had never once worked, on any terminal, since' \
+    '      the day it was written.  The test suite checked that the' \
+    '      output is clean when piped - and passed, for entirely the' \
+    '      wrong reason.' \
+    '' \
+    '    - The three green lights of a mine clearance vessel were drawn' \
+    '      on two different masts.  A user saw that before any test' \
+    '      did, because he tried to account for every light in the' \
+    '      picture and could not.' \
+    '' \
+    '  So: the tests exist because the author is fallible, and the' \
+    '  interesting mistakes were caught by the tests and by the people' \
+    '  using it.  Which is the argument for sending feedback.' \
+    ''
+}
+about_feedback() {
+  printf '%s\n' \
+    '' \
+    '  FEEDBACK' \
+    '  ---------------------------------------------------------------' \
+    '  Please send it.  It is the reason this is public.' \
+    ''
+  about_needs
+  printf '%s\n' \
+    '  The useful report is small and specific:' \
+    '' \
+    '    what you did        the exact command, or which menu item' \
+    '    what you saw        paste it, escape codes and all' \
+    '    what you expected   and why - the rule, the sight, the table' \
+    '' \
+    '  "This is not right, a sailing vessel would not show that" with' \
+    '  the picture pasted underneath is worth more than any amount of' \
+    '  general praise, and has already fixed real bugs.' \
+    '' \
+    '  Where:' \
+    '' \
+    '    https://github.com/larrys614/bashnav/issues' \
+    '' \
+    '  If you think the program disagrees with the Convention, with an' \
+    '  almanac, or with a published tide table, say so plainly.  Assume' \
+    '  the program is wrong until it is shown otherwise.  That is the' \
+    '  correct prior, and it is how the bugs above were found.' \
+    '' \
+    '  Corrections to the teaching are as welcome as corrections to the' \
+    '  code.  If a lesson is misleading, that is a defect.' \
+    ''
+}
+about_licence() {
+  printf '%s\n' \
+    '' \
+    '  LICENCE AND WARRANTY' \
+    '  ---------------------------------------------------------------' \
+    '  Copyright 2026 M. Larry Sherman.' \
+    '  Licensed under the Apache License, Version 2.0.' \
+    '  http://www.apache.org/licenses/LICENSE-2.0' \
+    '' \
+    '  You may use it, including commercially, modify it, and pass it' \
+    '  on.  You must keep the copyright and licence notices and say' \
+    '  what you changed.  You get an explicit patent grant.  You may' \
+    '  not use the author'\''s name to endorse your version.' \
+    '' \
+    '  Tide station data carries its own terms, which this licence does' \
+    '  not change: the NOAA harmonic constants are public domain, and' \
+    '  the TICON-4 constants are CC BY 4.0.  Their attribution travels' \
+    '  with them.  See the NOTICE file.' \
+    '' \
+    '  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT' \
+    '  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.' \
+    '' \
+    '  This is a training aid and a calculator.  It is not a certified' \
+    '  navigation system, it carries no authority, and it has never' \
+    '  been near a type approval.  Nothing in it relieves any vessel,' \
+    '  owner, master or crew of the consequences of neglecting to' \
+    '  comply with the rules of the road, of neglecting a proper' \
+    '  look-out, or of neglecting any precaution required by the' \
+    '  ordinary practice of seamen.' \
+    '' \
+    '  Carry a paper almanac, a paper tide table, and the rules.' \
+    ''
+}
+about_menu() {
+  while :; do
+    printf '%s\n' \
+      '' \
+      '  ABOUT' \
+      '' \
+      '    1  Why this exists       who wanted it, and what for' \
+      '    2  How it was written    and by what, and what went wrong' \
+      '    3  What is tested        and, more to the point, what is not' \
+      '    4  Sources               where the numbers come from' \
+      '    5  Feedback              what to send, where, and what is worth most' \
+      '    6  Licence and warranty  Apache 2.0, and what it does not cover' \
+      '' \
+      '    x  back'
+    printf "  > "; IFS= read -r ac || return 0
+    case "$ac" in
+      1) about_why ;;
+      2) about_how ;;
+      3) about_tested ;;
+      4) about_sources ;;
+      5) about_feedback ;;
+      6) about_licence ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+about_why() {
+  printf '%s\n' \
+    '' \
+    '  WHY THIS EXISTS' \
+    '  ---------------------------------------------------------------' \
+    '  Larry Sherman asked for it.' \
+    '' \
+    '  He served in the United States Navy from 1984 to 1990 as an' \
+    '  FTG2/SS - a fire control technician, submarines - in USS Alaska' \
+    '  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS' \
+    '  Greenling (SSN-614).  Two ballistic missile boats and two fast' \
+    '  attacks, which is two quite different trades: one hides and one' \
+    '  goes looking.  He stood the manoeuvring watch on the fire control' \
+    '  tracking party, managing contacts and avoiding collisions through' \
+    '  places like the Strait of Gibraltar and the Race - the tide gate' \
+    '  at the mouth of Long Island Sound, and the door you go out of' \
+    '  from Groton.' \
+    '' \
+    '  Thirty-six years on he is sailing round the world in the' \
+    '  Clipper Race, and he wanted a few things that would work on an' \
+    '  iPad in the middle of an ocean: no signal, no subscription, no' \
+    '  account to log in to, no data to download first.' \
+    '' \
+    '  So: the rules of the road, drawn.  You learn lights by looking' \
+    '  at lights, from the angle you would actually see them, and by' \
+    '  being asked what you see and getting it wrong.  Reciting Rule 25' \
+    '  does not teach you to recognise a sailing vessel at two miles on' \
+    '  a black night.  Being shown one, guessing, and being told why' \
+    '  you were wrong does.' \
+    '' \
+    '  The contacts section is the method he was taught in the Navy,' \
+    '  written down: on the left drawing left, on the left drawing' \
+    '  right, and what each of those means before the plot catches up.' \
+    '' \
+    '  Everything follows from "no internet".  The light patterns, the' \
+    '  rules, the drills and the plotting are all inside the single' \
+    '  file you are running.  It is text.  You can read every line of' \
+    '  it, and you should be able to check it.' \
+    ''
+}
+about_sources() {
+  printf '%s\n' \
+    '' \
+    '  SOURCES' \
+    '  ---------------------------------------------------------------' \
+    '  THE RULES' \
+    '    The International Regulations for Preventing Collisions at' \
+    '    Sea, 1972, as amended - the Convention itself, including' \
+    '    Annex I on the positioning of lights and Annex III on sound' \
+    '    signal appliances.  Published by the International Maritime' \
+    '    Organization.' \
+    '' \
+    '    Rule text is quoted only in short extracts, for teaching.' \
+    '    Where this program and the Convention differ, the Convention' \
+    '    is right and this program has a bug in it.' \
+    '' \
+    '  THE PICTURES' \
+    '    Each vessel is a table of lights - position along the hull,' \
+    '    position across it, height, arc of visibility, colour - and' \
+    '    the drawing is computed from the bearing you ask for.  So the' \
+    '    same table draws her from any angle, and a mistake in the' \
+    '    table shows up as a picture that cannot be accounted for.' \
+    '    Annex I is what the numbers are built from.' \
+    '' \
+    '  CONTACTS' \
+    '    Relative-motion analysis as it is done on a warship'\''s plot.' \
+    '    The rule at the centre of it - a bearing drawing away from' \
+    '    your bow can never cross ahead of you - was tested against' \
+    '    700,000 randomly generated geometries before it was written' \
+    '    down, and is re-checked against 400 more on every test run.' \
+    '    Ekelund'\''s range formula was derived from scratch rather than' \
+    '    quoted, and is checked to floating point on every run.' \
+    '' \
+    '  CHECKED BY' \
+    '    A test suite that runs the tools under four different awk' \
+    '    implementations and requires every drill to mark its own' \
+    '    correct answer as correct.  Run it yourself: tests/run-tests.sh' \
+    '    in the repository.' \
+    ''
+}
+about_tested() {
+  printf '%s\n' \
+    '' \
+    '  WHAT IS TESTED, AND WHAT IS NOT' \
+    '  ---------------------------------------------------------------' \
+    '  Two suites run on every change, under four different awk' \
+    '  implementations and two shells.' \
+    '' \
+    '  THE INVARIANTS.  tests/run-tests.sh' \
+    '' \
+    '    - every drill marks its own correct answer as correct' \
+    '    - every lights question has exactly one right answer: six' \
+    '      hundred are generated and checked, and no two vessels may' \
+    '      look identical from the angle being asked about' \
+    '    - the light tables satisfy Annex I wherever Annex I is' \
+    '      geometry rather than judgement - sidelights paired, level,' \
+    '      opposite each other and no higher than three quarters of' \
+    '      the masthead light; the arcs summing to a full circle with' \
+    '      no gap; no two lights in the same place' \
+    '    - a bearing drawing away from your bow never crosses ahead.' \
+    '      Four hundred fresh geometries every run, and seven hundred' \
+    '      thousand were checked before the lesson was written' \
+    '    - Ekelund recovers the range the geometry was built from' \
+    '    - Red, Green, the words and the side agree at every degree of' \
+    '      the circle' \
+    '    - colour appears on a terminal, and never when piped' \
+    '' \
+    '  THE GOLDEN FILES.  tests/golden.sh' \
+    '' \
+    '    Every screen the program can produce deterministically is' \
+    '    captured as text and committed - about twenty-six thousand' \
+    '    lines of it. Any change to any of it turns up as a diff that' \
+    '    somebody has to read and accept on purpose. That is how a' \
+    '    small edit to one function gets caught quietly changing' \
+    '    forty other screens.' \
+    '' \
+    '  NOW THE HONEST PART.' \
+    '' \
+    '  None of that can tell you whether Rule 27 says what this' \
+    '  program says it says.' \
+    '' \
+    '  A test can check that the quiz marks answer C as correct. It' \
+    '  cannot check that C is the right answer. It can check that a' \
+    '  light table is geometrically consistent. It cannot check that a' \
+    '  mine clearance vessel shows those lights. It can check that' \
+    '  encounter 14 marks the answer the author intended. It cannot' \
+    '  check that the vessel which gives way in it is the one the' \
+    '  Convention says gives way - nor even that one of the other' \
+    '  three options is not equally defensible.' \
+    '' \
+    '  Those are judgements against a document, and they need a person' \
+    '  holding the document. Which is what the next screen is about.' \
+    ''
+}
+about_needs() {
+  printf '%s\n' \
+    '  AND HERE IS WHERE IT IS WORTH MOST.' \
+    '' \
+    '  These are the claims no test can check, in the order of how' \
+    '  much damage a wrong one would do.' \
+    '' \
+    '  1  WHO GIVES WAY, AND WHAT TO DO.  The twenty-eight encounters,' \
+    '     and the sixty-five distinct give-way calls the lights quiz' \
+    '     can make.  A wrong light table makes you misname a ship.  A' \
+    '     wrong verdict here makes you TURN THE WRONG WAY, which is' \
+    '     the difference between a training aid that is imperfect and' \
+    '     one that is dangerous.  This logic was written backwards' \
+    '     once during development and caught by hand, by a reader, not' \
+    '     by any test.  Rules 12 to 18.' \
+    '' \
+    '  2  THE LIGHT TABLES.  Twenty vessels, and every picture,' \
+    '     question and answer is computed from them.  Two errors in' \
+    '     them have already been found by users - both by somebody' \
+    '     looking at a picture, trying to account for every light in' \
+    '     it, and failing.  That is the most productive thing you can' \
+    '     do with this program.  Rules 20 to 31 and Annex I.' \
+    '' \
+    '  3  THE LESSONS.  They paraphrase the rules rather than quote' \
+    '     them.  A paraphrase that is nearly right is worse than one' \
+    '     that is obviously wrong, because nobody checks it.' \
+    '' \
+    '  4  DISTRACTORS THAT ARE ALSO CORRECT.  The lights questions are' \
+    '     proved to have a single right answer.  The encounters are' \
+    '     not.  An option that is also defensible would mark you wrong' \
+    '     for being right, and only a person can notice that.' \
+    '' \
+    '  And there is a tool for exactly this: "colregs review".  It walks' \
+    '  through every one of those claims, one at a time, with the drawing' \
+    '  in front of you, and builds a report you can send as a GitHub' \
+    '  issue.  It does not send anything itself - it prints a link and' \
+    '  you open it, so there is no credential in this program to leak and' \
+    '  no server for anybody to run.  Credit is opt-in and by name; no' \
+    '  email address is asked for or kept.' \
+    '' \
+    '  5  WHAT IS MISSING.  No test notices an absent vessel, an' \
+    '     absent rule, or an exception that goes unmentioned.  Only' \
+    '     somebody who knows the rules will see the hole.' \
+    ''
+}
+# ---------------------------------------------------------------------
+#  Review: the claims a test cannot check, put to a person one at a
+#  time.  Entirely local.  Nothing here opens a socket; submitting
+#  means the program prints a link and YOU open it, so there is no
+#  credential in this file to leak and no service for anyone to run.
+# ---------------------------------------------------------------------
+rv_file() { echo "$COLREGS_HOME/review.tsv"; }
+rv_save() {   # key state note
+  mkdir -p "$COLREGS_HOME"
+  n=$(printf '%s' "$3" | tr '\t\n' '  ')
+  printf '%s\t%s\t%s\n' "$1" "$2" "$n" >> "$(rv_file)"
+}
+rv_ask_note() {
+  printf "  What is wrong with it? (one line, return to skip): "
+  IFS= read -r RVNOTE || RVNOTE=""
+}
+rv_one() {   # $1 = key ; returns 1 to stop
+  eng -v cmd=rvshow -v key="$1" || return 1
+  printf "  %s  [r] correct   [f] wrong   [c] correct, but a comment\n" "$1"
+  printf "  [return] skip   [q] stop : "
+  IFS= read -r v || return 1
+  case "$v" in
+    r|R) rv_save "$1" ok "" ;;
+    f|F) rv_ask_note; rv_save "$1" flag "$RVNOTE" ;;
+    c|C) rv_ask_note; rv_save "$1" ok "$RVNOTE" ;;
+    q|Q|x|X) return 1 ;;
+    *) : ;;
+  esac
+  return 0
+}
+rv_run() {   # $1 = section, or empty for "carry on from where I left off"
+  if [ -n "$1" ]; then
+    #  NOT  while read k ... done < keyfile :  that redirects the loop
+    #  body's stdin to the key file, so every prompt inside rv_one reads
+    #  a KEY instead of the answer the person typed, and the whole
+    #  section scrolls past unanswered. The keys are plain tokens, so
+    #  word-splitting a single variable is safe and leaves stdin alone.
+    rvkeys=$(eng -v cmd=rvkeys -v which="$1")
+    for k in $rvkeys; do
+      rv_one "$k" || break
+    done
+  else
+    while :; do
+      k=$(eng -v cmd=rvnext -v rfile="$(rv_file)")
+      [ -z "$k" ] && { echo; echo "  Every claim has been looked at.  Thank you."; echo; break; }
+      rv_one "$k" || break
+    done
+  fi
+}
+rv_submit() {
+  RV=$(rv_file)
+  if [ ! -s "$RV" ]; then echo; echo "  Nothing reviewed yet."; echo; return; fi
+  printf '%s\n' \
+    '' \
+    '  SENDING IT BACK' \
+    '  ---------------------------------------------------------------' \
+    '  This builds a report and prints a link that opens a GitHub issue' \
+    '  with the report already in it.  The program does not send it -' \
+    '  you do, by opening the link.  Nothing leaves this machine until' \
+    '  you press return in your browser.' \
+    '' \
+    '  GitHub signs the issue with your account, so it is not anonymous' \
+    '  and there is no email for anybody to collect.' \
+    ''
+  printf "  A name to put on it (return to leave it off): "; IFS= read -r who
+  cr=""
+  if [ -n "$who" ]; then
+    printf "  Credit you in CONTRIBUTORS if a correction lands? [y/N] "
+    IFS= read -r c
+    case "$c" in y|Y) cr=yes ;; *) cr=no ;; esac
+  fi
+  dr=""
+  if [ "$stry" -gt 0 ] 2>/dev/null; then
+    printf "  Include your drill record (%s of %s)? [y/N] " "$sok" "$stry"
+    IFS= read -r c
+    case "$c" in y|Y) dr="$sok of $stry" ;; esac
+  fi
+  B="$COLREGS_HOME/review-report.md"
+  eng -v cmd=rvreport -v rfile="$RV" -v rvver="$COLREGS_VERSION" \
+      -v rvwho="$who" -v rvcredit="$cr" -v rvdrill="$dr" > "$B"
+  U=$(eng -v cmd=rvurl -v rfile="$RV" -v rbody="$B" -v rvrepo="$GH_USER")
+  n=$(printf '%s' "$U" | wc -c | tr -d ' ')
+  echo
+  if [ "$n" -lt 7000 ]; then
+    echo "  Open this, check it reads the way you meant, and submit:"
+    echo
+    echo "$U"
+    echo
+    echo "  If that link says the page could not be found, the repository"
+    echo "  is not published yet - nothing you did is wrong, and nothing"
+    echo "  has been lost. The report is a file on this machine either"
+    echo "  way, and you can send it whenever the repository is up."
+  else
+    #  Too long for a URL. Say so plainly rather than silently truncating
+    #  somebody's careful work.
+    echo "  Your review is too long to fit in a link ($n characters)."
+    echo "  It is written out here instead:"
+    echo
+    echo "    $B"
+    echo
+    echo "  Open a new issue and paste or attach that file:"
+    echo
+    echo "    https://github.com/${GH_USER}/bashnav/issues/new"
+  fi
+  echo
+  echo "  The report is also saved at $B"
+  echo
+}
+review_menu() {
+  while :; do
+    printf '%s\n' \
+      '' \
+      '  REVIEW -- help make it right' \
+      '' \
+      '  The test suite proves the program works. It cannot prove that what' \
+      '  it says about the rules is true. That needs somebody with the' \
+      '  Convention open, going through the claims one at a time.' \
+      '' \
+      '    1  Carry on from where I left off' \
+      '    2  Encounter verdicts        who gives way, and what to do' \
+      '    3  Give-way calls from her lights' \
+      '    4  The light tables' \
+      '    5  Rules lesson answers      6  Sound signals      7  Day shapes' \
+      '    8  What I have answered so far' \
+      '    9  Send it back' \
+      '' \
+      '    x  back'
+    printf "  > "; IFS= read -r c || return 0
+    case "$c" in
+      1) rv_run "" ;;
+      2) rv_run enc ;;  3) rv_run mot ;;  4) rv_run lig ;;
+      5) rv_run les ;;  6) rv_run snd ;;  7) rv_run shp ;;
+      8) eng -v cmd=rvlist -v rfile="$(rv_file)" ;;
+      9) rv_submit ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+# ---------------------------------------------------------------------
+pause() { printf "  -- press return --"; IFS= read -r _j; }
+ask1() { printf "  Your answer (a/b/c/d, or return to skip): "; IFS= read -r ANS; }
+
+run_quiz() {   # $1 = qlight|qshape|qsound  $2 = mark cmd
+  while :; do
+    sd=$(newseed)
+    eng -v cmd="$1" -v seed="$sd"
+    ANS2=""
+    if [ "$1" = qlight ]; then
+      printf "  Q1 what is she    (a/b/c/d, or return to skip): "; IFS= read -r ANS
+      [ -z "$ANS" ] && return 0
+      printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
+    else
+      ask1
+      [ -z "$ANS" ] && return 0
+    fi
+    stry=$((stry+1))
+    if eng -v cmd="$2" -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_enc() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=enc -v seed="$sd"
+    ask1
+    [ -z "$ANS" ] && return 0
+    stry=$((stry+1))
+    if eng -v cmd=encm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_scen() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=scen -v seed="$sd" || return 0
+    printf "  Q1 risk       (a/b/c)   : "; IFS= read -r q1
+    [ -z "$q1" ] && return 0
+    printf "  Q2 how close  (a/b/c/d) : "; IFS= read -r q2
+    printf "  Q3 action     (a/b/c/d) : "; IFS= read -r q3
+    stry=$((stry+1))
+    if eng -v cmd=scenm -v seed="$sd" -v a1="$q1" -v a2="$q2" -v a3="$q3"; then
+      sok=$((sok+1))
+    fi
+    save_prog
+    printf "  Watch it run? [Y/n] "; IFS= read -r w
+    case "$w" in
+      n|N) ;;
+      *)  t=12
+          while [ "$t" -le 90 ]; do
+            eng -v cmd=scenframe -v seed="$sd" -v ans="$q3" -v tmin="$t"
+            rc=$?
+            [ "$rc" -eq 3 ] && break
+            printf "  -- return for the next six minutes, x to stop -- "; IFS= read -r z
+            case "$z" in x|X|q|Q) break ;; esac
+            t=$((t+6))
+          done
+          eng -v cmd=scenout -v seed="$sd" -v ans="$q3" ;;
+    esac
+    printf "  another scenario? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+do_lesson() {
+  eng -v cmd=lesson -v les_id="$1" || return 1
+  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
+  [ -z "$av" ] && return 0
+  if eng -v cmd=check -v les_id="$1" -v ans="$av"; then mark_done "$1"; fi
+}
+rules_menu() {
+  while :; do
+    eng -v cmd=syllabus -v done="$lessons"
+    printf "  Lesson code, n for the next one, or x to go back: "; IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      n|N) nx=""
+           for L in L1 L2 L3 L4 L5 L6 L7 L8 L9 L10 L11 L12 L13 L14 L15; do
+             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+           done
+           if [ -z "$nx" ]; then echo "  All fifteen done."; else do_lesson "$nx"; fi ;;
+      *)   do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+# ---- contacts: bearing drift, the report, and the tracking party ----
+do_clesson() { eng -v cmd=clesson -v les_id="$1" && mark_done "$1"; }
+run_track() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=track -v seed="$sd" || return 0
+    printf "  Q1 drift          (a/b/c, or return to skip): "; IFS= read -r t1
+    [ -z "$t1" ] && return 0
+    printf "  Q2 ahead/astern   (a/b/c): "; IFS= read -r t2
+    printf "  Q3 CPA            (a/b/c/d): "; IFS= read -r t3
+    stry=$((stry+1))
+    if eng -v cmd=trackm -v seed="$sd" -v a1="$t1" -v a2="$t2" -v a3="$t3"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another contact? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_ekelund() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=ek -v seed="$sd" || return 0
+    printf "  How far off (a/b/c/d, or return to skip): "; IFS= read -r ANS
+    [ -z "$ANS" ] && return 0
+    stry=$((stry+1))
+    if eng -v cmd=ekm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+style_name() {
+  case "$1" in
+    rn)     echo "Red and Green" ;;
+    usn)    echo "Port and starboard" ;;
+    rel360) echo "Relative, full circle" ;;
+    words)  echo "Words only" ;;
+    none)   echo "True bearing only" ;;
+    *)      echo "$1" ;;
+  esac
+}
+style_menu() {
+  while :; do
+    printf '%s\n' \
+      '' \
+      '  REPORTING STYLE' \
+      '  ---------------------------------------------------------------' \
+      '  How this program says where a contact lies relative to your own' \
+      '  head.  It changes the report and the relative column on the' \
+      '  plot.  The true bearing is always given as well, because that is' \
+      '  what goes on the chart and what agrees with the radar - this' \
+      '  setting only decides how the same angle is said out loud.' \
+      '' \
+      '  1  Red and Green            "bearing 311, Red 20, drawing left"' \
+      '     Royal Navy and British practice.  Red is port and Green is' \
+      '     starboard because those are your own sidelights, which is why' \
+      '     it is remembered.  The side is carried by a word rather than a' \
+      '     digit, so it survives a bad intercom, a following sea and a' \
+      '     tired listener.  Nought to 180 each side.' \
+      '' \
+      '  2  Port and starboard       "bearing 311, Port 20, drawing left"' \
+      '     The same information in plainer words, and common in United' \
+      '     States and merchant practice.  Longer to say, and the one' \
+      '     least likely to be misunderstood by somebody who has never' \
+      '     met the Red and Green convention.' \
+      '' \
+      '  3  Relative, full circle    "bearing 311, 340 relative, ..."' \
+      '     Measured clockwise from your own bow, 000 to 359.  Neat on a' \
+      '     plot and in a written message.  Worse in the dark, because' \
+      '     the listener has to work out for himself which side 340 is' \
+      '     on, which is exactly the sum you were trying to save him.' \
+      '' \
+      '  4  Words only               "bearing 311, fine on the port bow"' \
+      '     No number at all.  The slowest to say and the fastest to act' \
+      '     on, and the only one that still works when you are shouting' \
+      '     to somebody who is not looking at any instrument at all.' \
+      '' \
+      '  5  True bearing only        "bearing 311, drawing left, ..."' \
+      '     No relative bearing.  Correct if whoever you are telling is' \
+      '     on the plot rather than on deck.' \
+      ''
+    printf "  Now: %s.  Pick 1-5, or x to leave it: " "$(style_name "$rstyle")"
+    IFS= read -r sv || return 0
+    case "$sv" in
+      1) rstyle=rn ;;     2) rstyle=usn ;;  3) rstyle=rel360 ;;
+      4) rstyle=words ;;  5) rstyle=none ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?"; continue ;;
+    esac
+    save_conf
+    printf "  reporting style: %s\n" "$(style_name "$rstyle")"
+    return 0
+  done
+}
+contacts_menu() {
+  while :; do
+    eng -v cmd=csyl -v done="$lessons"
+    printf "  Lesson code, t track, e Ekelund, c card, s report style, x back: "
+    IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      t|T) run_track ;;
+      e|E) run_ekelund ;;
+      c|C) eng -v cmd=cref ;;
+      s|S) style_menu ;;
+      n|N) nx=""
+           for L in C1 C2 C3 C4 C5 C6 C7; do
+             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+           done
+           if [ -z "$nx" ]; then echo "  All seven done."; else do_clesson "$nx"; fi ;;
+      *)   do_clesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+mixed_drill() {
+  for k in qlight qshape qsound enc qlight; do
+    sd=$(newseed)
+    case "$k" in
+      enc) eng -v cmd=enc -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
+           stry=$((stry+1)); eng -v cmd=encm -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
+      qlight) eng -v cmd=qlight -v seed="$sd"
+           printf "  Q1 what is she    (a/b/c/d): "; IFS= read -r ANS; [ -z "$ANS" ] && continue
+           printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
+           stry=$((stry+1)); eng -v cmd=qlightm -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2" && sok=$((sok+1)) ;;
+      *)   eng -v cmd="$k" -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
+           stry=$((stry+1)); eng -v cmd="${k}m" -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
+    esac
+    save_prog
+  done
+  echo "  Score so far: $sok of $stry"
+}
+ref_menu() {
+  echo
+  echo "   1  Lights, all of them        2  Day shapes        3  Sound signals"
+  printf "  > "; IFS= read -r a
+  case "$a" in
+    1) eng -v cmd=reflights ;; 2) eng -v cmd=refshapes ;; 3) eng -v cmd=sndtable ;;
+  esac
+}
+help_text() {
+  printf '%s\n' \
+    '' \
+    '  COLREGS -- the rules of the road, drawn in characters' \
+    '' \
+    '  colregs                  the menu' \
+    '  colregs lights           identify vessels by their lights' \
+    '  colregs light <key> [brg]  draw one, from any angle' \
+    '  colregs shapes           identify vessels by their day shapes' \
+    '  colregs shape <key>      draw one' \
+    '  colregs encounters       who gives way, and what do you do' \
+    '  colregs scenario         a developing situation: plot it, decide, watch it run' \
+    '  colregs sound            identify sound signals' \
+    '  colregs rules            fifteen lessons on the rules' \
+    '  colregs lesson L7        one lesson' \
+    '  colregs contacts         bearing drift and contact management' \
+    '  colregs track            stand the tracking watch: drift, CPA, the call' \
+    '  colregs ekelund          range from a change of course' \
+    '  colregs card             the contacts card, on one screen' \
+    '  colregs style [rn|usn|rel360|words|none]' \
+    '                           how a relative bearing is spoken' \
+    '  colregs ref              reference tables' \
+    '  colregs colours          check that your terminal shows the lamp colours' \
+    '  colregs day|night|plain  colour mode' \
+    '  colregs about            why it exists, how it was written, feedback' \
+    '  colregs review           check its claims against the Convention, and report' \
+    '' \
+    '  Bearings are relative to the other vessel: 0 means you are looking' \
+    '  at her bow, 090 at her starboard side, 180 at her stern.' \
+    ''
+}
+banner() {
+  echo
+  echo "  ==============================================================="
+  echo "   COLREGS $COLREGS_VERSION   the rules of the road, in characters"
+  echo "  ==============================================================="
+  nl=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]'); [ -n "$nl" ] || nl=0
+  printf "   lessons %s of 15    drills %s/%s    [%s]\n" "$nl" "$sok" "$stry" "$cmode"
+  echo "  ---------------------------------------------------------------"
+}
+menu() {
+  while :; do
+    load_prog
+    banner
+    printf '%s\n' \
+      '    1  Lights           what is she, and what is she doing?' \
+      '    2  Day shapes       the same meanings, by daylight' \
+      '    3  Encounters       who gives way, and what do you do?' \
+      '    4  Sound signals    what is she saying?' \
+      '    5  The rules        fifteen lessons on the rules themselves' \
+      '    6  Mixed drill      one of each, at random' \
+      '    7  Collision avoidance   a developing situation: plot it, decide, watch it run' \
+      '    8  Contacts         bearing drift, the report, and the tracking party' \
+      '' \
+      '    r  Reference tables   c  Colour   s  Report style' \
+      '    v  Review the rules   a  About   h  Help   q  Quit'
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) run_quiz qlight qlightm ;;
+      2) run_quiz qshape qshapem ;;
+      3) run_enc ;;
+      4) run_quiz qsound qsoundm ;;
+      5) rules_menu ;;
+      6) mixed_drill ;;
+      7) run_scen ;;
+      8) contacts_menu ;;
+      r|R) ref_menu ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      s|S) style_menu ;;
+      a|A) about_menu ;;
+      v|V) review_menu ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk
+install_engine
+load_conf
+load_prog
+case "$1" in
+  ""|menu)  paint; menu ;;
+  lights)   paint; run_quiz qlight qlightm ;;
+  shapes)   paint; run_quiz qshape qshapem ;;
+  sound)    paint; run_quiz qsound qsoundm ;;
+  encounters|enc) paint; run_enc ;;
+  scenario|scen|avoid) paint; run_scen ;;
+  rules)    paint; rules_menu ;;
+  contacts|contact) paint; contacts_menu ;;
+  track)    paint; run_track ;;
+  ekelund)  paint; run_ekelund ;;
+  card)     eng -v cmd=cref ;;
+  style)    shift
+            case "$1" in
+              rn|usn|rel360|words|none) rstyle="$1"; save_conf
+                 echo "reporting style: $(style_name "$rstyle")" ;;
+              "") paint; style_menu ;;
+              *) echo "colregs: style is one of rn usn rel360 words none"; exit 2 ;;
+            esac ;;
+  lesson)   shift; do_lesson "$(echo "${1:-L1}" | tr 'a-z' 'A-Z')" ;;
+  light)    shift; eng -v cmd=light -v key="${1:-power50}" -v th="${2:-40}" -v reveal=1 ;;
+  shape)    shift; eng -v cmd=shape -v key="${1:-ram}" -v reveal=1 ;;
+  ref)      paint; ref_menu ;;
+  colours)  eng -v cmd=colours ;;
+  reflights) eng -v cmd=reflights ;;
+  refshapes) eng -v cmd=refshapes ;;
+  refsound)  eng -v cmd=sndtable ;;
+  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
+  about)    paint; about_menu ;;
+  review)   paint; review_menu ;;
+  where)    echo "engine: $ENGINE"; echo "config: $CONF"; echo "progress: $PROG" ;;
+  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
+  version|--version) echo "colregs $COLREGS_VERSION" ;;
+  help|-h|--help) help_text ;;
+  *) echo "colregs: there is no command '$1'."
+     echo
+     echo "  Drills     lights  shapes  encounters  scenario  sound  rules  lesson"
+     echo "  Contacts   contacts  track  ekelund  card  style"
+     echo "  Look up    light <key> [brg]   shape <key>   ref"
+     echo "  Setup      colours  day  night  plain  about  review  where  version"
+     echo
+     echo "  'colregs help' explains each of them."
+     exit 2 ;;
+esac
+
+exit 0
+#__BN_START_ENGINE__
 # =====================================================================
 #  colregs -- the engine
 #  Lights, shapes, encounters, sound signals and the rules themselves,
@@ -1775,8 +2667,8 @@ function scen_outcome(k,   c0,cn,t0,tn){
   print ""
   return 0
 }
-__COLREGS_ENGINE__
-  cat > "$CONTACTS" <<'__COLREGS_CONTACTS__'
+#__BN_END_ENGINE__
+#__BN_START_CONTACTS__
 # =====================================================================
 #  colregs -- contacts.  Managing them the way a tracking party does:
 #  by bearing drift, in relative motion, with the arithmetic done in
@@ -2463,8 +3355,8 @@ function ct_ref(){
   print ""
   return 0
 }
-__COLREGS_CONTACTS__
-  cat > "$REVIEW" <<'__COLREGS_REVIEW__'
+#__BN_END_CONTACTS__
+#__BN_START_REVIEW__
 # =====================================================================
 #  colregs -- review.  The claims a test cannot check, put to a person
 #  one at a time, with the picture in front of them.
@@ -2796,844 +3688,4 @@ function rv_url(rfile,   line,body,t,i,nf){
      (rvrepo!=""?rvrepo:"larrys614"), rv_enc(t), rv_enc(body)
   return 0
 }
-__COLREGS_REVIEW__
-}
-# ---------------------------------------------------------------------
-#  About.  Shared by both tools; each one supplies about_why and
-#  about_sources, which are the parts that differ.
-# ---------------------------------------------------------------------
-about_how() {
-  cat <<'A2'
-
-  HOW IT WAS WRITTEN
-  ---------------------------------------------------------------
-  By Claude, Anthropic's AI model, in conversation with Larry over
-  a few days in August 2026.  He decided what it should do and
-  judged whether it was right.  The code, the mathematics and the
-  tests are Claude's work.
-
-  Three rules were set at the start and never relaxed.
-
-  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs
-  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox
-  on a router.  Nothing is installed.  There is no dependency here
-  that can rot in a year, because there is no dependency.
-
-  NO NETWORK, EVER.  Every number the program needs is inside the
-  file you are running.  That is a constraint on the mathematics
-  and not only on the plumbing: it is why the planetary positions
-  are computed from orbital elements with a correction series
-  fitted here, rather than looked up in a table someone serves.
-
-  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is
-  implemented from a primary source and then validated against an
-  independent implementation - never against itself.
-
-  On that last one, honestly.  An AI writing code is confidently
-  wrong on a regular basis, and so is a person.  The defence is
-  not care, it is testing.  Real errors in this project were found
-  by machinery and by users, and would not have been found by
-  reading the code:
-
-    - One awk implementation ignores the seed you give its random
-      number generator.  A drill could therefore mark its own
-      correct answer wrong.  Found by running the suite under four
-      different awks, not by inspection.
-
-    - Both tools worked out "am I writing to a terminal?" from
-      inside a command substitution, where the answer is always
-      no.  Colour had never once worked, on any terminal, since
-      the day it was written.  The test suite checked that the
-      output is clean when piped - and passed, for entirely the
-      wrong reason.
-
-    - The three green lights of a mine clearance vessel were drawn
-      on two different masts.  A user saw that before any test
-      did, because he tried to account for every light in the
-      picture and could not.
-
-  So: the tests exist because the author is fallible, and the
-  interesting mistakes were caught by the tests and by the people
-  using it.  Which is the argument for sending feedback.
-
-A2
-}
-about_feedback() {
-  cat <<'A3'
-
-  FEEDBACK
-  ---------------------------------------------------------------
-  Please send it.  It is the reason this is public.
-
-A3
-  about_needs
-  cat <<'A3B'
-  The useful report is small and specific:
-
-    what you did        the exact command, or which menu item
-    what you saw        paste it, escape codes and all
-    what you expected   and why - the rule, the sight, the table
-
-  "This is not right, a sailing vessel would not show that" with
-  the picture pasted underneath is worth more than any amount of
-  general praise, and has already fixed real bugs.
-
-  Where:
-
-    https://github.com/larrys614/bashnav/issues
-
-  If you think the program disagrees with the Convention, with an
-  almanac, or with a published tide table, say so plainly.  Assume
-  the program is wrong until it is shown otherwise.  That is the
-  correct prior, and it is how the bugs above were found.
-
-  Corrections to the teaching are as welcome as corrections to the
-  code.  If a lesson is misleading, that is a defect.
-
-A3B
-}
-about_licence() {
-  cat <<'A4'
-
-  LICENCE AND WARRANTY
-  ---------------------------------------------------------------
-  Copyright 2026 M. Larry Sherman.
-  Licensed under the Apache License, Version 2.0.
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  You may use it, including commercially, modify it, and pass it
-  on.  You must keep the copyright and licence notices and say
-  what you changed.  You get an explicit patent grant.  You may
-  not use the author's name to endorse your version.
-
-  Tide station data carries its own terms, which this licence does
-  not change: the NOAA harmonic constants are public domain, and
-  the TICON-4 constants are CC BY 4.0.  Their attribution travels
-  with them.  See the NOTICE file.
-
-  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT
-  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-  This is a training aid and a calculator.  It is not a certified
-  navigation system, it carries no authority, and it has never
-  been near a type approval.  Nothing in it relieves any vessel,
-  owner, master or crew of the consequences of neglecting to
-  comply with the rules of the road, of neglecting a proper
-  look-out, or of neglecting any precaution required by the
-  ordinary practice of seamen.
-
-  Carry a paper almanac, a paper tide table, and the rules.
-
-A4
-}
-about_menu() {
-  while :; do
-    cat <<'A0'
-
-  ABOUT
-
-    1  Why this exists       who wanted it, and what for
-    2  How it was written    and by what, and what went wrong
-    3  What is tested        and, more to the point, what is not
-    4  Sources               where the numbers come from
-    5  Feedback              what to send, where, and what is worth most
-    6  Licence and warranty  Apache 2.0, and what it does not cover
-
-    x  back
-A0
-    printf "  > "; IFS= read -r ac || return 0
-    case "$ac" in
-      1) about_why ;;
-      2) about_how ;;
-      3) about_tested ;;
-      4) about_sources ;;
-      5) about_feedback ;;
-      6) about_licence ;;
-      x|X|q|Q|"") return 0 ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-about_why() {
-  cat <<'A1'
-
-  WHY THIS EXISTS
-  ---------------------------------------------------------------
-  Larry Sherman asked for it.
-
-  He served in the United States Navy from 1984 to 1990 as an
-  FTG2/SS - a fire control technician, submarines - in USS Alaska
-  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS
-  Greenling (SSN-614).  Two ballistic missile boats and two fast
-  attacks, which is two quite different trades: one hides and one
-  goes looking.  He stood the manoeuvring watch on the fire control
-  tracking party, managing contacts and avoiding collisions through
-  places like the Strait of Gibraltar and the Race - the tide gate
-  at the mouth of Long Island Sound, and the door you go out of
-  from Groton.
-
-  Thirty-six years on he is sailing round the world in the
-  Clipper Race, and he wanted a few things that would work on an
-  iPad in the middle of an ocean: no signal, no subscription, no
-  account to log in to, no data to download first.
-
-  So: the rules of the road, drawn.  You learn lights by looking
-  at lights, from the angle you would actually see them, and by
-  being asked what you see and getting it wrong.  Reciting Rule 25
-  does not teach you to recognise a sailing vessel at two miles on
-  a black night.  Being shown one, guessing, and being told why
-  you were wrong does.
-
-  The contacts section is the method he was taught in the Navy,
-  written down: on the left drawing left, on the left drawing
-  right, and what each of those means before the plot catches up.
-
-  Everything follows from "no internet".  The light patterns, the
-  rules, the drills and the plotting are all inside the single
-  file you are running.  It is text.  You can read every line of
-  it, and you should be able to check it.
-
-A1
-}
-about_sources() {
-  cat <<'A5'
-
-  SOURCES
-  ---------------------------------------------------------------
-  THE RULES
-    The International Regulations for Preventing Collisions at
-    Sea, 1972, as amended - the Convention itself, including
-    Annex I on the positioning of lights and Annex III on sound
-    signal appliances.  Published by the International Maritime
-    Organization.
-
-    Rule text is quoted only in short extracts, for teaching.
-    Where this program and the Convention differ, the Convention
-    is right and this program has a bug in it.
-
-  THE PICTURES
-    Each vessel is a table of lights - position along the hull,
-    position across it, height, arc of visibility, colour - and
-    the drawing is computed from the bearing you ask for.  So the
-    same table draws her from any angle, and a mistake in the
-    table shows up as a picture that cannot be accounted for.
-    Annex I is what the numbers are built from.
-
-  CONTACTS
-    Relative-motion analysis as it is done on a warship's plot.
-    The rule at the centre of it - a bearing drawing away from
-    your bow can never cross ahead of you - was tested against
-    700,000 randomly generated geometries before it was written
-    down, and is re-checked against 400 more on every test run.
-    Ekelund's range formula was derived from scratch rather than
-    quoted, and is checked to floating point on every run.
-
-  CHECKED BY
-    A test suite that runs the tools under four different awk
-    implementations and requires every drill to mark its own
-    correct answer as correct.  Run it yourself: tests/run-tests.sh
-    in the repository.
-
-A5
-}
-about_tested() {
-  cat <<'A6'
-
-  WHAT IS TESTED, AND WHAT IS NOT
-  ---------------------------------------------------------------
-  Two suites run on every change, under four different awk
-  implementations and two shells.
-
-  THE INVARIANTS.  tests/run-tests.sh
-
-    - every drill marks its own correct answer as correct
-    - every lights question has exactly one right answer: six
-      hundred are generated and checked, and no two vessels may
-      look identical from the angle being asked about
-    - the light tables satisfy Annex I wherever Annex I is
-      geometry rather than judgement - sidelights paired, level,
-      opposite each other and no higher than three quarters of
-      the masthead light; the arcs summing to a full circle with
-      no gap; no two lights in the same place
-    - a bearing drawing away from your bow never crosses ahead.
-      Four hundred fresh geometries every run, and seven hundred
-      thousand were checked before the lesson was written
-    - Ekelund recovers the range the geometry was built from
-    - Red, Green, the words and the side agree at every degree of
-      the circle
-    - colour appears on a terminal, and never when piped
-
-  THE GOLDEN FILES.  tests/golden.sh
-
-    Every screen the program can produce deterministically is
-    captured as text and committed - about twenty-six thousand
-    lines of it. Any change to any of it turns up as a diff that
-    somebody has to read and accept on purpose. That is how a
-    small edit to one function gets caught quietly changing
-    forty other screens.
-
-  NOW THE HONEST PART.
-
-  None of that can tell you whether Rule 27 says what this
-  program says it says.
-
-  A test can check that the quiz marks answer C as correct. It
-  cannot check that C is the right answer. It can check that a
-  light table is geometrically consistent. It cannot check that a
-  mine clearance vessel shows those lights. It can check that
-  encounter 14 marks the answer the author intended. It cannot
-  check that the vessel which gives way in it is the one the
-  Convention says gives way - nor even that one of the other
-  three options is not equally defensible.
-
-  Those are judgements against a document, and they need a person
-  holding the document. Which is what the next screen is about.
-
-A6
-}
-about_needs() {
-  cat <<'A7'
-  AND HERE IS WHERE IT IS WORTH MOST.
-
-  These are the claims no test can check, in the order of how
-  much damage a wrong one would do.
-
-  1  WHO GIVES WAY, AND WHAT TO DO.  The twenty-eight encounters,
-     and the sixty-five distinct give-way calls the lights quiz
-     can make.  A wrong light table makes you misname a ship.  A
-     wrong verdict here makes you TURN THE WRONG WAY, which is
-     the difference between a training aid that is imperfect and
-     one that is dangerous.  This logic was written backwards
-     once during development and caught by hand, by a reader, not
-     by any test.  Rules 12 to 18.
-
-  2  THE LIGHT TABLES.  Twenty vessels, and every picture,
-     question and answer is computed from them.  Two errors in
-     them have already been found by users - both by somebody
-     looking at a picture, trying to account for every light in
-     it, and failing.  That is the most productive thing you can
-     do with this program.  Rules 20 to 31 and Annex I.
-
-  3  THE LESSONS.  They paraphrase the rules rather than quote
-     them.  A paraphrase that is nearly right is worse than one
-     that is obviously wrong, because nobody checks it.
-
-  4  DISTRACTORS THAT ARE ALSO CORRECT.  The lights questions are
-     proved to have a single right answer.  The encounters are
-     not.  An option that is also defensible would mark you wrong
-     for being right, and only a person can notice that.
-
-  And there is a tool for exactly this: "colregs review".  It walks
-  through every one of those claims, one at a time, with the drawing
-  in front of you, and builds a report you can send as a GitHub
-  issue.  It does not send anything itself - it prints a link and
-  you open it, so there is no credential in this program to leak and
-  no server for anybody to run.  Credit is opt-in and by name; no
-  email address is asked for or kept.
-
-  5  WHAT IS MISSING.  No test notices an absent vessel, an
-     absent rule, or an exception that goes unmentioned.  Only
-     somebody who knows the rules will see the hole.
-
-A7
-}
-# ---------------------------------------------------------------------
-#  Review: the claims a test cannot check, put to a person one at a
-#  time.  Entirely local.  Nothing here opens a socket; submitting
-#  means the program prints a link and YOU open it, so there is no
-#  credential in this file to leak and no service for anyone to run.
-# ---------------------------------------------------------------------
-rv_file() { echo "$COLREGS_HOME/review.tsv"; }
-rv_save() {   # key state note
-  mkdir -p "$COLREGS_HOME"
-  n=$(printf '%s' "$3" | tr '\t\n' '  ')
-  printf '%s\t%s\t%s\n' "$1" "$2" "$n" >> "$(rv_file)"
-}
-rv_ask_note() {
-  printf "  What is wrong with it? (one line, return to skip): "
-  IFS= read -r RVNOTE || RVNOTE=""
-}
-rv_one() {   # $1 = key ; returns 1 to stop
-  eng -v cmd=rvshow -v key="$1" || return 1
-  printf "  %s  [r] correct   [f] wrong   [c] correct, but a comment\n" "$1"
-  printf "  [return] skip   [q] stop : "
-  IFS= read -r v || return 1
-  case "$v" in
-    r|R) rv_save "$1" ok "" ;;
-    f|F) rv_ask_note; rv_save "$1" flag "$RVNOTE" ;;
-    c|C) rv_ask_note; rv_save "$1" ok "$RVNOTE" ;;
-    q|Q|x|X) return 1 ;;
-    *) : ;;
-  esac
-  return 0
-}
-rv_run() {   # $1 = section, or empty for "carry on from where I left off"
-  if [ -n "$1" ]; then
-    #  NOT  while read k ... done < keyfile :  that redirects the loop
-    #  body's stdin to the key file, so every prompt inside rv_one reads
-    #  a KEY instead of the answer the person typed, and the whole
-    #  section scrolls past unanswered. The keys are plain tokens, so
-    #  word-splitting a single variable is safe and leaves stdin alone.
-    rvkeys=$(eng -v cmd=rvkeys -v which="$1")
-    for k in $rvkeys; do
-      rv_one "$k" || break
-    done
-  else
-    while :; do
-      k=$(eng -v cmd=rvnext -v rfile="$(rv_file)")
-      [ -z "$k" ] && { echo; echo "  Every claim has been looked at.  Thank you."; echo; break; }
-      rv_one "$k" || break
-    done
-  fi
-}
-rv_submit() {
-  RV=$(rv_file)
-  if [ ! -s "$RV" ]; then echo; echo "  Nothing reviewed yet."; echo; return; fi
-  cat <<'S1'
-
-  SENDING IT BACK
-  ---------------------------------------------------------------
-  This builds a report and prints a link that opens a GitHub issue
-  with the report already in it.  The program does not send it -
-  you do, by opening the link.  Nothing leaves this machine until
-  you press return in your browser.
-
-  GitHub signs the issue with your account, so it is not anonymous
-  and there is no email for anybody to collect.
-
-S1
-  printf "  A name to put on it (return to leave it off): "; IFS= read -r who
-  cr=""
-  if [ -n "$who" ]; then
-    printf "  Credit you in CONTRIBUTORS if a correction lands? [y/N] "
-    IFS= read -r c
-    case "$c" in y|Y) cr=yes ;; *) cr=no ;; esac
-  fi
-  dr=""
-  if [ "$stry" -gt 0 ] 2>/dev/null; then
-    printf "  Include your drill record (%s of %s)? [y/N] " "$sok" "$stry"
-    IFS= read -r c
-    case "$c" in y|Y) dr="$sok of $stry" ;; esac
-  fi
-  B="$COLREGS_HOME/review-report.md"
-  eng -v cmd=rvreport -v rfile="$RV" -v rvver="$COLREGS_VERSION" \
-      -v rvwho="$who" -v rvcredit="$cr" -v rvdrill="$dr" > "$B"
-  U=$(eng -v cmd=rvurl -v rfile="$RV" -v rbody="$B" -v rvrepo="$GH_USER")
-  n=$(printf '%s' "$U" | wc -c | tr -d ' ')
-  echo
-  if [ "$n" -lt 7000 ]; then
-    echo "  Open this, check it reads the way you meant, and submit:"
-    echo
-    echo "$U"
-    echo
-    echo "  If that link says the page could not be found, the repository"
-    echo "  is not published yet - nothing you did is wrong, and nothing"
-    echo "  has been lost. The report is a file on this machine either"
-    echo "  way, and you can send it whenever the repository is up."
-  else
-    #  Too long for a URL. Say so plainly rather than silently truncating
-    #  somebody's careful work.
-    echo "  Your review is too long to fit in a link ($n characters)."
-    echo "  It is written out here instead:"
-    echo
-    echo "    $B"
-    echo
-    echo "  Open a new issue and paste or attach that file:"
-    echo
-    echo "    https://github.com/${GH_USER}/bashnav/issues/new"
-  fi
-  echo
-  echo "  The report is also saved at $B"
-  echo
-}
-review_menu() {
-  while :; do
-    cat <<'M'
-
-  REVIEW -- help make it right
-
-  The test suite proves the program works. It cannot prove that what
-  it says about the rules is true. That needs somebody with the
-  Convention open, going through the claims one at a time.
-
-    1  Carry on from where I left off
-    2  Encounter verdicts        who gives way, and what to do
-    3  Give-way calls from her lights
-    4  The light tables
-    5  Rules lesson answers      6  Sound signals      7  Day shapes
-    8  What I have answered so far
-    9  Send it back
-
-    x  back
-M
-    printf "  > "; IFS= read -r c || return 0
-    case "$c" in
-      1) rv_run "" ;;
-      2) rv_run enc ;;  3) rv_run mot ;;  4) rv_run lig ;;
-      5) rv_run les ;;  6) rv_run snd ;;  7) rv_run shp ;;
-      8) eng -v cmd=rvlist -v rfile="$(rv_file)" ;;
-      9) rv_submit ;;
-      x|X|q|Q|"") return 0 ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-
-# ---------------------------------------------------------------------
-pause() { printf "  -- press return --"; IFS= read -r _j; }
-ask1() { printf "  Your answer (a/b/c/d, or return to skip): "; IFS= read -r ANS; }
-
-run_quiz() {   # $1 = qlight|qshape|qsound  $2 = mark cmd
-  while :; do
-    sd=$(newseed)
-    eng -v cmd="$1" -v seed="$sd"
-    ANS2=""
-    if [ "$1" = qlight ]; then
-      printf "  Q1 what is she    (a/b/c/d, or return to skip): "; IFS= read -r ANS
-      [ -z "$ANS" ] && return 0
-      printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
-    else
-      ask1
-      [ -z "$ANS" ] && return 0
-    fi
-    stry=$((stry+1))
-    if eng -v cmd="$2" -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2"; then sok=$((sok+1)); fi
-    save_prog
-    printf "  another? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-run_enc() {
-  while :; do
-    sd=$(newseed)
-    eng -v cmd=enc -v seed="$sd"
-    ask1
-    [ -z "$ANS" ] && return 0
-    stry=$((stry+1))
-    if eng -v cmd=encm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
-    save_prog
-    printf "  another? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-run_scen() {
-  while :; do
-    sd=$(newseed)
-    eng -v cmd=scen -v seed="$sd" || return 0
-    printf "  Q1 risk       (a/b/c)   : "; IFS= read -r q1
-    [ -z "$q1" ] && return 0
-    printf "  Q2 how close  (a/b/c/d) : "; IFS= read -r q2
-    printf "  Q3 action     (a/b/c/d) : "; IFS= read -r q3
-    stry=$((stry+1))
-    if eng -v cmd=scenm -v seed="$sd" -v a1="$q1" -v a2="$q2" -v a3="$q3"; then
-      sok=$((sok+1))
-    fi
-    save_prog
-    printf "  Watch it run? [Y/n] "; IFS= read -r w
-    case "$w" in
-      n|N) ;;
-      *)  t=12
-          while [ "$t" -le 90 ]; do
-            eng -v cmd=scenframe -v seed="$sd" -v ans="$q3" -v tmin="$t"
-            rc=$?
-            [ "$rc" -eq 3 ] && break
-            printf "  -- return for the next six minutes, x to stop -- "; IFS= read -r z
-            case "$z" in x|X|q|Q) break ;; esac
-            t=$((t+6))
-          done
-          eng -v cmd=scenout -v seed="$sd" -v ans="$q3" ;;
-    esac
-    printf "  another scenario? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-do_lesson() {
-  eng -v cmd=lesson -v les_id="$1" || return 1
-  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
-  [ -z "$av" ] && return 0
-  if eng -v cmd=check -v les_id="$1" -v ans="$av"; then mark_done "$1"; fi
-}
-rules_menu() {
-  while :; do
-    eng -v cmd=syllabus -v done="$lessons"
-    printf "  Lesson code, n for the next one, or x to go back: "; IFS= read -r a
-    case "$a" in
-      x|X|"") return ;;
-      n|N) nx=""
-           for L in L1 L2 L3 L4 L5 L6 L7 L8 L9 L10 L11 L12 L13 L14 L15; do
-             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
-           done
-           if [ -z "$nx" ]; then echo "  All fifteen done."; else do_lesson "$nx"; fi ;;
-      *)   do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
-    esac
-  done
-}
-# ---- contacts: bearing drift, the report, and the tracking party ----
-do_clesson() { eng -v cmd=clesson -v les_id="$1" && mark_done "$1"; }
-run_track() {
-  while :; do
-    sd=$(newseed)
-    eng -v cmd=track -v seed="$sd" || return 0
-    printf "  Q1 drift          (a/b/c, or return to skip): "; IFS= read -r t1
-    [ -z "$t1" ] && return 0
-    printf "  Q2 ahead/astern   (a/b/c): "; IFS= read -r t2
-    printf "  Q3 CPA            (a/b/c/d): "; IFS= read -r t3
-    stry=$((stry+1))
-    if eng -v cmd=trackm -v seed="$sd" -v a1="$t1" -v a2="$t2" -v a3="$t3"; then sok=$((sok+1)); fi
-    save_prog
-    printf "  another contact? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-run_ekelund() {
-  while :; do
-    sd=$(newseed)
-    eng -v cmd=ek -v seed="$sd" || return 0
-    printf "  How far off (a/b/c/d, or return to skip): "; IFS= read -r ANS
-    [ -z "$ANS" ] && return 0
-    stry=$((stry+1))
-    if eng -v cmd=ekm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
-    save_prog
-    printf "  another? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-style_name() {
-  case "$1" in
-    rn)     echo "Red and Green" ;;
-    usn)    echo "Port and starboard" ;;
-    rel360) echo "Relative, full circle" ;;
-    words)  echo "Words only" ;;
-    none)   echo "True bearing only" ;;
-    *)      echo "$1" ;;
-  esac
-}
-style_menu() {
-  while :; do
-    cat <<'S0'
-
-  REPORTING STYLE
-  ---------------------------------------------------------------
-  How this program says where a contact lies relative to your own
-  head.  It changes the report and the relative column on the
-  plot.  The true bearing is always given as well, because that is
-  what goes on the chart and what agrees with the radar - this
-  setting only decides how the same angle is said out loud.
-
-  1  Red and Green            "bearing 311, Red 20, drawing left"
-     Royal Navy and British practice.  Red is port and Green is
-     starboard because those are your own sidelights, which is why
-     it is remembered.  The side is carried by a word rather than a
-     digit, so it survives a bad intercom, a following sea and a
-     tired listener.  Nought to 180 each side.
-
-  2  Port and starboard       "bearing 311, Port 20, drawing left"
-     The same information in plainer words, and common in United
-     States and merchant practice.  Longer to say, and the one
-     least likely to be misunderstood by somebody who has never
-     met the Red and Green convention.
-
-  3  Relative, full circle    "bearing 311, 340 relative, ..."
-     Measured clockwise from your own bow, 000 to 359.  Neat on a
-     plot and in a written message.  Worse in the dark, because
-     the listener has to work out for himself which side 340 is
-     on, which is exactly the sum you were trying to save him.
-
-  4  Words only               "bearing 311, fine on the port bow"
-     No number at all.  The slowest to say and the fastest to act
-     on, and the only one that still works when you are shouting
-     to somebody who is not looking at any instrument at all.
-
-  5  True bearing only        "bearing 311, drawing left, ..."
-     No relative bearing.  Correct if whoever you are telling is
-     on the plot rather than on deck.
-
-S0
-    printf "  Now: %s.  Pick 1-5, or x to leave it: " "$(style_name "$rstyle")"
-    IFS= read -r sv || return 0
-    case "$sv" in
-      1) rstyle=rn ;;     2) rstyle=usn ;;  3) rstyle=rel360 ;;
-      4) rstyle=words ;;  5) rstyle=none ;;
-      x|X|q|Q|"") return 0 ;;
-      *) echo "  ?"; continue ;;
-    esac
-    save_conf
-    printf "  reporting style: %s\n" "$(style_name "$rstyle")"
-    return 0
-  done
-}
-contacts_menu() {
-  while :; do
-    eng -v cmd=csyl -v done="$lessons"
-    printf "  Lesson code, t track, e Ekelund, c card, s report style, x back: "
-    IFS= read -r a
-    case "$a" in
-      x|X|"") return ;;
-      t|T) run_track ;;
-      e|E) run_ekelund ;;
-      c|C) eng -v cmd=cref ;;
-      s|S) style_menu ;;
-      n|N) nx=""
-           for L in C1 C2 C3 C4 C5 C6 C7; do
-             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
-           done
-           if [ -z "$nx" ]; then echo "  All seven done."; else do_clesson "$nx"; fi ;;
-      *)   do_clesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
-    esac
-  done
-}
-mixed_drill() {
-  for k in qlight qshape qsound enc qlight; do
-    sd=$(newseed)
-    case "$k" in
-      enc) eng -v cmd=enc -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
-           stry=$((stry+1)); eng -v cmd=encm -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
-      qlight) eng -v cmd=qlight -v seed="$sd"
-           printf "  Q1 what is she    (a/b/c/d): "; IFS= read -r ANS; [ -z "$ANS" ] && continue
-           printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
-           stry=$((stry+1)); eng -v cmd=qlightm -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2" && sok=$((sok+1)) ;;
-      *)   eng -v cmd="$k" -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
-           stry=$((stry+1)); eng -v cmd="${k}m" -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
-    esac
-    save_prog
-  done
-  echo "  Score so far: $sok of $stry"
-}
-ref_menu() {
-  echo
-  echo "   1  Lights, all of them        2  Day shapes        3  Sound signals"
-  printf "  > "; IFS= read -r a
-  case "$a" in
-    1) eng -v cmd=reflights ;; 2) eng -v cmd=refshapes ;; 3) eng -v cmd=sndtable ;;
-  esac
-}
-help_text() {
-  cat <<'HLP'
-
-  COLREGS -- the rules of the road, drawn in characters
-
-  colregs                  the menu
-  colregs lights           identify vessels by their lights
-  colregs light <key> [brg]  draw one, from any angle
-  colregs shapes           identify vessels by their day shapes
-  colregs shape <key>      draw one
-  colregs encounters       who gives way, and what do you do
-  colregs scenario         a developing situation: plot it, decide, watch it run
-  colregs sound            identify sound signals
-  colregs rules            fifteen lessons on the rules
-  colregs lesson L7        one lesson
-  colregs contacts         bearing drift and contact management
-  colregs track            stand the tracking watch: drift, CPA, the call
-  colregs ekelund          range from a change of course
-  colregs card             the contacts card, on one screen
-  colregs style [rn|usn|rel360|words|none]
-                           how a relative bearing is spoken
-  colregs ref              reference tables
-  colregs colours          check that your terminal shows the lamp colours
-  colregs day|night|plain  colour mode
-  colregs about            why it exists, how it was written, feedback
-  colregs review           check its claims against the Convention, and report
-
-  Bearings are relative to the other vessel: 0 means you are looking
-  at her bow, 090 at her starboard side, 180 at her stern.
-
-HLP
-}
-banner() {
-  echo
-  echo "  ==============================================================="
-  echo "   COLREGS $COLREGS_VERSION   the rules of the road, in characters"
-  echo "  ==============================================================="
-  nl=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]'); [ -n "$nl" ] || nl=0
-  printf "   lessons %s of 15    drills %s/%s    [%s]\n" "$nl" "$sok" "$stry" "$cmode"
-  echo "  ---------------------------------------------------------------"
-}
-menu() {
-  while :; do
-    load_prog
-    banner
-    cat <<'M'
-    1  Lights           what is she, and what is she doing?
-    2  Day shapes       the same meanings, by daylight
-    3  Encounters       who gives way, and what do you do?
-    4  Sound signals    what is she saying?
-    5  The rules        fifteen lessons on the rules themselves
-    6  Mixed drill      one of each, at random
-    7  Collision avoidance   a developing situation: plot it, decide, watch it run
-    8  Contacts         bearing drift, the report, and the tracking party
-
-    r  Reference tables   c  Colour   s  Report style
-    v  Review the rules   a  About   h  Help   q  Quit
-M
-    printf "  > "; IFS= read -r c || exit 0
-    case "$c" in
-      1) run_quiz qlight qlightm ;;
-      2) run_quiz qshape qshapem ;;
-      3) run_enc ;;
-      4) run_quiz qsound qsoundm ;;
-      5) rules_menu ;;
-      6) mixed_drill ;;
-      7) run_scen ;;
-      8) contacts_menu ;;
-      r|R) ref_menu ;;
-      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
-           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
-      s|S) style_menu ;;
-      a|A) about_menu ;;
-      v|V) review_menu ;;
-      h|H|\?) help_text ;;
-      q|Q) unpaint; exit 0 ;;
-      "") ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-
-pick_awk
-install_engine
-load_conf
-load_prog
-case "$1" in
-  ""|menu)  paint; menu ;;
-  lights)   paint; run_quiz qlight qlightm ;;
-  shapes)   paint; run_quiz qshape qshapem ;;
-  sound)    paint; run_quiz qsound qsoundm ;;
-  encounters|enc) paint; run_enc ;;
-  scenario|scen|avoid) paint; run_scen ;;
-  rules)    paint; rules_menu ;;
-  contacts|contact) paint; contacts_menu ;;
-  track)    paint; run_track ;;
-  ekelund)  paint; run_ekelund ;;
-  card)     eng -v cmd=cref ;;
-  style)    shift
-            case "$1" in
-              rn|usn|rel360|words|none) rstyle="$1"; save_conf
-                 echo "reporting style: $(style_name "$rstyle")" ;;
-              "") paint; style_menu ;;
-              *) echo "colregs: style is one of rn usn rel360 words none"; exit 2 ;;
-            esac ;;
-  lesson)   shift; do_lesson "$(echo "${1:-L1}" | tr 'a-z' 'A-Z')" ;;
-  light)    shift; eng -v cmd=light -v key="${1:-power50}" -v th="${2:-40}" -v reveal=1 ;;
-  shape)    shift; eng -v cmd=shape -v key="${1:-ram}" -v reveal=1 ;;
-  ref)      paint; ref_menu ;;
-  colours)  eng -v cmd=colours ;;
-  reflights) eng -v cmd=reflights ;;
-  refshapes) eng -v cmd=refshapes ;;
-  refsound)  eng -v cmd=sndtable ;;
-  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
-  about)    paint; about_menu ;;
-  review)   paint; review_menu ;;
-  where)    echo "engine: $ENGINE"; echo "config: $CONF"; echo "progress: $PROG" ;;
-  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
-  version|--version) echo "colregs $COLREGS_VERSION" ;;
-  help|-h|--help) help_text ;;
-  *) echo "colregs: there is no command '$1'."
-     echo
-     echo "  Drills     lights  shapes  encounters  scenario  sound  rules  lesson"
-     echo "  Contacts   contacts  track  ekelund  card  style"
-     echo "  Look up    light <key> [brg]   shape <key>   ref"
-     echo "  Setup      colours  day  night  plain  about  review  where  version"
-     echo
-     echo "  'colregs help' explains each of them."
-     exit 2 ;;
-esac
+#__BN_END_REVIEW__

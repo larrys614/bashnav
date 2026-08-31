@@ -81,61 +81,60 @@ log_menu() {
   done
 }
 help_text() {
-  cat <<'HLP'
-
-  CELNAV -- offline celestial navigation
-
-  Everything is computed from first principles: the almanac is built in,
-  so there is nothing to download and nothing expires.
-
-  THE WORKING CYCLE
-    1. Set your DR position, course and speed (menu 6).
-    2. Before twilight, run sight planning (menu 3) to see which bodies
-       are up, how high, and which three give the best cut.
-    3. Shoot your sights and enter each one (menu 1) with the UT time to
-       the second.  Time matters more than anything: 4 seconds of error
-       is about 1 mile of longitude.
-    4. Reduce and plot (menu 2).  You get the full working for each
-       sight, the least-squares fix, the residuals, and the plot.
-    5. Clear the log (menu 7) before the next round of sights.
-
-  ANGLE FORMATS
-    Latitude    35 10.4 N   or  -35.1733
-    Longitude   040 20.1 W  or  040:20.1W
-    Altitude    32 14.6     (degrees and decimal minutes)
-
-  ON THE RUN
-    Set course and speed and every LOP is advanced to the fix time for
-    you, so a sun-run-sun or a spread of sights over an hour still gives
-    one fix.  The fix time defaults to the last sight in the log.
-
-  COMMAND LINE (for scripting or a quick answer)
-
-    Working
-      celnav plan  [ "YYYY-MM-DD HH:MM:SS" ]   twilight, what is up, best three
-      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP
-      celnav sight "UT" body limb Hs [ie] [heye]    record one sight
-      celnav fix   [ "UT of fix" ]             reduce the log and plot
-      celnav compass "UT" body <bearing> [variation]
-      celnav stars [ "UT" ]                    the 57 stars plus Polaris
-      celnav dr <lat> <lon> [course] [speed]   set the DR
-      celnav log | clear                       list or empty the sight log
-
-    Learning
-      celnav learn                             the training menu
-      celnav lesson <code>                     one lesson, e.g. R3
-      celnav walk                              a real sight, step by step
-      celnav drill [corr|alm|red|int|full|fix] one marked drill
-      celnav sandbox                           the what-if triangle
-      celnav syllabus                          the lesson list and progress
-
-    Setup and checking
-      celnav doctor                            check awk, clock, data folder
-      celnav test                              the self test on its own
-      celnav day | night | plain               colour mode
-      celnav where | version | reinstall | help
-
-HLP
+  printf '%s\n' \
+    '' \
+    '  CELNAV -- offline celestial navigation' \
+    '' \
+    '  Everything is computed from first principles: the almanac is built in,' \
+    '  so there is nothing to download and nothing expires.' \
+    '' \
+    '  THE WORKING CYCLE' \
+    '    1. Set your DR position, course and speed (menu 6).' \
+    '    2. Before twilight, run sight planning (menu 3) to see which bodies' \
+    '       are up, how high, and which three give the best cut.' \
+    '    3. Shoot your sights and enter each one (menu 1) with the UT time to' \
+    '       the second.  Time matters more than anything: 4 seconds of error' \
+    '       is about 1 mile of longitude.' \
+    '    4. Reduce and plot (menu 2).  You get the full working for each' \
+    '       sight, the least-squares fix, the residuals, and the plot.' \
+    '    5. Clear the log (menu 7) before the next round of sights.' \
+    '' \
+    '  ANGLE FORMATS' \
+    '    Latitude    35 10.4 N   or  -35.1733' \
+    '    Longitude   040 20.1 W  or  040:20.1W' \
+    '    Altitude    32 14.6     (degrees and decimal minutes)' \
+    '' \
+    '  ON THE RUN' \
+    '    Set course and speed and every LOP is advanced to the fix time for' \
+    '    you, so a sun-run-sun or a spread of sights over an hour still gives' \
+    '    one fix.  The fix time defaults to the last sight in the log.' \
+    '' \
+    '  COMMAND LINE (for scripting or a quick answer)' \
+    '' \
+    '    Working' \
+    '      celnav plan  [ "YYYY-MM-DD HH:MM:SS" ]   twilight, what is up, best three' \
+    '      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP' \
+    '      celnav sight "UT" body limb Hs [ie] [heye]    record one sight' \
+    '      celnav fix   [ "UT of fix" ]             reduce the log and plot' \
+    '      celnav compass "UT" body <bearing> [variation]' \
+    '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
+    '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
+    '      celnav log | clear                       list or empty the sight log' \
+    '' \
+    '    Learning' \
+    '      celnav learn                             the training menu' \
+    '      celnav lesson <code>                     one lesson, e.g. R3' \
+    '      celnav walk                              a real sight, step by step' \
+    '      celnav drill [corr|alm|red|int|full|fix] one marked drill' \
+    '      celnav sandbox                           the what-if triangle' \
+    '      celnav syllabus                          the lesson list and progress' \
+    '' \
+    '    Setup and checking' \
+    '      celnav doctor                            check awk, clock, data folder' \
+    '      celnav test                              the self test on its own' \
+    '      celnav day | night | plain               colour mode' \
+    '      celnav where | version | reinstall | help' \
+    ''
 }
 banner() {
   echo
@@ -150,17 +149,16 @@ banner() {
 menu() {
   while :; do
     banner
-    cat <<'M'
-    1  Enter a sight              5  Compass check
-    2  Reduce sights -> FIX       6  Set DR, course and speed
-    3  Sight planning / stars     7  Sight log
-    4  Almanac for a time         8  Sextant and weather settings
-
-    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox
-
-    s  Star list   t  Self test   d  Check setup   c  Colour
-    a  About      h  Help       q  Quit
-M
+    printf '%s\n' \
+      '    1  Enter a sight              5  Compass check' \
+      '    2  Reduce sights -> FIX       6  Set DR, course and speed' \
+      '    3  Sight planning / stars     7  Sight log' \
+      '    4  Almanac for a time         8  Sextant and weather settings' \
+      '' \
+      '    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox' \
+      '' \
+      '    s  Star list   t  Self test   d  Check setup   c  Colour' \
+      '    a  About      h  Help       q  Quit'
     printf "  > "
     IFS= read -r c || exit 0
     case "$c" in

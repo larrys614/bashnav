@@ -26,12 +26,11 @@ pick_awk() {
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
   AWK=awk
-  cat >&2 <<'NOMATH'
-tides: no awk with trigonometric functions was found.
-  On macOS:         nothing to do - the built-in awk already has it.
-  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk
-  On Debian:        sudo apt install gawk
-NOMATH
+  printf '%s\n' \
+    'tides: no awk with trigonometric functions was found.' \
+    '  On macOS:         nothing to do - the built-in awk already has it.' \
+    '  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk' \
+    '  On Debian:        sudo apt install gawk' >&2
   return 1
 }
 load_conf() {

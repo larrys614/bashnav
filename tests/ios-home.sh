@@ -22,6 +22,12 @@ SH=${1:-sh}
 here=$(pwd)
 d=$(mktemp -d); trap 'chmod -R u+w "$d" 2>/dev/null; rm -rf "$d"' EXIT
 bad=0; say(){ echo "  FAIL $1"; bad=1; }
+#  Print where we are BEFORE each step, not after.  This check hung on a
+#  Mac and the only information anybody had was "it stopped on a blank
+#  line".  With the suite's guard killing it after 180s, whatever step
+#  printed last is the step that hung -- which is the whole diagnosis,
+#  without needing sh -x or a second run.
+at(){ echo "    .. $1"; }
 
 TOOLS="celnav colregs tides deck-log weather"
 
@@ -35,6 +41,7 @@ for t in $TOOLS; do
   : > "$h/$f" 2>/dev/null || true
 done
 for t in $TOOLS; do
+  at "collide: $t version"
   o=$(cd "$h/Documents" && HOME="$h" $SH "$here/bin/$t" version 2>&1) || true
   case "$o" in
     "$t "*) ;;
@@ -66,6 +73,7 @@ if [ -z "$run" ]; then
 else
   chmod -R a+rX "$here/bin"
   for t in $TOOLS; do
+    at "read-only HOME: $t version"
     o=$(cd "$h2/Documents" && $run HOME="$h2" PATH=/usr/bin:/bin \
         $SH "$here/bin/$t" version 2>&1) || true
     case "$o" in
@@ -75,10 +83,12 @@ else
   done
   #  and it must actually WORK there, not merely print its version:
   #  tides has to unpack 2.9 MB and then find a station in it.
+  at "read-only HOME: tides unpacks 2.9 MB and searches"
   o=$(cd "$h2/Documents" && $run HOME="$h2" PATH=/usr/bin:/bin \
       $SH "$here/bin/tides" find falmouth 2>&1) || true
   case "$o" in *"Falmouth Heights"*) ;;
     *) say "tides could not unpack and search with a read-only \$HOME" ;; esac
+  at "read-only HOME: celnav doctor"
   o=$(cd "$h2/Documents" && $run HOME="$h2" PATH=/usr/bin:/bin \
       $SH "$here/bin/celnav" doctor 2>&1) || true
   case "$o" in *"NOT WRITABLE"*) say "celnav doctor still reports its folder unwritable" ;; esac
@@ -86,7 +96,32 @@ else
     *) say "celnav doctor does not name the folder it actually used" ;; esac
 fi
 
+#  ---- 2b. the unpacked engines must not be EMPTY ---------------------
+#  They were, on the iPad, every one of them: the engines were written
+#  with "cat > file <<TAG", a-Shell delivers no heredoc, so cat saw end
+#  of input and wrote nothing.  wc -c on Larry's device: 0.  The tools
+#  could never have computed anything.  Payloads now sit past "exit 0"
+#  and awk lifts them out; this is the check that says so.
+if [ -n "$run" ]; then
+  at "engines must be non-empty"
+  for t in celnav colregs tides deck-log weather; do
+    (cd "$h2/Documents" && $run HOME="$h2" PATH=/usr/bin:/bin \
+       $SH "$here/bin/$t" version >/dev/null 2>&1) || true
+  done
+  n=0
+  for f in $(find "$h2" -name '*.awk' -o -name 'stations.dat' 2>/dev/null); do
+    n=$((n+1))
+    [ -s "$f" ] || say "unpacked an EMPTY file: ${f#$h2/}"
+  done
+  [ "$n" -ge 10 ] || say "expected at least 10 unpacked engine files, found $n"
+  #  and one must actually compute, not merely exist
+  o=$(cd "$h2/Documents" && $run HOME="$h2" PATH=/usr/bin:/bin \
+      $SH "$here/bin/celnav" version 2>&1) || true
+  case "$o" in "celnav 1"*) ;; *) say "celnav did not run from unpacked engines: [$o]" ;; esac
+fi
+
 #  ---- 3. nothing changed where $HOME *is* writable --------------------
+at "normal machine: folder must stay in \$HOME"
 h3="$d/normal"; mkdir -p "$h3/Documents"
 o=$(cd "$h3" && HOME="$h3" $SH "$here/bin/celnav" version 2>&1) || true
 [ -d "$h3/.celnav" ] || say "on a normal machine the folder must stay in \$HOME"

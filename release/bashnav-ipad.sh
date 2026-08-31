@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003405939
+BASHNAV_BYTES=003428582
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -160,6 +160,68 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   printf '%s\n' "$HOME/$1"
   return 1
 }
+
+# ---------------------------------------------------------------------
+#  Unpacking the awk engines.
+#
+#  These used to be written with a heredoc:
+#
+#      cat > "$ENGINE" <<'__ENGINE__'
+#      ...the whole engine...
+#      __ENGINE__
+#
+#  a-Shell -- the iPad terminal this project exists for -- DOES NOT
+#  DELIVER A HEREDOC.  Larry ran the three-line test on the device:
+#
+#      cat <<'M'          hangs, and every Return comes back blank,
+#      hello              because cat falls through to the terminal
+#      M
+#
+#  With the output redirected to a file, cat instead sees end of input
+#  straight away and writes NOTHING.  So every engine on that iPad was
+#  ZERO BYTES -- confirmed: wc -c ~/Documents/.celnav/*.awk = 0.  The
+#  tools could never have computed anything; the menus simply hung
+#  first, so that is where it was noticed.
+#
+#  So the payloads now live at the END of each tool, after "exit 0"
+#  where the shell never reads them, between markers, and awk lifts
+#  them out.  No heredoc, and awk is already a hard requirement.
+#
+#  And the result is CHECKED FOR SIZE.  A zero-byte engine must be a
+#  loud failure at install time, not a strange awk error hours later.
+# ---------------------------------------------------------------------
+bn_self() {
+  #  The path to this script.  $0 is it in every normal case; when the
+  #  script was found on PATH by name, ask the shell where it is.
+  if [ -f "$0" ]; then printf '%s\n' "$0"; return 0; fi
+  bn_s_p=$(command -v "$0" 2>/dev/null)
+  if [ -n "$bn_s_p" ] && [ -f "$bn_s_p" ]; then printf '%s\n' "$bn_s_p"; return 0; fi
+  return 1
+}
+#  bn_unpack <TAG> <destination>
+bn_unpack() {
+  bn_u_self=$(bn_self) || {
+    echo "${BN_TOOL:-bashnav}: cannot find my own file to unpack from" >&2; return 1; }
+  [ -n "${AWK:-}" ] || {
+    echo "${BN_TOOL:-bashnav}: no awk was chosen before unpacking" >&2; return 1; }
+  [ -r "$bn_u_self" ] || {
+    echo "${BN_TOOL:-bashnav}: cannot read $bn_u_self" >&2; return 1; }
+  #  </dev/null is the house rule and it is not decoration: awk with no
+  #  readable file argument reads STDIN and sits there forever.  On a
+  #  terminal that is a hang with no message; on an iPad, where there is
+  #  no Ctrl and no Esc, it ends the session.  See docs/ARCHITECTURE.md.
+  $AWK -v s="#__BN_START_$1__" -v e="#__BN_END_$1__" '
+    $0==e { f=0 } f { print } $0==s { f=1 }' "$bn_u_self" > "$2" 2>/dev/null </dev/null || {
+    echo "${BN_TOOL:-bashnav}: could not write $2" >&2; return 1; }
+  if [ ! -s "$2" ]; then
+    echo "${BN_TOOL:-bashnav}: unpacked $1 and got an empty file." >&2
+    echo "  Looked in: $bn_u_self" >&2
+    echo "  The file is probably truncated, or awk ($AWK) cannot read it." >&2
+    rm -f "$2"
+    return 1
+  fi
+  return 0
+}
 # =====================================================================
 #  celnav -- celestial navigation for the small screen
 #  Pure POSIX shell + awk.  No network, no almanac tables, no libraries.
@@ -186,19 +248,18 @@ pick_awk() {
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
   AWK=awk
-  cat >&2 <<'NOMATH'
-celnav: no awk with trigonometric functions was found.
-
-  On macOS:            nothing to do - the built-in awk already has it.
-                       (apk is Alpine's, and only exists inside iSH.)
-  On iSH (Alpine):     apk add gawk
-  On Termux:           pkg install gawk
-  On Debian/Ubuntu:    sudo apt install gawk
-  a-Shell already has a suitable awk built in.
-
-  If your awk is under another name, set it explicitly:
-      CELNAV_AWK=gawk celnav
-NOMATH
+  printf '%s\n' \
+    'celnav: no awk with trigonometric functions was found.' \
+    '' \
+    '  On macOS:            nothing to do - the built-in awk already has it.' \
+    '                       (apk is Alpine'\''s, and only exists inside iSH.)' \
+    '  On iSH (Alpine):     apk add gawk' \
+    '  On Termux:           pkg install gawk' \
+    '  On Debian/Ubuntu:    sudo apt install gawk' \
+    '  a-Shell already has a suitable awk built in.' \
+    '' \
+    '  If your awk is under another name, set it explicitly:' \
+    '      CELNAV_AWK=gawk celnav' >&2
   return 1
 }
 
@@ -315,7 +376,707 @@ install_engine() {
   fi
   mkdir -p "$CELNAV_HOME" 2>/dev/null || {
     echo "celnav: cannot create $CELNAV_HOME" >&2; exit 1; }
-  cat > "$ENGINE" <<'__CELNAV_ENGINE__'
+  bn_unpack ENGINE "$ENGINE" || exit 1
+  bn_unpack TEACH "$TEACH" || exit 1
+}
+# ---------------------------------------------------------------------
+#  About.  Shared by both tools; each one supplies about_why and
+#  about_sources, which are the parts that differ.
+# ---------------------------------------------------------------------
+about_how() {
+  printf '%s\n' \
+    '' \
+    '  HOW IT WAS WRITTEN' \
+    '  ---------------------------------------------------------------' \
+    '  By Claude, Anthropic'\''s AI model, in conversation with Larry over' \
+    '  a few days in August 2026.  He decided what it should do and' \
+    '  judged whether it was right.  The code, the mathematics and the' \
+    '  tests are Claude'\''s work.' \
+    '' \
+    '  Three rules were set at the start and never relaxed.' \
+    '' \
+    '  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs' \
+    '  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox' \
+    '  on a router.  Nothing is installed.  There is no dependency here' \
+    '  that can rot in a year, because there is no dependency.' \
+    '' \
+    '  NO NETWORK, EVER.  Every number the program needs is inside the' \
+    '  file you are running.  That is a constraint on the mathematics' \
+    '  and not only on the plumbing: it is why the planetary positions' \
+    '  are computed from orbital elements with a correction series' \
+    '  fitted here, rather than looked up in a table someone serves.' \
+    '' \
+    '  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is' \
+    '  implemented from a primary source and then validated against an' \
+    '  independent implementation - never against itself.' \
+    '' \
+    '  On that last one, honestly.  An AI writing code is confidently' \
+    '  wrong on a regular basis, and so is a person.  The defence is' \
+    '  not care, it is testing.  Real errors in this project were found' \
+    '  by machinery and by users, and would not have been found by' \
+    '  reading the code:' \
+    '' \
+    '    - One awk implementation ignores the seed you give its random' \
+    '      number generator.  A drill could therefore mark its own' \
+    '      correct answer wrong.  Found by running the suite under four' \
+    '      different awks, not by inspection.' \
+    '' \
+    '    - Both tools worked out "am I writing to a terminal?" from' \
+    '      inside a command substitution, where the answer is always' \
+    '      no.  Colour had never once worked, on any terminal, since' \
+    '      the day it was written.  The test suite checked that the' \
+    '      output is clean when piped - and passed, for entirely the' \
+    '      wrong reason.' \
+    '' \
+    '    - The three green lights of a mine clearance vessel were drawn' \
+    '      on two different masts.  A user saw that before any test' \
+    '      did, because he tried to account for every light in the' \
+    '      picture and could not.' \
+    '' \
+    '  So: the tests exist because the author is fallible, and the' \
+    '  interesting mistakes were caught by the tests and by the people' \
+    '  using it.  Which is the argument for sending feedback.' \
+    ''
+}
+about_feedback() {
+  printf '%s\n' \
+    '' \
+    '  FEEDBACK' \
+    '  ---------------------------------------------------------------' \
+    '  Please send it.  It is the reason this is public.' \
+    ''
+  about_needs
+  printf '%s\n' \
+    '  The useful report is small and specific:' \
+    '' \
+    '    what you did        the exact command, or which menu item' \
+    '    what you saw        paste it, escape codes and all' \
+    '    what you expected   and why - the rule, the sight, the table' \
+    '' \
+    '  "This is not right, a sailing vessel would not show that" with' \
+    '  the picture pasted underneath is worth more than any amount of' \
+    '  general praise, and has already fixed real bugs.' \
+    '' \
+    '  Where:' \
+    '' \
+    '    https://github.com/larrys614/bashnav/issues' \
+    '' \
+    '  If you think the program disagrees with the Convention, with an' \
+    '  almanac, or with a published tide table, say so plainly.  Assume' \
+    '  the program is wrong until it is shown otherwise.  That is the' \
+    '  correct prior, and it is how the bugs above were found.' \
+    '' \
+    '  Corrections to the teaching are as welcome as corrections to the' \
+    '  code.  If a lesson is misleading, that is a defect.' \
+    ''
+}
+about_licence() {
+  printf '%s\n' \
+    '' \
+    '  LICENCE AND WARRANTY' \
+    '  ---------------------------------------------------------------' \
+    '  Copyright 2026 M. Larry Sherman.' \
+    '  Licensed under the Apache License, Version 2.0.' \
+    '  http://www.apache.org/licenses/LICENSE-2.0' \
+    '' \
+    '  You may use it, including commercially, modify it, and pass it' \
+    '  on.  You must keep the copyright and licence notices and say' \
+    '  what you changed.  You get an explicit patent grant.  You may' \
+    '  not use the author'\''s name to endorse your version.' \
+    '' \
+    '  Tide station data carries its own terms, which this licence does' \
+    '  not change: the NOAA harmonic constants are public domain, and' \
+    '  the TICON-4 constants are CC BY 4.0.  Their attribution travels' \
+    '  with them.  See the NOTICE file.' \
+    '' \
+    '  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT' \
+    '  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.' \
+    '' \
+    '  This is a training aid and a calculator.  It is not a certified' \
+    '  navigation system, it carries no authority, and it has never' \
+    '  been near a type approval.  Nothing in it relieves any vessel,' \
+    '  owner, master or crew of the consequences of neglecting to' \
+    '  comply with the rules of the road, of neglecting a proper' \
+    '  look-out, or of neglecting any precaution required by the' \
+    '  ordinary practice of seamen.' \
+    '' \
+    '  Carry a paper almanac, a paper tide table, and the rules.' \
+    ''
+}
+about_menu() {
+  while :; do
+    printf '%s\n' \
+      '' \
+      '  ABOUT' \
+      '' \
+      '    1  Why this exists       who wanted it, and what for' \
+      '    2  How it was written    and by what, and what went wrong' \
+      '    3  What is tested        and, more to the point, what is not' \
+      '    4  Sources               where the numbers come from' \
+      '    5  Feedback              what to send, where, and what is worth most' \
+      '    6  Licence and warranty  Apache 2.0, and what it does not cover' \
+      '' \
+      '    x  back'
+    printf "  > "; IFS= read -r ac || return 0
+    case "$ac" in
+      1) about_why ;;
+      2) about_how ;;
+      3) about_tested ;;
+      4) about_sources ;;
+      5) about_feedback ;;
+      6) about_licence ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+about_why() {
+  printf '%s\n' \
+    '' \
+    '  WHY THIS EXISTS' \
+    '  ---------------------------------------------------------------' \
+    '  Larry Sherman asked for it.' \
+    '' \
+    '  He served in the United States Navy from 1984 to 1990 as an' \
+    '  FTG2/SS - a fire control technician, submarines - in USS Alaska' \
+    '  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS' \
+    '  Greenling (SSN-614).  Two ballistic missile boats and two fast' \
+    '  attacks, which is two quite different trades: one hides and one' \
+    '  goes looking.  He stood the manoeuvring watch on the fire control' \
+    '  tracking party, managing contacts and avoiding collisions through' \
+    '  places like the Strait of Gibraltar and the Race - the tide gate' \
+    '  at the mouth of Long Island Sound, and the door you go out of' \
+    '  from Groton.' \
+    '' \
+    '  Thirty-six years on he is sailing round the world in the Clipper' \
+    '  Race, and he wanted a' \
+    '  sight reduction that would work on an iPad in the middle of an' \
+    '  ocean: no signal, no subscription, no account to log in to, no' \
+    '  almanac to download first.' \
+    '' \
+    '  And he wanted it to DRAW the solution.  A fix that arrives as' \
+    '  three numbers teaches you nothing about whether to believe it.' \
+    '  A fix that arrives as three lines on a plot, with the cut' \
+    '  between them and an error ellipse around the result, tells you' \
+    '  at a glance whether you have a fix or an opinion.  That is why' \
+    '  the intercept plot is the point of this program rather than a' \
+    '  decoration on it.' \
+    '' \
+    '  Everything else follows from "no internet".  The almanac is not' \
+    '  fetched; it is computed, from orbital theory, inside the file' \
+    '  you are running.  There is no table to expire and no server to' \
+    '  go away.  It is text, you can read every line of it, and' \
+    '  "celnav doctor" will check it against an independent reference' \
+    '  in front of you.' \
+    ''
+}
+about_sources() {
+  printf '%s\n' \
+    '' \
+    '  SOURCES' \
+    '  ---------------------------------------------------------------' \
+    '  ASTRONOMY' \
+    '    Jean Meeus, "Astronomical Algorithms", 2nd edition.  The solar' \
+    '    theory is chapter 25 and the lunar main problem chapter 47,' \
+    '    with nutation and sidereal time from the same book.' \
+    '' \
+    '    E. M. Standish, Keplerian elements for approximate positions' \
+    '    of the major planets (Jet Propulsion Laboratory).  The raw' \
+    '    elements lose several arcminutes on Saturn to the great' \
+    '    inequality with Jupiter, so a periodic correction series was' \
+    '    fitted here against an independent ephemeris; Saturn is now' \
+    '    the most accurate planet in the set.' \
+    '' \
+    '    Precession and annual aberration by the standard series.' \
+    '    Star positions from the Hipparcos and Yale catalogues, with' \
+    '    proper motion applied for the date.  Delta T from the' \
+    '    Espenak-Meeus polynomials, with the observed plateau after' \
+    '    2005.' \
+    '' \
+    '  METHOD' \
+    '    The intercept method - Marcq St Hilaire - as in the Nautical' \
+    '    Almanac'\''s sight reduction procedure.  Dip, refraction,' \
+    '    semi-diameter, parallax and index error applied in the usual' \
+    '    order.  The fix is an iterated least-squares solution of every' \
+    '    line of position at once, not a two-body cut, and the error' \
+    '    ellipse comes out of the normal matrix.' \
+    '' \
+    '  CHECKED BY' \
+    '    An independent reference ephemeris of JPL grade, over the' \
+    '    whole period the program covers, embedded so that the check' \
+    '    works with no network.  "celnav doctor" runs it.' \
+    ''
+}
+about_tested() {
+  printf '%s\n' \
+    '' \
+    '  WHAT IS TESTED, AND WHAT IS NOT' \
+    '  ---------------------------------------------------------------' \
+    '  THE NUMBERS.  "celnav doctor", which you can run yourself.' \
+    '' \
+    '    The almanac is checked, body by body and date by date, against' \
+    '    an independent reference ephemeris of JPL grade, embedded so' \
+    '    that the check works with no network.  It prints the worst' \
+    '    error it found in arcminutes.  If that number is not small,' \
+    '    nothing downstream of it means anything.' \
+    '' \
+    '  THE WHOLE CHAIN.  tests/run-tests.sh, under four awks and two' \
+    '  shells.' \
+    '' \
+    '    Three star sights taken from a known position are reduced,' \
+    '    and the fix has to come back to the position they were taken' \
+    '    from, to a tenth of a minute.  That exercises everything at' \
+    '    once: the almanac, dip, refraction, semi-diameter, parallax,' \
+    '    index error, the navigational triangle, the least-squares' \
+    '    solution and the run.  Every drill must also mark its own' \
+    '    correct answer as correct.' \
+    '' \
+    '  THE GOLDEN FILES.  tests/golden.sh' \
+    '' \
+    '    The almanac for five dates spread across twenty years, the' \
+    '    star list, and four worked reductions - a clean one, the same' \
+    '    one on the run, one with a five-mile blunder in it, and a' \
+    '    weak cut - captured as text and committed.  Any change to any' \
+    '    number turns up as a diff that has to be read and accepted on' \
+    '    purpose.' \
+    '' \
+    '  NOW THE HONEST PART.' \
+    '' \
+    '  All of that checks the ARITHMETIC.  None of it checks the' \
+    '  SEAMANSHIP.' \
+    '' \
+    '  A test can confirm that the program computes the sun'\''s GHA to' \
+    '  within a tenth of a minute.  It cannot tell you whether the' \
+    '  advice in the lessons is good practice, whether the order the' \
+    '  corrections are explained in is the order you should learn' \
+    '  them, or whether the walkthrough matches how a sight is' \
+    '  actually taken on a wet deck at dawn.' \
+    '' \
+    '  Nor does it check the program against a printed Nautical' \
+    '  Almanac, which is a different authority from the one it was' \
+    '  validated against.  If you have one, that comparison is worth' \
+    '  more than anything else you could send.' \
+    ''
+}
+about_needs() {
+  printf '%s\n' \
+    '  AND HERE IS WHERE IT IS WORTH MOST.' \
+    '' \
+    '  1  A FIX THAT DISAGREES WITH YOURS.  If you work a sight by' \
+    '     hand or with tables and this program gives you something' \
+    '     else, that is the most valuable report there is.  Send the' \
+    '     sights, the time, the height of eye, the index error and' \
+    '     what you got.  One of us is wrong and it is worth knowing' \
+    '     which.' \
+    '' \
+    '  2  THE ALMANAC AGAINST A PRINTED ONE.  GHA, declination, SD and' \
+    '     HP for any body and time, checked against the Nautical' \
+    '     Almanac.  It has been validated against a computed reference,' \
+    '     never against the book.' \
+    '' \
+    '  3  THE TEACHING.  Whether the lessons and the walkthrough match' \
+    '     how it is really done - and whether anything in them would' \
+    '     build a bad habit.  Corrections to the teaching matter as' \
+    '     much as corrections to the code.' \
+    '' \
+    '  4  THE AWKWARD CASES.  A lower limb near the horizon, a very' \
+    '     high altitude, extreme temperature or pressure, a sight' \
+    '     close to the pole, a moon sight with a large parallax.  The' \
+    '     ordinary cases are well covered.  The edges are where the' \
+    '     corrections are applied in an order somebody has to check.' \
+    ''
+}
+
+# ---- command implementations ---------------------------------------
+do_fix() {
+  if [ ! -s "$SIGHTS" ]; then echo; echo "  No sights in the log.  Enter one first."; echo; return; fi
+  ft="$fixtime"
+  [ -n "$1" ] && ft="$1"
+  engine -v cmd=reduce -v sfile="$SIGHTS" -v drlat="$drlat" -v drlon="$drlon" \
+         -v course="$course" -v speed="$speed" -v fixtime="$ft"
+}
+do_plan() {
+  u="$1"; [ -z "$u" ] && u=$(utcnow)
+  engine -v cmd=plan -v utc="$u" -v drlat="$drlat" -v drlon="$drlon"
+}
+do_almanac() {
+  u="$1"; [ -z "$u" ] && u=$(utcnow)
+  b="$2"; [ -z "$b" ] && b="sun,moon,venus,mars,jupiter,saturn"
+  engine -v cmd=almanac -v utc="$u" -v bodies="$b"
+}
+do_compass() {
+  engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
+         -v body="$2" -v cbrg="$3" -v variation="$4"
+}
+do_stars() { engine -v cmd=stars -v utc="$1"; }
+do_selftest() { engine -v cmd=selftest; }
+
+# ---- interactive: enter a sight ------------------------------------
+ask() {  # ask "prompt" "default" -> sets ANS
+  if [ -n "$2" ]; then printf "  %s [%s]: " "$1" "$2"; else printf "  %s: " "$1"; fi
+  IFS= read -r ANS
+  [ -z "$ANS" ] && ANS="$2"
+}
+enter_sight() {
+  echo
+  echo "  ---- new sight ----------------------------------------------"
+  ask "UT date (YYYY-MM-DD)" "$(utctoday)"; sd="$ANS"
+  ask "UT time (HHMMSS or HH:MM:SS)" ""; st=$(fixtimefmt "$ANS")
+  [ -z "$st" ] && { echo "  no time given - sight discarded"; return; }
+  ask "Body (name, star number, or ? for list)" "Sun"; sb="$ANS"
+  if [ "$sb" = "?" ]; then do_stars; ask "Body" "Sun"; sb="$ANS"; fi
+  case "$(echo "$sb" | tr 'A-Z' 'a-z')" in
+    sun|moon) ask "Limb (L lower / U upper)" "L"; sl=$(echo "$ANS"|tr 'a-z' 'A-Z') ;;
+    *) sl="C" ;;
+  esac
+  ask "Hs sextant altitude (DD MM.M)" ""; sh="$ANS"
+  [ -z "$sh" ] && { echo "  no altitude given - sight discarded"; return; }
+  ask "Index error, arcmin (+ = on the arc)" "$ie"; si="$ANS"
+  ask "Height of eye, metres" "$heye"; se="$ANS"
+  ask "Label (optional)" ""; sx="$ANS"
+  add_sight "$sd $st" "$sb" "$sl" "$sh" "$si" "$se" "$temp" "$press" "$sx"
+  echo "  sight recorded."
+  engine -v cmd=almanac -v utc="$sd $st" -v bodies="$sb"
+}
+set_dr() {
+  echo
+  ask "DR latitude  (e.g. 35 10.4 N)" "$drlat"; drlat="$ANS"
+  ask "DR longitude (e.g. 040 20.1 W)" "$drlon"; drlon="$ANS"
+  ask "Course made good, degrees true" "$course"; course="$ANS"
+  ask "Speed over ground, knots" "$speed"; speed="$ANS"
+  save_conf
+  echo "  DR set."
+}
+set_opts() {
+  echo
+  ask "Height of eye, metres" "$heye"; heye="$ANS"
+  ask "Standard index error, arcmin" "$ie"; ie="$ANS"
+  ask "Air temperature, deg C" "$temp"; temp="$ANS"
+  ask "Pressure, millibars" "$press"; press="$ANS"
+  save_conf
+  echo "  settings saved."
+}
+log_menu() {
+  while :; do
+    echo; list_sights; echo
+    echo "  d N = delete sight N     c = clear all     x = back"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      d\ *) del_sight "${a#d }" ;;
+      c) : > "$SIGHTS"; echo "  log cleared" ;;
+      x|"") return ;;
+    esac
+  done
+}
+help_text() {
+  printf '%s\n' \
+    '' \
+    '  CELNAV -- offline celestial navigation' \
+    '' \
+    '  Everything is computed from first principles: the almanac is built in,' \
+    '  so there is nothing to download and nothing expires.' \
+    '' \
+    '  THE WORKING CYCLE' \
+    '    1. Set your DR position, course and speed (menu 6).' \
+    '    2. Before twilight, run sight planning (menu 3) to see which bodies' \
+    '       are up, how high, and which three give the best cut.' \
+    '    3. Shoot your sights and enter each one (menu 1) with the UT time to' \
+    '       the second.  Time matters more than anything: 4 seconds of error' \
+    '       is about 1 mile of longitude.' \
+    '    4. Reduce and plot (menu 2).  You get the full working for each' \
+    '       sight, the least-squares fix, the residuals, and the plot.' \
+    '    5. Clear the log (menu 7) before the next round of sights.' \
+    '' \
+    '  ANGLE FORMATS' \
+    '    Latitude    35 10.4 N   or  -35.1733' \
+    '    Longitude   040 20.1 W  or  040:20.1W' \
+    '    Altitude    32 14.6     (degrees and decimal minutes)' \
+    '' \
+    '  ON THE RUN' \
+    '    Set course and speed and every LOP is advanced to the fix time for' \
+    '    you, so a sun-run-sun or a spread of sights over an hour still gives' \
+    '    one fix.  The fix time defaults to the last sight in the log.' \
+    '' \
+    '  COMMAND LINE (for scripting or a quick answer)' \
+    '' \
+    '    Working' \
+    '      celnav plan  [ "YYYY-MM-DD HH:MM:SS" ]   twilight, what is up, best three' \
+    '      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP' \
+    '      celnav sight "UT" body limb Hs [ie] [heye]    record one sight' \
+    '      celnav fix   [ "UT of fix" ]             reduce the log and plot' \
+    '      celnav compass "UT" body <bearing> [variation]' \
+    '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
+    '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
+    '      celnav log | clear                       list or empty the sight log' \
+    '' \
+    '    Learning' \
+    '      celnav learn                             the training menu' \
+    '      celnav lesson <code>                     one lesson, e.g. R3' \
+    '      celnav walk                              a real sight, step by step' \
+    '      celnav drill [corr|alm|red|int|full|fix] one marked drill' \
+    '      celnav sandbox                           the what-if triangle' \
+    '      celnav syllabus                          the lesson list and progress' \
+    '' \
+    '    Setup and checking' \
+    '      celnav doctor                            check awk, clock, data folder' \
+    '      celnav test                              the self test on its own' \
+    '      celnav day | night | plain               colour mode' \
+    '      celnav where | version | reinstall | help' \
+    ''
+}
+banner() {
+  echo
+  echo "  ==============================================================="
+  echo "   CELNAV $CELNAV_VERSION   celestial navigation, no internet needed"
+  echo "  ==============================================================="
+  printf "   DR %s  %s      course %03.0f T   speed %s kn\n" "$drlat" "$drlon" "$course" "$speed"
+  printf "   eye %s m   index error %s'   %s C  %s mb   sights logged: %s   [%s]\n" \
+         "$heye" "$ie" "$temp" "$press" "$(nsights)" "$cmode"
+  echo "  ---------------------------------------------------------------"
+}
+menu() {
+  while :; do
+    banner
+    printf '%s\n' \
+      '    1  Enter a sight              5  Compass check' \
+      '    2  Reduce sights -> FIX       6  Set DR, course and speed' \
+      '    3  Sight planning / stars     7  Sight log' \
+      '    4  Almanac for a time         8  Sextant and weather settings' \
+      '' \
+      '    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox' \
+      '' \
+      '    s  Star list   t  Self test   d  Check setup   c  Colour' \
+      '    a  About      h  Help       q  Quit'
+    printf "  > "
+    IFS= read -r c || exit 0
+    case "$c" in
+      1) enter_sight ;;
+      2) printf "  Fix time (blank = time of last sight): "; IFS= read -r ft
+         if [ -n "$ft" ]; then
+           case "$ft" in *-*) ;; *) ft="$(utctoday) $(fixtimefmt "$ft")" ;; esac
+         fi
+         do_fix "$ft" ;;
+      3) printf "  UT for planning (blank = now): "; IFS= read -r u
+         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
+         do_plan "$u" ;;
+      4) printf "  UT (blank = now): "; IFS= read -r u
+         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
+         printf "  Bodies (blank = sun,moon,planets): "; IFS= read -r b
+         do_almanac "$u" "$b" ;;
+      5) printf "  UT (blank = now): "; IFS= read -r u; [ -z "$u" ] && u=$(utcnow)
+         case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac
+         printf "  Body: "; IFS= read -r b
+         printf "  Compass bearing observed: "; IFS= read -r cb
+         printf "  Variation from chart (E +, W -): "; IFS= read -r vr
+         do_compass "$u" "$b" "$cb" "$vr" ;;
+      6) set_dr ;;
+      7) log_menu ;;
+      8) set_opts ;;
+      9) train_menu ;;
+      s|S) do_stars ;;
+      t|T) do_selftest ;;
+      d|D) doctor ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           [ -n "$v" ] && set_colour "$v" ;;
+      a|A) about_menu ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+
+# =====================================================================
+#  Training mode
+# =====================================================================
+pause() { printf "  -- press return --"; IFS= read -r _junk; }
+
+do_lesson() {
+  teach -v cmd=t_lesson -v les="$1" || return 1
+  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
+  [ -z "$av" ] && return 0
+  if teach -v cmd=t_check -v les="$1" -v ans="$av"; then mark_done "$1"; fi
+}
+learn_menu() {
+  while :; do
+    teach -v cmd=t_syllabus -v done="$lessons"
+    printf "  Lesson code, n for the next one you have not done, or x to go back: "
+    IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      n|N)  nx=""
+            for L in F1 F2 F3 F4 F5 T1 T2 T3 T4 T5 S1 S2 S3 S4 S5 R1 R2 R3 R4 R5; do
+              case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+            done
+            if [ -z "$nx" ]; then echo "  All twenty done. Try the drills."; else do_lesson "$nx"; fi ;;
+      *)    do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+walk_mode() {
+  s=1
+  while [ "$s" -le 10 ]; do
+    teach -v cmd=t_walk -v step="$s"
+    printf "  return = next, b = back, x = leave: "; IFS= read -r a
+    case "$a" in x|X) return ;; b|B) [ "$s" -gt 1 ] && s=$((s-1)) ;; *) s=$((s+1)) ;; esac
+  done
+  echo "  That is the whole method. The drills will let you do it yourself."
+}
+drill_one() {
+  k="$1"; sd=$(newseed)
+  teach -v cmd=t_drill -v kind="$k" -v seed="$sd" || return 1
+  case "$k" in
+    corr) printf "  Ho = "; IFS= read -r x1; x2="" ;;
+    alm)  printf "  GHA = "; IFS= read -r x1; printf "  Dec (e.g. N21 14.3) = "; IFS= read -r x2 ;;
+    red)  printf "  Hc = ";  IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
+    int)  printf "  Intercept, + toward / - away, in nm = "; IFS= read -r x1; x2="" ;;
+    full) printf "  Intercept, + toward / - away, nm = "; IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
+    fix)  printf "  Fix latitude  = "; IFS= read -r x1; printf "  Fix longitude = "; IFS= read -r x2 ;;
+  esac
+  [ -z "$x1" ] && { echo "  skipped."; return 0; }
+  dtry=$((dtry+1))
+  if teach -v cmd=t_mark -v kind="$k" -v seed="$sd" -v a1="$x1" -v a2="$x2"; then dok=$((dok+1)); fi
+  save_prog
+}
+drill_menu() {
+  while :; do
+    echo
+    echo "  DRILLS                                     score so far: $dok of $dtry"
+    echo "  ---------------------------------------------------------------"
+    echo "   1  Sextant corrections      Hs to Ho"
+    echo "   2  The almanac              time and body to GHA and Dec"
+    echo "   3  Sight reduction          AP, GHA, Dec to Hc and Zn"
+    echo "   4  The intercept            Ho and Hc to miles, toward or away"
+    echo "   5  A complete sight         everything, end to end"
+    echo "   6  A three-star fix         three LOPs to a position"
+    echo "   m  Mixed - one of each, at random        r  reset the score"
+    echo "   x  back"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      1) drill_one corr ;; 2) drill_one alm ;; 3) drill_one red ;;
+      4) drill_one int ;;  5) drill_one full ;; 6) drill_one fix ;;
+      m|M) for k in corr alm red int full fix; do drill_one "$k"; done ;;
+      r|R) dok=0; dtry=0; save_prog; echo "  score reset" ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+sandbox_mode() {
+  sl=35; sd=20; sh=310
+  while :; do
+    teach -v cmd=t_sandbox -v slat="$sl" -v sdec="$sd" -v slha="$sh"
+    echo "   l = latitude    d = declination    h = LHA    x = leave"
+    printf "  change what? "; IFS= read -r a
+    case "$a" in
+      l|L) printf "  latitude (-90 to 90, north +): "; IFS= read -r v; [ -n "$v" ] && sl="$v" ;;
+      d|D) printf "  declination (-90 to 90): "; IFS= read -r v; [ -n "$v" ] && sd="$v" ;;
+      h|H) printf "  LHA (0 to 360): "; IFS= read -r v; [ -n "$v" ] && sh="$v" ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+train_menu() {
+  while :; do
+    load_prog
+    ndone=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]')
+    [ -n "$ndone" ] || ndone=0
+    echo
+    echo "  ==============================================================="
+    echo "   LEARN AND PRACTISE          lessons $ndone of 20   drills $dok/$dtry"
+    echo "  ==============================================================="
+    echo "   1  Lessons              twenty of them, from first principles"
+    echo "   2  Walkthrough          one real sight, explained line by line"
+    echo "   3  Drills               problems with answers, marked"
+    echo "   4  Sandbox              change one thing, watch the triangle move"
+    echo
+    echo "   x  back to the navigation menu"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      1) learn_menu ;; 2) walk_mode ;; 3) drill_menu ;; 4) sandbox_mode ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+set_colour() {
+  case "$1" in
+    day|night|plain) cmode="$1"; save_conf; paint
+       echo "  colour mode: $cmode" ;;
+    *) echo "  usage: day | night | plain" ;;
+  esac
+}
+
+doctor() {
+  echo
+  echo "  CELNAV environment check"
+  echo "  ---------------------------------------------------------------"
+  printf "  shell            : %s\n" "${0##*/} (running under $(ps -p $$ -o comm= 2>/dev/null || echo sh))"
+  printf "  awk in use       : %s\n" "$AWK"
+  if awk_has_math "$AWK"; then echo "  awk maths        : OK (sin/cos/atan2/sqrt/log/exp present)"
+  else echo "  awk maths        : MISSING -- install gawk (see message above)"; fi
+  printf "  data directory   : %s" "$CELNAV_HOME"
+  #  subshell: see src/common/05-home.sh for why this is not optional
+  if mkdir -p "$CELNAV_HOME" 2>/dev/null && ( : > "$CELNAV_HOME/.wtest" ) 2>/dev/null; then
+     rm -f "$CELNAV_HOME/.wtest"; echo "  (writable)"
+  else echo "  (NOT WRITABLE)"; fi
+  printf "  engine file      : %s" "$ENGINE"
+  [ -f "$ENGINE" ] && echo "  (installed)" || echo "  (not yet written)"
+  printf "  UTC clock        : %s\n" "$(utcnow)"
+  echo "  ---------------------------------------------------------------"
+  echo "  Set your watch against a known time source before you shoot."
+  echo "  4 seconds of clock error is about 1 mile of longitude."
+  echo
+  do_selftest
+}
+
+# ---- entry point ----------------------------------------------------
+pick_awk
+install_engine
+load_conf
+load_prog
+case "$1" in
+  ""|menu) paint; menu ;;
+  learn)   paint; train_menu ;;
+  lesson)  shift; do_lesson "$(echo "${1:-F1}" | tr 'a-z' 'A-Z')" ;;
+  walk)    paint; walk_mode ;;
+  drill)   shift; if [ -n "$1" ]; then drill_one "$1"; else paint; drill_menu; fi ;;
+  sandbox) paint; sandbox_mode ;;
+  syllabus) teach -v cmd=t_syllabus -v done="$lessons" ;;
+  day|night|plain) set_colour "$1" ;;
+  plan)    shift; do_plan "$1" ;;
+  alm|almanac) shift; do_almanac "$1" "$2" ;;
+  sight)   shift
+           [ $# -lt 4 ] && { echo "usage: celnav sight \"UT\" body limb Hs [ie] [heye]"; exit 2; }
+           add_sight "$1" "$2" "$3" "$4" "${5:-$ie}" "${6:-$heye}" "$temp" "$press" ""
+           echo "sight recorded (${1})" ;;
+  fix)     shift; do_fix "$1" ;;
+  compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
+  stars)   shift; do_stars "$1" ;;
+  dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
+           save_conf; echo "DR set: $drlat $drlon  course $course  speed $speed" ;;
+  log)     list_sights ;;
+  clear)   : > "$SIGHTS"; echo "sight log cleared" ;;
+  test|selftest) do_selftest ;;
+  doctor|check) doctor ;;
+  about)   paint; about_menu ;;
+  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
+  where)   echo "engine:  $ENGINE"; echo "sights:  $SIGHTS"; echo "config:  $CONF" ;;
+  help|-h|--help) help_text ;;
+  version|--version) echo "celnav $CELNAV_VERSION" ;;
+  *) echo "celnav: there is no command '$1'."
+     echo
+     echo "  Working    plan  alm  sight  fix  compass  stars  dr  log  clear"
+     echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
+     echo "  Setup      day  night  plain  about  doctor  where  version"
+     echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"
+     echo
+     echo "  'celnav help' explains each of them."
+     exit 2 ;;
+esac
+
+exit 0
+#__BN_START_ENGINE__
 # =====================================================================
 #  celnav engine  --  offline celestial navigation core
 #  Pure POSIX awk.  No network, no external data files.
@@ -1436,8 +2197,8 @@ function cmd_stars(   i,jd){
   }
   hr(); print ""
 }
-__CELNAV_ENGINE__
-  cat > "$TEACH" <<'__CELNAV_TEACH__'
+#__BN_END_ENGINE__
+#__BN_START_TEACH__
 # =====================================================================
 #  celnav teaching module
 #  Loaded alongside engine.awk.  Everything here is drawing and text;
@@ -2778,714 +3539,7 @@ BEGIN{
     drill_mark(kind)
   }
 }
-__CELNAV_TEACH__
-}
-# ---------------------------------------------------------------------
-#  About.  Shared by both tools; each one supplies about_why and
-#  about_sources, which are the parts that differ.
-# ---------------------------------------------------------------------
-about_how() {
-  cat <<'A2'
-
-  HOW IT WAS WRITTEN
-  ---------------------------------------------------------------
-  By Claude, Anthropic's AI model, in conversation with Larry over
-  a few days in August 2026.  He decided what it should do and
-  judged whether it was right.  The code, the mathematics and the
-  tests are Claude's work.
-
-  Three rules were set at the start and never relaxed.
-
-  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs
-  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox
-  on a router.  Nothing is installed.  There is no dependency here
-  that can rot in a year, because there is no dependency.
-
-  NO NETWORK, EVER.  Every number the program needs is inside the
-  file you are running.  That is a constraint on the mathematics
-  and not only on the plumbing: it is why the planetary positions
-  are computed from orbital elements with a correction series
-  fitted here, rather than looked up in a table someone serves.
-
-  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is
-  implemented from a primary source and then validated against an
-  independent implementation - never against itself.
-
-  On that last one, honestly.  An AI writing code is confidently
-  wrong on a regular basis, and so is a person.  The defence is
-  not care, it is testing.  Real errors in this project were found
-  by machinery and by users, and would not have been found by
-  reading the code:
-
-    - One awk implementation ignores the seed you give its random
-      number generator.  A drill could therefore mark its own
-      correct answer wrong.  Found by running the suite under four
-      different awks, not by inspection.
-
-    - Both tools worked out "am I writing to a terminal?" from
-      inside a command substitution, where the answer is always
-      no.  Colour had never once worked, on any terminal, since
-      the day it was written.  The test suite checked that the
-      output is clean when piped - and passed, for entirely the
-      wrong reason.
-
-    - The three green lights of a mine clearance vessel were drawn
-      on two different masts.  A user saw that before any test
-      did, because he tried to account for every light in the
-      picture and could not.
-
-  So: the tests exist because the author is fallible, and the
-  interesting mistakes were caught by the tests and by the people
-  using it.  Which is the argument for sending feedback.
-
-A2
-}
-about_feedback() {
-  cat <<'A3'
-
-  FEEDBACK
-  ---------------------------------------------------------------
-  Please send it.  It is the reason this is public.
-
-A3
-  about_needs
-  cat <<'A3B'
-  The useful report is small and specific:
-
-    what you did        the exact command, or which menu item
-    what you saw        paste it, escape codes and all
-    what you expected   and why - the rule, the sight, the table
-
-  "This is not right, a sailing vessel would not show that" with
-  the picture pasted underneath is worth more than any amount of
-  general praise, and has already fixed real bugs.
-
-  Where:
-
-    https://github.com/larrys614/bashnav/issues
-
-  If you think the program disagrees with the Convention, with an
-  almanac, or with a published tide table, say so plainly.  Assume
-  the program is wrong until it is shown otherwise.  That is the
-  correct prior, and it is how the bugs above were found.
-
-  Corrections to the teaching are as welcome as corrections to the
-  code.  If a lesson is misleading, that is a defect.
-
-A3B
-}
-about_licence() {
-  cat <<'A4'
-
-  LICENCE AND WARRANTY
-  ---------------------------------------------------------------
-  Copyright 2026 M. Larry Sherman.
-  Licensed under the Apache License, Version 2.0.
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  You may use it, including commercially, modify it, and pass it
-  on.  You must keep the copyright and licence notices and say
-  what you changed.  You get an explicit patent grant.  You may
-  not use the author's name to endorse your version.
-
-  Tide station data carries its own terms, which this licence does
-  not change: the NOAA harmonic constants are public domain, and
-  the TICON-4 constants are CC BY 4.0.  Their attribution travels
-  with them.  See the NOTICE file.
-
-  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT
-  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-  This is a training aid and a calculator.  It is not a certified
-  navigation system, it carries no authority, and it has never
-  been near a type approval.  Nothing in it relieves any vessel,
-  owner, master or crew of the consequences of neglecting to
-  comply with the rules of the road, of neglecting a proper
-  look-out, or of neglecting any precaution required by the
-  ordinary practice of seamen.
-
-  Carry a paper almanac, a paper tide table, and the rules.
-
-A4
-}
-about_menu() {
-  while :; do
-    cat <<'A0'
-
-  ABOUT
-
-    1  Why this exists       who wanted it, and what for
-    2  How it was written    and by what, and what went wrong
-    3  What is tested        and, more to the point, what is not
-    4  Sources               where the numbers come from
-    5  Feedback              what to send, where, and what is worth most
-    6  Licence and warranty  Apache 2.0, and what it does not cover
-
-    x  back
-A0
-    printf "  > "; IFS= read -r ac || return 0
-    case "$ac" in
-      1) about_why ;;
-      2) about_how ;;
-      3) about_tested ;;
-      4) about_sources ;;
-      5) about_feedback ;;
-      6) about_licence ;;
-      x|X|q|Q|"") return 0 ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-about_why() {
-  cat <<'A1'
-
-  WHY THIS EXISTS
-  ---------------------------------------------------------------
-  Larry Sherman asked for it.
-
-  He served in the United States Navy from 1984 to 1990 as an
-  FTG2/SS - a fire control technician, submarines - in USS Alaska
-  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS
-  Greenling (SSN-614).  Two ballistic missile boats and two fast
-  attacks, which is two quite different trades: one hides and one
-  goes looking.  He stood the manoeuvring watch on the fire control
-  tracking party, managing contacts and avoiding collisions through
-  places like the Strait of Gibraltar and the Race - the tide gate
-  at the mouth of Long Island Sound, and the door you go out of
-  from Groton.
-
-  Thirty-six years on he is sailing round the world in the Clipper
-  Race, and he wanted a
-  sight reduction that would work on an iPad in the middle of an
-  ocean: no signal, no subscription, no account to log in to, no
-  almanac to download first.
-
-  And he wanted it to DRAW the solution.  A fix that arrives as
-  three numbers teaches you nothing about whether to believe it.
-  A fix that arrives as three lines on a plot, with the cut
-  between them and an error ellipse around the result, tells you
-  at a glance whether you have a fix or an opinion.  That is why
-  the intercept plot is the point of this program rather than a
-  decoration on it.
-
-  Everything else follows from "no internet".  The almanac is not
-  fetched; it is computed, from orbital theory, inside the file
-  you are running.  There is no table to expire and no server to
-  go away.  It is text, you can read every line of it, and
-  "celnav doctor" will check it against an independent reference
-  in front of you.
-
-A1
-}
-about_sources() {
-  cat <<'A5'
-
-  SOURCES
-  ---------------------------------------------------------------
-  ASTRONOMY
-    Jean Meeus, "Astronomical Algorithms", 2nd edition.  The solar
-    theory is chapter 25 and the lunar main problem chapter 47,
-    with nutation and sidereal time from the same book.
-
-    E. M. Standish, Keplerian elements for approximate positions
-    of the major planets (Jet Propulsion Laboratory).  The raw
-    elements lose several arcminutes on Saturn to the great
-    inequality with Jupiter, so a periodic correction series was
-    fitted here against an independent ephemeris; Saturn is now
-    the most accurate planet in the set.
-
-    Precession and annual aberration by the standard series.
-    Star positions from the Hipparcos and Yale catalogues, with
-    proper motion applied for the date.  Delta T from the
-    Espenak-Meeus polynomials, with the observed plateau after
-    2005.
-
-  METHOD
-    The intercept method - Marcq St Hilaire - as in the Nautical
-    Almanac's sight reduction procedure.  Dip, refraction,
-    semi-diameter, parallax and index error applied in the usual
-    order.  The fix is an iterated least-squares solution of every
-    line of position at once, not a two-body cut, and the error
-    ellipse comes out of the normal matrix.
-
-  CHECKED BY
-    An independent reference ephemeris of JPL grade, over the
-    whole period the program covers, embedded so that the check
-    works with no network.  "celnav doctor" runs it.
-
-A5
-}
-about_tested() {
-  cat <<'A6'
-
-  WHAT IS TESTED, AND WHAT IS NOT
-  ---------------------------------------------------------------
-  THE NUMBERS.  "celnav doctor", which you can run yourself.
-
-    The almanac is checked, body by body and date by date, against
-    an independent reference ephemeris of JPL grade, embedded so
-    that the check works with no network.  It prints the worst
-    error it found in arcminutes.  If that number is not small,
-    nothing downstream of it means anything.
-
-  THE WHOLE CHAIN.  tests/run-tests.sh, under four awks and two
-  shells.
-
-    Three star sights taken from a known position are reduced,
-    and the fix has to come back to the position they were taken
-    from, to a tenth of a minute.  That exercises everything at
-    once: the almanac, dip, refraction, semi-diameter, parallax,
-    index error, the navigational triangle, the least-squares
-    solution and the run.  Every drill must also mark its own
-    correct answer as correct.
-
-  THE GOLDEN FILES.  tests/golden.sh
-
-    The almanac for five dates spread across twenty years, the
-    star list, and four worked reductions - a clean one, the same
-    one on the run, one with a five-mile blunder in it, and a
-    weak cut - captured as text and committed.  Any change to any
-    number turns up as a diff that has to be read and accepted on
-    purpose.
-
-  NOW THE HONEST PART.
-
-  All of that checks the ARITHMETIC.  None of it checks the
-  SEAMANSHIP.
-
-  A test can confirm that the program computes the sun's GHA to
-  within a tenth of a minute.  It cannot tell you whether the
-  advice in the lessons is good practice, whether the order the
-  corrections are explained in is the order you should learn
-  them, or whether the walkthrough matches how a sight is
-  actually taken on a wet deck at dawn.
-
-  Nor does it check the program against a printed Nautical
-  Almanac, which is a different authority from the one it was
-  validated against.  If you have one, that comparison is worth
-  more than anything else you could send.
-
-A6
-}
-about_needs() {
-  cat <<'A7'
-  AND HERE IS WHERE IT IS WORTH MOST.
-
-  1  A FIX THAT DISAGREES WITH YOURS.  If you work a sight by
-     hand or with tables and this program gives you something
-     else, that is the most valuable report there is.  Send the
-     sights, the time, the height of eye, the index error and
-     what you got.  One of us is wrong and it is worth knowing
-     which.
-
-  2  THE ALMANAC AGAINST A PRINTED ONE.  GHA, declination, SD and
-     HP for any body and time, checked against the Nautical
-     Almanac.  It has been validated against a computed reference,
-     never against the book.
-
-  3  THE TEACHING.  Whether the lessons and the walkthrough match
-     how it is really done - and whether anything in them would
-     build a bad habit.  Corrections to the teaching matter as
-     much as corrections to the code.
-
-  4  THE AWKWARD CASES.  A lower limb near the horizon, a very
-     high altitude, extreme temperature or pressure, a sight
-     close to the pole, a moon sight with a large parallax.  The
-     ordinary cases are well covered.  The edges are where the
-     corrections are applied in an order somebody has to check.
-
-A7
-}
-
-# ---- command implementations ---------------------------------------
-do_fix() {
-  if [ ! -s "$SIGHTS" ]; then echo; echo "  No sights in the log.  Enter one first."; echo; return; fi
-  ft="$fixtime"
-  [ -n "$1" ] && ft="$1"
-  engine -v cmd=reduce -v sfile="$SIGHTS" -v drlat="$drlat" -v drlon="$drlon" \
-         -v course="$course" -v speed="$speed" -v fixtime="$ft"
-}
-do_plan() {
-  u="$1"; [ -z "$u" ] && u=$(utcnow)
-  engine -v cmd=plan -v utc="$u" -v drlat="$drlat" -v drlon="$drlon"
-}
-do_almanac() {
-  u="$1"; [ -z "$u" ] && u=$(utcnow)
-  b="$2"; [ -z "$b" ] && b="sun,moon,venus,mars,jupiter,saturn"
-  engine -v cmd=almanac -v utc="$u" -v bodies="$b"
-}
-do_compass() {
-  engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
-         -v body="$2" -v cbrg="$3" -v variation="$4"
-}
-do_stars() { engine -v cmd=stars -v utc="$1"; }
-do_selftest() { engine -v cmd=selftest; }
-
-# ---- interactive: enter a sight ------------------------------------
-ask() {  # ask "prompt" "default" -> sets ANS
-  if [ -n "$2" ]; then printf "  %s [%s]: " "$1" "$2"; else printf "  %s: " "$1"; fi
-  IFS= read -r ANS
-  [ -z "$ANS" ] && ANS="$2"
-}
-enter_sight() {
-  echo
-  echo "  ---- new sight ----------------------------------------------"
-  ask "UT date (YYYY-MM-DD)" "$(utctoday)"; sd="$ANS"
-  ask "UT time (HHMMSS or HH:MM:SS)" ""; st=$(fixtimefmt "$ANS")
-  [ -z "$st" ] && { echo "  no time given - sight discarded"; return; }
-  ask "Body (name, star number, or ? for list)" "Sun"; sb="$ANS"
-  if [ "$sb" = "?" ]; then do_stars; ask "Body" "Sun"; sb="$ANS"; fi
-  case "$(echo "$sb" | tr 'A-Z' 'a-z')" in
-    sun|moon) ask "Limb (L lower / U upper)" "L"; sl=$(echo "$ANS"|tr 'a-z' 'A-Z') ;;
-    *) sl="C" ;;
-  esac
-  ask "Hs sextant altitude (DD MM.M)" ""; sh="$ANS"
-  [ -z "$sh" ] && { echo "  no altitude given - sight discarded"; return; }
-  ask "Index error, arcmin (+ = on the arc)" "$ie"; si="$ANS"
-  ask "Height of eye, metres" "$heye"; se="$ANS"
-  ask "Label (optional)" ""; sx="$ANS"
-  add_sight "$sd $st" "$sb" "$sl" "$sh" "$si" "$se" "$temp" "$press" "$sx"
-  echo "  sight recorded."
-  engine -v cmd=almanac -v utc="$sd $st" -v bodies="$sb"
-}
-set_dr() {
-  echo
-  ask "DR latitude  (e.g. 35 10.4 N)" "$drlat"; drlat="$ANS"
-  ask "DR longitude (e.g. 040 20.1 W)" "$drlon"; drlon="$ANS"
-  ask "Course made good, degrees true" "$course"; course="$ANS"
-  ask "Speed over ground, knots" "$speed"; speed="$ANS"
-  save_conf
-  echo "  DR set."
-}
-set_opts() {
-  echo
-  ask "Height of eye, metres" "$heye"; heye="$ANS"
-  ask "Standard index error, arcmin" "$ie"; ie="$ANS"
-  ask "Air temperature, deg C" "$temp"; temp="$ANS"
-  ask "Pressure, millibars" "$press"; press="$ANS"
-  save_conf
-  echo "  settings saved."
-}
-log_menu() {
-  while :; do
-    echo; list_sights; echo
-    echo "  d N = delete sight N     c = clear all     x = back"
-    printf "  > "; IFS= read -r a
-    case "$a" in
-      d\ *) del_sight "${a#d }" ;;
-      c) : > "$SIGHTS"; echo "  log cleared" ;;
-      x|"") return ;;
-    esac
-  done
-}
-help_text() {
-  cat <<'HLP'
-
-  CELNAV -- offline celestial navigation
-
-  Everything is computed from first principles: the almanac is built in,
-  so there is nothing to download and nothing expires.
-
-  THE WORKING CYCLE
-    1. Set your DR position, course and speed (menu 6).
-    2. Before twilight, run sight planning (menu 3) to see which bodies
-       are up, how high, and which three give the best cut.
-    3. Shoot your sights and enter each one (menu 1) with the UT time to
-       the second.  Time matters more than anything: 4 seconds of error
-       is about 1 mile of longitude.
-    4. Reduce and plot (menu 2).  You get the full working for each
-       sight, the least-squares fix, the residuals, and the plot.
-    5. Clear the log (menu 7) before the next round of sights.
-
-  ANGLE FORMATS
-    Latitude    35 10.4 N   or  -35.1733
-    Longitude   040 20.1 W  or  040:20.1W
-    Altitude    32 14.6     (degrees and decimal minutes)
-
-  ON THE RUN
-    Set course and speed and every LOP is advanced to the fix time for
-    you, so a sun-run-sun or a spread of sights over an hour still gives
-    one fix.  The fix time defaults to the last sight in the log.
-
-  COMMAND LINE (for scripting or a quick answer)
-
-    Working
-      celnav plan  [ "YYYY-MM-DD HH:MM:SS" ]   twilight, what is up, best three
-      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP
-      celnav sight "UT" body limb Hs [ie] [heye]    record one sight
-      celnav fix   [ "UT of fix" ]             reduce the log and plot
-      celnav compass "UT" body <bearing> [variation]
-      celnav stars [ "UT" ]                    the 57 stars plus Polaris
-      celnav dr <lat> <lon> [course] [speed]   set the DR
-      celnav log | clear                       list or empty the sight log
-
-    Learning
-      celnav learn                             the training menu
-      celnav lesson <code>                     one lesson, e.g. R3
-      celnav walk                              a real sight, step by step
-      celnav drill [corr|alm|red|int|full|fix] one marked drill
-      celnav sandbox                           the what-if triangle
-      celnav syllabus                          the lesson list and progress
-
-    Setup and checking
-      celnav doctor                            check awk, clock, data folder
-      celnav test                              the self test on its own
-      celnav day | night | plain               colour mode
-      celnav where | version | reinstall | help
-
-HLP
-}
-banner() {
-  echo
-  echo "  ==============================================================="
-  echo "   CELNAV $CELNAV_VERSION   celestial navigation, no internet needed"
-  echo "  ==============================================================="
-  printf "   DR %s  %s      course %03.0f T   speed %s kn\n" "$drlat" "$drlon" "$course" "$speed"
-  printf "   eye %s m   index error %s'   %s C  %s mb   sights logged: %s   [%s]\n" \
-         "$heye" "$ie" "$temp" "$press" "$(nsights)" "$cmode"
-  echo "  ---------------------------------------------------------------"
-}
-menu() {
-  while :; do
-    banner
-    cat <<'M'
-    1  Enter a sight              5  Compass check
-    2  Reduce sights -> FIX       6  Set DR, course and speed
-    3  Sight planning / stars     7  Sight log
-    4  Almanac for a time         8  Sextant and weather settings
-
-    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox
-
-    s  Star list   t  Self test   d  Check setup   c  Colour
-    a  About      h  Help       q  Quit
-M
-    printf "  > "
-    IFS= read -r c || exit 0
-    case "$c" in
-      1) enter_sight ;;
-      2) printf "  Fix time (blank = time of last sight): "; IFS= read -r ft
-         if [ -n "$ft" ]; then
-           case "$ft" in *-*) ;; *) ft="$(utctoday) $(fixtimefmt "$ft")" ;; esac
-         fi
-         do_fix "$ft" ;;
-      3) printf "  UT for planning (blank = now): "; IFS= read -r u
-         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
-         do_plan "$u" ;;
-      4) printf "  UT (blank = now): "; IFS= read -r u
-         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
-         printf "  Bodies (blank = sun,moon,planets): "; IFS= read -r b
-         do_almanac "$u" "$b" ;;
-      5) printf "  UT (blank = now): "; IFS= read -r u; [ -z "$u" ] && u=$(utcnow)
-         case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac
-         printf "  Body: "; IFS= read -r b
-         printf "  Compass bearing observed: "; IFS= read -r cb
-         printf "  Variation from chart (E +, W -): "; IFS= read -r vr
-         do_compass "$u" "$b" "$cb" "$vr" ;;
-      6) set_dr ;;
-      7) log_menu ;;
-      8) set_opts ;;
-      9) train_menu ;;
-      s|S) do_stars ;;
-      t|T) do_selftest ;;
-      d|D) doctor ;;
-      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
-           [ -n "$v" ] && set_colour "$v" ;;
-      a|A) about_menu ;;
-      h|H|\?) help_text ;;
-      q|Q) unpaint; exit 0 ;;
-      "") ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-
-
-# =====================================================================
-#  Training mode
-# =====================================================================
-pause() { printf "  -- press return --"; IFS= read -r _junk; }
-
-do_lesson() {
-  teach -v cmd=t_lesson -v les="$1" || return 1
-  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
-  [ -z "$av" ] && return 0
-  if teach -v cmd=t_check -v les="$1" -v ans="$av"; then mark_done "$1"; fi
-}
-learn_menu() {
-  while :; do
-    teach -v cmd=t_syllabus -v done="$lessons"
-    printf "  Lesson code, n for the next one you have not done, or x to go back: "
-    IFS= read -r a
-    case "$a" in
-      x|X|"") return ;;
-      n|N)  nx=""
-            for L in F1 F2 F3 F4 F5 T1 T2 T3 T4 T5 S1 S2 S3 S4 S5 R1 R2 R3 R4 R5; do
-              case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
-            done
-            if [ -z "$nx" ]; then echo "  All twenty done. Try the drills."; else do_lesson "$nx"; fi ;;
-      *)    do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
-    esac
-  done
-}
-walk_mode() {
-  s=1
-  while [ "$s" -le 10 ]; do
-    teach -v cmd=t_walk -v step="$s"
-    printf "  return = next, b = back, x = leave: "; IFS= read -r a
-    case "$a" in x|X) return ;; b|B) [ "$s" -gt 1 ] && s=$((s-1)) ;; *) s=$((s+1)) ;; esac
-  done
-  echo "  That is the whole method. The drills will let you do it yourself."
-}
-drill_one() {
-  k="$1"; sd=$(newseed)
-  teach -v cmd=t_drill -v kind="$k" -v seed="$sd" || return 1
-  case "$k" in
-    corr) printf "  Ho = "; IFS= read -r x1; x2="" ;;
-    alm)  printf "  GHA = "; IFS= read -r x1; printf "  Dec (e.g. N21 14.3) = "; IFS= read -r x2 ;;
-    red)  printf "  Hc = ";  IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
-    int)  printf "  Intercept, + toward / - away, in nm = "; IFS= read -r x1; x2="" ;;
-    full) printf "  Intercept, + toward / - away, nm = "; IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
-    fix)  printf "  Fix latitude  = "; IFS= read -r x1; printf "  Fix longitude = "; IFS= read -r x2 ;;
-  esac
-  [ -z "$x1" ] && { echo "  skipped."; return 0; }
-  dtry=$((dtry+1))
-  if teach -v cmd=t_mark -v kind="$k" -v seed="$sd" -v a1="$x1" -v a2="$x2"; then dok=$((dok+1)); fi
-  save_prog
-}
-drill_menu() {
-  while :; do
-    echo
-    echo "  DRILLS                                     score so far: $dok of $dtry"
-    echo "  ---------------------------------------------------------------"
-    echo "   1  Sextant corrections      Hs to Ho"
-    echo "   2  The almanac              time and body to GHA and Dec"
-    echo "   3  Sight reduction          AP, GHA, Dec to Hc and Zn"
-    echo "   4  The intercept            Ho and Hc to miles, toward or away"
-    echo "   5  A complete sight         everything, end to end"
-    echo "   6  A three-star fix         three LOPs to a position"
-    echo "   m  Mixed - one of each, at random        r  reset the score"
-    echo "   x  back"
-    printf "  > "; IFS= read -r a
-    case "$a" in
-      1) drill_one corr ;; 2) drill_one alm ;; 3) drill_one red ;;
-      4) drill_one int ;;  5) drill_one full ;; 6) drill_one fix ;;
-      m|M) for k in corr alm red int full fix; do drill_one "$k"; done ;;
-      r|R) dok=0; dtry=0; save_prog; echo "  score reset" ;;
-      x|X|"") return ;;
-    esac
-  done
-}
-sandbox_mode() {
-  sl=35; sd=20; sh=310
-  while :; do
-    teach -v cmd=t_sandbox -v slat="$sl" -v sdec="$sd" -v slha="$sh"
-    echo "   l = latitude    d = declination    h = LHA    x = leave"
-    printf "  change what? "; IFS= read -r a
-    case "$a" in
-      l|L) printf "  latitude (-90 to 90, north +): "; IFS= read -r v; [ -n "$v" ] && sl="$v" ;;
-      d|D) printf "  declination (-90 to 90): "; IFS= read -r v; [ -n "$v" ] && sd="$v" ;;
-      h|H) printf "  LHA (0 to 360): "; IFS= read -r v; [ -n "$v" ] && sh="$v" ;;
-      x|X|"") return ;;
-    esac
-  done
-}
-train_menu() {
-  while :; do
-    load_prog
-    ndone=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]')
-    [ -n "$ndone" ] || ndone=0
-    echo
-    echo "  ==============================================================="
-    echo "   LEARN AND PRACTISE          lessons $ndone of 20   drills $dok/$dtry"
-    echo "  ==============================================================="
-    echo "   1  Lessons              twenty of them, from first principles"
-    echo "   2  Walkthrough          one real sight, explained line by line"
-    echo "   3  Drills               problems with answers, marked"
-    echo "   4  Sandbox              change one thing, watch the triangle move"
-    echo
-    echo "   x  back to the navigation menu"
-    printf "  > "; IFS= read -r a
-    case "$a" in
-      1) learn_menu ;; 2) walk_mode ;; 3) drill_menu ;; 4) sandbox_mode ;;
-      x|X|"") return ;;
-    esac
-  done
-}
-set_colour() {
-  case "$1" in
-    day|night|plain) cmode="$1"; save_conf; paint
-       echo "  colour mode: $cmode" ;;
-    *) echo "  usage: day | night | plain" ;;
-  esac
-}
-
-doctor() {
-  echo
-  echo "  CELNAV environment check"
-  echo "  ---------------------------------------------------------------"
-  printf "  shell            : %s\n" "${0##*/} (running under $(ps -p $$ -o comm= 2>/dev/null || echo sh))"
-  printf "  awk in use       : %s\n" "$AWK"
-  if awk_has_math "$AWK"; then echo "  awk maths        : OK (sin/cos/atan2/sqrt/log/exp present)"
-  else echo "  awk maths        : MISSING -- install gawk (see message above)"; fi
-  printf "  data directory   : %s" "$CELNAV_HOME"
-  #  subshell: see src/common/05-home.sh for why this is not optional
-  if mkdir -p "$CELNAV_HOME" 2>/dev/null && ( : > "$CELNAV_HOME/.wtest" ) 2>/dev/null; then
-     rm -f "$CELNAV_HOME/.wtest"; echo "  (writable)"
-  else echo "  (NOT WRITABLE)"; fi
-  printf "  engine file      : %s" "$ENGINE"
-  [ -f "$ENGINE" ] && echo "  (installed)" || echo "  (not yet written)"
-  printf "  UTC clock        : %s\n" "$(utcnow)"
-  echo "  ---------------------------------------------------------------"
-  echo "  Set your watch against a known time source before you shoot."
-  echo "  4 seconds of clock error is about 1 mile of longitude."
-  echo
-  do_selftest
-}
-
-# ---- entry point ----------------------------------------------------
-pick_awk
-install_engine
-load_conf
-load_prog
-case "$1" in
-  ""|menu) paint; menu ;;
-  learn)   paint; train_menu ;;
-  lesson)  shift; do_lesson "$(echo "${1:-F1}" | tr 'a-z' 'A-Z')" ;;
-  walk)    paint; walk_mode ;;
-  drill)   shift; if [ -n "$1" ]; then drill_one "$1"; else paint; drill_menu; fi ;;
-  sandbox) paint; sandbox_mode ;;
-  syllabus) teach -v cmd=t_syllabus -v done="$lessons" ;;
-  day|night|plain) set_colour "$1" ;;
-  plan)    shift; do_plan "$1" ;;
-  alm|almanac) shift; do_almanac "$1" "$2" ;;
-  sight)   shift
-           [ $# -lt 4 ] && { echo "usage: celnav sight \"UT\" body limb Hs [ie] [heye]"; exit 2; }
-           add_sight "$1" "$2" "$3" "$4" "${5:-$ie}" "${6:-$heye}" "$temp" "$press" ""
-           echo "sight recorded (${1})" ;;
-  fix)     shift; do_fix "$1" ;;
-  compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
-  stars)   shift; do_stars "$1" ;;
-  dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
-           save_conf; echo "DR set: $drlat $drlon  course $course  speed $speed" ;;
-  log)     list_sights ;;
-  clear)   : > "$SIGHTS"; echo "sight log cleared" ;;
-  test|selftest) do_selftest ;;
-  doctor|check) doctor ;;
-  about)   paint; about_menu ;;
-  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
-  where)   echo "engine:  $ENGINE"; echo "sights:  $SIGHTS"; echo "config:  $CONF" ;;
-  help|-h|--help) help_text ;;
-  version|--version) echo "celnav $CELNAV_VERSION" ;;
-  *) echo "celnav: there is no command '$1'."
-     echo
-     echo "  Working    plan  alm  sight  fix  compass  stars  dr  log  clear"
-     echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
-     echo "  Setup      day  night  plain  about  doctor  where  version"
-     echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"
-     echo
-     echo "  'celnav help' explains each of them."
-     exit 2 ;;
-esac
+#__BN_END_TEACH__
 __BN_PAYLOAD_celnav__
 }
 extract_colregs() {
@@ -3532,6 +3586,68 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   printf '%s\n' "$HOME/$1"
   return 1
 }
+
+# ---------------------------------------------------------------------
+#  Unpacking the awk engines.
+#
+#  These used to be written with a heredoc:
+#
+#      cat > "$ENGINE" <<'__ENGINE__'
+#      ...the whole engine...
+#      __ENGINE__
+#
+#  a-Shell -- the iPad terminal this project exists for -- DOES NOT
+#  DELIVER A HEREDOC.  Larry ran the three-line test on the device:
+#
+#      cat <<'M'          hangs, and every Return comes back blank,
+#      hello              because cat falls through to the terminal
+#      M
+#
+#  With the output redirected to a file, cat instead sees end of input
+#  straight away and writes NOTHING.  So every engine on that iPad was
+#  ZERO BYTES -- confirmed: wc -c ~/Documents/.celnav/*.awk = 0.  The
+#  tools could never have computed anything; the menus simply hung
+#  first, so that is where it was noticed.
+#
+#  So the payloads now live at the END of each tool, after "exit 0"
+#  where the shell never reads them, between markers, and awk lifts
+#  them out.  No heredoc, and awk is already a hard requirement.
+#
+#  And the result is CHECKED FOR SIZE.  A zero-byte engine must be a
+#  loud failure at install time, not a strange awk error hours later.
+# ---------------------------------------------------------------------
+bn_self() {
+  #  The path to this script.  $0 is it in every normal case; when the
+  #  script was found on PATH by name, ask the shell where it is.
+  if [ -f "$0" ]; then printf '%s\n' "$0"; return 0; fi
+  bn_s_p=$(command -v "$0" 2>/dev/null)
+  if [ -n "$bn_s_p" ] && [ -f "$bn_s_p" ]; then printf '%s\n' "$bn_s_p"; return 0; fi
+  return 1
+}
+#  bn_unpack <TAG> <destination>
+bn_unpack() {
+  bn_u_self=$(bn_self) || {
+    echo "${BN_TOOL:-bashnav}: cannot find my own file to unpack from" >&2; return 1; }
+  [ -n "${AWK:-}" ] || {
+    echo "${BN_TOOL:-bashnav}: no awk was chosen before unpacking" >&2; return 1; }
+  [ -r "$bn_u_self" ] || {
+    echo "${BN_TOOL:-bashnav}: cannot read $bn_u_self" >&2; return 1; }
+  #  </dev/null is the house rule and it is not decoration: awk with no
+  #  readable file argument reads STDIN and sits there forever.  On a
+  #  terminal that is a hang with no message; on an iPad, where there is
+  #  no Ctrl and no Esc, it ends the session.  See docs/ARCHITECTURE.md.
+  $AWK -v s="#__BN_START_$1__" -v e="#__BN_END_$1__" '
+    $0==e { f=0 } f { print } $0==s { f=1 }' "$bn_u_self" > "$2" 2>/dev/null </dev/null || {
+    echo "${BN_TOOL:-bashnav}: could not write $2" >&2; return 1; }
+  if [ ! -s "$2" ]; then
+    echo "${BN_TOOL:-bashnav}: unpacked $1 and got an empty file." >&2
+    echo "  Looked in: $bn_u_self" >&2
+    echo "  The file is probably truncated, or awk ($AWK) cannot read it." >&2
+    rm -f "$2"
+    return 1
+  fi
+  return 0
+}
 # =====================================================================
 #  colregs -- the international rules of the road, drawn in characters
 #  Part of Bash Navigation Software.  Pure POSIX sh + awk, no network.
@@ -3571,12 +3687,11 @@ pick_awk() {
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
   AWK=awk
-  cat >&2 <<'NOMATH'
-colregs: no awk with trigonometric functions was found.
-  On macOS:         nothing to do - the built-in awk already has it.
-  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk
-  On Debian:        sudo apt install gawk
-NOMATH
+  printf '%s\n' \
+    'colregs: no awk with trigonometric functions was found.' \
+    '  On macOS:         nothing to do - the built-in awk already has it.' \
+    '  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk' \
+    '  On Debian:        sudo apt install gawk' >&2
   return 1
 }
 load_conf() {
@@ -3622,7 +3737,838 @@ install_engine() {
   fi
   mkdir -p "$COLREGS_HOME" 2>/dev/null || {
     echo "colregs: cannot create $COLREGS_HOME" >&2; exit 1; }
-  cat > "$ENGINE" <<'__COLREGS_ENGINE__'
+  bn_unpack ENGINE "$ENGINE" || exit 1
+  bn_unpack CONTACTS "$CONTACTS" || exit 1
+  bn_unpack REVIEW "$REVIEW" || exit 1
+}
+# ---------------------------------------------------------------------
+#  About.  Shared by both tools; each one supplies about_why and
+#  about_sources, which are the parts that differ.
+# ---------------------------------------------------------------------
+about_how() {
+  printf '%s\n' \
+    '' \
+    '  HOW IT WAS WRITTEN' \
+    '  ---------------------------------------------------------------' \
+    '  By Claude, Anthropic'\''s AI model, in conversation with Larry over' \
+    '  a few days in August 2026.  He decided what it should do and' \
+    '  judged whether it was right.  The code, the mathematics and the' \
+    '  tests are Claude'\''s work.' \
+    '' \
+    '  Three rules were set at the start and never relaxed.' \
+    '' \
+    '  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs' \
+    '  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox' \
+    '  on a router.  Nothing is installed.  There is no dependency here' \
+    '  that can rot in a year, because there is no dependency.' \
+    '' \
+    '  NO NETWORK, EVER.  Every number the program needs is inside the' \
+    '  file you are running.  That is a constraint on the mathematics' \
+    '  and not only on the plumbing: it is why the planetary positions' \
+    '  are computed from orbital elements with a correction series' \
+    '  fitted here, rather than looked up in a table someone serves.' \
+    '' \
+    '  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is' \
+    '  implemented from a primary source and then validated against an' \
+    '  independent implementation - never against itself.' \
+    '' \
+    '  On that last one, honestly.  An AI writing code is confidently' \
+    '  wrong on a regular basis, and so is a person.  The defence is' \
+    '  not care, it is testing.  Real errors in this project were found' \
+    '  by machinery and by users, and would not have been found by' \
+    '  reading the code:' \
+    '' \
+    '    - One awk implementation ignores the seed you give its random' \
+    '      number generator.  A drill could therefore mark its own' \
+    '      correct answer wrong.  Found by running the suite under four' \
+    '      different awks, not by inspection.' \
+    '' \
+    '    - Both tools worked out "am I writing to a terminal?" from' \
+    '      inside a command substitution, where the answer is always' \
+    '      no.  Colour had never once worked, on any terminal, since' \
+    '      the day it was written.  The test suite checked that the' \
+    '      output is clean when piped - and passed, for entirely the' \
+    '      wrong reason.' \
+    '' \
+    '    - The three green lights of a mine clearance vessel were drawn' \
+    '      on two different masts.  A user saw that before any test' \
+    '      did, because he tried to account for every light in the' \
+    '      picture and could not.' \
+    '' \
+    '  So: the tests exist because the author is fallible, and the' \
+    '  interesting mistakes were caught by the tests and by the people' \
+    '  using it.  Which is the argument for sending feedback.' \
+    ''
+}
+about_feedback() {
+  printf '%s\n' \
+    '' \
+    '  FEEDBACK' \
+    '  ---------------------------------------------------------------' \
+    '  Please send it.  It is the reason this is public.' \
+    ''
+  about_needs
+  printf '%s\n' \
+    '  The useful report is small and specific:' \
+    '' \
+    '    what you did        the exact command, or which menu item' \
+    '    what you saw        paste it, escape codes and all' \
+    '    what you expected   and why - the rule, the sight, the table' \
+    '' \
+    '  "This is not right, a sailing vessel would not show that" with' \
+    '  the picture pasted underneath is worth more than any amount of' \
+    '  general praise, and has already fixed real bugs.' \
+    '' \
+    '  Where:' \
+    '' \
+    '    https://github.com/larrys614/bashnav/issues' \
+    '' \
+    '  If you think the program disagrees with the Convention, with an' \
+    '  almanac, or with a published tide table, say so plainly.  Assume' \
+    '  the program is wrong until it is shown otherwise.  That is the' \
+    '  correct prior, and it is how the bugs above were found.' \
+    '' \
+    '  Corrections to the teaching are as welcome as corrections to the' \
+    '  code.  If a lesson is misleading, that is a defect.' \
+    ''
+}
+about_licence() {
+  printf '%s\n' \
+    '' \
+    '  LICENCE AND WARRANTY' \
+    '  ---------------------------------------------------------------' \
+    '  Copyright 2026 M. Larry Sherman.' \
+    '  Licensed under the Apache License, Version 2.0.' \
+    '  http://www.apache.org/licenses/LICENSE-2.0' \
+    '' \
+    '  You may use it, including commercially, modify it, and pass it' \
+    '  on.  You must keep the copyright and licence notices and say' \
+    '  what you changed.  You get an explicit patent grant.  You may' \
+    '  not use the author'\''s name to endorse your version.' \
+    '' \
+    '  Tide station data carries its own terms, which this licence does' \
+    '  not change: the NOAA harmonic constants are public domain, and' \
+    '  the TICON-4 constants are CC BY 4.0.  Their attribution travels' \
+    '  with them.  See the NOTICE file.' \
+    '' \
+    '  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT' \
+    '  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.' \
+    '' \
+    '  This is a training aid and a calculator.  It is not a certified' \
+    '  navigation system, it carries no authority, and it has never' \
+    '  been near a type approval.  Nothing in it relieves any vessel,' \
+    '  owner, master or crew of the consequences of neglecting to' \
+    '  comply with the rules of the road, of neglecting a proper' \
+    '  look-out, or of neglecting any precaution required by the' \
+    '  ordinary practice of seamen.' \
+    '' \
+    '  Carry a paper almanac, a paper tide table, and the rules.' \
+    ''
+}
+about_menu() {
+  while :; do
+    printf '%s\n' \
+      '' \
+      '  ABOUT' \
+      '' \
+      '    1  Why this exists       who wanted it, and what for' \
+      '    2  How it was written    and by what, and what went wrong' \
+      '    3  What is tested        and, more to the point, what is not' \
+      '    4  Sources               where the numbers come from' \
+      '    5  Feedback              what to send, where, and what is worth most' \
+      '    6  Licence and warranty  Apache 2.0, and what it does not cover' \
+      '' \
+      '    x  back'
+    printf "  > "; IFS= read -r ac || return 0
+    case "$ac" in
+      1) about_why ;;
+      2) about_how ;;
+      3) about_tested ;;
+      4) about_sources ;;
+      5) about_feedback ;;
+      6) about_licence ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+about_why() {
+  printf '%s\n' \
+    '' \
+    '  WHY THIS EXISTS' \
+    '  ---------------------------------------------------------------' \
+    '  Larry Sherman asked for it.' \
+    '' \
+    '  He served in the United States Navy from 1984 to 1990 as an' \
+    '  FTG2/SS - a fire control technician, submarines - in USS Alaska' \
+    '  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS' \
+    '  Greenling (SSN-614).  Two ballistic missile boats and two fast' \
+    '  attacks, which is two quite different trades: one hides and one' \
+    '  goes looking.  He stood the manoeuvring watch on the fire control' \
+    '  tracking party, managing contacts and avoiding collisions through' \
+    '  places like the Strait of Gibraltar and the Race - the tide gate' \
+    '  at the mouth of Long Island Sound, and the door you go out of' \
+    '  from Groton.' \
+    '' \
+    '  Thirty-six years on he is sailing round the world in the' \
+    '  Clipper Race, and he wanted a few things that would work on an' \
+    '  iPad in the middle of an ocean: no signal, no subscription, no' \
+    '  account to log in to, no data to download first.' \
+    '' \
+    '  So: the rules of the road, drawn.  You learn lights by looking' \
+    '  at lights, from the angle you would actually see them, and by' \
+    '  being asked what you see and getting it wrong.  Reciting Rule 25' \
+    '  does not teach you to recognise a sailing vessel at two miles on' \
+    '  a black night.  Being shown one, guessing, and being told why' \
+    '  you were wrong does.' \
+    '' \
+    '  The contacts section is the method he was taught in the Navy,' \
+    '  written down: on the left drawing left, on the left drawing' \
+    '  right, and what each of those means before the plot catches up.' \
+    '' \
+    '  Everything follows from "no internet".  The light patterns, the' \
+    '  rules, the drills and the plotting are all inside the single' \
+    '  file you are running.  It is text.  You can read every line of' \
+    '  it, and you should be able to check it.' \
+    ''
+}
+about_sources() {
+  printf '%s\n' \
+    '' \
+    '  SOURCES' \
+    '  ---------------------------------------------------------------' \
+    '  THE RULES' \
+    '    The International Regulations for Preventing Collisions at' \
+    '    Sea, 1972, as amended - the Convention itself, including' \
+    '    Annex I on the positioning of lights and Annex III on sound' \
+    '    signal appliances.  Published by the International Maritime' \
+    '    Organization.' \
+    '' \
+    '    Rule text is quoted only in short extracts, for teaching.' \
+    '    Where this program and the Convention differ, the Convention' \
+    '    is right and this program has a bug in it.' \
+    '' \
+    '  THE PICTURES' \
+    '    Each vessel is a table of lights - position along the hull,' \
+    '    position across it, height, arc of visibility, colour - and' \
+    '    the drawing is computed from the bearing you ask for.  So the' \
+    '    same table draws her from any angle, and a mistake in the' \
+    '    table shows up as a picture that cannot be accounted for.' \
+    '    Annex I is what the numbers are built from.' \
+    '' \
+    '  CONTACTS' \
+    '    Relative-motion analysis as it is done on a warship'\''s plot.' \
+    '    The rule at the centre of it - a bearing drawing away from' \
+    '    your bow can never cross ahead of you - was tested against' \
+    '    700,000 randomly generated geometries before it was written' \
+    '    down, and is re-checked against 400 more on every test run.' \
+    '    Ekelund'\''s range formula was derived from scratch rather than' \
+    '    quoted, and is checked to floating point on every run.' \
+    '' \
+    '  CHECKED BY' \
+    '    A test suite that runs the tools under four different awk' \
+    '    implementations and requires every drill to mark its own' \
+    '    correct answer as correct.  Run it yourself: tests/run-tests.sh' \
+    '    in the repository.' \
+    ''
+}
+about_tested() {
+  printf '%s\n' \
+    '' \
+    '  WHAT IS TESTED, AND WHAT IS NOT' \
+    '  ---------------------------------------------------------------' \
+    '  Two suites run on every change, under four different awk' \
+    '  implementations and two shells.' \
+    '' \
+    '  THE INVARIANTS.  tests/run-tests.sh' \
+    '' \
+    '    - every drill marks its own correct answer as correct' \
+    '    - every lights question has exactly one right answer: six' \
+    '      hundred are generated and checked, and no two vessels may' \
+    '      look identical from the angle being asked about' \
+    '    - the light tables satisfy Annex I wherever Annex I is' \
+    '      geometry rather than judgement - sidelights paired, level,' \
+    '      opposite each other and no higher than three quarters of' \
+    '      the masthead light; the arcs summing to a full circle with' \
+    '      no gap; no two lights in the same place' \
+    '    - a bearing drawing away from your bow never crosses ahead.' \
+    '      Four hundred fresh geometries every run, and seven hundred' \
+    '      thousand were checked before the lesson was written' \
+    '    - Ekelund recovers the range the geometry was built from' \
+    '    - Red, Green, the words and the side agree at every degree of' \
+    '      the circle' \
+    '    - colour appears on a terminal, and never when piped' \
+    '' \
+    '  THE GOLDEN FILES.  tests/golden.sh' \
+    '' \
+    '    Every screen the program can produce deterministically is' \
+    '    captured as text and committed - about twenty-six thousand' \
+    '    lines of it. Any change to any of it turns up as a diff that' \
+    '    somebody has to read and accept on purpose. That is how a' \
+    '    small edit to one function gets caught quietly changing' \
+    '    forty other screens.' \
+    '' \
+    '  NOW THE HONEST PART.' \
+    '' \
+    '  None of that can tell you whether Rule 27 says what this' \
+    '  program says it says.' \
+    '' \
+    '  A test can check that the quiz marks answer C as correct. It' \
+    '  cannot check that C is the right answer. It can check that a' \
+    '  light table is geometrically consistent. It cannot check that a' \
+    '  mine clearance vessel shows those lights. It can check that' \
+    '  encounter 14 marks the answer the author intended. It cannot' \
+    '  check that the vessel which gives way in it is the one the' \
+    '  Convention says gives way - nor even that one of the other' \
+    '  three options is not equally defensible.' \
+    '' \
+    '  Those are judgements against a document, and they need a person' \
+    '  holding the document. Which is what the next screen is about.' \
+    ''
+}
+about_needs() {
+  printf '%s\n' \
+    '  AND HERE IS WHERE IT IS WORTH MOST.' \
+    '' \
+    '  These are the claims no test can check, in the order of how' \
+    '  much damage a wrong one would do.' \
+    '' \
+    '  1  WHO GIVES WAY, AND WHAT TO DO.  The twenty-eight encounters,' \
+    '     and the sixty-five distinct give-way calls the lights quiz' \
+    '     can make.  A wrong light table makes you misname a ship.  A' \
+    '     wrong verdict here makes you TURN THE WRONG WAY, which is' \
+    '     the difference between a training aid that is imperfect and' \
+    '     one that is dangerous.  This logic was written backwards' \
+    '     once during development and caught by hand, by a reader, not' \
+    '     by any test.  Rules 12 to 18.' \
+    '' \
+    '  2  THE LIGHT TABLES.  Twenty vessels, and every picture,' \
+    '     question and answer is computed from them.  Two errors in' \
+    '     them have already been found by users - both by somebody' \
+    '     looking at a picture, trying to account for every light in' \
+    '     it, and failing.  That is the most productive thing you can' \
+    '     do with this program.  Rules 20 to 31 and Annex I.' \
+    '' \
+    '  3  THE LESSONS.  They paraphrase the rules rather than quote' \
+    '     them.  A paraphrase that is nearly right is worse than one' \
+    '     that is obviously wrong, because nobody checks it.' \
+    '' \
+    '  4  DISTRACTORS THAT ARE ALSO CORRECT.  The lights questions are' \
+    '     proved to have a single right answer.  The encounters are' \
+    '     not.  An option that is also defensible would mark you wrong' \
+    '     for being right, and only a person can notice that.' \
+    '' \
+    '  And there is a tool for exactly this: "colregs review".  It walks' \
+    '  through every one of those claims, one at a time, with the drawing' \
+    '  in front of you, and builds a report you can send as a GitHub' \
+    '  issue.  It does not send anything itself - it prints a link and' \
+    '  you open it, so there is no credential in this program to leak and' \
+    '  no server for anybody to run.  Credit is opt-in and by name; no' \
+    '  email address is asked for or kept.' \
+    '' \
+    '  5  WHAT IS MISSING.  No test notices an absent vessel, an' \
+    '     absent rule, or an exception that goes unmentioned.  Only' \
+    '     somebody who knows the rules will see the hole.' \
+    ''
+}
+# ---------------------------------------------------------------------
+#  Review: the claims a test cannot check, put to a person one at a
+#  time.  Entirely local.  Nothing here opens a socket; submitting
+#  means the program prints a link and YOU open it, so there is no
+#  credential in this file to leak and no service for anyone to run.
+# ---------------------------------------------------------------------
+rv_file() { echo "$COLREGS_HOME/review.tsv"; }
+rv_save() {   # key state note
+  mkdir -p "$COLREGS_HOME"
+  n=$(printf '%s' "$3" | tr '\t\n' '  ')
+  printf '%s\t%s\t%s\n' "$1" "$2" "$n" >> "$(rv_file)"
+}
+rv_ask_note() {
+  printf "  What is wrong with it? (one line, return to skip): "
+  IFS= read -r RVNOTE || RVNOTE=""
+}
+rv_one() {   # $1 = key ; returns 1 to stop
+  eng -v cmd=rvshow -v key="$1" || return 1
+  printf "  %s  [r] correct   [f] wrong   [c] correct, but a comment\n" "$1"
+  printf "  [return] skip   [q] stop : "
+  IFS= read -r v || return 1
+  case "$v" in
+    r|R) rv_save "$1" ok "" ;;
+    f|F) rv_ask_note; rv_save "$1" flag "$RVNOTE" ;;
+    c|C) rv_ask_note; rv_save "$1" ok "$RVNOTE" ;;
+    q|Q|x|X) return 1 ;;
+    *) : ;;
+  esac
+  return 0
+}
+rv_run() {   # $1 = section, or empty for "carry on from where I left off"
+  if [ -n "$1" ]; then
+    #  NOT  while read k ... done < keyfile :  that redirects the loop
+    #  body's stdin to the key file, so every prompt inside rv_one reads
+    #  a KEY instead of the answer the person typed, and the whole
+    #  section scrolls past unanswered. The keys are plain tokens, so
+    #  word-splitting a single variable is safe and leaves stdin alone.
+    rvkeys=$(eng -v cmd=rvkeys -v which="$1")
+    for k in $rvkeys; do
+      rv_one "$k" || break
+    done
+  else
+    while :; do
+      k=$(eng -v cmd=rvnext -v rfile="$(rv_file)")
+      [ -z "$k" ] && { echo; echo "  Every claim has been looked at.  Thank you."; echo; break; }
+      rv_one "$k" || break
+    done
+  fi
+}
+rv_submit() {
+  RV=$(rv_file)
+  if [ ! -s "$RV" ]; then echo; echo "  Nothing reviewed yet."; echo; return; fi
+  printf '%s\n' \
+    '' \
+    '  SENDING IT BACK' \
+    '  ---------------------------------------------------------------' \
+    '  This builds a report and prints a link that opens a GitHub issue' \
+    '  with the report already in it.  The program does not send it -' \
+    '  you do, by opening the link.  Nothing leaves this machine until' \
+    '  you press return in your browser.' \
+    '' \
+    '  GitHub signs the issue with your account, so it is not anonymous' \
+    '  and there is no email for anybody to collect.' \
+    ''
+  printf "  A name to put on it (return to leave it off): "; IFS= read -r who
+  cr=""
+  if [ -n "$who" ]; then
+    printf "  Credit you in CONTRIBUTORS if a correction lands? [y/N] "
+    IFS= read -r c
+    case "$c" in y|Y) cr=yes ;; *) cr=no ;; esac
+  fi
+  dr=""
+  if [ "$stry" -gt 0 ] 2>/dev/null; then
+    printf "  Include your drill record (%s of %s)? [y/N] " "$sok" "$stry"
+    IFS= read -r c
+    case "$c" in y|Y) dr="$sok of $stry" ;; esac
+  fi
+  B="$COLREGS_HOME/review-report.md"
+  eng -v cmd=rvreport -v rfile="$RV" -v rvver="$COLREGS_VERSION" \
+      -v rvwho="$who" -v rvcredit="$cr" -v rvdrill="$dr" > "$B"
+  U=$(eng -v cmd=rvurl -v rfile="$RV" -v rbody="$B" -v rvrepo="$GH_USER")
+  n=$(printf '%s' "$U" | wc -c | tr -d ' ')
+  echo
+  if [ "$n" -lt 7000 ]; then
+    echo "  Open this, check it reads the way you meant, and submit:"
+    echo
+    echo "$U"
+    echo
+    echo "  If that link says the page could not be found, the repository"
+    echo "  is not published yet - nothing you did is wrong, and nothing"
+    echo "  has been lost. The report is a file on this machine either"
+    echo "  way, and you can send it whenever the repository is up."
+  else
+    #  Too long for a URL. Say so plainly rather than silently truncating
+    #  somebody's careful work.
+    echo "  Your review is too long to fit in a link ($n characters)."
+    echo "  It is written out here instead:"
+    echo
+    echo "    $B"
+    echo
+    echo "  Open a new issue and paste or attach that file:"
+    echo
+    echo "    https://github.com/${GH_USER}/bashnav/issues/new"
+  fi
+  echo
+  echo "  The report is also saved at $B"
+  echo
+}
+review_menu() {
+  while :; do
+    printf '%s\n' \
+      '' \
+      '  REVIEW -- help make it right' \
+      '' \
+      '  The test suite proves the program works. It cannot prove that what' \
+      '  it says about the rules is true. That needs somebody with the' \
+      '  Convention open, going through the claims one at a time.' \
+      '' \
+      '    1  Carry on from where I left off' \
+      '    2  Encounter verdicts        who gives way, and what to do' \
+      '    3  Give-way calls from her lights' \
+      '    4  The light tables' \
+      '    5  Rules lesson answers      6  Sound signals      7  Day shapes' \
+      '    8  What I have answered so far' \
+      '    9  Send it back' \
+      '' \
+      '    x  back'
+    printf "  > "; IFS= read -r c || return 0
+    case "$c" in
+      1) rv_run "" ;;
+      2) rv_run enc ;;  3) rv_run mot ;;  4) rv_run lig ;;
+      5) rv_run les ;;  6) rv_run snd ;;  7) rv_run shp ;;
+      8) eng -v cmd=rvlist -v rfile="$(rv_file)" ;;
+      9) rv_submit ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+# ---------------------------------------------------------------------
+pause() { printf "  -- press return --"; IFS= read -r _j; }
+ask1() { printf "  Your answer (a/b/c/d, or return to skip): "; IFS= read -r ANS; }
+
+run_quiz() {   # $1 = qlight|qshape|qsound  $2 = mark cmd
+  while :; do
+    sd=$(newseed)
+    eng -v cmd="$1" -v seed="$sd"
+    ANS2=""
+    if [ "$1" = qlight ]; then
+      printf "  Q1 what is she    (a/b/c/d, or return to skip): "; IFS= read -r ANS
+      [ -z "$ANS" ] && return 0
+      printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
+    else
+      ask1
+      [ -z "$ANS" ] && return 0
+    fi
+    stry=$((stry+1))
+    if eng -v cmd="$2" -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_enc() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=enc -v seed="$sd"
+    ask1
+    [ -z "$ANS" ] && return 0
+    stry=$((stry+1))
+    if eng -v cmd=encm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_scen() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=scen -v seed="$sd" || return 0
+    printf "  Q1 risk       (a/b/c)   : "; IFS= read -r q1
+    [ -z "$q1" ] && return 0
+    printf "  Q2 how close  (a/b/c/d) : "; IFS= read -r q2
+    printf "  Q3 action     (a/b/c/d) : "; IFS= read -r q3
+    stry=$((stry+1))
+    if eng -v cmd=scenm -v seed="$sd" -v a1="$q1" -v a2="$q2" -v a3="$q3"; then
+      sok=$((sok+1))
+    fi
+    save_prog
+    printf "  Watch it run? [Y/n] "; IFS= read -r w
+    case "$w" in
+      n|N) ;;
+      *)  t=12
+          while [ "$t" -le 90 ]; do
+            eng -v cmd=scenframe -v seed="$sd" -v ans="$q3" -v tmin="$t"
+            rc=$?
+            [ "$rc" -eq 3 ] && break
+            printf "  -- return for the next six minutes, x to stop -- "; IFS= read -r z
+            case "$z" in x|X|q|Q) break ;; esac
+            t=$((t+6))
+          done
+          eng -v cmd=scenout -v seed="$sd" -v ans="$q3" ;;
+    esac
+    printf "  another scenario? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+do_lesson() {
+  eng -v cmd=lesson -v les_id="$1" || return 1
+  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
+  [ -z "$av" ] && return 0
+  if eng -v cmd=check -v les_id="$1" -v ans="$av"; then mark_done "$1"; fi
+}
+rules_menu() {
+  while :; do
+    eng -v cmd=syllabus -v done="$lessons"
+    printf "  Lesson code, n for the next one, or x to go back: "; IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      n|N) nx=""
+           for L in L1 L2 L3 L4 L5 L6 L7 L8 L9 L10 L11 L12 L13 L14 L15; do
+             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+           done
+           if [ -z "$nx" ]; then echo "  All fifteen done."; else do_lesson "$nx"; fi ;;
+      *)   do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+# ---- contacts: bearing drift, the report, and the tracking party ----
+do_clesson() { eng -v cmd=clesson -v les_id="$1" && mark_done "$1"; }
+run_track() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=track -v seed="$sd" || return 0
+    printf "  Q1 drift          (a/b/c, or return to skip): "; IFS= read -r t1
+    [ -z "$t1" ] && return 0
+    printf "  Q2 ahead/astern   (a/b/c): "; IFS= read -r t2
+    printf "  Q3 CPA            (a/b/c/d): "; IFS= read -r t3
+    stry=$((stry+1))
+    if eng -v cmd=trackm -v seed="$sd" -v a1="$t1" -v a2="$t2" -v a3="$t3"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another contact? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+run_ekelund() {
+  while :; do
+    sd=$(newseed)
+    eng -v cmd=ek -v seed="$sd" || return 0
+    printf "  How far off (a/b/c/d, or return to skip): "; IFS= read -r ANS
+    [ -z "$ANS" ] && return 0
+    stry=$((stry+1))
+    if eng -v cmd=ekm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
+    save_prog
+    printf "  another? [Y/n] "; IFS= read -r a
+    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
+  done
+}
+style_name() {
+  case "$1" in
+    rn)     echo "Red and Green" ;;
+    usn)    echo "Port and starboard" ;;
+    rel360) echo "Relative, full circle" ;;
+    words)  echo "Words only" ;;
+    none)   echo "True bearing only" ;;
+    *)      echo "$1" ;;
+  esac
+}
+style_menu() {
+  while :; do
+    printf '%s\n' \
+      '' \
+      '  REPORTING STYLE' \
+      '  ---------------------------------------------------------------' \
+      '  How this program says where a contact lies relative to your own' \
+      '  head.  It changes the report and the relative column on the' \
+      '  plot.  The true bearing is always given as well, because that is' \
+      '  what goes on the chart and what agrees with the radar - this' \
+      '  setting only decides how the same angle is said out loud.' \
+      '' \
+      '  1  Red and Green            "bearing 311, Red 20, drawing left"' \
+      '     Royal Navy and British practice.  Red is port and Green is' \
+      '     starboard because those are your own sidelights, which is why' \
+      '     it is remembered.  The side is carried by a word rather than a' \
+      '     digit, so it survives a bad intercom, a following sea and a' \
+      '     tired listener.  Nought to 180 each side.' \
+      '' \
+      '  2  Port and starboard       "bearing 311, Port 20, drawing left"' \
+      '     The same information in plainer words, and common in United' \
+      '     States and merchant practice.  Longer to say, and the one' \
+      '     least likely to be misunderstood by somebody who has never' \
+      '     met the Red and Green convention.' \
+      '' \
+      '  3  Relative, full circle    "bearing 311, 340 relative, ..."' \
+      '     Measured clockwise from your own bow, 000 to 359.  Neat on a' \
+      '     plot and in a written message.  Worse in the dark, because' \
+      '     the listener has to work out for himself which side 340 is' \
+      '     on, which is exactly the sum you were trying to save him.' \
+      '' \
+      '  4  Words only               "bearing 311, fine on the port bow"' \
+      '     No number at all.  The slowest to say and the fastest to act' \
+      '     on, and the only one that still works when you are shouting' \
+      '     to somebody who is not looking at any instrument at all.' \
+      '' \
+      '  5  True bearing only        "bearing 311, drawing left, ..."' \
+      '     No relative bearing.  Correct if whoever you are telling is' \
+      '     on the plot rather than on deck.' \
+      ''
+    printf "  Now: %s.  Pick 1-5, or x to leave it: " "$(style_name "$rstyle")"
+    IFS= read -r sv || return 0
+    case "$sv" in
+      1) rstyle=rn ;;     2) rstyle=usn ;;  3) rstyle=rel360 ;;
+      4) rstyle=words ;;  5) rstyle=none ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?"; continue ;;
+    esac
+    save_conf
+    printf "  reporting style: %s\n" "$(style_name "$rstyle")"
+    return 0
+  done
+}
+contacts_menu() {
+  while :; do
+    eng -v cmd=csyl -v done="$lessons"
+    printf "  Lesson code, t track, e Ekelund, c card, s report style, x back: "
+    IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      t|T) run_track ;;
+      e|E) run_ekelund ;;
+      c|C) eng -v cmd=cref ;;
+      s|S) style_menu ;;
+      n|N) nx=""
+           for L in C1 C2 C3 C4 C5 C6 C7; do
+             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+           done
+           if [ -z "$nx" ]; then echo "  All seven done."; else do_clesson "$nx"; fi ;;
+      *)   do_clesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+mixed_drill() {
+  for k in qlight qshape qsound enc qlight; do
+    sd=$(newseed)
+    case "$k" in
+      enc) eng -v cmd=enc -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
+           stry=$((stry+1)); eng -v cmd=encm -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
+      qlight) eng -v cmd=qlight -v seed="$sd"
+           printf "  Q1 what is she    (a/b/c/d): "; IFS= read -r ANS; [ -z "$ANS" ] && continue
+           printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
+           stry=$((stry+1)); eng -v cmd=qlightm -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2" && sok=$((sok+1)) ;;
+      *)   eng -v cmd="$k" -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
+           stry=$((stry+1)); eng -v cmd="${k}m" -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
+    esac
+    save_prog
+  done
+  echo "  Score so far: $sok of $stry"
+}
+ref_menu() {
+  echo
+  echo "   1  Lights, all of them        2  Day shapes        3  Sound signals"
+  printf "  > "; IFS= read -r a
+  case "$a" in
+    1) eng -v cmd=reflights ;; 2) eng -v cmd=refshapes ;; 3) eng -v cmd=sndtable ;;
+  esac
+}
+help_text() {
+  printf '%s\n' \
+    '' \
+    '  COLREGS -- the rules of the road, drawn in characters' \
+    '' \
+    '  colregs                  the menu' \
+    '  colregs lights           identify vessels by their lights' \
+    '  colregs light <key> [brg]  draw one, from any angle' \
+    '  colregs shapes           identify vessels by their day shapes' \
+    '  colregs shape <key>      draw one' \
+    '  colregs encounters       who gives way, and what do you do' \
+    '  colregs scenario         a developing situation: plot it, decide, watch it run' \
+    '  colregs sound            identify sound signals' \
+    '  colregs rules            fifteen lessons on the rules' \
+    '  colregs lesson L7        one lesson' \
+    '  colregs contacts         bearing drift and contact management' \
+    '  colregs track            stand the tracking watch: drift, CPA, the call' \
+    '  colregs ekelund          range from a change of course' \
+    '  colregs card             the contacts card, on one screen' \
+    '  colregs style [rn|usn|rel360|words|none]' \
+    '                           how a relative bearing is spoken' \
+    '  colregs ref              reference tables' \
+    '  colregs colours          check that your terminal shows the lamp colours' \
+    '  colregs day|night|plain  colour mode' \
+    '  colregs about            why it exists, how it was written, feedback' \
+    '  colregs review           check its claims against the Convention, and report' \
+    '' \
+    '  Bearings are relative to the other vessel: 0 means you are looking' \
+    '  at her bow, 090 at her starboard side, 180 at her stern.' \
+    ''
+}
+banner() {
+  echo
+  echo "  ==============================================================="
+  echo "   COLREGS $COLREGS_VERSION   the rules of the road, in characters"
+  echo "  ==============================================================="
+  nl=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]'); [ -n "$nl" ] || nl=0
+  printf "   lessons %s of 15    drills %s/%s    [%s]\n" "$nl" "$sok" "$stry" "$cmode"
+  echo "  ---------------------------------------------------------------"
+}
+menu() {
+  while :; do
+    load_prog
+    banner
+    printf '%s\n' \
+      '    1  Lights           what is she, and what is she doing?' \
+      '    2  Day shapes       the same meanings, by daylight' \
+      '    3  Encounters       who gives way, and what do you do?' \
+      '    4  Sound signals    what is she saying?' \
+      '    5  The rules        fifteen lessons on the rules themselves' \
+      '    6  Mixed drill      one of each, at random' \
+      '    7  Collision avoidance   a developing situation: plot it, decide, watch it run' \
+      '    8  Contacts         bearing drift, the report, and the tracking party' \
+      '' \
+      '    r  Reference tables   c  Colour   s  Report style' \
+      '    v  Review the rules   a  About   h  Help   q  Quit'
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) run_quiz qlight qlightm ;;
+      2) run_quiz qshape qshapem ;;
+      3) run_enc ;;
+      4) run_quiz qsound qsoundm ;;
+      5) rules_menu ;;
+      6) mixed_drill ;;
+      7) run_scen ;;
+      8) contacts_menu ;;
+      r|R) ref_menu ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      s|S) style_menu ;;
+      a|A) about_menu ;;
+      v|V) review_menu ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk
+install_engine
+load_conf
+load_prog
+case "$1" in
+  ""|menu)  paint; menu ;;
+  lights)   paint; run_quiz qlight qlightm ;;
+  shapes)   paint; run_quiz qshape qshapem ;;
+  sound)    paint; run_quiz qsound qsoundm ;;
+  encounters|enc) paint; run_enc ;;
+  scenario|scen|avoid) paint; run_scen ;;
+  rules)    paint; rules_menu ;;
+  contacts|contact) paint; contacts_menu ;;
+  track)    paint; run_track ;;
+  ekelund)  paint; run_ekelund ;;
+  card)     eng -v cmd=cref ;;
+  style)    shift
+            case "$1" in
+              rn|usn|rel360|words|none) rstyle="$1"; save_conf
+                 echo "reporting style: $(style_name "$rstyle")" ;;
+              "") paint; style_menu ;;
+              *) echo "colregs: style is one of rn usn rel360 words none"; exit 2 ;;
+            esac ;;
+  lesson)   shift; do_lesson "$(echo "${1:-L1}" | tr 'a-z' 'A-Z')" ;;
+  light)    shift; eng -v cmd=light -v key="${1:-power50}" -v th="${2:-40}" -v reveal=1 ;;
+  shape)    shift; eng -v cmd=shape -v key="${1:-ram}" -v reveal=1 ;;
+  ref)      paint; ref_menu ;;
+  colours)  eng -v cmd=colours ;;
+  reflights) eng -v cmd=reflights ;;
+  refshapes) eng -v cmd=refshapes ;;
+  refsound)  eng -v cmd=sndtable ;;
+  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
+  about)    paint; about_menu ;;
+  review)   paint; review_menu ;;
+  where)    echo "engine: $ENGINE"; echo "config: $CONF"; echo "progress: $PROG" ;;
+  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
+  version|--version) echo "colregs $COLREGS_VERSION" ;;
+  help|-h|--help) help_text ;;
+  *) echo "colregs: there is no command '$1'."
+     echo
+     echo "  Drills     lights  shapes  encounters  scenario  sound  rules  lesson"
+     echo "  Contacts   contacts  track  ekelund  card  style"
+     echo "  Look up    light <key> [brg]   shape <key>   ref"
+     echo "  Setup      colours  day  night  plain  about  review  where  version"
+     echo
+     echo "  'colregs help' explains each of them."
+     exit 2 ;;
+esac
+
+exit 0
+#__BN_START_ENGINE__
 # =====================================================================
 #  colregs -- the engine
 #  Lights, shapes, encounters, sound signals and the rules themselves,
@@ -5267,8 +6213,8 @@ function scen_outcome(k,   c0,cn,t0,tn){
   print ""
   return 0
 }
-__COLREGS_ENGINE__
-  cat > "$CONTACTS" <<'__COLREGS_CONTACTS__'
+#__BN_END_ENGINE__
+#__BN_START_CONTACTS__
 # =====================================================================
 #  colregs -- contacts.  Managing them the way a tracking party does:
 #  by bearing drift, in relative motion, with the arithmetic done in
@@ -5955,8 +6901,8 @@ function ct_ref(){
   print ""
   return 0
 }
-__COLREGS_CONTACTS__
-  cat > "$REVIEW" <<'__COLREGS_REVIEW__'
+#__BN_END_CONTACTS__
+#__BN_START_REVIEW__
 # =====================================================================
 #  colregs -- review.  The claims a test cannot check, put to a person
 #  one at a time, with the picture in front of them.
@@ -6288,847 +7234,7 @@ function rv_url(rfile,   line,body,t,i,nf){
      (rvrepo!=""?rvrepo:"larrys614"), rv_enc(t), rv_enc(body)
   return 0
 }
-__COLREGS_REVIEW__
-}
-# ---------------------------------------------------------------------
-#  About.  Shared by both tools; each one supplies about_why and
-#  about_sources, which are the parts that differ.
-# ---------------------------------------------------------------------
-about_how() {
-  cat <<'A2'
-
-  HOW IT WAS WRITTEN
-  ---------------------------------------------------------------
-  By Claude, Anthropic's AI model, in conversation with Larry over
-  a few days in August 2026.  He decided what it should do and
-  judged whether it was right.  The code, the mathematics and the
-  tests are Claude's work.
-
-  Three rules were set at the start and never relaxed.
-
-  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs
-  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox
-  on a router.  Nothing is installed.  There is no dependency here
-  that can rot in a year, because there is no dependency.
-
-  NO NETWORK, EVER.  Every number the program needs is inside the
-  file you are running.  That is a constraint on the mathematics
-  and not only on the plumbing: it is why the planetary positions
-  are computed from orbital elements with a correction series
-  fitted here, rather than looked up in a table someone serves.
-
-  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is
-  implemented from a primary source and then validated against an
-  independent implementation - never against itself.
-
-  On that last one, honestly.  An AI writing code is confidently
-  wrong on a regular basis, and so is a person.  The defence is
-  not care, it is testing.  Real errors in this project were found
-  by machinery and by users, and would not have been found by
-  reading the code:
-
-    - One awk implementation ignores the seed you give its random
-      number generator.  A drill could therefore mark its own
-      correct answer wrong.  Found by running the suite under four
-      different awks, not by inspection.
-
-    - Both tools worked out "am I writing to a terminal?" from
-      inside a command substitution, where the answer is always
-      no.  Colour had never once worked, on any terminal, since
-      the day it was written.  The test suite checked that the
-      output is clean when piped - and passed, for entirely the
-      wrong reason.
-
-    - The three green lights of a mine clearance vessel were drawn
-      on two different masts.  A user saw that before any test
-      did, because he tried to account for every light in the
-      picture and could not.
-
-  So: the tests exist because the author is fallible, and the
-  interesting mistakes were caught by the tests and by the people
-  using it.  Which is the argument for sending feedback.
-
-A2
-}
-about_feedback() {
-  cat <<'A3'
-
-  FEEDBACK
-  ---------------------------------------------------------------
-  Please send it.  It is the reason this is public.
-
-A3
-  about_needs
-  cat <<'A3B'
-  The useful report is small and specific:
-
-    what you did        the exact command, or which menu item
-    what you saw        paste it, escape codes and all
-    what you expected   and why - the rule, the sight, the table
-
-  "This is not right, a sailing vessel would not show that" with
-  the picture pasted underneath is worth more than any amount of
-  general praise, and has already fixed real bugs.
-
-  Where:
-
-    https://github.com/larrys614/bashnav/issues
-
-  If you think the program disagrees with the Convention, with an
-  almanac, or with a published tide table, say so plainly.  Assume
-  the program is wrong until it is shown otherwise.  That is the
-  correct prior, and it is how the bugs above were found.
-
-  Corrections to the teaching are as welcome as corrections to the
-  code.  If a lesson is misleading, that is a defect.
-
-A3B
-}
-about_licence() {
-  cat <<'A4'
-
-  LICENCE AND WARRANTY
-  ---------------------------------------------------------------
-  Copyright 2026 M. Larry Sherman.
-  Licensed under the Apache License, Version 2.0.
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  You may use it, including commercially, modify it, and pass it
-  on.  You must keep the copyright and licence notices and say
-  what you changed.  You get an explicit patent grant.  You may
-  not use the author's name to endorse your version.
-
-  Tide station data carries its own terms, which this licence does
-  not change: the NOAA harmonic constants are public domain, and
-  the TICON-4 constants are CC BY 4.0.  Their attribution travels
-  with them.  See the NOTICE file.
-
-  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT
-  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-  This is a training aid and a calculator.  It is not a certified
-  navigation system, it carries no authority, and it has never
-  been near a type approval.  Nothing in it relieves any vessel,
-  owner, master or crew of the consequences of neglecting to
-  comply with the rules of the road, of neglecting a proper
-  look-out, or of neglecting any precaution required by the
-  ordinary practice of seamen.
-
-  Carry a paper almanac, a paper tide table, and the rules.
-
-A4
-}
-about_menu() {
-  while :; do
-    cat <<'A0'
-
-  ABOUT
-
-    1  Why this exists       who wanted it, and what for
-    2  How it was written    and by what, and what went wrong
-    3  What is tested        and, more to the point, what is not
-    4  Sources               where the numbers come from
-    5  Feedback              what to send, where, and what is worth most
-    6  Licence and warranty  Apache 2.0, and what it does not cover
-
-    x  back
-A0
-    printf "  > "; IFS= read -r ac || return 0
-    case "$ac" in
-      1) about_why ;;
-      2) about_how ;;
-      3) about_tested ;;
-      4) about_sources ;;
-      5) about_feedback ;;
-      6) about_licence ;;
-      x|X|q|Q|"") return 0 ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-about_why() {
-  cat <<'A1'
-
-  WHY THIS EXISTS
-  ---------------------------------------------------------------
-  Larry Sherman asked for it.
-
-  He served in the United States Navy from 1984 to 1990 as an
-  FTG2/SS - a fire control technician, submarines - in USS Alaska
-  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS
-  Greenling (SSN-614).  Two ballistic missile boats and two fast
-  attacks, which is two quite different trades: one hides and one
-  goes looking.  He stood the manoeuvring watch on the fire control
-  tracking party, managing contacts and avoiding collisions through
-  places like the Strait of Gibraltar and the Race - the tide gate
-  at the mouth of Long Island Sound, and the door you go out of
-  from Groton.
-
-  Thirty-six years on he is sailing round the world in the
-  Clipper Race, and he wanted a few things that would work on an
-  iPad in the middle of an ocean: no signal, no subscription, no
-  account to log in to, no data to download first.
-
-  So: the rules of the road, drawn.  You learn lights by looking
-  at lights, from the angle you would actually see them, and by
-  being asked what you see and getting it wrong.  Reciting Rule 25
-  does not teach you to recognise a sailing vessel at two miles on
-  a black night.  Being shown one, guessing, and being told why
-  you were wrong does.
-
-  The contacts section is the method he was taught in the Navy,
-  written down: on the left drawing left, on the left drawing
-  right, and what each of those means before the plot catches up.
-
-  Everything follows from "no internet".  The light patterns, the
-  rules, the drills and the plotting are all inside the single
-  file you are running.  It is text.  You can read every line of
-  it, and you should be able to check it.
-
-A1
-}
-about_sources() {
-  cat <<'A5'
-
-  SOURCES
-  ---------------------------------------------------------------
-  THE RULES
-    The International Regulations for Preventing Collisions at
-    Sea, 1972, as amended - the Convention itself, including
-    Annex I on the positioning of lights and Annex III on sound
-    signal appliances.  Published by the International Maritime
-    Organization.
-
-    Rule text is quoted only in short extracts, for teaching.
-    Where this program and the Convention differ, the Convention
-    is right and this program has a bug in it.
-
-  THE PICTURES
-    Each vessel is a table of lights - position along the hull,
-    position across it, height, arc of visibility, colour - and
-    the drawing is computed from the bearing you ask for.  So the
-    same table draws her from any angle, and a mistake in the
-    table shows up as a picture that cannot be accounted for.
-    Annex I is what the numbers are built from.
-
-  CONTACTS
-    Relative-motion analysis as it is done on a warship's plot.
-    The rule at the centre of it - a bearing drawing away from
-    your bow can never cross ahead of you - was tested against
-    700,000 randomly generated geometries before it was written
-    down, and is re-checked against 400 more on every test run.
-    Ekelund's range formula was derived from scratch rather than
-    quoted, and is checked to floating point on every run.
-
-  CHECKED BY
-    A test suite that runs the tools under four different awk
-    implementations and requires every drill to mark its own
-    correct answer as correct.  Run it yourself: tests/run-tests.sh
-    in the repository.
-
-A5
-}
-about_tested() {
-  cat <<'A6'
-
-  WHAT IS TESTED, AND WHAT IS NOT
-  ---------------------------------------------------------------
-  Two suites run on every change, under four different awk
-  implementations and two shells.
-
-  THE INVARIANTS.  tests/run-tests.sh
-
-    - every drill marks its own correct answer as correct
-    - every lights question has exactly one right answer: six
-      hundred are generated and checked, and no two vessels may
-      look identical from the angle being asked about
-    - the light tables satisfy Annex I wherever Annex I is
-      geometry rather than judgement - sidelights paired, level,
-      opposite each other and no higher than three quarters of
-      the masthead light; the arcs summing to a full circle with
-      no gap; no two lights in the same place
-    - a bearing drawing away from your bow never crosses ahead.
-      Four hundred fresh geometries every run, and seven hundred
-      thousand were checked before the lesson was written
-    - Ekelund recovers the range the geometry was built from
-    - Red, Green, the words and the side agree at every degree of
-      the circle
-    - colour appears on a terminal, and never when piped
-
-  THE GOLDEN FILES.  tests/golden.sh
-
-    Every screen the program can produce deterministically is
-    captured as text and committed - about twenty-six thousand
-    lines of it. Any change to any of it turns up as a diff that
-    somebody has to read and accept on purpose. That is how a
-    small edit to one function gets caught quietly changing
-    forty other screens.
-
-  NOW THE HONEST PART.
-
-  None of that can tell you whether Rule 27 says what this
-  program says it says.
-
-  A test can check that the quiz marks answer C as correct. It
-  cannot check that C is the right answer. It can check that a
-  light table is geometrically consistent. It cannot check that a
-  mine clearance vessel shows those lights. It can check that
-  encounter 14 marks the answer the author intended. It cannot
-  check that the vessel which gives way in it is the one the
-  Convention says gives way - nor even that one of the other
-  three options is not equally defensible.
-
-  Those are judgements against a document, and they need a person
-  holding the document. Which is what the next screen is about.
-
-A6
-}
-about_needs() {
-  cat <<'A7'
-  AND HERE IS WHERE IT IS WORTH MOST.
-
-  These are the claims no test can check, in the order of how
-  much damage a wrong one would do.
-
-  1  WHO GIVES WAY, AND WHAT TO DO.  The twenty-eight encounters,
-     and the sixty-five distinct give-way calls the lights quiz
-     can make.  A wrong light table makes you misname a ship.  A
-     wrong verdict here makes you TURN THE WRONG WAY, which is
-     the difference between a training aid that is imperfect and
-     one that is dangerous.  This logic was written backwards
-     once during development and caught by hand, by a reader, not
-     by any test.  Rules 12 to 18.
-
-  2  THE LIGHT TABLES.  Twenty vessels, and every picture,
-     question and answer is computed from them.  Two errors in
-     them have already been found by users - both by somebody
-     looking at a picture, trying to account for every light in
-     it, and failing.  That is the most productive thing you can
-     do with this program.  Rules 20 to 31 and Annex I.
-
-  3  THE LESSONS.  They paraphrase the rules rather than quote
-     them.  A paraphrase that is nearly right is worse than one
-     that is obviously wrong, because nobody checks it.
-
-  4  DISTRACTORS THAT ARE ALSO CORRECT.  The lights questions are
-     proved to have a single right answer.  The encounters are
-     not.  An option that is also defensible would mark you wrong
-     for being right, and only a person can notice that.
-
-  And there is a tool for exactly this: "colregs review".  It walks
-  through every one of those claims, one at a time, with the drawing
-  in front of you, and builds a report you can send as a GitHub
-  issue.  It does not send anything itself - it prints a link and
-  you open it, so there is no credential in this program to leak and
-  no server for anybody to run.  Credit is opt-in and by name; no
-  email address is asked for or kept.
-
-  5  WHAT IS MISSING.  No test notices an absent vessel, an
-     absent rule, or an exception that goes unmentioned.  Only
-     somebody who knows the rules will see the hole.
-
-A7
-}
-# ---------------------------------------------------------------------
-#  Review: the claims a test cannot check, put to a person one at a
-#  time.  Entirely local.  Nothing here opens a socket; submitting
-#  means the program prints a link and YOU open it, so there is no
-#  credential in this file to leak and no service for anyone to run.
-# ---------------------------------------------------------------------
-rv_file() { echo "$COLREGS_HOME/review.tsv"; }
-rv_save() {   # key state note
-  mkdir -p "$COLREGS_HOME"
-  n=$(printf '%s' "$3" | tr '\t\n' '  ')
-  printf '%s\t%s\t%s\n' "$1" "$2" "$n" >> "$(rv_file)"
-}
-rv_ask_note() {
-  printf "  What is wrong with it? (one line, return to skip): "
-  IFS= read -r RVNOTE || RVNOTE=""
-}
-rv_one() {   # $1 = key ; returns 1 to stop
-  eng -v cmd=rvshow -v key="$1" || return 1
-  printf "  %s  [r] correct   [f] wrong   [c] correct, but a comment\n" "$1"
-  printf "  [return] skip   [q] stop : "
-  IFS= read -r v || return 1
-  case "$v" in
-    r|R) rv_save "$1" ok "" ;;
-    f|F) rv_ask_note; rv_save "$1" flag "$RVNOTE" ;;
-    c|C) rv_ask_note; rv_save "$1" ok "$RVNOTE" ;;
-    q|Q|x|X) return 1 ;;
-    *) : ;;
-  esac
-  return 0
-}
-rv_run() {   # $1 = section, or empty for "carry on from where I left off"
-  if [ -n "$1" ]; then
-    #  NOT  while read k ... done < keyfile :  that redirects the loop
-    #  body's stdin to the key file, so every prompt inside rv_one reads
-    #  a KEY instead of the answer the person typed, and the whole
-    #  section scrolls past unanswered. The keys are plain tokens, so
-    #  word-splitting a single variable is safe and leaves stdin alone.
-    rvkeys=$(eng -v cmd=rvkeys -v which="$1")
-    for k in $rvkeys; do
-      rv_one "$k" || break
-    done
-  else
-    while :; do
-      k=$(eng -v cmd=rvnext -v rfile="$(rv_file)")
-      [ -z "$k" ] && { echo; echo "  Every claim has been looked at.  Thank you."; echo; break; }
-      rv_one "$k" || break
-    done
-  fi
-}
-rv_submit() {
-  RV=$(rv_file)
-  if [ ! -s "$RV" ]; then echo; echo "  Nothing reviewed yet."; echo; return; fi
-  cat <<'S1'
-
-  SENDING IT BACK
-  ---------------------------------------------------------------
-  This builds a report and prints a link that opens a GitHub issue
-  with the report already in it.  The program does not send it -
-  you do, by opening the link.  Nothing leaves this machine until
-  you press return in your browser.
-
-  GitHub signs the issue with your account, so it is not anonymous
-  and there is no email for anybody to collect.
-
-S1
-  printf "  A name to put on it (return to leave it off): "; IFS= read -r who
-  cr=""
-  if [ -n "$who" ]; then
-    printf "  Credit you in CONTRIBUTORS if a correction lands? [y/N] "
-    IFS= read -r c
-    case "$c" in y|Y) cr=yes ;; *) cr=no ;; esac
-  fi
-  dr=""
-  if [ "$stry" -gt 0 ] 2>/dev/null; then
-    printf "  Include your drill record (%s of %s)? [y/N] " "$sok" "$stry"
-    IFS= read -r c
-    case "$c" in y|Y) dr="$sok of $stry" ;; esac
-  fi
-  B="$COLREGS_HOME/review-report.md"
-  eng -v cmd=rvreport -v rfile="$RV" -v rvver="$COLREGS_VERSION" \
-      -v rvwho="$who" -v rvcredit="$cr" -v rvdrill="$dr" > "$B"
-  U=$(eng -v cmd=rvurl -v rfile="$RV" -v rbody="$B" -v rvrepo="$GH_USER")
-  n=$(printf '%s' "$U" | wc -c | tr -d ' ')
-  echo
-  if [ "$n" -lt 7000 ]; then
-    echo "  Open this, check it reads the way you meant, and submit:"
-    echo
-    echo "$U"
-    echo
-    echo "  If that link says the page could not be found, the repository"
-    echo "  is not published yet - nothing you did is wrong, and nothing"
-    echo "  has been lost. The report is a file on this machine either"
-    echo "  way, and you can send it whenever the repository is up."
-  else
-    #  Too long for a URL. Say so plainly rather than silently truncating
-    #  somebody's careful work.
-    echo "  Your review is too long to fit in a link ($n characters)."
-    echo "  It is written out here instead:"
-    echo
-    echo "    $B"
-    echo
-    echo "  Open a new issue and paste or attach that file:"
-    echo
-    echo "    https://github.com/${GH_USER}/bashnav/issues/new"
-  fi
-  echo
-  echo "  The report is also saved at $B"
-  echo
-}
-review_menu() {
-  while :; do
-    cat <<'M'
-
-  REVIEW -- help make it right
-
-  The test suite proves the program works. It cannot prove that what
-  it says about the rules is true. That needs somebody with the
-  Convention open, going through the claims one at a time.
-
-    1  Carry on from where I left off
-    2  Encounter verdicts        who gives way, and what to do
-    3  Give-way calls from her lights
-    4  The light tables
-    5  Rules lesson answers      6  Sound signals      7  Day shapes
-    8  What I have answered so far
-    9  Send it back
-
-    x  back
-M
-    printf "  > "; IFS= read -r c || return 0
-    case "$c" in
-      1) rv_run "" ;;
-      2) rv_run enc ;;  3) rv_run mot ;;  4) rv_run lig ;;
-      5) rv_run les ;;  6) rv_run snd ;;  7) rv_run shp ;;
-      8) eng -v cmd=rvlist -v rfile="$(rv_file)" ;;
-      9) rv_submit ;;
-      x|X|q|Q|"") return 0 ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-
-# ---------------------------------------------------------------------
-pause() { printf "  -- press return --"; IFS= read -r _j; }
-ask1() { printf "  Your answer (a/b/c/d, or return to skip): "; IFS= read -r ANS; }
-
-run_quiz() {   # $1 = qlight|qshape|qsound  $2 = mark cmd
-  while :; do
-    sd=$(newseed)
-    eng -v cmd="$1" -v seed="$sd"
-    ANS2=""
-    if [ "$1" = qlight ]; then
-      printf "  Q1 what is she    (a/b/c/d, or return to skip): "; IFS= read -r ANS
-      [ -z "$ANS" ] && return 0
-      printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
-    else
-      ask1
-      [ -z "$ANS" ] && return 0
-    fi
-    stry=$((stry+1))
-    if eng -v cmd="$2" -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2"; then sok=$((sok+1)); fi
-    save_prog
-    printf "  another? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-run_enc() {
-  while :; do
-    sd=$(newseed)
-    eng -v cmd=enc -v seed="$sd"
-    ask1
-    [ -z "$ANS" ] && return 0
-    stry=$((stry+1))
-    if eng -v cmd=encm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
-    save_prog
-    printf "  another? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-run_scen() {
-  while :; do
-    sd=$(newseed)
-    eng -v cmd=scen -v seed="$sd" || return 0
-    printf "  Q1 risk       (a/b/c)   : "; IFS= read -r q1
-    [ -z "$q1" ] && return 0
-    printf "  Q2 how close  (a/b/c/d) : "; IFS= read -r q2
-    printf "  Q3 action     (a/b/c/d) : "; IFS= read -r q3
-    stry=$((stry+1))
-    if eng -v cmd=scenm -v seed="$sd" -v a1="$q1" -v a2="$q2" -v a3="$q3"; then
-      sok=$((sok+1))
-    fi
-    save_prog
-    printf "  Watch it run? [Y/n] "; IFS= read -r w
-    case "$w" in
-      n|N) ;;
-      *)  t=12
-          while [ "$t" -le 90 ]; do
-            eng -v cmd=scenframe -v seed="$sd" -v ans="$q3" -v tmin="$t"
-            rc=$?
-            [ "$rc" -eq 3 ] && break
-            printf "  -- return for the next six minutes, x to stop -- "; IFS= read -r z
-            case "$z" in x|X|q|Q) break ;; esac
-            t=$((t+6))
-          done
-          eng -v cmd=scenout -v seed="$sd" -v ans="$q3" ;;
-    esac
-    printf "  another scenario? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-do_lesson() {
-  eng -v cmd=lesson -v les_id="$1" || return 1
-  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
-  [ -z "$av" ] && return 0
-  if eng -v cmd=check -v les_id="$1" -v ans="$av"; then mark_done "$1"; fi
-}
-rules_menu() {
-  while :; do
-    eng -v cmd=syllabus -v done="$lessons"
-    printf "  Lesson code, n for the next one, or x to go back: "; IFS= read -r a
-    case "$a" in
-      x|X|"") return ;;
-      n|N) nx=""
-           for L in L1 L2 L3 L4 L5 L6 L7 L8 L9 L10 L11 L12 L13 L14 L15; do
-             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
-           done
-           if [ -z "$nx" ]; then echo "  All fifteen done."; else do_lesson "$nx"; fi ;;
-      *)   do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
-    esac
-  done
-}
-# ---- contacts: bearing drift, the report, and the tracking party ----
-do_clesson() { eng -v cmd=clesson -v les_id="$1" && mark_done "$1"; }
-run_track() {
-  while :; do
-    sd=$(newseed)
-    eng -v cmd=track -v seed="$sd" || return 0
-    printf "  Q1 drift          (a/b/c, or return to skip): "; IFS= read -r t1
-    [ -z "$t1" ] && return 0
-    printf "  Q2 ahead/astern   (a/b/c): "; IFS= read -r t2
-    printf "  Q3 CPA            (a/b/c/d): "; IFS= read -r t3
-    stry=$((stry+1))
-    if eng -v cmd=trackm -v seed="$sd" -v a1="$t1" -v a2="$t2" -v a3="$t3"; then sok=$((sok+1)); fi
-    save_prog
-    printf "  another contact? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-run_ekelund() {
-  while :; do
-    sd=$(newseed)
-    eng -v cmd=ek -v seed="$sd" || return 0
-    printf "  How far off (a/b/c/d, or return to skip): "; IFS= read -r ANS
-    [ -z "$ANS" ] && return 0
-    stry=$((stry+1))
-    if eng -v cmd=ekm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
-    save_prog
-    printf "  another? [Y/n] "; IFS= read -r a
-    case "$a" in n|N|q|Q|x|X) return 0 ;; esac
-  done
-}
-style_name() {
-  case "$1" in
-    rn)     echo "Red and Green" ;;
-    usn)    echo "Port and starboard" ;;
-    rel360) echo "Relative, full circle" ;;
-    words)  echo "Words only" ;;
-    none)   echo "True bearing only" ;;
-    *)      echo "$1" ;;
-  esac
-}
-style_menu() {
-  while :; do
-    cat <<'S0'
-
-  REPORTING STYLE
-  ---------------------------------------------------------------
-  How this program says where a contact lies relative to your own
-  head.  It changes the report and the relative column on the
-  plot.  The true bearing is always given as well, because that is
-  what goes on the chart and what agrees with the radar - this
-  setting only decides how the same angle is said out loud.
-
-  1  Red and Green            "bearing 311, Red 20, drawing left"
-     Royal Navy and British practice.  Red is port and Green is
-     starboard because those are your own sidelights, which is why
-     it is remembered.  The side is carried by a word rather than a
-     digit, so it survives a bad intercom, a following sea and a
-     tired listener.  Nought to 180 each side.
-
-  2  Port and starboard       "bearing 311, Port 20, drawing left"
-     The same information in plainer words, and common in United
-     States and merchant practice.  Longer to say, and the one
-     least likely to be misunderstood by somebody who has never
-     met the Red and Green convention.
-
-  3  Relative, full circle    "bearing 311, 340 relative, ..."
-     Measured clockwise from your own bow, 000 to 359.  Neat on a
-     plot and in a written message.  Worse in the dark, because
-     the listener has to work out for himself which side 340 is
-     on, which is exactly the sum you were trying to save him.
-
-  4  Words only               "bearing 311, fine on the port bow"
-     No number at all.  The slowest to say and the fastest to act
-     on, and the only one that still works when you are shouting
-     to somebody who is not looking at any instrument at all.
-
-  5  True bearing only        "bearing 311, drawing left, ..."
-     No relative bearing.  Correct if whoever you are telling is
-     on the plot rather than on deck.
-
-S0
-    printf "  Now: %s.  Pick 1-5, or x to leave it: " "$(style_name "$rstyle")"
-    IFS= read -r sv || return 0
-    case "$sv" in
-      1) rstyle=rn ;;     2) rstyle=usn ;;  3) rstyle=rel360 ;;
-      4) rstyle=words ;;  5) rstyle=none ;;
-      x|X|q|Q|"") return 0 ;;
-      *) echo "  ?"; continue ;;
-    esac
-    save_conf
-    printf "  reporting style: %s\n" "$(style_name "$rstyle")"
-    return 0
-  done
-}
-contacts_menu() {
-  while :; do
-    eng -v cmd=csyl -v done="$lessons"
-    printf "  Lesson code, t track, e Ekelund, c card, s report style, x back: "
-    IFS= read -r a
-    case "$a" in
-      x|X|"") return ;;
-      t|T) run_track ;;
-      e|E) run_ekelund ;;
-      c|C) eng -v cmd=cref ;;
-      s|S) style_menu ;;
-      n|N) nx=""
-           for L in C1 C2 C3 C4 C5 C6 C7; do
-             case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
-           done
-           if [ -z "$nx" ]; then echo "  All seven done."; else do_clesson "$nx"; fi ;;
-      *)   do_clesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
-    esac
-  done
-}
-mixed_drill() {
-  for k in qlight qshape qsound enc qlight; do
-    sd=$(newseed)
-    case "$k" in
-      enc) eng -v cmd=enc -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
-           stry=$((stry+1)); eng -v cmd=encm -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
-      qlight) eng -v cmd=qlight -v seed="$sd"
-           printf "  Q1 what is she    (a/b/c/d): "; IFS= read -r ANS; [ -z "$ANS" ] && continue
-           printf "  Q2 which way      (a/b/c/d): "; IFS= read -r ANS2
-           stry=$((stry+1)); eng -v cmd=qlightm -v seed="$sd" -v ans="$ANS" -v ans2="$ANS2" && sok=$((sok+1)) ;;
-      *)   eng -v cmd="$k" -v seed="$sd"; ask1; [ -z "$ANS" ] && continue
-           stry=$((stry+1)); eng -v cmd="${k}m" -v seed="$sd" -v ans="$ANS" && sok=$((sok+1)) ;;
-    esac
-    save_prog
-  done
-  echo "  Score so far: $sok of $stry"
-}
-ref_menu() {
-  echo
-  echo "   1  Lights, all of them        2  Day shapes        3  Sound signals"
-  printf "  > "; IFS= read -r a
-  case "$a" in
-    1) eng -v cmd=reflights ;; 2) eng -v cmd=refshapes ;; 3) eng -v cmd=sndtable ;;
-  esac
-}
-help_text() {
-  cat <<'HLP'
-
-  COLREGS -- the rules of the road, drawn in characters
-
-  colregs                  the menu
-  colregs lights           identify vessels by their lights
-  colregs light <key> [brg]  draw one, from any angle
-  colregs shapes           identify vessels by their day shapes
-  colregs shape <key>      draw one
-  colregs encounters       who gives way, and what do you do
-  colregs scenario         a developing situation: plot it, decide, watch it run
-  colregs sound            identify sound signals
-  colregs rules            fifteen lessons on the rules
-  colregs lesson L7        one lesson
-  colregs contacts         bearing drift and contact management
-  colregs track            stand the tracking watch: drift, CPA, the call
-  colregs ekelund          range from a change of course
-  colregs card             the contacts card, on one screen
-  colregs style [rn|usn|rel360|words|none]
-                           how a relative bearing is spoken
-  colregs ref              reference tables
-  colregs colours          check that your terminal shows the lamp colours
-  colregs day|night|plain  colour mode
-  colregs about            why it exists, how it was written, feedback
-  colregs review           check its claims against the Convention, and report
-
-  Bearings are relative to the other vessel: 0 means you are looking
-  at her bow, 090 at her starboard side, 180 at her stern.
-
-HLP
-}
-banner() {
-  echo
-  echo "  ==============================================================="
-  echo "   COLREGS $COLREGS_VERSION   the rules of the road, in characters"
-  echo "  ==============================================================="
-  nl=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]'); [ -n "$nl" ] || nl=0
-  printf "   lessons %s of 15    drills %s/%s    [%s]\n" "$nl" "$sok" "$stry" "$cmode"
-  echo "  ---------------------------------------------------------------"
-}
-menu() {
-  while :; do
-    load_prog
-    banner
-    cat <<'M'
-    1  Lights           what is she, and what is she doing?
-    2  Day shapes       the same meanings, by daylight
-    3  Encounters       who gives way, and what do you do?
-    4  Sound signals    what is she saying?
-    5  The rules        fifteen lessons on the rules themselves
-    6  Mixed drill      one of each, at random
-    7  Collision avoidance   a developing situation: plot it, decide, watch it run
-    8  Contacts         bearing drift, the report, and the tracking party
-
-    r  Reference tables   c  Colour   s  Report style
-    v  Review the rules   a  About   h  Help   q  Quit
-M
-    printf "  > "; IFS= read -r c || exit 0
-    case "$c" in
-      1) run_quiz qlight qlightm ;;
-      2) run_quiz qshape qshapem ;;
-      3) run_enc ;;
-      4) run_quiz qsound qsoundm ;;
-      5) rules_menu ;;
-      6) mixed_drill ;;
-      7) run_scen ;;
-      8) contacts_menu ;;
-      r|R) ref_menu ;;
-      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
-           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
-      s|S) style_menu ;;
-      a|A) about_menu ;;
-      v|V) review_menu ;;
-      h|H|\?) help_text ;;
-      q|Q) unpaint; exit 0 ;;
-      "") ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-
-pick_awk
-install_engine
-load_conf
-load_prog
-case "$1" in
-  ""|menu)  paint; menu ;;
-  lights)   paint; run_quiz qlight qlightm ;;
-  shapes)   paint; run_quiz qshape qshapem ;;
-  sound)    paint; run_quiz qsound qsoundm ;;
-  encounters|enc) paint; run_enc ;;
-  scenario|scen|avoid) paint; run_scen ;;
-  rules)    paint; rules_menu ;;
-  contacts|contact) paint; contacts_menu ;;
-  track)    paint; run_track ;;
-  ekelund)  paint; run_ekelund ;;
-  card)     eng -v cmd=cref ;;
-  style)    shift
-            case "$1" in
-              rn|usn|rel360|words|none) rstyle="$1"; save_conf
-                 echo "reporting style: $(style_name "$rstyle")" ;;
-              "") paint; style_menu ;;
-              *) echo "colregs: style is one of rn usn rel360 words none"; exit 2 ;;
-            esac ;;
-  lesson)   shift; do_lesson "$(echo "${1:-L1}" | tr 'a-z' 'A-Z')" ;;
-  light)    shift; eng -v cmd=light -v key="${1:-power50}" -v th="${2:-40}" -v reveal=1 ;;
-  shape)    shift; eng -v cmd=shape -v key="${1:-ram}" -v reveal=1 ;;
-  ref)      paint; ref_menu ;;
-  colours)  eng -v cmd=colours ;;
-  reflights) eng -v cmd=reflights ;;
-  refshapes) eng -v cmd=refshapes ;;
-  refsound)  eng -v cmd=sndtable ;;
-  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
-  about)    paint; about_menu ;;
-  review)   paint; review_menu ;;
-  where)    echo "engine: $ENGINE"; echo "config: $CONF"; echo "progress: $PROG" ;;
-  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
-  version|--version) echo "colregs $COLREGS_VERSION" ;;
-  help|-h|--help) help_text ;;
-  *) echo "colregs: there is no command '$1'."
-     echo
-     echo "  Drills     lights  shapes  encounters  scenario  sound  rules  lesson"
-     echo "  Contacts   contacts  track  ekelund  card  style"
-     echo "  Look up    light <key> [brg]   shape <key>   ref"
-     echo "  Setup      colours  day  night  plain  about  review  where  version"
-     echo
-     echo "  'colregs help' explains each of them."
-     exit 2 ;;
-esac
+#__BN_END_REVIEW__
 __BN_PAYLOAD_colregs__
 }
 extract_tides() {
@@ -7175,6 +7281,68 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   printf '%s\n' "$HOME/$1"
   return 1
 }
+
+# ---------------------------------------------------------------------
+#  Unpacking the awk engines.
+#
+#  These used to be written with a heredoc:
+#
+#      cat > "$ENGINE" <<'__ENGINE__'
+#      ...the whole engine...
+#      __ENGINE__
+#
+#  a-Shell -- the iPad terminal this project exists for -- DOES NOT
+#  DELIVER A HEREDOC.  Larry ran the three-line test on the device:
+#
+#      cat <<'M'          hangs, and every Return comes back blank,
+#      hello              because cat falls through to the terminal
+#      M
+#
+#  With the output redirected to a file, cat instead sees end of input
+#  straight away and writes NOTHING.  So every engine on that iPad was
+#  ZERO BYTES -- confirmed: wc -c ~/Documents/.celnav/*.awk = 0.  The
+#  tools could never have computed anything; the menus simply hung
+#  first, so that is where it was noticed.
+#
+#  So the payloads now live at the END of each tool, after "exit 0"
+#  where the shell never reads them, between markers, and awk lifts
+#  them out.  No heredoc, and awk is already a hard requirement.
+#
+#  And the result is CHECKED FOR SIZE.  A zero-byte engine must be a
+#  loud failure at install time, not a strange awk error hours later.
+# ---------------------------------------------------------------------
+bn_self() {
+  #  The path to this script.  $0 is it in every normal case; when the
+  #  script was found on PATH by name, ask the shell where it is.
+  if [ -f "$0" ]; then printf '%s\n' "$0"; return 0; fi
+  bn_s_p=$(command -v "$0" 2>/dev/null)
+  if [ -n "$bn_s_p" ] && [ -f "$bn_s_p" ]; then printf '%s\n' "$bn_s_p"; return 0; fi
+  return 1
+}
+#  bn_unpack <TAG> <destination>
+bn_unpack() {
+  bn_u_self=$(bn_self) || {
+    echo "${BN_TOOL:-bashnav}: cannot find my own file to unpack from" >&2; return 1; }
+  [ -n "${AWK:-}" ] || {
+    echo "${BN_TOOL:-bashnav}: no awk was chosen before unpacking" >&2; return 1; }
+  [ -r "$bn_u_self" ] || {
+    echo "${BN_TOOL:-bashnav}: cannot read $bn_u_self" >&2; return 1; }
+  #  </dev/null is the house rule and it is not decoration: awk with no
+  #  readable file argument reads STDIN and sits there forever.  On a
+  #  terminal that is a hang with no message; on an iPad, where there is
+  #  no Ctrl and no Esc, it ends the session.  See docs/ARCHITECTURE.md.
+  $AWK -v s="#__BN_START_$1__" -v e="#__BN_END_$1__" '
+    $0==e { f=0 } f { print } $0==s { f=1 }' "$bn_u_self" > "$2" 2>/dev/null </dev/null || {
+    echo "${BN_TOOL:-bashnav}: could not write $2" >&2; return 1; }
+  if [ ! -s "$2" ]; then
+    echo "${BN_TOOL:-bashnav}: unpacked $1 and got an empty file." >&2
+    echo "  Looked in: $bn_u_self" >&2
+    echo "  The file is probably truncated, or awk ($AWK) cannot read it." >&2
+    rm -f "$2"
+    return 1
+  fi
+  return 0
+}
 # =====================================================================
 #  tides -- harmonic tide prediction, offline
 #  Part of Bash Navigation Software.  https://github.com/larrys614/bashnav
@@ -7202,12 +7370,11 @@ pick_awk() {
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
   AWK=awk
-  cat >&2 <<'NOMATH'
-tides: no awk with trigonometric functions was found.
-  On macOS:         nothing to do - the built-in awk already has it.
-  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk
-  On Debian:        sudo apt install gawk
-NOMATH
+  printf '%s\n' \
+    'tides: no awk with trigonometric functions was found.' \
+    '  On macOS:         nothing to do - the built-in awk already has it.' \
+    '  On iSH (Alpine):  apk add gawk      On Termux: pkg install gawk' \
+    '  On Debian:        sudo apt install gawk' >&2
   return 1
 }
 load_conf() {
@@ -7240,7 +7407,271 @@ utctoday() { date -u '+%Y-%m-%d'; }
 
 # ---- data extraction (written once, then reused) -------------------
 extract_data() {
-  cat > "$TABLES" <<'__TIDES_TABLES__'
+  bn_unpack TABLES "$TABLES" || exit 1
+  bn_unpack ENGINE "$ENGINE" || exit 1
+  [ "$ISTTY" = 1 ] && printf "extracting the station data, once ... " >&2
+  bn_unpack STATIONS "$STATIONS" || exit 1
+  [ "$ISTTY" = 1 ] && echo "done" >&2
+  return 0
+}
+# ---------------------------------------------------------------------
+install_engine() {
+  if [ -f "$ENGINE" ] && [ -f "$TABLES" ] && [ -f "$STATIONS" ]; then
+    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
+  fi
+  mkdir -p "$TIDES_HOME" 2>/dev/null || { echo "tides: cannot create $TIDES_HOME" >&2; exit 1; }
+  extract_data
+}
+need_station() {
+  [ -n "$station" ] && return 0
+  printf '%s\n' \
+    '' \
+    '  No station chosen yet. A tide is not computable from a position: it' \
+    '  depends on the shape of the coast and the depth of the basin, so it' \
+    '  has to be measured somewhere and that somewhere is a station.' \
+    '' \
+    '    tides near 50.15 -5.07     the stations nearest a position' \
+    '    tides find falmouth        by name' \
+    '    tides use <id>             choose one' \
+    ''
+  return 1
+}
+#  A list is on screen; let the person choose by number.  The numbers
+#  are read back from the engine's quiet output, not scraped off the
+#  drawn list: a station called "Pier 39" would break that the first
+#  time somebody searched for it.
+#  A list is on screen; let the person choose by number.  The numbers
+#  come from the side file the engine wrote during the same run that
+#  drew the list, not from scraping the drawing: a station called
+#  "Pier 39" would break that the first time somebody searched for it.
+pick_from_list() {
+  [ -s "$LISTFILE" ] || return 1
+  printf "  Number to use it, or return to search again: "
+  IFS= read -r n || return 1
+  [ -z "$n" ] && return 1
+  case "$n" in *[!0-9]*) echo "  that is not a number"; return 1 ;; esac
+  row=$($AWK -F'|' -v n="$n" '$1==n{print; exit}' "$LISTFILE")
+  [ -z "$row" ] && { echo "  there is no $n in that list"; return 1; }
+  station=$(printf '%s\n' "$row" | cut -d'|' -f2)
+  stationname=$(printf '%s\n' "$row" | cut -d'|' -f3)
+  save_conf
+  printf "  station: %s\n" "$stationname"
+  printf "  %s\n" "$station"
+  return 0
+}
+#  Declining to pick a station is a normal outcome, not a failure: these
+#  return 0 either way, so a caller running under 'set -e' is not killed
+#  by somebody pressing return.
+do_near() {
+  : > "$LISTFILE"
+  eng -v cmd=near -v lat="$1" -v lon="$2" -v k="${3:-10}" -v rawto="$LISTFILE"
+  pick_from_list || true
+  return 0
+}
+do_find() {
+  : > "$LISTFILE"
+  eng -v cmd=search -v q="$1" -v k="${2:-20}" -v rawto="$LISTFILE"
+  pick_from_list || true
+  return 0
+}
+#  Searching by name from the menu keeps asking until something is
+#  chosen or the person gives up.  A first guess at a station name is
+#  usually wrong, and having to walk back out to the menu to try again
+#  is what makes people stop looking.
+find_loop() {
+  while :; do
+    printf "\n  name, or part of one (return to go back): "
+    IFS= read -r q || return 0
+    [ -z "$q" ] && return 0
+    : > "$LISTFILE"
+    eng -v cmd=search -v q="$q" -v k=20 -v rawto="$LISTFILE"
+    [ -s "$LISTFILE" ] || continue
+    pick_from_list && return 0
+  done
+}
+do_day() {
+  need_station || return 1
+  d="${1:-$(utctoday)}"
+  y=$(echo "$d" | cut -d- -f1); m=$(echo "$d" | cut -d- -f2); dd=$(echo "$d" | cut -d- -f3)
+  eng -v cmd=day -v id="$station" -v yy="$y" -v mm="$m" -v dd="$dd" -v sky="${SKY:-0}" \
+      -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" \
+      -v charted="$CHARTED" -v draft="$DRAFT" -v clear="$CLEAR" -v air="$AIR" -v mast="$MAST"
+}
+help_text() {
+  printf '%s\n' \
+    '' \
+    '  TIDES -- harmonic tide prediction, with no network and no subscription' \
+    '' \
+    '  tides                    the menu' \
+    '  tides near <lat> <lon>   the stations nearest a position' \
+    '  tides find <text>        search for a station by name' \
+    '  tides use <id>           choose a station' \
+    '  tides today [date]       the day'\''s table, curve and depth helper' \
+    '  tides sky [date]         the same, with the moon and sun panel' \
+    '  tides where              which station is chosen, and where the files are' \
+    '  tides day|night|plain    colour mode' \
+    '  tides about              what this is, where the data comes from' \
+    '  tides version' \
+    '' \
+    '  Dates are YYYY-MM-DD.  Times are the station'\''s own standard time -' \
+    '  no summer time, exactly like a printed tide table.' \
+    '' \
+    '  FINDING A STATION' \
+    '' \
+    '  Nobody guesses a station'\''s exact name: the database calls a place' \
+    '  "NEW LONDON  State Pier" or "Chappaquoit Point  West Falmouth' \
+    '  Harbor".  So type part of it and pick from the numbered list.' \
+    '' \
+    '  Every word you type has to appear somewhere in the name, the state' \
+    '  or the country, but in any order and anywhere inside a word, so' \
+    '  "lon new" finds New London just as well as "new london" does.' \
+    '' \
+    '  If you want more control, the text is used as a regular expression' \
+    '  the moment it contains any of  ^ $ . [ ] | ( ) * + ? { } \' \
+    '' \
+    '    tides find "^st mary"        names that start with St Mary' \
+    '    tides find "bay$"            names that end in Bay' \
+    '    tides find "falmouth|mystic" either one' \
+    '    tides find "port.*bay"       Port, then anything, then Bay' \
+    '' \
+    '  A pattern that is not a valid regular expression is searched as' \
+    '  plain text instead rather than refusing to answer.' \
+    '' \
+    '  A tide cannot be computed from a position. It depends on the shape of' \
+    '  the coast and the depth and resonance of the basin, so every place' \
+    '  needs constants somebody measured there. That is why you pick a' \
+    '  station and not a place, and why the nearest one by straight line can' \
+    '  be on the wrong side of a headland.' \
+    ''
+}
+menu() {
+  while :; do
+    load_conf
+    echo
+    echo "  ==============================================================="
+    echo "   TIDES $TIDES_VERSION   harmonic prediction, offline"
+    echo "  ==============================================================="
+    if [ -n "$station" ]; then echo "   station: $stationname"
+    else echo "   no station chosen"; fi
+    printf '%s\n' \
+      '' \
+      '    1  Today' \
+      '    2  Another day' \
+      '    3  Today, with the moon and sun' \
+      '    4  Depth and clearance' \
+      '    5  Choose a station by name' \
+      '    6  Choose a station near a position' \
+      '' \
+      '    c  Colour   a  About   h  Help   q  Quit'
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) SKY=0; do_day ;;
+      2) printf "  date (YYYY-MM-DD): "; IFS= read -r d; SKY=0; do_day "$d" ;;
+      3) SKY=1; do_day ;;
+      4) ask_depth; SKY=0; do_day; CHARTED=""; DRAFT=""; CLEAR=""; AIR=""; MAST="" ;;
+      5) find_loop ;;
+      6) printf "  latitude: "; IFS= read -r la; printf "  longitude: "; IFS= read -r lo
+         [ -n "$la" ] && do_near "$la" "$lo" ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      a|A) about_text ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+ask_depth() {
+  echo
+  echo "  Leave any of these blank to skip it."
+  printf "  charted depth at the spot (m): "; IFS= read -r CHARTED
+  if [ -n "$CHARTED" ]; then
+    printf "  your draught (m): "; IFS= read -r DRAFT
+    printf "  water you want under the keel (m): "; IFS= read -r CLEAR
+  fi
+  printf "  charted height of a bridge (m, above HAT): "; IFS= read -r AIR
+  [ -n "$AIR" ] && { printf "  your air draught (m): "; IFS= read -r MAST; }
+}
+about_text() {
+  printf '%s\n' \
+    '' \
+    '  TIDES -- what it is, and what it is not' \
+    '  ---------------------------------------------------------------' \
+    '  Harmonic prediction from constants measured at each station, with' \
+    '  no network and no subscription. 8,334 stations: 6,090 with their' \
+    '  own harmonic constants and 2,244 that offset from a neighbour,' \
+    '  which is exactly how a printed tide table is built.' \
+    '' \
+    '  CHECKED AGAINST NOAA'\''s OWN PUBLISHED TABLES.  Twenty-four high and' \
+    '  low waters at six stations spanning small and large ranges, mixed' \
+    '  and diurnal regimes: a mean error of 2.4 minutes and 1.0 cm, worst' \
+    '  5.9 minutes and 2.0 cm. The fixture is committed, so the check runs' \
+    '  with no network like everything else here.' \
+    '' \
+    '  WHAT IT DOES NOT KNOW.  The weather. A deep low can raise the sea' \
+    '  half a metre above prediction and a hard high can drop it as far;' \
+    '  wind piles water onto a lee shore and drains a weather one. River' \
+    '  flow after rain does the same. A prediction is the astronomical' \
+    '  tide and nothing else, and on the day the water does what it' \
+    '  likes.' \
+    '' \
+    '  Nor does it know about summer time. Times are the station'\''s own' \
+    '  standard time, exactly like a printed table, because that is what' \
+    '  the offsets in the data are referenced to.' \
+    '' \
+    '  DATA.  NOAA harmonic constants: works of the U.S. federal' \
+    '  government, public domain. TICON-4 harmonic constants: Piccioni,' \
+    '  Dettmering, Schwatke, Passaro and Seitz, CC BY 4.0. Assembled by' \
+    '  way of the neaps tide-database project, CC BY 4.0. That attribution' \
+    '  travels with the data and is not changed by this program'\''s licence.' \
+    '  See NOTICE.' \
+    '' \
+    '  Copyright 2026 M. Larry Sherman.  Apache License 2.0.  NO WARRANTY.' \
+    '  Carry a paper tide table.' \
+    ''
+}
+# ---- entry point ----------------------------------------------------
+pick_awk
+install_engine
+load_conf
+case "$1" in
+  ""|menu) paint; menu ;;
+  near)    shift; do_near "$1" "$2" "${3:-10}" ;;
+  find|search) shift; do_find "$1" ;;
+  use)     shift
+           n=$(eng -v cmd=info -v id="$1" -v yy=2026 -v mm=1 -v dd=1 | cut -d'|' -f2)
+           [ -z "$n" ] && { echo "tides: no station with that id"; exit 2; }
+           station="$1"; stationname="$n"; save_conf; echo "station: $stationname" ;;
+  today)   shift; SKY=0; do_day "$1" ;;
+  sky)     shift; SKY=1; do_day "$1" ;;
+  height)  shift
+           need_station || exit 1
+           d="${1:-$(utctoday)}"; t="${2:-12:00}"
+           eng -v cmd=height -v id="$station" \
+               -v yy=$(echo "$d"|cut -d- -f1) -v mm=$(echo "$d"|cut -d- -f2) \
+               -v dd=$(echo "$d"|cut -d- -f3) \
+               -v hh=$(echo "$t"|cut -d: -f1) -v mi=$(echo "$t"|cut -d: -f2) ;;
+  where)   echo "station: ${stationname:-none} ${station}"
+           echo "engine:  $ENGINE"
+           echo "data:    $STATIONS"
+           echo "config:  $CONF" ;;
+  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
+  about)   about_text ;;
+  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
+  help|-h|--help) help_text ;;
+  version|--version) echo "tides $TIDES_VERSION" ;;
+  *) echo "tides: there is no command '$1'."
+     echo
+     echo "  Working    today  sky  height  near  find  use"
+     echo "  Setup      day  night  plain  about  where  version"
+     echo
+     echo "  'tides help' explains each of them."
+     exit 2 ;;
+esac
+
+exit 0
+#__BN_START_TABLES__
 # generated by src/tides/gen/make_tables.py from UTide v1p0 - do not edit
 function tide_tables_init(   i,n,a){
   if(TT_READY) return
@@ -7304,8 +7735,8 @@ function tide_tables_init(   i,n,a){
   for(i=1;i<=n;i++){ split(a[i],CF,"|"); HIN[i]=CF[1]+0; HCO[i]=CF[2]+0 }
   TT_READY=1
 }
-__TIDES_TABLES__
-  cat > "$ENGINE" <<'__TIDES_ENGINE__'
+#__BN_END_TABLES__
+#__BN_START_ENGINE__
 # =====================================================================
 #  tides -- harmonic tide prediction
 #  Part of Bash Navigation Software.  Pure POSIX awk, no network.
@@ -8304,9 +8735,8 @@ BEGIN{
   }
   else if(cmd!=""){ print "tides: unknown cmd " cmd; exit 2 }
 }
-__TIDES_ENGINE__
-  [ "$ISTTY" = 1 ] && printf "extracting the station data, once ... " >&2
-  cat > "$STATIONS" <<'__TIDES_STATIONS__'
+#__BN_END_ENGINE__
+#__BN_START_STATIONS__
 # Bash Navigation Software tide station data
 # NOAA harmonics: public domain. TICON-4 harmonics: CC BY 4.0.
 # Assembled from https://github.com/neaps/tide-database (CC BY 4.0).
@@ -16644,269 +17074,7 @@ R|ticon/zollenspieker-5930090-deu-wsv|Zollenspieker|Hamburg|Germany|53.39870|10.
 R|ticon/zuidland-zuidld-nld-rws_hist|Zuidland|South Holland|Netherlands|51.80555|4.28292|60|312|LAT|30|24:138:1257,22:21:1022,29:30:1864,31:9:1848,20:2:608,12:2:3057,13:16:367,11:5:533,10:25:2326,8:8:1815,43:21:1581,3:10:1212,5:16:1823,1:42:2238,2:31:1652,28:4:1614,15:1:921,27:14:1525,30:1:412,6:2:1025,4:38:742,19:4:2301,21:19:2448,23:9:898,26:6:1460,42:7:1394,45:13:2204,25:3:3109,40:2:1153,59:9:1533,67:5:1977,48:1:3143,18:1:2329,9:2:1948,7:2:1601,33:4:601,61:8:2149,54:1:2583,50:2:2950
 R|ticon/zuidoord-zuidod-nld-rws_hist|Zuidoord|South Holland|Netherlands|51.79358|4.25306|60|475|LAT|123|24:132:1510,22:61:1267,29:26:2175,31:3:2297,20:11:3538,12:3:3005,13:16:515,11:8:797,10:28:2478,8:10:1955,43:4:3018,3:34:2984,5:54:1294,1:76:1991,2:60:1394,28:3:2355,15:1:1667,27:15:2684,30:2:3147,6:3:2062,4:19:711,19:7:2569,21:22:2605,23:9:1785,26:13:2096,42:1:2951,45:1:3375,25:23:100,40:1:1160,59:6:968,67:3:1762,48:1:2264,18:2:2184,9:5:3343,7:3:2229,33:4:833,61:6:1662,54:1:1856,50:1:2119
 R|ticon/zwartsluistg-zwa-nld-cmems|Zwartsluis|Overijssel|Netherlands|52.63880|6.07840|60|161|LAT|7|24:9:474,22:2:409,29:5:1476,31:1:1232,12:15:694,13:6:596,11:6:674,10:1:3493,8:1:3526,43:2:2108,3:5:2066,5:3:967,1:69:72,2:61:2327,28:2:494,27:1:353,30:2:1806,6:1:452,4:2:2232,19:1:906,21:1:1246,23:1:187,42:1:1995,45:1:2742,9:1:1009,7:1:2127,33:1:328
-__TIDES_STATIONS__
-  [ "$ISTTY" = 1 ] && echo "done" >&2
-  return 0
-}
-# ---------------------------------------------------------------------
-install_engine() {
-  if [ -f "$ENGINE" ] && [ -f "$TABLES" ] && [ -f "$STATIONS" ]; then
-    [ "$1" = force ] || { [ -f "$0" ] && [ "$0" -nt "$ENGINE" ] 2>/dev/null; } || return 0
-  fi
-  mkdir -p "$TIDES_HOME" 2>/dev/null || { echo "tides: cannot create $TIDES_HOME" >&2; exit 1; }
-  extract_data
-}
-need_station() {
-  [ -n "$station" ] && return 0
-  cat <<'NS'
-
-  No station chosen yet. A tide is not computable from a position: it
-  depends on the shape of the coast and the depth of the basin, so it
-  has to be measured somewhere and that somewhere is a station.
-
-    tides near 50.15 -5.07     the stations nearest a position
-    tides find falmouth        by name
-    tides use <id>             choose one
-
-NS
-  return 1
-}
-#  A list is on screen; let the person choose by number.  The numbers
-#  are read back from the engine's quiet output, not scraped off the
-#  drawn list: a station called "Pier 39" would break that the first
-#  time somebody searched for it.
-#  A list is on screen; let the person choose by number.  The numbers
-#  come from the side file the engine wrote during the same run that
-#  drew the list, not from scraping the drawing: a station called
-#  "Pier 39" would break that the first time somebody searched for it.
-pick_from_list() {
-  [ -s "$LISTFILE" ] || return 1
-  printf "  Number to use it, or return to search again: "
-  IFS= read -r n || return 1
-  [ -z "$n" ] && return 1
-  case "$n" in *[!0-9]*) echo "  that is not a number"; return 1 ;; esac
-  row=$($AWK -F'|' -v n="$n" '$1==n{print; exit}' "$LISTFILE")
-  [ -z "$row" ] && { echo "  there is no $n in that list"; return 1; }
-  station=$(printf '%s\n' "$row" | cut -d'|' -f2)
-  stationname=$(printf '%s\n' "$row" | cut -d'|' -f3)
-  save_conf
-  printf "  station: %s\n" "$stationname"
-  printf "  %s\n" "$station"
-  return 0
-}
-#  Declining to pick a station is a normal outcome, not a failure: these
-#  return 0 either way, so a caller running under 'set -e' is not killed
-#  by somebody pressing return.
-do_near() {
-  : > "$LISTFILE"
-  eng -v cmd=near -v lat="$1" -v lon="$2" -v k="${3:-10}" -v rawto="$LISTFILE"
-  pick_from_list || true
-  return 0
-}
-do_find() {
-  : > "$LISTFILE"
-  eng -v cmd=search -v q="$1" -v k="${2:-20}" -v rawto="$LISTFILE"
-  pick_from_list || true
-  return 0
-}
-#  Searching by name from the menu keeps asking until something is
-#  chosen or the person gives up.  A first guess at a station name is
-#  usually wrong, and having to walk back out to the menu to try again
-#  is what makes people stop looking.
-find_loop() {
-  while :; do
-    printf "\n  name, or part of one (return to go back): "
-    IFS= read -r q || return 0
-    [ -z "$q" ] && return 0
-    : > "$LISTFILE"
-    eng -v cmd=search -v q="$q" -v k=20 -v rawto="$LISTFILE"
-    [ -s "$LISTFILE" ] || continue
-    pick_from_list && return 0
-  done
-}
-do_day() {
-  need_station || return 1
-  d="${1:-$(utctoday)}"
-  y=$(echo "$d" | cut -d- -f1); m=$(echo "$d" | cut -d- -f2); dd=$(echo "$d" | cut -d- -f3)
-  eng -v cmd=day -v id="$station" -v yy="$y" -v mm="$m" -v dd="$dd" -v sky="${SKY:-0}" \
-      -v nowdate="$(utctoday)" -v nowtime="$(date -u '+%H:%M')" \
-      -v charted="$CHARTED" -v draft="$DRAFT" -v clear="$CLEAR" -v air="$AIR" -v mast="$MAST"
-}
-help_text() {
-  cat <<'HLP'
-
-  TIDES -- harmonic tide prediction, with no network and no subscription
-
-  tides                    the menu
-  tides near <lat> <lon>   the stations nearest a position
-  tides find <text>        search for a station by name
-  tides use <id>           choose a station
-  tides today [date]       the day's table, curve and depth helper
-  tides sky [date]         the same, with the moon and sun panel
-  tides where              which station is chosen, and where the files are
-  tides day|night|plain    colour mode
-  tides about              what this is, where the data comes from
-  tides version
-
-  Dates are YYYY-MM-DD.  Times are the station's own standard time -
-  no summer time, exactly like a printed tide table.
-
-  FINDING A STATION
-
-  Nobody guesses a station's exact name: the database calls a place
-  "NEW LONDON  State Pier" or "Chappaquoit Point  West Falmouth
-  Harbor".  So type part of it and pick from the numbered list.
-
-  Every word you type has to appear somewhere in the name, the state
-  or the country, but in any order and anywhere inside a word, so
-  "lon new" finds New London just as well as "new london" does.
-
-  If you want more control, the text is used as a regular expression
-  the moment it contains any of  ^ $ . [ ] | ( ) * + ? { } \
-
-    tides find "^st mary"        names that start with St Mary
-    tides find "bay$"            names that end in Bay
-    tides find "falmouth|mystic" either one
-    tides find "port.*bay"       Port, then anything, then Bay
-
-  A pattern that is not a valid regular expression is searched as
-  plain text instead rather than refusing to answer.
-
-  A tide cannot be computed from a position. It depends on the shape of
-  the coast and the depth and resonance of the basin, so every place
-  needs constants somebody measured there. That is why you pick a
-  station and not a place, and why the nearest one by straight line can
-  be on the wrong side of a headland.
-
-HLP
-}
-menu() {
-  while :; do
-    load_conf
-    echo
-    echo "  ==============================================================="
-    echo "   TIDES $TIDES_VERSION   harmonic prediction, offline"
-    echo "  ==============================================================="
-    if [ -n "$station" ]; then echo "   station: $stationname"
-    else echo "   no station chosen"; fi
-    cat <<'M'
-
-    1  Today
-    2  Another day
-    3  Today, with the moon and sun
-    4  Depth and clearance
-    5  Choose a station by name
-    6  Choose a station near a position
-
-    c  Colour   a  About   h  Help   q  Quit
-M
-    printf "  > "; IFS= read -r c || exit 0
-    case "$c" in
-      1) SKY=0; do_day ;;
-      2) printf "  date (YYYY-MM-DD): "; IFS= read -r d; SKY=0; do_day "$d" ;;
-      3) SKY=1; do_day ;;
-      4) ask_depth; SKY=0; do_day; CHARTED=""; DRAFT=""; CLEAR=""; AIR=""; MAST="" ;;
-      5) find_loop ;;
-      6) printf "  latitude: "; IFS= read -r la; printf "  longitude: "; IFS= read -r lo
-         [ -n "$la" ] && do_near "$la" "$lo" ;;
-      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
-           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
-      a|A) about_text ;;
-      h|H|\?) help_text ;;
-      q|Q) unpaint; exit 0 ;;
-      "") ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-ask_depth() {
-  echo
-  echo "  Leave any of these blank to skip it."
-  printf "  charted depth at the spot (m): "; IFS= read -r CHARTED
-  if [ -n "$CHARTED" ]; then
-    printf "  your draught (m): "; IFS= read -r DRAFT
-    printf "  water you want under the keel (m): "; IFS= read -r CLEAR
-  fi
-  printf "  charted height of a bridge (m, above HAT): "; IFS= read -r AIR
-  [ -n "$AIR" ] && { printf "  your air draught (m): "; IFS= read -r MAST; }
-}
-about_text() {
-  cat <<'ABT'
-
-  TIDES -- what it is, and what it is not
-  ---------------------------------------------------------------
-  Harmonic prediction from constants measured at each station, with
-  no network and no subscription. 8,334 stations: 6,090 with their
-  own harmonic constants and 2,244 that offset from a neighbour,
-  which is exactly how a printed tide table is built.
-
-  CHECKED AGAINST NOAA's OWN PUBLISHED TABLES.  Twenty-four high and
-  low waters at six stations spanning small and large ranges, mixed
-  and diurnal regimes: a mean error of 2.4 minutes and 1.0 cm, worst
-  5.9 minutes and 2.0 cm. The fixture is committed, so the check runs
-  with no network like everything else here.
-
-  WHAT IT DOES NOT KNOW.  The weather. A deep low can raise the sea
-  half a metre above prediction and a hard high can drop it as far;
-  wind piles water onto a lee shore and drains a weather one. River
-  flow after rain does the same. A prediction is the astronomical
-  tide and nothing else, and on the day the water does what it
-  likes.
-
-  Nor does it know about summer time. Times are the station's own
-  standard time, exactly like a printed table, because that is what
-  the offsets in the data are referenced to.
-
-  DATA.  NOAA harmonic constants: works of the U.S. federal
-  government, public domain. TICON-4 harmonic constants: Piccioni,
-  Dettmering, Schwatke, Passaro and Seitz, CC BY 4.0. Assembled by
-  way of the neaps tide-database project, CC BY 4.0. That attribution
-  travels with the data and is not changed by this program's licence.
-  See NOTICE.
-
-  Copyright 2026 M. Larry Sherman.  Apache License 2.0.  NO WARRANTY.
-  Carry a paper tide table.
-
-ABT
-}
-# ---- entry point ----------------------------------------------------
-pick_awk
-install_engine
-load_conf
-case "$1" in
-  ""|menu) paint; menu ;;
-  near)    shift; do_near "$1" "$2" "${3:-10}" ;;
-  find|search) shift; do_find "$1" ;;
-  use)     shift
-           n=$(eng -v cmd=info -v id="$1" -v yy=2026 -v mm=1 -v dd=1 | cut -d'|' -f2)
-           [ -z "$n" ] && { echo "tides: no station with that id"; exit 2; }
-           station="$1"; stationname="$n"; save_conf; echo "station: $stationname" ;;
-  today)   shift; SKY=0; do_day "$1" ;;
-  sky)     shift; SKY=1; do_day "$1" ;;
-  height)  shift
-           need_station || exit 1
-           d="${1:-$(utctoday)}"; t="${2:-12:00}"
-           eng -v cmd=height -v id="$station" \
-               -v yy=$(echo "$d"|cut -d- -f1) -v mm=$(echo "$d"|cut -d- -f2) \
-               -v dd=$(echo "$d"|cut -d- -f3) \
-               -v hh=$(echo "$t"|cut -d: -f1) -v mi=$(echo "$t"|cut -d: -f2) ;;
-  where)   echo "station: ${stationname:-none} ${station}"
-           echo "engine:  $ENGINE"
-           echo "data:    $STATIONS"
-           echo "config:  $CONF" ;;
-  day|night|plain) cmode="$1"; save_conf; echo "colour mode: $cmode" ;;
-  about)   about_text ;;
-  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
-  help|-h|--help) help_text ;;
-  version|--version) echo "tides $TIDES_VERSION" ;;
-  *) echo "tides: there is no command '$1'."
-     echo
-     echo "  Working    today  sky  height  near  find  use"
-     echo "  Setup      day  night  plain  about  where  version"
-     echo
-     echo "  'tides help' explains each of them."
-     exit 2 ;;
-esac
+#__BN_END_STATIONS__
 __BN_PAYLOAD_tides__
 }
 extract_decklog() {
@@ -16952,6 +17120,68 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   #  caller's own error message is one they can act on, and fail there.
   printf '%s\n' "$HOME/$1"
   return 1
+}
+
+# ---------------------------------------------------------------------
+#  Unpacking the awk engines.
+#
+#  These used to be written with a heredoc:
+#
+#      cat > "$ENGINE" <<'__ENGINE__'
+#      ...the whole engine...
+#      __ENGINE__
+#
+#  a-Shell -- the iPad terminal this project exists for -- DOES NOT
+#  DELIVER A HEREDOC.  Larry ran the three-line test on the device:
+#
+#      cat <<'M'          hangs, and every Return comes back blank,
+#      hello              because cat falls through to the terminal
+#      M
+#
+#  With the output redirected to a file, cat instead sees end of input
+#  straight away and writes NOTHING.  So every engine on that iPad was
+#  ZERO BYTES -- confirmed: wc -c ~/Documents/.celnav/*.awk = 0.  The
+#  tools could never have computed anything; the menus simply hung
+#  first, so that is where it was noticed.
+#
+#  So the payloads now live at the END of each tool, after "exit 0"
+#  where the shell never reads them, between markers, and awk lifts
+#  them out.  No heredoc, and awk is already a hard requirement.
+#
+#  And the result is CHECKED FOR SIZE.  A zero-byte engine must be a
+#  loud failure at install time, not a strange awk error hours later.
+# ---------------------------------------------------------------------
+bn_self() {
+  #  The path to this script.  $0 is it in every normal case; when the
+  #  script was found on PATH by name, ask the shell where it is.
+  if [ -f "$0" ]; then printf '%s\n' "$0"; return 0; fi
+  bn_s_p=$(command -v "$0" 2>/dev/null)
+  if [ -n "$bn_s_p" ] && [ -f "$bn_s_p" ]; then printf '%s\n' "$bn_s_p"; return 0; fi
+  return 1
+}
+#  bn_unpack <TAG> <destination>
+bn_unpack() {
+  bn_u_self=$(bn_self) || {
+    echo "${BN_TOOL:-bashnav}: cannot find my own file to unpack from" >&2; return 1; }
+  [ -n "${AWK:-}" ] || {
+    echo "${BN_TOOL:-bashnav}: no awk was chosen before unpacking" >&2; return 1; }
+  [ -r "$bn_u_self" ] || {
+    echo "${BN_TOOL:-bashnav}: cannot read $bn_u_self" >&2; return 1; }
+  #  </dev/null is the house rule and it is not decoration: awk with no
+  #  readable file argument reads STDIN and sits there forever.  On a
+  #  terminal that is a hang with no message; on an iPad, where there is
+  #  no Ctrl and no Esc, it ends the session.  See docs/ARCHITECTURE.md.
+  $AWK -v s="#__BN_START_$1__" -v e="#__BN_END_$1__" '
+    $0==e { f=0 } f { print } $0==s { f=1 }' "$bn_u_self" > "$2" 2>/dev/null </dev/null || {
+    echo "${BN_TOOL:-bashnav}: could not write $2" >&2; return 1; }
+  if [ ! -s "$2" ]; then
+    echo "${BN_TOOL:-bashnav}: unpacked $1 and got an empty file." >&2
+    echo "  Looked in: $bn_u_self" >&2
+    echo "  The file is probably truncated, or awk ($AWK) cannot read it." >&2
+    rm -f "$2"
+    return 1
+  fi
+  return 0
 }
 # =====================================================================
 #  deck-log -- the boat's records: deck, engine, provisions.
@@ -17059,7 +17289,465 @@ install_engine() {
   fi
   mkdir -p "$DECKLOG_HOME" 2>/dev/null || {
     echo "deck-log: cannot create $DECKLOG_HOME" >&2; exit 1; }
-  cat > "$ENGINE" <<'__DECKLOG_ENGINE__'
+  bn_unpack ENGINE "$ENGINE" || exit 1
+}
+
+about_text() {
+  printf '%s\n' \
+    '' \
+    '  ===============================================================' \
+    '   DECK-LOG -- the boat'\''s records' \
+    '  ===============================================================' \
+    '' \
+    '  WHAT THIS IS' \
+    '' \
+    '  The deck log, the engine log and the provisions list, kept in one' \
+    '  place because they are the same book with different tabs, written by' \
+    '  the same person at the same moment.' \
+    '' \
+    '  A LOG IS A RECORD' \
+    '' \
+    '  It has standing after an incident, and it is read by people who were' \
+    '  not there. So:' \
+    '' \
+    '    - it is APPEND ONLY. Nothing is ever edited or deleted.' \
+    '    - a CORRECTION is a new entry that references the old one, and both' \
+    '      stay visible for ever. That is the electronic version of lining' \
+    '      through and initialling, which is how it has always been done.' \
+    '    - every timestamp is UTC. Display is another matter; the record is' \
+    '      UTC, so nobody has to argue later about whose local time it was.' \
+    '' \
+    '  DECLINING IS AN ANSWER' \
+    '' \
+    '  Return records "-", meaning asked and not taken. "/" means it could' \
+    '  not be observed - dark, fog, behind something. Both are true entries' \
+    '  and both are better than a guess. A form that punishes blanks gets' \
+    '  invented numbers, and an invented number in a log is worse than a' \
+    '  gap, because it looks like data.' \
+    '' \
+    '  Zero is a reading. "Cloud nil" and "cloud not observed" are different' \
+    '  facts and this log can tell them apart.' \
+    '' \
+    '  WHAT IS DERIVED, AND WHAT IS STORED' \
+    '' \
+    '  There is no stored inventory. What an impeller IS - its number, what' \
+    '  it fits, how many to carry - is registry. How many you HAVE is worked' \
+    '  out by replaying the log. So the count can never disagree with the' \
+    '  log, because it is the log.' \
+    '' \
+    '  THE OBSERVATION FOLLOWS THE VOS STANDARD' \
+    '' \
+    '  NOAA'\''s Voluntary Observing Ship programme defines what a ship' \
+    '  observes and how it is coded, so the coded fields here are theirs,' \
+    '  not ours. Learn this form and you have learned the professional one,' \
+    '  and your log is comparable with every other marine observation ever' \
+    '  taken.' \
+    '' \
+    '  WHO WROTE IT' \
+    '' \
+    '  M. Larry Sherman had the ideas and the sea time. Claude wrote the' \
+    '  code. Part of Bash Navigation Software, with celnav, colregs and' \
+    '  tides.' \
+    '' \
+    '  https://github.com/larrys614/bashnav' \
+    '' \
+    '  Apache License 2.0.' \
+    ''
+}
+
+#  ask_menu <key> <fieldname>   - a coded field: one keypress, no return
+ask_menu() {
+  eng -v cmd=menu -v what="$1"
+  while :; do
+    printf "  > "; IFS= read -r a || { fld "$2" "-"; return 0; }
+    [ -z "$a" ] && { fld "$2" "-"; return 0; }
+    if eng -v cmd=menuok -v what="$1" -v ans="$a" >/dev/null 2>&1; then
+      fld "$2" "$a"; return 0
+    fi
+    echo "  ?"
+  done
+}
+
+#  ask_num <fieldname> <prompt> [last]
+#
+#  A MEASUREMENT GETS NO DEFAULT.  The pressure at 1800 is not the 1500
+#  reading unless changed - it is a new reading or it is nothing.  `last`
+#  is shown for orientation only; return declines and records "-".
+ask_num() {
+  k=$1; prompt=$2; last=$3
+  while :; do
+    if [ -n "$last" ]; then printf "  %-34s %s\n" "$prompt" "$(printf '\033[90mlast: %s\033[0m' "$last" 2>/dev/null || echo "last: $last")"
+    else printf "  %s\n" "$prompt"; fi
+    printf "  > "; IFS= read -r a || { fld "$k" "-"; return 0; }
+    case "$a" in
+      "")  fld "$k" "-"; return 0 ;;
+      "/") fld "$k" "/"; return 0 ;;
+    esac
+    if msg=$(eng -v cmd=check -v what="$k" -v ans="$a"); then
+      fld "$k" "$a"; return 0
+    fi
+    #  a question, not a rejection: an instrument reading wrongly is
+    #  itself worth logging
+    printf "  %s\n" "$msg"
+    printf "  is that really what you read? [y] yes, log it  [n] type it again  > "
+    IFS= read -r y || return 0
+    case "$y" in y|Y) fld "$k" "$a"; return 0 ;; esac
+  done
+}
+
+#  ask_state <fieldname> <prompt> [carried]
+#
+#  STATE CARRIES FORWARD, because it genuinely persists: at 1800 the
+#  course really is what it was at 1500 unless somebody changed it.
+#  Return ACCEPTS the carried value here - the opposite of ask_num, and
+#  the screen makes clear which you are looking at.
+ask_state() {
+  k=$1; prompt=$2; carried=$3
+  if [ -n "$carried" ]; then printf "  %-34s [%s] " "$prompt" "$carried"
+  else printf "  %-34s " "$prompt"; fi
+  IFS= read -r a || { fld "$k" "${carried:--}"; return 0; }
+  [ -z "$a" ] && a="$carried"
+  [ -z "$a" ] && a="-"
+  fld "$k" "$a"
+}
+ask_text() {
+  printf "  %s " "$2"; IFS= read -r a || a=""
+  [ -z "$a" ] && a="-"
+  fld "$1" "$a"
+}
+
+last_of() { eng -v cmd=recent -v n=40 2>/dev/null | $AWK -v k="$1" '$0 ~ k {print}' | tail -1; }
+
+# ---------------------------------------------------------------------
+#  The three-hourly entry.
+# ---------------------------------------------------------------------
+do_entry() {
+  load_conf
+  echo
+  echo "  ==============================================================="
+  printf "   %s   %s\n" "$(utcstamp)" "deck log entry"
+  echo "  ==============================================================="
+  echo
+  fld_start
+  ask_state lat "latitude  (e.g. 41 14.0N)"  "$LAST_LAT"
+  ask_state lon "longitude (e.g. 072 05.0W)" "$LAST_LON"
+  ask_state crs "course steered, true"       "$LAST_CRS"
+  ask_state sog "speed over ground, knots"   "$LAST_SOG"
+  echo
+  printf "  %s\n" "TRUE wind - not apparent. Apparent changes on every tack."
+  ask_num wdir "wind direction, degrees true" ""
+  ask_num wspd "wind speed, knots" ""
+  ask_menu sea sea
+  ask_text note "anything worth recording:"
+  fld who "${who:--}"
+  fld_commit nav || return 1
+  echo
+  echo "  logged."
+  echo
+  printf "  weather observation as well? [Y/n] "; IFS= read -r a || a=n
+  case "$a" in n|N) ;; *) do_wx ;; esac
+  return 0
+}
+
+do_wx() {
+  echo
+  printf "  %s\n" "  ---- weather ----"
+  fld_start
+  ask_num mslp "sea level pressure, hPa" "$LAST_MSLP"
+  ask_menu ptend ptend
+  ask_num pchg "pressure change over 3 h, hPa (+/-)" ""
+  ask_num airt "air temperature, C" ""
+  ask_num dewp "dew point, C  (or wet bulb)" ""
+  ask_num seat "sea temperature, C" ""
+  ask_menu cloud cloud
+  ask_menu cl cl
+  ask_menu cm cm
+  ask_menu ch ch
+  ask_menu vis vis
+  echo
+  printf "  %s\n" "  swell - separate from the wind sea. Period is the important one."
+  ask_num swdir "swell from, degrees true" ""
+  ask_num swper "swell period, seconds" ""
+  ask_num swht  "swell height, metres" ""
+  fld who "${who:--}"
+  fld_commit wx || return 1
+  echo; echo "  weather logged."; echo
+}
+
+# ---------------------------------------------------------------------
+#  Engine
+# ---------------------------------------------------------------------
+CHECKLIST="oil_filter:oil and filter;fuel_pri:primary fuel filter;fuel_sec:secondary fuel filter;fuel_leaks:fuel system, leaks and damage;hoses:hoses and fittings;air:air filter;strainer:sea water strainer;impeller:water pump impeller;cooling:cooling system, leaks;coolant:antifreeze level and strength;hx:heat exchanger and coolers;anodes:sacrificial anodes;trans:transmission fluid;cables:throttle and shift cables;belts:belt tension and wear;batt:battery condition and connections;mounts:engine and motor mounts;sump:sump and oil pad"
+
+pick_equip() {
+  list=$(eng -v cmd=equiplist)
+  [ -z "$list" ] && { echo "  no equipment in the registry yet - deck-log equip add"; return 1; }
+  echo
+  i=1; for e in $list; do echo "    $i  $e"; i=$((i+1)); done
+  printf "  > "; IFS= read -r n || return 1
+  case "$n" in *[!0-9]*|"") return 1 ;; esac
+  EQ=$(printf '%s\n' $list | $AWK -v n="$n" 'NR==n{print}')
+  [ -n "$EQ" ] || return 1
+  return 0
+}
+
+do_inspect() {
+  pick_equip || return 1
+  echo
+  echo "  $EQ - inspection.   o = ok   a = needs attention   - = not checked   / = could not reach"
+  echo
+  IFS=';'
+  for item in $CHECKLIST; do
+    key=${item%%:*}; label=${item#*:}
+    printf "  %-38s " "$label"
+    IFS= read -r s </dev/tty 2>/dev/null || s="-"
+    case "$s" in o|O) s=o ;; a|A) s=a ;; /) s=/ ;; *) s=- ;; esac
+    note=""
+    if [ "$s" = a ]; then printf "    what is wrong? "; IFS= read -r note </dev/tty 2>/dev/null || note=""; fi
+    fld_start
+    fld eq "$EQ"; fld insp "$key"; fld state "$s"; fld note "${note:--}"; fld who "${who:--}"
+    fld_commit eng || true
+    IFS=';'
+  done
+  unset IFS
+  echo
+  echo "  inspection logged."
+  eng -v cmd=defects
+}
+
+do_job() {
+  pick_equip || return 1
+  echo
+  printf "  what was done? (e.g. oil and filter, impeller) "; IFS= read -r job || return 1
+  [ -z "$job" ] && return 0
+  parts=$(eng -v cmd=partlist)
+  part=""; qty=""
+  if [ -n "$parts" ]; then
+    echo
+    echo "  part used?"
+    i=1; for p in $parts; do echo "    $i  $p"; i=$((i+1)); done
+    echo  "    return  none"
+    printf "  > "; IFS= read -r n || n=""
+    case "$n" in
+      ''|*[!0-9]*) ;;
+      *) part=$(printf '%s\n' $parts | $AWK -v n="$n" 'NR==n{print}')
+         [ -n "$part" ] && { printf "  how many? [1] "; IFS= read -r qty; [ -z "$qty" ] && qty=1; } ;;
+    esac
+  fi
+  printf "  engine hours now? "; IFS= read -r hrs || hrs=""
+  printf "  does this close an open item? [y/N] "; IFS= read -r c || c=n
+  closes=""
+  case "$c" in
+    y|Y) eng -v cmd=defects
+         printf "  paste the date-time of the item it closes (YYYY-MM-DDTHH:MMZ): "
+         IFS= read -r closes || closes="" ;;
+  esac
+  fld_start
+  fld eq "$EQ"; fld job "$job"
+  [ -n "$part" ] && { fld part "$part"; fld qty "${qty:-1}"; fld fits "$EQ"; }
+  fld hrs "${hrs:--}"; fld who "${who:--}"
+  [ -n "$closes" ] && fld closes "$closes"
+  fld_commit eng || return 1
+  echo
+  echo "  logged."
+  #  the one line that matters, said while they are still standing there
+  if [ -n "$part" ]; then eng -v cmd=holdings | grep -A2 -i "$part" | head -4; fi
+  echo
+}
+
+# ---------------------------------------------------------------------
+#  Registry
+# ---------------------------------------------------------------------
+add_equip() {
+  echo
+  printf "  short id (e.g. eng.main, gen, watermaker): "; IFS= read -r id || return 1
+  [ -z "$id" ] && return 0
+  printf "  make: ";   IFS= read -r make
+  printf "  model: ";  IFS= read -r model
+  printf "  serial: "; IFS= read -r ser
+  echo "  now the WHOLE plate, verbatim - every number on it, including"
+  echo "  the ones neither of us understands. It is the one the chandler"
+  echo "  asks for that a tidy form leaves out."
+  printf "  plate: "; IFS= read -r plate
+  fld_start
+  fld id "$id"; fld make "$make"; fld model "$model"; fld serial "$ser"; fld plate "$plate"
+  mkdir -p "$DECKLOG_HOME"
+  line=$(eng -v cmd=mkeq -v type=eq -v fields="$FIELDS"); rm -f "$FIELDS"; FIELDS=""
+  [ -n "$line" ] && printf '%s\n' "$line" >> "$BOAT"
+  echo "  added."
+}
+add_part() {
+  echo
+  printf "  short id (e.g. impeller): "; IFS= read -r id || return 1
+  [ -z "$id" ] && return 0
+  printf "  name: ";                       IFS= read -r name
+  printf "  manufacturer's number: ";      IFS= read -r num
+  printf "  fits which equipment id: ";    IFS= read -r fits
+  printf "  minimum to carry: ";           IFS= read -r min
+  printf "  stowed where: ";               IFS= read -r stow
+  printf "  how many aboard right now: ";  IFS= read -r have
+  fld_start
+  fld id "$id"; fld name "$name"; fld number "$num"; fld fits "$fits"
+  fld min "${min:-1}"; fld stow "$stow"
+  mkdir -p "$DECKLOG_HOME"
+  line=$(eng -v cmd=mkeq -v type=pt -v fields="$FIELDS"); rm -f "$FIELDS"; FIELDS=""
+  [ -n "$line" ] && printf '%s\n' "$line" >> "$BOAT"
+  #  the opening holding is a STOCKTAKE EVENT in the log, not a number
+  #  in the registry - so the count is always derived and can never
+  #  disagree with the log
+  if [ -n "$have" ]; then
+    fld_start
+    fld part "$id"; fld fits "$fits"; fld count "$have"; fld action stocktake
+    fld_commit inv || true
+  fi
+  echo "  added."
+}
+do_stocktake() {
+  parts=$(eng -v cmd=partlist)
+  [ -z "$parts" ] && { echo "  no parts in the registry yet"; return 0; }
+  echo
+  echo "  count the locker. Return to skip an item."
+  for p in $parts; do
+    printf "  %-24s " "$p"; IFS= read -r c || c=""
+    [ -z "$c" ] && continue
+    case "$c" in *[!0-9]*) continue ;; esac
+    fld_start; fld part "$p"; fld count "$c"; fld action stocktake; fld who "${who:--}"
+    fld_commit inv || true
+  done
+  echo "  counted."
+}
+
+do_provision() {
+  echo
+  printf "  item (water, fuel, gas, food): "; IFS= read -r item || return 1
+  [ -z "$item" ] && return 0
+  printf "  used or remaining? [u/r] "; IFS= read -r ur
+  printf "  how much: "; IFS= read -r amt
+  printf "  units (l, kg, %%): "; IFS= read -r u
+  fld_start
+  fld item "$item"; fld who "${who:--}"
+  case "$ur" in r|R) fld remain "$amt" ;; *) fld used "$amt" ;; esac
+  fld unit "${u:--}"
+  fld_commit pro || return 1
+  echo "  logged."
+}
+
+do_correct() {
+  eng -v cmd=recent -v n=10
+  echo
+  echo "  A log is never edited. A correction is a NEW entry that points"
+  echo "  at the old one, and both stay visible for ever - the electronic"
+  echo "  version of lining through and initialling."
+  printf "  date-time of the entry to correct (YYYY-MM-DDTHH:MMZ): "; IFS= read -r ref || return 1
+  [ -z "$ref" ] && return 0
+  printf "  which field: "; IFS= read -r k
+  printf "  correct value: "; IFS= read -r v
+  printf "  why: "; IFS= read -r why
+  fld_start
+  fld ref "$ref"; fld field "$k"; fld value "$v"; fld why "${why:--}"; fld who "${who:--}"
+  fld_commit cor || return 1
+  echo "  correction logged. The original entry is untouched."
+}
+
+help_text() {
+  printf '%s\n' \
+    '' \
+    '  DECK-LOG -- the boat'\''s records: deck, engine, provisions' \
+    '' \
+    '  deck-log                 the menu' \
+    '  deck-log entry           a deck log entry (the three-hourly one)' \
+    '  deck-log wx              a weather observation on its own' \
+    '  deck-log log [n]         the last n entries' \
+    '  deck-log inspect         run the engine checklist' \
+    '  deck-log job             record work done, and the part it used' \
+    '  deck-log open            what is outstanding' \
+    '  deck-log spares          what is aboard' \
+    '  deck-log shopping        the list for the next port' \
+    '  deck-log equip | part    the registry' \
+    '  deck-log stocktake       count the locker' \
+    '  deck-log correct         correct an earlier entry, properly' \
+    '  deck-log day|night|plain colour mode' \
+    '  deck-log about | version' \
+    '' \
+    '  The weather reasoning lives in its own tool: try "weather".' \
+    '' \
+    '  Every timestamp is UTC. The log is append only: nothing is ever' \
+    '  edited or deleted, and a correction is a new entry that references' \
+    '  the old one. Both stay visible for ever.' \
+    ''
+}
+
+menu() {
+  while :; do
+    load_conf
+    last=$(eng -v cmd=since)
+    echo
+    echo "  ==============================================================="
+    echo "   DECK-LOG $DECKLOG_VERSION                             $(utcstamp)"
+    echo "  ==============================================================="
+    if [ -n "$last" ]; then echo "   last entry: $last"; else echo "   nothing logged yet"; fi
+    printf '%s\n' \
+      '' \
+      '    1  Log an entry            5  Spares aboard' \
+      '    2  Weather only            6  Shopping list' \
+      '    3  Engine inspection       7  The log' \
+      '    4  Work done               8  What is outstanding' \
+      '' \
+      '    p  Provisions   s  Stocktake   e  Equipment   n  New part' \
+      '    x  Correct an entry' \
+      '' \
+      '    c  Colour   a  About   h  Help   q  Quit'
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) do_entry ;;      2) do_wx ;;
+      3) do_inspect ;;    4) do_job ;;
+      5) eng -v cmd=holdings ;;
+      6) printf "  which port (return for none): "; IFS= read -r p
+         eng -v cmd=shopping -v port="$p" ;;
+      7) eng -v cmd=recent -v n=20 ;;
+      8) eng -v cmd=defects ;;
+      p|P) do_provision ;;  s|S) do_stocktake ;;
+      e|E) eng -v cmd=equip; printf "  add one? [y/N] "; IFS= read -r y
+           case "$y" in y|Y) add_equip ;; esac ;;
+      n|N) add_part ;;
+      x|X) do_correct ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      a|A) about_text ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk || true
+load_conf
+install_engine
+case "${1:-}" in
+  "")         paint; menu ;;
+  entry)      do_entry ;;
+  wx)         do_wx ;;
+  log)        shift; eng -v cmd=recent -v n="${1:-20}" ;;
+  inspect)    do_inspect ;;
+  job)        do_job ;;
+  open)       eng -v cmd=defects ;;
+  spares)     eng -v cmd=holdings ;;
+  shopping)   shift; eng -v cmd=shopping -v port="${1:-}" ;;
+  equip)      eng -v cmd=equip ;;
+  part)       add_part ;;
+  stocktake)  do_stocktake ;;
+  correct)    do_correct ;;
+  day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
+  about)      about_text ;;
+  help|-h|--help) help_text ;;
+  version)    echo "deck-log $DECKLOG_VERSION" ;;
+  *) echo "  deck-log: no such command: $1"; help_text; exit 2 ;;
+esac
+
+exit 0
+#__BN_START_ENGINE__
 # =====================================================================
 #  deck-log -- the record layer.
 #
@@ -17613,465 +18301,7 @@ BEGIN{
 
   else { printf "  deck-log: unknown cmd %s\n", cmd; exit 2 }
 }
-__DECKLOG_ENGINE__
-}
-
-about_text() {
-  cat <<'ABOUT'
-
-  ===============================================================
-   DECK-LOG -- the boat's records
-  ===============================================================
-
-  WHAT THIS IS
-
-  The deck log, the engine log and the provisions list, kept in one
-  place because they are the same book with different tabs, written by
-  the same person at the same moment.
-
-  A LOG IS A RECORD
-
-  It has standing after an incident, and it is read by people who were
-  not there. So:
-
-    - it is APPEND ONLY. Nothing is ever edited or deleted.
-    - a CORRECTION is a new entry that references the old one, and both
-      stay visible for ever. That is the electronic version of lining
-      through and initialling, which is how it has always been done.
-    - every timestamp is UTC. Display is another matter; the record is
-      UTC, so nobody has to argue later about whose local time it was.
-
-  DECLINING IS AN ANSWER
-
-  Return records "-", meaning asked and not taken. "/" means it could
-  not be observed - dark, fog, behind something. Both are true entries
-  and both are better than a guess. A form that punishes blanks gets
-  invented numbers, and an invented number in a log is worse than a
-  gap, because it looks like data.
-
-  Zero is a reading. "Cloud nil" and "cloud not observed" are different
-  facts and this log can tell them apart.
-
-  WHAT IS DERIVED, AND WHAT IS STORED
-
-  There is no stored inventory. What an impeller IS - its number, what
-  it fits, how many to carry - is registry. How many you HAVE is worked
-  out by replaying the log. So the count can never disagree with the
-  log, because it is the log.
-
-  THE OBSERVATION FOLLOWS THE VOS STANDARD
-
-  NOAA's Voluntary Observing Ship programme defines what a ship
-  observes and how it is coded, so the coded fields here are theirs,
-  not ours. Learn this form and you have learned the professional one,
-  and your log is comparable with every other marine observation ever
-  taken.
-
-  WHO WROTE IT
-
-  M. Larry Sherman had the ideas and the sea time. Claude wrote the
-  code. Part of Bash Navigation Software, with celnav, colregs and
-  tides.
-
-  https://github.com/larrys614/bashnav
-
-  Apache License 2.0.
-
-ABOUT
-}
-
-#  ask_menu <key> <fieldname>   - a coded field: one keypress, no return
-ask_menu() {
-  eng -v cmd=menu -v what="$1"
-  while :; do
-    printf "  > "; IFS= read -r a || { fld "$2" "-"; return 0; }
-    [ -z "$a" ] && { fld "$2" "-"; return 0; }
-    if eng -v cmd=menuok -v what="$1" -v ans="$a" >/dev/null 2>&1; then
-      fld "$2" "$a"; return 0
-    fi
-    echo "  ?"
-  done
-}
-
-#  ask_num <fieldname> <prompt> [last]
-#
-#  A MEASUREMENT GETS NO DEFAULT.  The pressure at 1800 is not the 1500
-#  reading unless changed - it is a new reading or it is nothing.  `last`
-#  is shown for orientation only; return declines and records "-".
-ask_num() {
-  k=$1; prompt=$2; last=$3
-  while :; do
-    if [ -n "$last" ]; then printf "  %-34s %s\n" "$prompt" "$(printf '\033[90mlast: %s\033[0m' "$last" 2>/dev/null || echo "last: $last")"
-    else printf "  %s\n" "$prompt"; fi
-    printf "  > "; IFS= read -r a || { fld "$k" "-"; return 0; }
-    case "$a" in
-      "")  fld "$k" "-"; return 0 ;;
-      "/") fld "$k" "/"; return 0 ;;
-    esac
-    if msg=$(eng -v cmd=check -v what="$k" -v ans="$a"); then
-      fld "$k" "$a"; return 0
-    fi
-    #  a question, not a rejection: an instrument reading wrongly is
-    #  itself worth logging
-    printf "  %s\n" "$msg"
-    printf "  is that really what you read? [y] yes, log it  [n] type it again  > "
-    IFS= read -r y || return 0
-    case "$y" in y|Y) fld "$k" "$a"; return 0 ;; esac
-  done
-}
-
-#  ask_state <fieldname> <prompt> [carried]
-#
-#  STATE CARRIES FORWARD, because it genuinely persists: at 1800 the
-#  course really is what it was at 1500 unless somebody changed it.
-#  Return ACCEPTS the carried value here - the opposite of ask_num, and
-#  the screen makes clear which you are looking at.
-ask_state() {
-  k=$1; prompt=$2; carried=$3
-  if [ -n "$carried" ]; then printf "  %-34s [%s] " "$prompt" "$carried"
-  else printf "  %-34s " "$prompt"; fi
-  IFS= read -r a || { fld "$k" "${carried:--}"; return 0; }
-  [ -z "$a" ] && a="$carried"
-  [ -z "$a" ] && a="-"
-  fld "$k" "$a"
-}
-ask_text() {
-  printf "  %s " "$2"; IFS= read -r a || a=""
-  [ -z "$a" ] && a="-"
-  fld "$1" "$a"
-}
-
-last_of() { eng -v cmd=recent -v n=40 2>/dev/null | $AWK -v k="$1" '$0 ~ k {print}' | tail -1; }
-
-# ---------------------------------------------------------------------
-#  The three-hourly entry.
-# ---------------------------------------------------------------------
-do_entry() {
-  load_conf
-  echo
-  echo "  ==============================================================="
-  printf "   %s   %s\n" "$(utcstamp)" "deck log entry"
-  echo "  ==============================================================="
-  echo
-  fld_start
-  ask_state lat "latitude  (e.g. 41 14.0N)"  "$LAST_LAT"
-  ask_state lon "longitude (e.g. 072 05.0W)" "$LAST_LON"
-  ask_state crs "course steered, true"       "$LAST_CRS"
-  ask_state sog "speed over ground, knots"   "$LAST_SOG"
-  echo
-  printf "  %s\n" "TRUE wind - not apparent. Apparent changes on every tack."
-  ask_num wdir "wind direction, degrees true" ""
-  ask_num wspd "wind speed, knots" ""
-  ask_menu sea sea
-  ask_text note "anything worth recording:"
-  fld who "${who:--}"
-  fld_commit nav || return 1
-  echo
-  echo "  logged."
-  echo
-  printf "  weather observation as well? [Y/n] "; IFS= read -r a || a=n
-  case "$a" in n|N) ;; *) do_wx ;; esac
-  return 0
-}
-
-do_wx() {
-  echo
-  printf "  %s\n" "  ---- weather ----"
-  fld_start
-  ask_num mslp "sea level pressure, hPa" "$LAST_MSLP"
-  ask_menu ptend ptend
-  ask_num pchg "pressure change over 3 h, hPa (+/-)" ""
-  ask_num airt "air temperature, C" ""
-  ask_num dewp "dew point, C  (or wet bulb)" ""
-  ask_num seat "sea temperature, C" ""
-  ask_menu cloud cloud
-  ask_menu cl cl
-  ask_menu cm cm
-  ask_menu ch ch
-  ask_menu vis vis
-  echo
-  printf "  %s\n" "  swell - separate from the wind sea. Period is the important one."
-  ask_num swdir "swell from, degrees true" ""
-  ask_num swper "swell period, seconds" ""
-  ask_num swht  "swell height, metres" ""
-  fld who "${who:--}"
-  fld_commit wx || return 1
-  echo; echo "  weather logged."; echo
-}
-
-# ---------------------------------------------------------------------
-#  Engine
-# ---------------------------------------------------------------------
-CHECKLIST="oil_filter:oil and filter;fuel_pri:primary fuel filter;fuel_sec:secondary fuel filter;fuel_leaks:fuel system, leaks and damage;hoses:hoses and fittings;air:air filter;strainer:sea water strainer;impeller:water pump impeller;cooling:cooling system, leaks;coolant:antifreeze level and strength;hx:heat exchanger and coolers;anodes:sacrificial anodes;trans:transmission fluid;cables:throttle and shift cables;belts:belt tension and wear;batt:battery condition and connections;mounts:engine and motor mounts;sump:sump and oil pad"
-
-pick_equip() {
-  list=$(eng -v cmd=equiplist)
-  [ -z "$list" ] && { echo "  no equipment in the registry yet - deck-log equip add"; return 1; }
-  echo
-  i=1; for e in $list; do echo "    $i  $e"; i=$((i+1)); done
-  printf "  > "; IFS= read -r n || return 1
-  case "$n" in *[!0-9]*|"") return 1 ;; esac
-  EQ=$(printf '%s\n' $list | $AWK -v n="$n" 'NR==n{print}')
-  [ -n "$EQ" ] || return 1
-  return 0
-}
-
-do_inspect() {
-  pick_equip || return 1
-  echo
-  echo "  $EQ - inspection.   o = ok   a = needs attention   - = not checked   / = could not reach"
-  echo
-  IFS=';'
-  for item in $CHECKLIST; do
-    key=${item%%:*}; label=${item#*:}
-    printf "  %-38s " "$label"
-    IFS= read -r s </dev/tty 2>/dev/null || s="-"
-    case "$s" in o|O) s=o ;; a|A) s=a ;; /) s=/ ;; *) s=- ;; esac
-    note=""
-    if [ "$s" = a ]; then printf "    what is wrong? "; IFS= read -r note </dev/tty 2>/dev/null || note=""; fi
-    fld_start
-    fld eq "$EQ"; fld insp "$key"; fld state "$s"; fld note "${note:--}"; fld who "${who:--}"
-    fld_commit eng || true
-    IFS=';'
-  done
-  unset IFS
-  echo
-  echo "  inspection logged."
-  eng -v cmd=defects
-}
-
-do_job() {
-  pick_equip || return 1
-  echo
-  printf "  what was done? (e.g. oil and filter, impeller) "; IFS= read -r job || return 1
-  [ -z "$job" ] && return 0
-  parts=$(eng -v cmd=partlist)
-  part=""; qty=""
-  if [ -n "$parts" ]; then
-    echo
-    echo "  part used?"
-    i=1; for p in $parts; do echo "    $i  $p"; i=$((i+1)); done
-    echo  "    return  none"
-    printf "  > "; IFS= read -r n || n=""
-    case "$n" in
-      ''|*[!0-9]*) ;;
-      *) part=$(printf '%s\n' $parts | $AWK -v n="$n" 'NR==n{print}')
-         [ -n "$part" ] && { printf "  how many? [1] "; IFS= read -r qty; [ -z "$qty" ] && qty=1; } ;;
-    esac
-  fi
-  printf "  engine hours now? "; IFS= read -r hrs || hrs=""
-  printf "  does this close an open item? [y/N] "; IFS= read -r c || c=n
-  closes=""
-  case "$c" in
-    y|Y) eng -v cmd=defects
-         printf "  paste the date-time of the item it closes (YYYY-MM-DDTHH:MMZ): "
-         IFS= read -r closes || closes="" ;;
-  esac
-  fld_start
-  fld eq "$EQ"; fld job "$job"
-  [ -n "$part" ] && { fld part "$part"; fld qty "${qty:-1}"; fld fits "$EQ"; }
-  fld hrs "${hrs:--}"; fld who "${who:--}"
-  [ -n "$closes" ] && fld closes "$closes"
-  fld_commit eng || return 1
-  echo
-  echo "  logged."
-  #  the one line that matters, said while they are still standing there
-  if [ -n "$part" ]; then eng -v cmd=holdings | grep -A2 -i "$part" | head -4; fi
-  echo
-}
-
-# ---------------------------------------------------------------------
-#  Registry
-# ---------------------------------------------------------------------
-add_equip() {
-  echo
-  printf "  short id (e.g. eng.main, gen, watermaker): "; IFS= read -r id || return 1
-  [ -z "$id" ] && return 0
-  printf "  make: ";   IFS= read -r make
-  printf "  model: ";  IFS= read -r model
-  printf "  serial: "; IFS= read -r ser
-  echo "  now the WHOLE plate, verbatim - every number on it, including"
-  echo "  the ones neither of us understands. It is the one the chandler"
-  echo "  asks for that a tidy form leaves out."
-  printf "  plate: "; IFS= read -r plate
-  fld_start
-  fld id "$id"; fld make "$make"; fld model "$model"; fld serial "$ser"; fld plate "$plate"
-  mkdir -p "$DECKLOG_HOME"
-  line=$(eng -v cmd=mkeq -v type=eq -v fields="$FIELDS"); rm -f "$FIELDS"; FIELDS=""
-  [ -n "$line" ] && printf '%s\n' "$line" >> "$BOAT"
-  echo "  added."
-}
-add_part() {
-  echo
-  printf "  short id (e.g. impeller): "; IFS= read -r id || return 1
-  [ -z "$id" ] && return 0
-  printf "  name: ";                       IFS= read -r name
-  printf "  manufacturer's number: ";      IFS= read -r num
-  printf "  fits which equipment id: ";    IFS= read -r fits
-  printf "  minimum to carry: ";           IFS= read -r min
-  printf "  stowed where: ";               IFS= read -r stow
-  printf "  how many aboard right now: ";  IFS= read -r have
-  fld_start
-  fld id "$id"; fld name "$name"; fld number "$num"; fld fits "$fits"
-  fld min "${min:-1}"; fld stow "$stow"
-  mkdir -p "$DECKLOG_HOME"
-  line=$(eng -v cmd=mkeq -v type=pt -v fields="$FIELDS"); rm -f "$FIELDS"; FIELDS=""
-  [ -n "$line" ] && printf '%s\n' "$line" >> "$BOAT"
-  #  the opening holding is a STOCKTAKE EVENT in the log, not a number
-  #  in the registry - so the count is always derived and can never
-  #  disagree with the log
-  if [ -n "$have" ]; then
-    fld_start
-    fld part "$id"; fld fits "$fits"; fld count "$have"; fld action stocktake
-    fld_commit inv || true
-  fi
-  echo "  added."
-}
-do_stocktake() {
-  parts=$(eng -v cmd=partlist)
-  [ -z "$parts" ] && { echo "  no parts in the registry yet"; return 0; }
-  echo
-  echo "  count the locker. Return to skip an item."
-  for p in $parts; do
-    printf "  %-24s " "$p"; IFS= read -r c || c=""
-    [ -z "$c" ] && continue
-    case "$c" in *[!0-9]*) continue ;; esac
-    fld_start; fld part "$p"; fld count "$c"; fld action stocktake; fld who "${who:--}"
-    fld_commit inv || true
-  done
-  echo "  counted."
-}
-
-do_provision() {
-  echo
-  printf "  item (water, fuel, gas, food): "; IFS= read -r item || return 1
-  [ -z "$item" ] && return 0
-  printf "  used or remaining? [u/r] "; IFS= read -r ur
-  printf "  how much: "; IFS= read -r amt
-  printf "  units (l, kg, %%): "; IFS= read -r u
-  fld_start
-  fld item "$item"; fld who "${who:--}"
-  case "$ur" in r|R) fld remain "$amt" ;; *) fld used "$amt" ;; esac
-  fld unit "${u:--}"
-  fld_commit pro || return 1
-  echo "  logged."
-}
-
-do_correct() {
-  eng -v cmd=recent -v n=10
-  echo
-  echo "  A log is never edited. A correction is a NEW entry that points"
-  echo "  at the old one, and both stay visible for ever - the electronic"
-  echo "  version of lining through and initialling."
-  printf "  date-time of the entry to correct (YYYY-MM-DDTHH:MMZ): "; IFS= read -r ref || return 1
-  [ -z "$ref" ] && return 0
-  printf "  which field: "; IFS= read -r k
-  printf "  correct value: "; IFS= read -r v
-  printf "  why: "; IFS= read -r why
-  fld_start
-  fld ref "$ref"; fld field "$k"; fld value "$v"; fld why "${why:--}"; fld who "${who:--}"
-  fld_commit cor || return 1
-  echo "  correction logged. The original entry is untouched."
-}
-
-help_text() {
-  cat <<'HLP'
-
-  DECK-LOG -- the boat's records: deck, engine, provisions
-
-  deck-log                 the menu
-  deck-log entry           a deck log entry (the three-hourly one)
-  deck-log wx              a weather observation on its own
-  deck-log log [n]         the last n entries
-  deck-log inspect         run the engine checklist
-  deck-log job             record work done, and the part it used
-  deck-log open            what is outstanding
-  deck-log spares          what is aboard
-  deck-log shopping        the list for the next port
-  deck-log equip | part    the registry
-  deck-log stocktake       count the locker
-  deck-log correct         correct an earlier entry, properly
-  deck-log day|night|plain colour mode
-  deck-log about | version
-
-  The weather reasoning lives in its own tool: try "weather".
-
-  Every timestamp is UTC. The log is append only: nothing is ever
-  edited or deleted, and a correction is a new entry that references
-  the old one. Both stay visible for ever.
-
-HLP
-}
-
-menu() {
-  while :; do
-    load_conf
-    last=$(eng -v cmd=since)
-    echo
-    echo "  ==============================================================="
-    echo "   DECK-LOG $DECKLOG_VERSION                             $(utcstamp)"
-    echo "  ==============================================================="
-    if [ -n "$last" ]; then echo "   last entry: $last"; else echo "   nothing logged yet"; fi
-    cat <<'M'
-
-    1  Log an entry            5  Spares aboard
-    2  Weather only            6  Shopping list
-    3  Engine inspection       7  The log
-    4  Work done               8  What is outstanding
-
-    p  Provisions   s  Stocktake   e  Equipment   n  New part
-    x  Correct an entry
-
-    c  Colour   a  About   h  Help   q  Quit
-M
-    printf "  > "; IFS= read -r c || exit 0
-    case "$c" in
-      1) do_entry ;;      2) do_wx ;;
-      3) do_inspect ;;    4) do_job ;;
-      5) eng -v cmd=holdings ;;
-      6) printf "  which port (return for none): "; IFS= read -r p
-         eng -v cmd=shopping -v port="$p" ;;
-      7) eng -v cmd=recent -v n=20 ;;
-      8) eng -v cmd=defects ;;
-      p|P) do_provision ;;  s|S) do_stocktake ;;
-      e|E) eng -v cmd=equip; printf "  add one? [y/N] "; IFS= read -r y
-           case "$y" in y|Y) add_equip ;; esac ;;
-      n|N) add_part ;;
-      x|X) do_correct ;;
-      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
-           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
-      a|A) about_text ;;
-      h|H|\?) help_text ;;
-      q|Q) unpaint; exit 0 ;;
-      "") ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-
-pick_awk || true
-load_conf
-install_engine
-case "${1:-}" in
-  "")         paint; menu ;;
-  entry)      do_entry ;;
-  wx)         do_wx ;;
-  log)        shift; eng -v cmd=recent -v n="${1:-20}" ;;
-  inspect)    do_inspect ;;
-  job)        do_job ;;
-  open)       eng -v cmd=defects ;;
-  spares)     eng -v cmd=holdings ;;
-  shopping)   shift; eng -v cmd=shopping -v port="${1:-}" ;;
-  equip)      eng -v cmd=equip ;;
-  part)       add_part ;;
-  stocktake)  do_stocktake ;;
-  correct)    do_correct ;;
-  day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
-  about)      about_text ;;
-  help|-h|--help) help_text ;;
-  version)    echo "deck-log $DECKLOG_VERSION" ;;
-  *) echo "  deck-log: no such command: $1"; help_text; exit 2 ;;
-esac
+#__BN_END_ENGINE__
 __BN_PAYLOAD_decklog__
 }
 extract_weather() {
@@ -18117,6 +18347,68 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   #  caller's own error message is one they can act on, and fail there.
   printf '%s\n' "$HOME/$1"
   return 1
+}
+
+# ---------------------------------------------------------------------
+#  Unpacking the awk engines.
+#
+#  These used to be written with a heredoc:
+#
+#      cat > "$ENGINE" <<'__ENGINE__'
+#      ...the whole engine...
+#      __ENGINE__
+#
+#  a-Shell -- the iPad terminal this project exists for -- DOES NOT
+#  DELIVER A HEREDOC.  Larry ran the three-line test on the device:
+#
+#      cat <<'M'          hangs, and every Return comes back blank,
+#      hello              because cat falls through to the terminal
+#      M
+#
+#  With the output redirected to a file, cat instead sees end of input
+#  straight away and writes NOTHING.  So every engine on that iPad was
+#  ZERO BYTES -- confirmed: wc -c ~/Documents/.celnav/*.awk = 0.  The
+#  tools could never have computed anything; the menus simply hung
+#  first, so that is where it was noticed.
+#
+#  So the payloads now live at the END of each tool, after "exit 0"
+#  where the shell never reads them, between markers, and awk lifts
+#  them out.  No heredoc, and awk is already a hard requirement.
+#
+#  And the result is CHECKED FOR SIZE.  A zero-byte engine must be a
+#  loud failure at install time, not a strange awk error hours later.
+# ---------------------------------------------------------------------
+bn_self() {
+  #  The path to this script.  $0 is it in every normal case; when the
+  #  script was found on PATH by name, ask the shell where it is.
+  if [ -f "$0" ]; then printf '%s\n' "$0"; return 0; fi
+  bn_s_p=$(command -v "$0" 2>/dev/null)
+  if [ -n "$bn_s_p" ] && [ -f "$bn_s_p" ]; then printf '%s\n' "$bn_s_p"; return 0; fi
+  return 1
+}
+#  bn_unpack <TAG> <destination>
+bn_unpack() {
+  bn_u_self=$(bn_self) || {
+    echo "${BN_TOOL:-bashnav}: cannot find my own file to unpack from" >&2; return 1; }
+  [ -n "${AWK:-}" ] || {
+    echo "${BN_TOOL:-bashnav}: no awk was chosen before unpacking" >&2; return 1; }
+  [ -r "$bn_u_self" ] || {
+    echo "${BN_TOOL:-bashnav}: cannot read $bn_u_self" >&2; return 1; }
+  #  </dev/null is the house rule and it is not decoration: awk with no
+  #  readable file argument reads STDIN and sits there forever.  On a
+  #  terminal that is a hang with no message; on an iPad, where there is
+  #  no Ctrl and no Esc, it ends the session.  See docs/ARCHITECTURE.md.
+  $AWK -v s="#__BN_START_$1__" -v e="#__BN_END_$1__" '
+    $0==e { f=0 } f { print } $0==s { f=1 }' "$bn_u_self" > "$2" 2>/dev/null </dev/null || {
+    echo "${BN_TOOL:-bashnav}: could not write $2" >&2; return 1; }
+  if [ ! -s "$2" ]; then
+    echo "${BN_TOOL:-bashnav}: unpacked $1 and got an empty file." >&2
+    echo "  Looked in: $bn_u_self" >&2
+    echo "  The file is probably truncated, or awk ($AWK) cannot read it." >&2
+    rm -f "$2"
+    return 1
+  fi
+  return 0
 }
 # =====================================================================
 #  weather -- read your own barometer.
@@ -18198,7 +18490,235 @@ install_engine() {
   fi
   mkdir -p "$WEATHER_HOME" 2>/dev/null || {
     echo "weather: cannot create $WEATHER_HOME" >&2; exit 1; }
-  cat > "$ENGINE" <<'__WEATHER_ENGINE__'
+  bn_unpack ENGINE "$ENGINE" || exit 1
+}
+
+about_text() {
+  printf '%s\n' \
+    '' \
+    '  ===============================================================' \
+    '   WEATHER -- read your own barometer' \
+    '  ===============================================================' \
+    '' \
+    '  WHAT THIS IS' \
+    '' \
+    '  Two things. It reasons over the observations in your deck log and' \
+    '  shows its working, and it teaches the physics underneath.' \
+    '' \
+    '  It is a separate tool from deck-log for a reason. A log records what' \
+    '  happened on this boat; a teacher is a different animal. The first' \
+    '  attempt put both in one program and the teaching material was the' \
+    '  part that got left out.' \
+    '' \
+    '  WHAT IT CANNOT DO' \
+    '' \
+    '  Forecast. There is no model here, no GRIB, and no chart it did not' \
+    '  get from you by hand. With no network there cannot be.' \
+    '' \
+    '  What it works from instead is the one category of weather data that' \
+    '  is never wrong - what you measured yourself - and the only one still' \
+    '  available when the antenna comes down. Celestial is what you do when' \
+    '  GPS dies. This is what you do when the sat comms die.' \
+    '' \
+    '  YOU FORECAST FIRST' \
+    '' \
+    '  weather forecast asks for yours and writes it down before showing any' \
+    '  of its own. Print the machine'\''s guess first and you have not forecast' \
+    '  anything, you have agreed with an answer.' \
+    '' \
+    '  Then it offers two of its own - the rule set, and persistence, which' \
+    '  is "in twelve hours it will be much as it is now" - and when the time' \
+    '  comes it scores all three against what actually happened.' \
+    '' \
+    '  Scoring itself as well as you is the point. Every rule in here is a' \
+    '  rule of thumb. Some are right seven times in ten, and a rule that is' \
+    '  right seven times in ten is genuinely useful once you know that is' \
+    '  what it is. And you should be able to beat it in your own waters. A' \
+    '  training tool that cannot be outgrown is badly built.' \
+    '' \
+    '  WHERE IT COMES FROM' \
+    '' \
+    '  NOAA and the national weather services, which are public domain, and' \
+    '  the published literature. The 500 millibar rules are from the' \
+    '  Mariner'\''s Guide to the 500-Millibar Chart by Joe Sienkiewicz of' \
+    '  NOAA'\''s Ocean Prediction Center and Lee Chesneau. Full citations in' \
+    '  docs/SOURCES.md.' \
+    '' \
+    '  The physics is the part most often taught wrongly, so it is the part' \
+    '  checked hardest. If you were told the seasons are about distance from' \
+    '  the sun, see "weather learn seasons".' \
+    '' \
+    '  WHO WROTE IT' \
+    '' \
+    '  M. Larry Sherman had the ideas and the sea time. Claude wrote the' \
+    '  code. Part of Bash Navigation Software.' \
+    '' \
+    '  https://github.com/larrys614/bashnav' \
+    '' \
+    '  Apache License 2.0.' \
+    ''
+}
+
+FIELDS=""
+#  see src/decklog/10-head.sh: not /tmp, which iOS does not promise
+fld_start(){ FIELDS="$DECKLOG_HOME/.wxfields.$$"; mkdir -p "$DECKLOG_HOME" 2>/dev/null; : > "$FIELDS"; }
+fld(){ printf '%s\t%s\n' "$1" "$2" >> "$FIELDS"; }
+fld_commit(){
+  mkdir -p "$DECKLOG_HOME"
+  rec=$(eng -v cmd=mkrec -v type="$1" -v fields="$FIELDS")
+  rm -f "$FIELDS"; FIELDS=""
+  [ -n "$rec" ] || { echo "  weather: refused to write a malformed record" >&2; return 1; }
+  printf '%s\n' "$rec" >> "$LOG"
+}
+ask(){ printf "  %-38s " "$1"; IFS= read -r a || a=""; [ -z "$a" ] && a="-"; fld "$2" "$a"; }
+
+do_learn() {
+  load_prog
+  if [ -z "$1" ]; then eng -v cmd=syllabus -v donelist="$lessons"; return 0; fi
+  eng -v cmd=lesson -v key="$1" || return 1
+  printf "  your answer (return to see it): "; IFS= read -r a || return 0
+  [ -n "$a" ] && printf "\n  you said: %s\n" "$a"
+  echo
+  printf "  %s\n" "$(eng -v cmd=lessonq -v key="$1")"
+  echo
+  mark_done "$1"
+}
+
+do_chart() {
+  printf '%s\n' \
+    '' \
+    '  From a 500 mb chart - by radiofax, or one you have on paper. Find the' \
+    '  5640 metre contour (marked 564) and read three things off it.' \
+    ''
+  printf "  bearing from you to the nearest point of it: "; IFS= read -r brg
+  printf "  its distance, nm: ";                            IFS= read -r dist
+  printf "  which way the line itself runs, as a bearing: "; IFS= read -r orient
+  printf "  500 mb wind speed there, knots (return to skip): "; IFS= read -r w500
+  printf "  northern hemisphere? [Y/n] ";                    IFS= read -r nh
+  n=1; case "$nh" in n|N) n=0 ;; esac
+  eng -v cmd=chart -v brg="$brg" -v dist="$dist" -v orient="${orient:-0}" \
+      -v w500="$w500" -v north="$n"
+}
+
+#  YOU FORECAST FIRST. Nothing of mine until yours is written down.
+do_forecast() {
+  printf "  how many hours ahead? [12] "; IFS= read -r hrs || hrs=12
+  [ -z "$hrs" ] && hrs=12
+  case "$hrs" in *[!0-9]*) echo "  ?"; return 1 ;; esac
+  valid=$(eng -v cmd=validat -v hours="$hrs")
+  echo
+  echo "  ==============================================================="
+  echo "   YOUR forecast for $valid"
+  echo "  ==============================================================="
+  echo "   Yours first. Nothing of mine until yours is written down."
+  echo "   Return to leave a field out."
+  echo
+  fld_start
+  fld for "$valid"; fld by user
+  ask "wind direction, degrees true"  wdir
+  ask "wind speed, knots"             wspd
+  ask "sea level pressure, hPa"       mslp
+  ask "sea state, 0-9"                sea
+  fld_commit fc || return 1
+  echo
+  echo "  yours is logged. Now mine."
+  for w in rules persist; do
+    fld_start; fld for "$valid"; fld by "$w"
+    eng -v cmd=fcast -v hours="$hrs" -v who2="$w" | while IFS='=' read -r k v; do
+      [ -n "$k" ] && printf '%s\t%s\n' "$k" "$v" >> "$FIELDS"
+    done
+    fld_commit fc || true
+  done
+  echo
+  $AWK -F'|' -v v="$valid" '
+    /\|fc\|/ && $0 ~ ("for=" v) {
+      by="";wd="";ws="";mp="";sa="";why=""
+      for(i=3;i<=NF;i++){ p=index($i,"="); k=substr($i,1,p-1); x=substr($i,p+1)
+        if(k=="by")by=x; else if(k=="wdir")wd=x; else if(k=="wspd")ws=x
+        else if(k=="mslp")mp=x; else if(k=="sea")sa=x; else if(k=="why")why=x }
+      printf "  %-8s wind %-4s %-4s kn   %-7s hPa   sea %s\n", by, wd, ws, mp, sa
+      if(why!="" && why!="-"){ gsub(/%3D/,"=",why); gsub(/%7C/,"|",why)
+                               printf "     %s\n", why } }' "$LOG"
+  echo
+  echo "  Log the observation for $valid in deck-log when it comes,"
+  echo "  then: weather score"
+  echo
+}
+
+help_text() {
+  printf '%s\n' \
+    '' \
+    '  WEATHER -- read your own barometer' \
+    '' \
+    '  weather                  the menu' \
+    '  weather what             what your log says is coming, with the reasoning' \
+    '  weather learn [key]      a lesson; no key lists them' \
+    '  weather chart            reason over a 500 mb radiofax chart' \
+    '  weather forecast         yours first, then mine, then both are scored' \
+    '  weather score            how you, the rules and persistence are doing' \
+    '  weather lon <deg>        your longitude, E positive - for the pressure tide' \
+    '  weather day|night|plain  colour mode' \
+    '  weather about | version' \
+    '' \
+    '  It reads the deck log; deck-log is what writes it. It never forecasts' \
+    '  from a model, because there is no network here and never will be.' \
+    ''
+}
+
+menu() {
+  while :; do
+    load_conf; load_prog
+    echo
+    echo "  ==============================================================="
+    echo "   WEATHER $WEATHER_VERSION   read your own barometer"
+    echo "  ==============================================================="
+    if [ -n "$lon" ]; then echo "   longitude $lon - the pressure tide is corrected for"
+    else echo "   no longitude set: 'weather lon <deg>' to correct the pressure tide"; fi
+    printf '%s\n' \
+      '' \
+      '    1  What the log says          4  Make a forecast' \
+      '    2  A lesson                   5  The score' \
+      '    3  From a 500 mb chart' \
+      '' \
+      '    c  Colour   a  About   h  Help   q  Quit'
+    printf "  > "; IFS= read -r c || exit 0
+    case "$c" in
+      1) eng -v cmd=what ;;
+      2) printf "  which lesson (return to list): "; IFS= read -r k; do_learn "$k" ;;
+      3) do_chart ;;
+      4) do_forecast ;;
+      5) eng -v cmd=score ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
+      a|A) about_text ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+pick_awk || true
+load_conf
+install_engine
+case "${1:-}" in
+  "")        paint; menu ;;
+  what)      eng -v cmd=what ;;
+  learn)     shift; do_learn "$1" ;;
+  chart)     do_chart ;;
+  forecast)  do_forecast ;;
+  score)     eng -v cmd=score ;;
+  lon)       shift; lon="$1"; save_conf; echo "  longitude: $lon" ;;
+  day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
+  about)     about_text ;;
+  help|-h|--help) help_text ;;
+  version)   echo "weather $WEATHER_VERSION" ;;
+  *) echo "  weather: no such command: $1"; help_text; exit 2 ;;
+esac
+
+exit 0
+#__BN_START_ENGINE__
 # =====================================================================
 #  deck-log -- the record layer.
 #
@@ -19422,236 +19942,7 @@ BEGIN{
   }
   else { printf "  weather: unknown cmd %s\n", cmd; exit 2 }
 }
-__WEATHER_ENGINE__
-}
-
-about_text() {
-  cat <<'ABOUT'
-
-  ===============================================================
-   WEATHER -- read your own barometer
-  ===============================================================
-
-  WHAT THIS IS
-
-  Two things. It reasons over the observations in your deck log and
-  shows its working, and it teaches the physics underneath.
-
-  It is a separate tool from deck-log for a reason. A log records what
-  happened on this boat; a teacher is a different animal. The first
-  attempt put both in one program and the teaching material was the
-  part that got left out.
-
-  WHAT IT CANNOT DO
-
-  Forecast. There is no model here, no GRIB, and no chart it did not
-  get from you by hand. With no network there cannot be.
-
-  What it works from instead is the one category of weather data that
-  is never wrong - what you measured yourself - and the only one still
-  available when the antenna comes down. Celestial is what you do when
-  GPS dies. This is what you do when the sat comms die.
-
-  YOU FORECAST FIRST
-
-  weather forecast asks for yours and writes it down before showing any
-  of its own. Print the machine's guess first and you have not forecast
-  anything, you have agreed with an answer.
-
-  Then it offers two of its own - the rule set, and persistence, which
-  is "in twelve hours it will be much as it is now" - and when the time
-  comes it scores all three against what actually happened.
-
-  Scoring itself as well as you is the point. Every rule in here is a
-  rule of thumb. Some are right seven times in ten, and a rule that is
-  right seven times in ten is genuinely useful once you know that is
-  what it is. And you should be able to beat it in your own waters. A
-  training tool that cannot be outgrown is badly built.
-
-  WHERE IT COMES FROM
-
-  NOAA and the national weather services, which are public domain, and
-  the published literature. The 500 millibar rules are from the
-  Mariner's Guide to the 500-Millibar Chart by Joe Sienkiewicz of
-  NOAA's Ocean Prediction Center and Lee Chesneau. Full citations in
-  docs/SOURCES.md.
-
-  The physics is the part most often taught wrongly, so it is the part
-  checked hardest. If you were told the seasons are about distance from
-  the sun, see "weather learn seasons".
-
-  WHO WROTE IT
-
-  M. Larry Sherman had the ideas and the sea time. Claude wrote the
-  code. Part of Bash Navigation Software.
-
-  https://github.com/larrys614/bashnav
-
-  Apache License 2.0.
-
-ABOUT
-}
-
-FIELDS=""
-#  see src/decklog/10-head.sh: not /tmp, which iOS does not promise
-fld_start(){ FIELDS="$DECKLOG_HOME/.wxfields.$$"; mkdir -p "$DECKLOG_HOME" 2>/dev/null; : > "$FIELDS"; }
-fld(){ printf '%s\t%s\n' "$1" "$2" >> "$FIELDS"; }
-fld_commit(){
-  mkdir -p "$DECKLOG_HOME"
-  rec=$(eng -v cmd=mkrec -v type="$1" -v fields="$FIELDS")
-  rm -f "$FIELDS"; FIELDS=""
-  [ -n "$rec" ] || { echo "  weather: refused to write a malformed record" >&2; return 1; }
-  printf '%s\n' "$rec" >> "$LOG"
-}
-ask(){ printf "  %-38s " "$1"; IFS= read -r a || a=""; [ -z "$a" ] && a="-"; fld "$2" "$a"; }
-
-do_learn() {
-  load_prog
-  if [ -z "$1" ]; then eng -v cmd=syllabus -v donelist="$lessons"; return 0; fi
-  eng -v cmd=lesson -v key="$1" || return 1
-  printf "  your answer (return to see it): "; IFS= read -r a || return 0
-  [ -n "$a" ] && printf "\n  you said: %s\n" "$a"
-  echo
-  printf "  %s\n" "$(eng -v cmd=lessonq -v key="$1")"
-  echo
-  mark_done "$1"
-}
-
-do_chart() {
-  cat <<'C'
-
-  From a 500 mb chart - by radiofax, or one you have on paper. Find the
-  5640 metre contour (marked 564) and read three things off it.
-
-C
-  printf "  bearing from you to the nearest point of it: "; IFS= read -r brg
-  printf "  its distance, nm: ";                            IFS= read -r dist
-  printf "  which way the line itself runs, as a bearing: "; IFS= read -r orient
-  printf "  500 mb wind speed there, knots (return to skip): "; IFS= read -r w500
-  printf "  northern hemisphere? [Y/n] ";                    IFS= read -r nh
-  n=1; case "$nh" in n|N) n=0 ;; esac
-  eng -v cmd=chart -v brg="$brg" -v dist="$dist" -v orient="${orient:-0}" \
-      -v w500="$w500" -v north="$n"
-}
-
-#  YOU FORECAST FIRST. Nothing of mine until yours is written down.
-do_forecast() {
-  printf "  how many hours ahead? [12] "; IFS= read -r hrs || hrs=12
-  [ -z "$hrs" ] && hrs=12
-  case "$hrs" in *[!0-9]*) echo "  ?"; return 1 ;; esac
-  valid=$(eng -v cmd=validat -v hours="$hrs")
-  echo
-  echo "  ==============================================================="
-  echo "   YOUR forecast for $valid"
-  echo "  ==============================================================="
-  echo "   Yours first. Nothing of mine until yours is written down."
-  echo "   Return to leave a field out."
-  echo
-  fld_start
-  fld for "$valid"; fld by user
-  ask "wind direction, degrees true"  wdir
-  ask "wind speed, knots"             wspd
-  ask "sea level pressure, hPa"       mslp
-  ask "sea state, 0-9"                sea
-  fld_commit fc || return 1
-  echo
-  echo "  yours is logged. Now mine."
-  for w in rules persist; do
-    fld_start; fld for "$valid"; fld by "$w"
-    eng -v cmd=fcast -v hours="$hrs" -v who2="$w" | while IFS='=' read -r k v; do
-      [ -n "$k" ] && printf '%s\t%s\n' "$k" "$v" >> "$FIELDS"
-    done
-    fld_commit fc || true
-  done
-  echo
-  $AWK -F'|' -v v="$valid" '
-    /\|fc\|/ && $0 ~ ("for=" v) {
-      by="";wd="";ws="";mp="";sa="";why=""
-      for(i=3;i<=NF;i++){ p=index($i,"="); k=substr($i,1,p-1); x=substr($i,p+1)
-        if(k=="by")by=x; else if(k=="wdir")wd=x; else if(k=="wspd")ws=x
-        else if(k=="mslp")mp=x; else if(k=="sea")sa=x; else if(k=="why")why=x }
-      printf "  %-8s wind %-4s %-4s kn   %-7s hPa   sea %s\n", by, wd, ws, mp, sa
-      if(why!="" && why!="-"){ gsub(/%3D/,"=",why); gsub(/%7C/,"|",why)
-                               printf "     %s\n", why } }' "$LOG"
-  echo
-  echo "  Log the observation for $valid in deck-log when it comes,"
-  echo "  then: weather score"
-  echo
-}
-
-help_text() {
-  cat <<'HLP'
-
-  WEATHER -- read your own barometer
-
-  weather                  the menu
-  weather what             what your log says is coming, with the reasoning
-  weather learn [key]      a lesson; no key lists them
-  weather chart            reason over a 500 mb radiofax chart
-  weather forecast         yours first, then mine, then both are scored
-  weather score            how you, the rules and persistence are doing
-  weather lon <deg>        your longitude, E positive - for the pressure tide
-  weather day|night|plain  colour mode
-  weather about | version
-
-  It reads the deck log; deck-log is what writes it. It never forecasts
-  from a model, because there is no network here and never will be.
-
-HLP
-}
-
-menu() {
-  while :; do
-    load_conf; load_prog
-    echo
-    echo "  ==============================================================="
-    echo "   WEATHER $WEATHER_VERSION   read your own barometer"
-    echo "  ==============================================================="
-    if [ -n "$lon" ]; then echo "   longitude $lon - the pressure tide is corrected for"
-    else echo "   no longitude set: 'weather lon <deg>' to correct the pressure tide"; fi
-    cat <<'M'
-
-    1  What the log says          4  Make a forecast
-    2  A lesson                   5  The score
-    3  From a 500 mb chart
-
-    c  Colour   a  About   h  Help   q  Quit
-M
-    printf "  > "; IFS= read -r c || exit 0
-    case "$c" in
-      1) eng -v cmd=what ;;
-      2) printf "  which lesson (return to list): "; IFS= read -r k; do_learn "$k" ;;
-      3) do_chart ;;
-      4) do_forecast ;;
-      5) eng -v cmd=score ;;
-      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
-           case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
-      a|A) about_text ;;
-      h|H|\?) help_text ;;
-      q|Q) unpaint; exit 0 ;;
-      "") ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-
-pick_awk || true
-load_conf
-install_engine
-case "${1:-}" in
-  "")        paint; menu ;;
-  what)      eng -v cmd=what ;;
-  learn)     shift; do_learn "$1" ;;
-  chart)     do_chart ;;
-  forecast)  do_forecast ;;
-  score)     eng -v cmd=score ;;
-  lon)       shift; lon="$1"; save_conf; echo "  longitude: $lon" ;;
-  day|night|plain) cmode="$1"; save_conf; echo "  colour: $cmode" ;;
-  about)     about_text ;;
-  help|-h|--help) help_text ;;
-  version)   echo "weather $WEATHER_VERSION" ;;
-  *) echo "  weather: no such command: $1"; help_text; exit 2 ;;
-esac
+#__BN_END_ENGINE__
 __BN_PAYLOAD_weather__
 }
 extract_bashnav() {
@@ -19812,17 +20103,19 @@ fine
 DATA="$DEST"
 writable "$HOME" && DATA="$HOME"
 
-BLOCK=$(cat <<BLK
-# >>> bashnav >>>  managed block, safe to delete, rewritten on reinstall
-export PATH="$DEST:\$PATH"
-export CELNAV_HOME="$DATA/.celnav"
-export COLREGS_HOME="$DATA/.colregs"
-export TIDES_HOME="$DATA/.tides"
-export DECKLOG_HOME="$DATA/.bashnav"
-export WEATHER_HOME="$DATA/.bashnav"
-# <<< bashnav <<<
-BLK
-)
+#  printf, not a heredoc.  a-Shell's shell does not deliver a heredoc to
+#  the command reading it: "cat <<M / hello / M" hangs there, waiting on
+#  the terminal.  This installer runs ON that platform, so it may not
+#  contain one -- see docs/HACKING.md.
+BLOCK=$(printf '%s\n' \
+  '# >>> bashnav >>>  managed block, safe to delete, rewritten on reinstall' \
+  "export PATH=\"$DEST:\$PATH\"" \
+  "export CELNAV_HOME=\"$DATA/.celnav\"" \
+  "export COLREGS_HOME=\"$DATA/.colregs\"" \
+  "export TIDES_HOME=\"$DATA/.tides\"" \
+  "export DECKLOG_HOME=\"$DATA/.bashnav\"" \
+  "export WEATHER_HOME=\"$DATA/.bashnav\"" \
+  '# <<< bashnav <<<')
 
 PROF="$DEST/.profile"
 step "environment in .profile"

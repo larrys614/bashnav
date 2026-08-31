@@ -34,17 +34,19 @@ fine
 DATA="$DEST"
 writable "$HOME" && DATA="$HOME"
 
-BLOCK=$(cat <<BLK
-# >>> bashnav >>>  managed block, safe to delete, rewritten on reinstall
-export PATH="$DEST:\$PATH"
-export CELNAV_HOME="$DATA/.celnav"
-export COLREGS_HOME="$DATA/.colregs"
-export TIDES_HOME="$DATA/.tides"
-export DECKLOG_HOME="$DATA/.bashnav"
-export WEATHER_HOME="$DATA/.bashnav"
-# <<< bashnav <<<
-BLK
-)
+#  printf, not a heredoc.  a-Shell's shell does not deliver a heredoc to
+#  the command reading it: "cat <<M / hello / M" hangs there, waiting on
+#  the terminal.  This installer runs ON that platform, so it may not
+#  contain one -- see docs/HACKING.md.
+BLOCK=$(printf '%s\n' \
+  '# >>> bashnav >>>  managed block, safe to delete, rewritten on reinstall' \
+  "export PATH=\"$DEST:\$PATH\"" \
+  "export CELNAV_HOME=\"$DATA/.celnav\"" \
+  "export COLREGS_HOME=\"$DATA/.colregs\"" \
+  "export TIDES_HOME=\"$DATA/.tides\"" \
+  "export DECKLOG_HOME=\"$DATA/.bashnav\"" \
+  "export WEATHER_HOME=\"$DATA/.bashnav\"" \
+  '# <<< bashnav <<<')
 
 PROF="$DEST/.profile"
 step "environment in .profile"

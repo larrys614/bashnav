@@ -144,16 +144,25 @@ installs everything else.
 App Store &mdash; free, and its `awk` already has the maths these tools need.
 [iSH](https://ish.app) works too.
 
-**2. Get one file in: `bashnav-ipad.sh`.** Either
+**2. Get one file in: `bashnav-ipad.sh`.**
+
+The way that never goes wrong, because it involves no typing: put
+`bashnav-ipad.sh` in iCloud Drive or **On My iPad** from a computer, then in
+a-Shell type `pickFolder`, choose that folder, and copy it across.
+
+Or fetch it, if a-Shell has `curl` (`help -l | grep curl` tells you):
 
 ```sh
 cd ~/Documents
 curl -O https://raw.githubusercontent.com/larrys614/bashnav/main/release/bashnav-ipad.sh
 ```
 
-or, if a-Shell has no `curl` (`help -l | grep curl` tells you), put the file in
-iCloud Drive or **On My iPad** from a computer, then type `pickFolder` in
-a-Shell, choose that folder, and copy it across.
+> **A 404 here is almost always a capital letter.** The owner and repository
+> parts of that URL are case-insensitive, but **the branch and the path are
+> not**: `Main`, `Release` or `Bashnav-ipad.sh` each return 404, and iOS
+> capitalises after punctuation by default, so typing the URL by hand on an
+> iPad is a good way to produce one. Paste it, or use `pickFolder` above.
+> A 404 does not mean the file is missing &mdash; check the case first.
 
 **3. Run it.**
 

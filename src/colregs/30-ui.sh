@@ -130,45 +130,44 @@ style_name() {
 }
 style_menu() {
   while :; do
-    cat <<'S0'
-
-  REPORTING STYLE
-  ---------------------------------------------------------------
-  How this program says where a contact lies relative to your own
-  head.  It changes the report and the relative column on the
-  plot.  The true bearing is always given as well, because that is
-  what goes on the chart and what agrees with the radar - this
-  setting only decides how the same angle is said out loud.
-
-  1  Red and Green            "bearing 311, Red 20, drawing left"
-     Royal Navy and British practice.  Red is port and Green is
-     starboard because those are your own sidelights, which is why
-     it is remembered.  The side is carried by a word rather than a
-     digit, so it survives a bad intercom, a following sea and a
-     tired listener.  Nought to 180 each side.
-
-  2  Port and starboard       "bearing 311, Port 20, drawing left"
-     The same information in plainer words, and common in United
-     States and merchant practice.  Longer to say, and the one
-     least likely to be misunderstood by somebody who has never
-     met the Red and Green convention.
-
-  3  Relative, full circle    "bearing 311, 340 relative, ..."
-     Measured clockwise from your own bow, 000 to 359.  Neat on a
-     plot and in a written message.  Worse in the dark, because
-     the listener has to work out for himself which side 340 is
-     on, which is exactly the sum you were trying to save him.
-
-  4  Words only               "bearing 311, fine on the port bow"
-     No number at all.  The slowest to say and the fastest to act
-     on, and the only one that still works when you are shouting
-     to somebody who is not looking at any instrument at all.
-
-  5  True bearing only        "bearing 311, drawing left, ..."
-     No relative bearing.  Correct if whoever you are telling is
-     on the plot rather than on deck.
-
-S0
+    printf '%s\n' \
+      '' \
+      '  REPORTING STYLE' \
+      '  ---------------------------------------------------------------' \
+      '  How this program says where a contact lies relative to your own' \
+      '  head.  It changes the report and the relative column on the' \
+      '  plot.  The true bearing is always given as well, because that is' \
+      '  what goes on the chart and what agrees with the radar - this' \
+      '  setting only decides how the same angle is said out loud.' \
+      '' \
+      '  1  Red and Green            "bearing 311, Red 20, drawing left"' \
+      '     Royal Navy and British practice.  Red is port and Green is' \
+      '     starboard because those are your own sidelights, which is why' \
+      '     it is remembered.  The side is carried by a word rather than a' \
+      '     digit, so it survives a bad intercom, a following sea and a' \
+      '     tired listener.  Nought to 180 each side.' \
+      '' \
+      '  2  Port and starboard       "bearing 311, Port 20, drawing left"' \
+      '     The same information in plainer words, and common in United' \
+      '     States and merchant practice.  Longer to say, and the one' \
+      '     least likely to be misunderstood by somebody who has never' \
+      '     met the Red and Green convention.' \
+      '' \
+      '  3  Relative, full circle    "bearing 311, 340 relative, ..."' \
+      '     Measured clockwise from your own bow, 000 to 359.  Neat on a' \
+      '     plot and in a written message.  Worse in the dark, because' \
+      '     the listener has to work out for himself which side 340 is' \
+      '     on, which is exactly the sum you were trying to save him.' \
+      '' \
+      '  4  Words only               "bearing 311, fine on the port bow"' \
+      '     No number at all.  The slowest to say and the fastest to act' \
+      '     on, and the only one that still works when you are shouting' \
+      '     to somebody who is not looking at any instrument at all.' \
+      '' \
+      '  5  True bearing only        "bearing 311, drawing left, ..."' \
+      '     No relative bearing.  Correct if whoever you are telling is' \
+      '     on the plot rather than on deck.' \
+      ''
     printf "  Now: %s.  Pick 1-5, or x to leave it: " "$(style_name "$rstyle")"
     IFS= read -r sv || return 0
     case "$sv" in
@@ -228,36 +227,35 @@ ref_menu() {
   esac
 }
 help_text() {
-  cat <<'HLP'
-
-  COLREGS -- the rules of the road, drawn in characters
-
-  colregs                  the menu
-  colregs lights           identify vessels by their lights
-  colregs light <key> [brg]  draw one, from any angle
-  colregs shapes           identify vessels by their day shapes
-  colregs shape <key>      draw one
-  colregs encounters       who gives way, and what do you do
-  colregs scenario         a developing situation: plot it, decide, watch it run
-  colregs sound            identify sound signals
-  colregs rules            fifteen lessons on the rules
-  colregs lesson L7        one lesson
-  colregs contacts         bearing drift and contact management
-  colregs track            stand the tracking watch: drift, CPA, the call
-  colregs ekelund          range from a change of course
-  colregs card             the contacts card, on one screen
-  colregs style [rn|usn|rel360|words|none]
-                           how a relative bearing is spoken
-  colregs ref              reference tables
-  colregs colours          check that your terminal shows the lamp colours
-  colregs day|night|plain  colour mode
-  colregs about            why it exists, how it was written, feedback
-  colregs review           check its claims against the Convention, and report
-
-  Bearings are relative to the other vessel: 0 means you are looking
-  at her bow, 090 at her starboard side, 180 at her stern.
-
-HLP
+  printf '%s\n' \
+    '' \
+    '  COLREGS -- the rules of the road, drawn in characters' \
+    '' \
+    '  colregs                  the menu' \
+    '  colregs lights           identify vessels by their lights' \
+    '  colregs light <key> [brg]  draw one, from any angle' \
+    '  colregs shapes           identify vessels by their day shapes' \
+    '  colregs shape <key>      draw one' \
+    '  colregs encounters       who gives way, and what do you do' \
+    '  colregs scenario         a developing situation: plot it, decide, watch it run' \
+    '  colregs sound            identify sound signals' \
+    '  colregs rules            fifteen lessons on the rules' \
+    '  colregs lesson L7        one lesson' \
+    '  colregs contacts         bearing drift and contact management' \
+    '  colregs track            stand the tracking watch: drift, CPA, the call' \
+    '  colregs ekelund          range from a change of course' \
+    '  colregs card             the contacts card, on one screen' \
+    '  colregs style [rn|usn|rel360|words|none]' \
+    '                           how a relative bearing is spoken' \
+    '  colregs ref              reference tables' \
+    '  colregs colours          check that your terminal shows the lamp colours' \
+    '  colregs day|night|plain  colour mode' \
+    '  colregs about            why it exists, how it was written, feedback' \
+    '  colregs review           check its claims against the Convention, and report' \
+    '' \
+    '  Bearings are relative to the other vessel: 0 means you are looking' \
+    '  at her bow, 090 at her starboard side, 180 at her stern.' \
+    ''
 }
 banner() {
   echo
@@ -272,19 +270,18 @@ menu() {
   while :; do
     load_prog
     banner
-    cat <<'M'
-    1  Lights           what is she, and what is she doing?
-    2  Day shapes       the same meanings, by daylight
-    3  Encounters       who gives way, and what do you do?
-    4  Sound signals    what is she saying?
-    5  The rules        fifteen lessons on the rules themselves
-    6  Mixed drill      one of each, at random
-    7  Collision avoidance   a developing situation: plot it, decide, watch it run
-    8  Contacts         bearing drift, the report, and the tracking party
-
-    r  Reference tables   c  Colour   s  Report style
-    v  Review the rules   a  About   h  Help   q  Quit
-M
+    printf '%s\n' \
+      '    1  Lights           what is she, and what is she doing?' \
+      '    2  Day shapes       the same meanings, by daylight' \
+      '    3  Encounters       who gives way, and what do you do?' \
+      '    4  Sound signals    what is she saying?' \
+      '    5  The rules        fifteen lessons on the rules themselves' \
+      '    6  Mixed drill      one of each, at random' \
+      '    7  Collision avoidance   a developing situation: plot it, decide, watch it run' \
+      '    8  Contacts         bearing drift, the report, and the tracking party' \
+      '' \
+      '    r  Reference tables   c  Colour   s  Report style' \
+      '    v  Review the rules   a  About   h  Help   q  Quit'
     printf "  > "; IFS= read -r c || exit 0
     case "$c" in
       1) run_quiz qlight qlightm ;;

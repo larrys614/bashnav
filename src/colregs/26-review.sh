@@ -50,19 +50,18 @@ rv_run() {   # $1 = section, or empty for "carry on from where I left off"
 rv_submit() {
   RV=$(rv_file)
   if [ ! -s "$RV" ]; then echo; echo "  Nothing reviewed yet."; echo; return; fi
-  cat <<'S1'
-
-  SENDING IT BACK
-  ---------------------------------------------------------------
-  This builds a report and prints a link that opens a GitHub issue
-  with the report already in it.  The program does not send it -
-  you do, by opening the link.  Nothing leaves this machine until
-  you press return in your browser.
-
-  GitHub signs the issue with your account, so it is not anonymous
-  and there is no email for anybody to collect.
-
-S1
+  printf '%s\n' \
+    '' \
+    '  SENDING IT BACK' \
+    '  ---------------------------------------------------------------' \
+    '  This builds a report and prints a link that opens a GitHub issue' \
+    '  with the report already in it.  The program does not send it -' \
+    '  you do, by opening the link.  Nothing leaves this machine until' \
+    '  you press return in your browser.' \
+    '' \
+    '  GitHub signs the issue with your account, so it is not anonymous' \
+    '  and there is no email for anybody to collect.' \
+    ''
   printf "  A name to put on it (return to leave it off): "; IFS= read -r who
   cr=""
   if [ -n "$who" ]; then
@@ -109,24 +108,23 @@ S1
 }
 review_menu() {
   while :; do
-    cat <<'M'
-
-  REVIEW -- help make it right
-
-  The test suite proves the program works. It cannot prove that what
-  it says about the rules is true. That needs somebody with the
-  Convention open, going through the claims one at a time.
-
-    1  Carry on from where I left off
-    2  Encounter verdicts        who gives way, and what to do
-    3  Give-way calls from her lights
-    4  The light tables
-    5  Rules lesson answers      6  Sound signals      7  Day shapes
-    8  What I have answered so far
-    9  Send it back
-
-    x  back
-M
+    printf '%s\n' \
+      '' \
+      '  REVIEW -- help make it right' \
+      '' \
+      '  The test suite proves the program works. It cannot prove that what' \
+      '  it says about the rules is true. That needs somebody with the' \
+      '  Convention open, going through the claims one at a time.' \
+      '' \
+      '    1  Carry on from where I left off' \
+      '    2  Encounter verdicts        who gives way, and what to do' \
+      '    3  Give-way calls from her lights' \
+      '    4  The light tables' \
+      '    5  Rules lesson answers      6  Sound signals      7  Day shapes' \
+      '    8  What I have answered so far' \
+      '    9  Send it back' \
+      '' \
+      '    x  back'
     printf "  > "; IFS= read -r c || return 0
     case "$c" in
       1) rv_run "" ;;

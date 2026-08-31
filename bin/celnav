@@ -40,6 +40,68 @@ bn_home() {                       # bn_home <dotfolder>  ->  prints path
   printf '%s\n' "$HOME/$1"
   return 1
 }
+
+# ---------------------------------------------------------------------
+#  Unpacking the awk engines.
+#
+#  These used to be written with a heredoc:
+#
+#      cat > "$ENGINE" <<'__ENGINE__'
+#      ...the whole engine...
+#      __ENGINE__
+#
+#  a-Shell -- the iPad terminal this project exists for -- DOES NOT
+#  DELIVER A HEREDOC.  Larry ran the three-line test on the device:
+#
+#      cat <<'M'          hangs, and every Return comes back blank,
+#      hello              because cat falls through to the terminal
+#      M
+#
+#  With the output redirected to a file, cat instead sees end of input
+#  straight away and writes NOTHING.  So every engine on that iPad was
+#  ZERO BYTES -- confirmed: wc -c ~/Documents/.celnav/*.awk = 0.  The
+#  tools could never have computed anything; the menus simply hung
+#  first, so that is where it was noticed.
+#
+#  So the payloads now live at the END of each tool, after "exit 0"
+#  where the shell never reads them, between markers, and awk lifts
+#  them out.  No heredoc, and awk is already a hard requirement.
+#
+#  And the result is CHECKED FOR SIZE.  A zero-byte engine must be a
+#  loud failure at install time, not a strange awk error hours later.
+# ---------------------------------------------------------------------
+bn_self() {
+  #  The path to this script.  $0 is it in every normal case; when the
+  #  script was found on PATH by name, ask the shell where it is.
+  if [ -f "$0" ]; then printf '%s\n' "$0"; return 0; fi
+  bn_s_p=$(command -v "$0" 2>/dev/null)
+  if [ -n "$bn_s_p" ] && [ -f "$bn_s_p" ]; then printf '%s\n' "$bn_s_p"; return 0; fi
+  return 1
+}
+#  bn_unpack <TAG> <destination>
+bn_unpack() {
+  bn_u_self=$(bn_self) || {
+    echo "${BN_TOOL:-bashnav}: cannot find my own file to unpack from" >&2; return 1; }
+  [ -n "${AWK:-}" ] || {
+    echo "${BN_TOOL:-bashnav}: no awk was chosen before unpacking" >&2; return 1; }
+  [ -r "$bn_u_self" ] || {
+    echo "${BN_TOOL:-bashnav}: cannot read $bn_u_self" >&2; return 1; }
+  #  </dev/null is the house rule and it is not decoration: awk with no
+  #  readable file argument reads STDIN and sits there forever.  On a
+  #  terminal that is a hang with no message; on an iPad, where there is
+  #  no Ctrl and no Esc, it ends the session.  See docs/ARCHITECTURE.md.
+  $AWK -v s="#__BN_START_$1__" -v e="#__BN_END_$1__" '
+    $0==e { f=0 } f { print } $0==s { f=1 }' "$bn_u_self" > "$2" 2>/dev/null </dev/null || {
+    echo "${BN_TOOL:-bashnav}: could not write $2" >&2; return 1; }
+  if [ ! -s "$2" ]; then
+    echo "${BN_TOOL:-bashnav}: unpacked $1 and got an empty file." >&2
+    echo "  Looked in: $bn_u_self" >&2
+    echo "  The file is probably truncated, or awk ($AWK) cannot read it." >&2
+    rm -f "$2"
+    return 1
+  fi
+  return 0
+}
 # =====================================================================
 #  celnav -- celestial navigation for the small screen
 #  Pure POSIX shell + awk.  No network, no almanac tables, no libraries.
@@ -66,19 +128,18 @@ pick_awk() {
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
   AWK=awk
-  cat >&2 <<'NOMATH'
-celnav: no awk with trigonometric functions was found.
-
-  On macOS:            nothing to do - the built-in awk already has it.
-                       (apk is Alpine's, and only exists inside iSH.)
-  On iSH (Alpine):     apk add gawk
-  On Termux:           pkg install gawk
-  On Debian/Ubuntu:    sudo apt install gawk
-  a-Shell already has a suitable awk built in.
-
-  If your awk is under another name, set it explicitly:
-      CELNAV_AWK=gawk celnav
-NOMATH
+  printf '%s\n' \
+    'celnav: no awk with trigonometric functions was found.' \
+    '' \
+    '  On macOS:            nothing to do - the built-in awk already has it.' \
+    '                       (apk is Alpine'\''s, and only exists inside iSH.)' \
+    '  On iSH (Alpine):     apk add gawk' \
+    '  On Termux:           pkg install gawk' \
+    '  On Debian/Ubuntu:    sudo apt install gawk' \
+    '  a-Shell already has a suitable awk built in.' \
+    '' \
+    '  If your awk is under another name, set it explicitly:' \
+    '      CELNAV_AWK=gawk celnav' >&2
   return 1
 }
 
@@ -195,7 +256,707 @@ install_engine() {
   fi
   mkdir -p "$CELNAV_HOME" 2>/dev/null || {
     echo "celnav: cannot create $CELNAV_HOME" >&2; exit 1; }
-  cat > "$ENGINE" <<'__CELNAV_ENGINE__'
+  bn_unpack ENGINE "$ENGINE" || exit 1
+  bn_unpack TEACH "$TEACH" || exit 1
+}
+# ---------------------------------------------------------------------
+#  About.  Shared by both tools; each one supplies about_why and
+#  about_sources, which are the parts that differ.
+# ---------------------------------------------------------------------
+about_how() {
+  printf '%s\n' \
+    '' \
+    '  HOW IT WAS WRITTEN' \
+    '  ---------------------------------------------------------------' \
+    '  By Claude, Anthropic'\''s AI model, in conversation with Larry over' \
+    '  a few days in August 2026.  He decided what it should do and' \
+    '  judged whether it was right.  The code, the mathematics and the' \
+    '  tests are Claude'\''s work.' \
+    '' \
+    '  Three rules were set at the start and never relaxed.' \
+    '' \
+    '  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs' \
+    '  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox' \
+    '  on a router.  Nothing is installed.  There is no dependency here' \
+    '  that can rot in a year, because there is no dependency.' \
+    '' \
+    '  NO NETWORK, EVER.  Every number the program needs is inside the' \
+    '  file you are running.  That is a constraint on the mathematics' \
+    '  and not only on the plumbing: it is why the planetary positions' \
+    '  are computed from orbital elements with a correction series' \
+    '  fitted here, rather than looked up in a table someone serves.' \
+    '' \
+    '  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is' \
+    '  implemented from a primary source and then validated against an' \
+    '  independent implementation - never against itself.' \
+    '' \
+    '  On that last one, honestly.  An AI writing code is confidently' \
+    '  wrong on a regular basis, and so is a person.  The defence is' \
+    '  not care, it is testing.  Real errors in this project were found' \
+    '  by machinery and by users, and would not have been found by' \
+    '  reading the code:' \
+    '' \
+    '    - One awk implementation ignores the seed you give its random' \
+    '      number generator.  A drill could therefore mark its own' \
+    '      correct answer wrong.  Found by running the suite under four' \
+    '      different awks, not by inspection.' \
+    '' \
+    '    - Both tools worked out "am I writing to a terminal?" from' \
+    '      inside a command substitution, where the answer is always' \
+    '      no.  Colour had never once worked, on any terminal, since' \
+    '      the day it was written.  The test suite checked that the' \
+    '      output is clean when piped - and passed, for entirely the' \
+    '      wrong reason.' \
+    '' \
+    '    - The three green lights of a mine clearance vessel were drawn' \
+    '      on two different masts.  A user saw that before any test' \
+    '      did, because he tried to account for every light in the' \
+    '      picture and could not.' \
+    '' \
+    '  So: the tests exist because the author is fallible, and the' \
+    '  interesting mistakes were caught by the tests and by the people' \
+    '  using it.  Which is the argument for sending feedback.' \
+    ''
+}
+about_feedback() {
+  printf '%s\n' \
+    '' \
+    '  FEEDBACK' \
+    '  ---------------------------------------------------------------' \
+    '  Please send it.  It is the reason this is public.' \
+    ''
+  about_needs
+  printf '%s\n' \
+    '  The useful report is small and specific:' \
+    '' \
+    '    what you did        the exact command, or which menu item' \
+    '    what you saw        paste it, escape codes and all' \
+    '    what you expected   and why - the rule, the sight, the table' \
+    '' \
+    '  "This is not right, a sailing vessel would not show that" with' \
+    '  the picture pasted underneath is worth more than any amount of' \
+    '  general praise, and has already fixed real bugs.' \
+    '' \
+    '  Where:' \
+    '' \
+    '    https://github.com/larrys614/bashnav/issues' \
+    '' \
+    '  If you think the program disagrees with the Convention, with an' \
+    '  almanac, or with a published tide table, say so plainly.  Assume' \
+    '  the program is wrong until it is shown otherwise.  That is the' \
+    '  correct prior, and it is how the bugs above were found.' \
+    '' \
+    '  Corrections to the teaching are as welcome as corrections to the' \
+    '  code.  If a lesson is misleading, that is a defect.' \
+    ''
+}
+about_licence() {
+  printf '%s\n' \
+    '' \
+    '  LICENCE AND WARRANTY' \
+    '  ---------------------------------------------------------------' \
+    '  Copyright 2026 M. Larry Sherman.' \
+    '  Licensed under the Apache License, Version 2.0.' \
+    '  http://www.apache.org/licenses/LICENSE-2.0' \
+    '' \
+    '  You may use it, including commercially, modify it, and pass it' \
+    '  on.  You must keep the copyright and licence notices and say' \
+    '  what you changed.  You get an explicit patent grant.  You may' \
+    '  not use the author'\''s name to endorse your version.' \
+    '' \
+    '  Tide station data carries its own terms, which this licence does' \
+    '  not change: the NOAA harmonic constants are public domain, and' \
+    '  the TICON-4 constants are CC BY 4.0.  Their attribution travels' \
+    '  with them.  See the NOTICE file.' \
+    '' \
+    '  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT' \
+    '  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.' \
+    '' \
+    '  This is a training aid and a calculator.  It is not a certified' \
+    '  navigation system, it carries no authority, and it has never' \
+    '  been near a type approval.  Nothing in it relieves any vessel,' \
+    '  owner, master or crew of the consequences of neglecting to' \
+    '  comply with the rules of the road, of neglecting a proper' \
+    '  look-out, or of neglecting any precaution required by the' \
+    '  ordinary practice of seamen.' \
+    '' \
+    '  Carry a paper almanac, a paper tide table, and the rules.' \
+    ''
+}
+about_menu() {
+  while :; do
+    printf '%s\n' \
+      '' \
+      '  ABOUT' \
+      '' \
+      '    1  Why this exists       who wanted it, and what for' \
+      '    2  How it was written    and by what, and what went wrong' \
+      '    3  What is tested        and, more to the point, what is not' \
+      '    4  Sources               where the numbers come from' \
+      '    5  Feedback              what to send, where, and what is worth most' \
+      '    6  Licence and warranty  Apache 2.0, and what it does not cover' \
+      '' \
+      '    x  back'
+    printf "  > "; IFS= read -r ac || return 0
+    case "$ac" in
+      1) about_why ;;
+      2) about_how ;;
+      3) about_tested ;;
+      4) about_sources ;;
+      5) about_feedback ;;
+      6) about_licence ;;
+      x|X|q|Q|"") return 0 ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+about_why() {
+  printf '%s\n' \
+    '' \
+    '  WHY THIS EXISTS' \
+    '  ---------------------------------------------------------------' \
+    '  Larry Sherman asked for it.' \
+    '' \
+    '  He served in the United States Navy from 1984 to 1990 as an' \
+    '  FTG2/SS - a fire control technician, submarines - in USS Alaska' \
+    '  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS' \
+    '  Greenling (SSN-614).  Two ballistic missile boats and two fast' \
+    '  attacks, which is two quite different trades: one hides and one' \
+    '  goes looking.  He stood the manoeuvring watch on the fire control' \
+    '  tracking party, managing contacts and avoiding collisions through' \
+    '  places like the Strait of Gibraltar and the Race - the tide gate' \
+    '  at the mouth of Long Island Sound, and the door you go out of' \
+    '  from Groton.' \
+    '' \
+    '  Thirty-six years on he is sailing round the world in the Clipper' \
+    '  Race, and he wanted a' \
+    '  sight reduction that would work on an iPad in the middle of an' \
+    '  ocean: no signal, no subscription, no account to log in to, no' \
+    '  almanac to download first.' \
+    '' \
+    '  And he wanted it to DRAW the solution.  A fix that arrives as' \
+    '  three numbers teaches you nothing about whether to believe it.' \
+    '  A fix that arrives as three lines on a plot, with the cut' \
+    '  between them and an error ellipse around the result, tells you' \
+    '  at a glance whether you have a fix or an opinion.  That is why' \
+    '  the intercept plot is the point of this program rather than a' \
+    '  decoration on it.' \
+    '' \
+    '  Everything else follows from "no internet".  The almanac is not' \
+    '  fetched; it is computed, from orbital theory, inside the file' \
+    '  you are running.  There is no table to expire and no server to' \
+    '  go away.  It is text, you can read every line of it, and' \
+    '  "celnav doctor" will check it against an independent reference' \
+    '  in front of you.' \
+    ''
+}
+about_sources() {
+  printf '%s\n' \
+    '' \
+    '  SOURCES' \
+    '  ---------------------------------------------------------------' \
+    '  ASTRONOMY' \
+    '    Jean Meeus, "Astronomical Algorithms", 2nd edition.  The solar' \
+    '    theory is chapter 25 and the lunar main problem chapter 47,' \
+    '    with nutation and sidereal time from the same book.' \
+    '' \
+    '    E. M. Standish, Keplerian elements for approximate positions' \
+    '    of the major planets (Jet Propulsion Laboratory).  The raw' \
+    '    elements lose several arcminutes on Saturn to the great' \
+    '    inequality with Jupiter, so a periodic correction series was' \
+    '    fitted here against an independent ephemeris; Saturn is now' \
+    '    the most accurate planet in the set.' \
+    '' \
+    '    Precession and annual aberration by the standard series.' \
+    '    Star positions from the Hipparcos and Yale catalogues, with' \
+    '    proper motion applied for the date.  Delta T from the' \
+    '    Espenak-Meeus polynomials, with the observed plateau after' \
+    '    2005.' \
+    '' \
+    '  METHOD' \
+    '    The intercept method - Marcq St Hilaire - as in the Nautical' \
+    '    Almanac'\''s sight reduction procedure.  Dip, refraction,' \
+    '    semi-diameter, parallax and index error applied in the usual' \
+    '    order.  The fix is an iterated least-squares solution of every' \
+    '    line of position at once, not a two-body cut, and the error' \
+    '    ellipse comes out of the normal matrix.' \
+    '' \
+    '  CHECKED BY' \
+    '    An independent reference ephemeris of JPL grade, over the' \
+    '    whole period the program covers, embedded so that the check' \
+    '    works with no network.  "celnav doctor" runs it.' \
+    ''
+}
+about_tested() {
+  printf '%s\n' \
+    '' \
+    '  WHAT IS TESTED, AND WHAT IS NOT' \
+    '  ---------------------------------------------------------------' \
+    '  THE NUMBERS.  "celnav doctor", which you can run yourself.' \
+    '' \
+    '    The almanac is checked, body by body and date by date, against' \
+    '    an independent reference ephemeris of JPL grade, embedded so' \
+    '    that the check works with no network.  It prints the worst' \
+    '    error it found in arcminutes.  If that number is not small,' \
+    '    nothing downstream of it means anything.' \
+    '' \
+    '  THE WHOLE CHAIN.  tests/run-tests.sh, under four awks and two' \
+    '  shells.' \
+    '' \
+    '    Three star sights taken from a known position are reduced,' \
+    '    and the fix has to come back to the position they were taken' \
+    '    from, to a tenth of a minute.  That exercises everything at' \
+    '    once: the almanac, dip, refraction, semi-diameter, parallax,' \
+    '    index error, the navigational triangle, the least-squares' \
+    '    solution and the run.  Every drill must also mark its own' \
+    '    correct answer as correct.' \
+    '' \
+    '  THE GOLDEN FILES.  tests/golden.sh' \
+    '' \
+    '    The almanac for five dates spread across twenty years, the' \
+    '    star list, and four worked reductions - a clean one, the same' \
+    '    one on the run, one with a five-mile blunder in it, and a' \
+    '    weak cut - captured as text and committed.  Any change to any' \
+    '    number turns up as a diff that has to be read and accepted on' \
+    '    purpose.' \
+    '' \
+    '  NOW THE HONEST PART.' \
+    '' \
+    '  All of that checks the ARITHMETIC.  None of it checks the' \
+    '  SEAMANSHIP.' \
+    '' \
+    '  A test can confirm that the program computes the sun'\''s GHA to' \
+    '  within a tenth of a minute.  It cannot tell you whether the' \
+    '  advice in the lessons is good practice, whether the order the' \
+    '  corrections are explained in is the order you should learn' \
+    '  them, or whether the walkthrough matches how a sight is' \
+    '  actually taken on a wet deck at dawn.' \
+    '' \
+    '  Nor does it check the program against a printed Nautical' \
+    '  Almanac, which is a different authority from the one it was' \
+    '  validated against.  If you have one, that comparison is worth' \
+    '  more than anything else you could send.' \
+    ''
+}
+about_needs() {
+  printf '%s\n' \
+    '  AND HERE IS WHERE IT IS WORTH MOST.' \
+    '' \
+    '  1  A FIX THAT DISAGREES WITH YOURS.  If you work a sight by' \
+    '     hand or with tables and this program gives you something' \
+    '     else, that is the most valuable report there is.  Send the' \
+    '     sights, the time, the height of eye, the index error and' \
+    '     what you got.  One of us is wrong and it is worth knowing' \
+    '     which.' \
+    '' \
+    '  2  THE ALMANAC AGAINST A PRINTED ONE.  GHA, declination, SD and' \
+    '     HP for any body and time, checked against the Nautical' \
+    '     Almanac.  It has been validated against a computed reference,' \
+    '     never against the book.' \
+    '' \
+    '  3  THE TEACHING.  Whether the lessons and the walkthrough match' \
+    '     how it is really done - and whether anything in them would' \
+    '     build a bad habit.  Corrections to the teaching matter as' \
+    '     much as corrections to the code.' \
+    '' \
+    '  4  THE AWKWARD CASES.  A lower limb near the horizon, a very' \
+    '     high altitude, extreme temperature or pressure, a sight' \
+    '     close to the pole, a moon sight with a large parallax.  The' \
+    '     ordinary cases are well covered.  The edges are where the' \
+    '     corrections are applied in an order somebody has to check.' \
+    ''
+}
+
+# ---- command implementations ---------------------------------------
+do_fix() {
+  if [ ! -s "$SIGHTS" ]; then echo; echo "  No sights in the log.  Enter one first."; echo; return; fi
+  ft="$fixtime"
+  [ -n "$1" ] && ft="$1"
+  engine -v cmd=reduce -v sfile="$SIGHTS" -v drlat="$drlat" -v drlon="$drlon" \
+         -v course="$course" -v speed="$speed" -v fixtime="$ft"
+}
+do_plan() {
+  u="$1"; [ -z "$u" ] && u=$(utcnow)
+  engine -v cmd=plan -v utc="$u" -v drlat="$drlat" -v drlon="$drlon"
+}
+do_almanac() {
+  u="$1"; [ -z "$u" ] && u=$(utcnow)
+  b="$2"; [ -z "$b" ] && b="sun,moon,venus,mars,jupiter,saturn"
+  engine -v cmd=almanac -v utc="$u" -v bodies="$b"
+}
+do_compass() {
+  engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
+         -v body="$2" -v cbrg="$3" -v variation="$4"
+}
+do_stars() { engine -v cmd=stars -v utc="$1"; }
+do_selftest() { engine -v cmd=selftest; }
+
+# ---- interactive: enter a sight ------------------------------------
+ask() {  # ask "prompt" "default" -> sets ANS
+  if [ -n "$2" ]; then printf "  %s [%s]: " "$1" "$2"; else printf "  %s: " "$1"; fi
+  IFS= read -r ANS
+  [ -z "$ANS" ] && ANS="$2"
+}
+enter_sight() {
+  echo
+  echo "  ---- new sight ----------------------------------------------"
+  ask "UT date (YYYY-MM-DD)" "$(utctoday)"; sd="$ANS"
+  ask "UT time (HHMMSS or HH:MM:SS)" ""; st=$(fixtimefmt "$ANS")
+  [ -z "$st" ] && { echo "  no time given - sight discarded"; return; }
+  ask "Body (name, star number, or ? for list)" "Sun"; sb="$ANS"
+  if [ "$sb" = "?" ]; then do_stars; ask "Body" "Sun"; sb="$ANS"; fi
+  case "$(echo "$sb" | tr 'A-Z' 'a-z')" in
+    sun|moon) ask "Limb (L lower / U upper)" "L"; sl=$(echo "$ANS"|tr 'a-z' 'A-Z') ;;
+    *) sl="C" ;;
+  esac
+  ask "Hs sextant altitude (DD MM.M)" ""; sh="$ANS"
+  [ -z "$sh" ] && { echo "  no altitude given - sight discarded"; return; }
+  ask "Index error, arcmin (+ = on the arc)" "$ie"; si="$ANS"
+  ask "Height of eye, metres" "$heye"; se="$ANS"
+  ask "Label (optional)" ""; sx="$ANS"
+  add_sight "$sd $st" "$sb" "$sl" "$sh" "$si" "$se" "$temp" "$press" "$sx"
+  echo "  sight recorded."
+  engine -v cmd=almanac -v utc="$sd $st" -v bodies="$sb"
+}
+set_dr() {
+  echo
+  ask "DR latitude  (e.g. 35 10.4 N)" "$drlat"; drlat="$ANS"
+  ask "DR longitude (e.g. 040 20.1 W)" "$drlon"; drlon="$ANS"
+  ask "Course made good, degrees true" "$course"; course="$ANS"
+  ask "Speed over ground, knots" "$speed"; speed="$ANS"
+  save_conf
+  echo "  DR set."
+}
+set_opts() {
+  echo
+  ask "Height of eye, metres" "$heye"; heye="$ANS"
+  ask "Standard index error, arcmin" "$ie"; ie="$ANS"
+  ask "Air temperature, deg C" "$temp"; temp="$ANS"
+  ask "Pressure, millibars" "$press"; press="$ANS"
+  save_conf
+  echo "  settings saved."
+}
+log_menu() {
+  while :; do
+    echo; list_sights; echo
+    echo "  d N = delete sight N     c = clear all     x = back"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      d\ *) del_sight "${a#d }" ;;
+      c) : > "$SIGHTS"; echo "  log cleared" ;;
+      x|"") return ;;
+    esac
+  done
+}
+help_text() {
+  printf '%s\n' \
+    '' \
+    '  CELNAV -- offline celestial navigation' \
+    '' \
+    '  Everything is computed from first principles: the almanac is built in,' \
+    '  so there is nothing to download and nothing expires.' \
+    '' \
+    '  THE WORKING CYCLE' \
+    '    1. Set your DR position, course and speed (menu 6).' \
+    '    2. Before twilight, run sight planning (menu 3) to see which bodies' \
+    '       are up, how high, and which three give the best cut.' \
+    '    3. Shoot your sights and enter each one (menu 1) with the UT time to' \
+    '       the second.  Time matters more than anything: 4 seconds of error' \
+    '       is about 1 mile of longitude.' \
+    '    4. Reduce and plot (menu 2).  You get the full working for each' \
+    '       sight, the least-squares fix, the residuals, and the plot.' \
+    '    5. Clear the log (menu 7) before the next round of sights.' \
+    '' \
+    '  ANGLE FORMATS' \
+    '    Latitude    35 10.4 N   or  -35.1733' \
+    '    Longitude   040 20.1 W  or  040:20.1W' \
+    '    Altitude    32 14.6     (degrees and decimal minutes)' \
+    '' \
+    '  ON THE RUN' \
+    '    Set course and speed and every LOP is advanced to the fix time for' \
+    '    you, so a sun-run-sun or a spread of sights over an hour still gives' \
+    '    one fix.  The fix time defaults to the last sight in the log.' \
+    '' \
+    '  COMMAND LINE (for scripting or a quick answer)' \
+    '' \
+    '    Working' \
+    '      celnav plan  [ "YYYY-MM-DD HH:MM:SS" ]   twilight, what is up, best three' \
+    '      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP' \
+    '      celnav sight "UT" body limb Hs [ie] [heye]    record one sight' \
+    '      celnav fix   [ "UT of fix" ]             reduce the log and plot' \
+    '      celnav compass "UT" body <bearing> [variation]' \
+    '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
+    '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
+    '      celnav log | clear                       list or empty the sight log' \
+    '' \
+    '    Learning' \
+    '      celnav learn                             the training menu' \
+    '      celnav lesson <code>                     one lesson, e.g. R3' \
+    '      celnav walk                              a real sight, step by step' \
+    '      celnav drill [corr|alm|red|int|full|fix] one marked drill' \
+    '      celnav sandbox                           the what-if triangle' \
+    '      celnav syllabus                          the lesson list and progress' \
+    '' \
+    '    Setup and checking' \
+    '      celnav doctor                            check awk, clock, data folder' \
+    '      celnav test                              the self test on its own' \
+    '      celnav day | night | plain               colour mode' \
+    '      celnav where | version | reinstall | help' \
+    ''
+}
+banner() {
+  echo
+  echo "  ==============================================================="
+  echo "   CELNAV $CELNAV_VERSION   celestial navigation, no internet needed"
+  echo "  ==============================================================="
+  printf "   DR %s  %s      course %03.0f T   speed %s kn\n" "$drlat" "$drlon" "$course" "$speed"
+  printf "   eye %s m   index error %s'   %s C  %s mb   sights logged: %s   [%s]\n" \
+         "$heye" "$ie" "$temp" "$press" "$(nsights)" "$cmode"
+  echo "  ---------------------------------------------------------------"
+}
+menu() {
+  while :; do
+    banner
+    printf '%s\n' \
+      '    1  Enter a sight              5  Compass check' \
+      '    2  Reduce sights -> FIX       6  Set DR, course and speed' \
+      '    3  Sight planning / stars     7  Sight log' \
+      '    4  Almanac for a time         8  Sextant and weather settings' \
+      '' \
+      '    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox' \
+      '' \
+      '    s  Star list   t  Self test   d  Check setup   c  Colour' \
+      '    a  About      h  Help       q  Quit'
+    printf "  > "
+    IFS= read -r c || exit 0
+    case "$c" in
+      1) enter_sight ;;
+      2) printf "  Fix time (blank = time of last sight): "; IFS= read -r ft
+         if [ -n "$ft" ]; then
+           case "$ft" in *-*) ;; *) ft="$(utctoday) $(fixtimefmt "$ft")" ;; esac
+         fi
+         do_fix "$ft" ;;
+      3) printf "  UT for planning (blank = now): "; IFS= read -r u
+         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
+         do_plan "$u" ;;
+      4) printf "  UT (blank = now): "; IFS= read -r u
+         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
+         printf "  Bodies (blank = sun,moon,planets): "; IFS= read -r b
+         do_almanac "$u" "$b" ;;
+      5) printf "  UT (blank = now): "; IFS= read -r u; [ -z "$u" ] && u=$(utcnow)
+         case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac
+         printf "  Body: "; IFS= read -r b
+         printf "  Compass bearing observed: "; IFS= read -r cb
+         printf "  Variation from chart (E +, W -): "; IFS= read -r vr
+         do_compass "$u" "$b" "$cb" "$vr" ;;
+      6) set_dr ;;
+      7) log_menu ;;
+      8) set_opts ;;
+      9) train_menu ;;
+      s|S) do_stars ;;
+      t|T) do_selftest ;;
+      d|D) doctor ;;
+      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
+           [ -n "$v" ] && set_colour "$v" ;;
+      a|A) about_menu ;;
+      h|H|\?) help_text ;;
+      q|Q) unpaint; exit 0 ;;
+      "") ;;
+      *) echo "  ?" ;;
+    esac
+  done
+}
+
+
+# =====================================================================
+#  Training mode
+# =====================================================================
+pause() { printf "  -- press return --"; IFS= read -r _junk; }
+
+do_lesson() {
+  teach -v cmd=t_lesson -v les="$1" || return 1
+  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
+  [ -z "$av" ] && return 0
+  if teach -v cmd=t_check -v les="$1" -v ans="$av"; then mark_done "$1"; fi
+}
+learn_menu() {
+  while :; do
+    teach -v cmd=t_syllabus -v done="$lessons"
+    printf "  Lesson code, n for the next one you have not done, or x to go back: "
+    IFS= read -r a
+    case "$a" in
+      x|X|"") return ;;
+      n|N)  nx=""
+            for L in F1 F2 F3 F4 F5 T1 T2 T3 T4 T5 S1 S2 S3 S4 S5 R1 R2 R3 R4 R5; do
+              case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
+            done
+            if [ -z "$nx" ]; then echo "  All twenty done. Try the drills."; else do_lesson "$nx"; fi ;;
+      *)    do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
+    esac
+  done
+}
+walk_mode() {
+  s=1
+  while [ "$s" -le 10 ]; do
+    teach -v cmd=t_walk -v step="$s"
+    printf "  return = next, b = back, x = leave: "; IFS= read -r a
+    case "$a" in x|X) return ;; b|B) [ "$s" -gt 1 ] && s=$((s-1)) ;; *) s=$((s+1)) ;; esac
+  done
+  echo "  That is the whole method. The drills will let you do it yourself."
+}
+drill_one() {
+  k="$1"; sd=$(newseed)
+  teach -v cmd=t_drill -v kind="$k" -v seed="$sd" || return 1
+  case "$k" in
+    corr) printf "  Ho = "; IFS= read -r x1; x2="" ;;
+    alm)  printf "  GHA = "; IFS= read -r x1; printf "  Dec (e.g. N21 14.3) = "; IFS= read -r x2 ;;
+    red)  printf "  Hc = ";  IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
+    int)  printf "  Intercept, + toward / - away, in nm = "; IFS= read -r x1; x2="" ;;
+    full) printf "  Intercept, + toward / - away, nm = "; IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
+    fix)  printf "  Fix latitude  = "; IFS= read -r x1; printf "  Fix longitude = "; IFS= read -r x2 ;;
+  esac
+  [ -z "$x1" ] && { echo "  skipped."; return 0; }
+  dtry=$((dtry+1))
+  if teach -v cmd=t_mark -v kind="$k" -v seed="$sd" -v a1="$x1" -v a2="$x2"; then dok=$((dok+1)); fi
+  save_prog
+}
+drill_menu() {
+  while :; do
+    echo
+    echo "  DRILLS                                     score so far: $dok of $dtry"
+    echo "  ---------------------------------------------------------------"
+    echo "   1  Sextant corrections      Hs to Ho"
+    echo "   2  The almanac              time and body to GHA and Dec"
+    echo "   3  Sight reduction          AP, GHA, Dec to Hc and Zn"
+    echo "   4  The intercept            Ho and Hc to miles, toward or away"
+    echo "   5  A complete sight         everything, end to end"
+    echo "   6  A three-star fix         three LOPs to a position"
+    echo "   m  Mixed - one of each, at random        r  reset the score"
+    echo "   x  back"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      1) drill_one corr ;; 2) drill_one alm ;; 3) drill_one red ;;
+      4) drill_one int ;;  5) drill_one full ;; 6) drill_one fix ;;
+      m|M) for k in corr alm red int full fix; do drill_one "$k"; done ;;
+      r|R) dok=0; dtry=0; save_prog; echo "  score reset" ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+sandbox_mode() {
+  sl=35; sd=20; sh=310
+  while :; do
+    teach -v cmd=t_sandbox -v slat="$sl" -v sdec="$sd" -v slha="$sh"
+    echo "   l = latitude    d = declination    h = LHA    x = leave"
+    printf "  change what? "; IFS= read -r a
+    case "$a" in
+      l|L) printf "  latitude (-90 to 90, north +): "; IFS= read -r v; [ -n "$v" ] && sl="$v" ;;
+      d|D) printf "  declination (-90 to 90): "; IFS= read -r v; [ -n "$v" ] && sd="$v" ;;
+      h|H) printf "  LHA (0 to 360): "; IFS= read -r v; [ -n "$v" ] && sh="$v" ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+train_menu() {
+  while :; do
+    load_prog
+    ndone=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]')
+    [ -n "$ndone" ] || ndone=0
+    echo
+    echo "  ==============================================================="
+    echo "   LEARN AND PRACTISE          lessons $ndone of 20   drills $dok/$dtry"
+    echo "  ==============================================================="
+    echo "   1  Lessons              twenty of them, from first principles"
+    echo "   2  Walkthrough          one real sight, explained line by line"
+    echo "   3  Drills               problems with answers, marked"
+    echo "   4  Sandbox              change one thing, watch the triangle move"
+    echo
+    echo "   x  back to the navigation menu"
+    printf "  > "; IFS= read -r a
+    case "$a" in
+      1) learn_menu ;; 2) walk_mode ;; 3) drill_menu ;; 4) sandbox_mode ;;
+      x|X|"") return ;;
+    esac
+  done
+}
+set_colour() {
+  case "$1" in
+    day|night|plain) cmode="$1"; save_conf; paint
+       echo "  colour mode: $cmode" ;;
+    *) echo "  usage: day | night | plain" ;;
+  esac
+}
+
+doctor() {
+  echo
+  echo "  CELNAV environment check"
+  echo "  ---------------------------------------------------------------"
+  printf "  shell            : %s\n" "${0##*/} (running under $(ps -p $$ -o comm= 2>/dev/null || echo sh))"
+  printf "  awk in use       : %s\n" "$AWK"
+  if awk_has_math "$AWK"; then echo "  awk maths        : OK (sin/cos/atan2/sqrt/log/exp present)"
+  else echo "  awk maths        : MISSING -- install gawk (see message above)"; fi
+  printf "  data directory   : %s" "$CELNAV_HOME"
+  #  subshell: see src/common/05-home.sh for why this is not optional
+  if mkdir -p "$CELNAV_HOME" 2>/dev/null && ( : > "$CELNAV_HOME/.wtest" ) 2>/dev/null; then
+     rm -f "$CELNAV_HOME/.wtest"; echo "  (writable)"
+  else echo "  (NOT WRITABLE)"; fi
+  printf "  engine file      : %s" "$ENGINE"
+  [ -f "$ENGINE" ] && echo "  (installed)" || echo "  (not yet written)"
+  printf "  UTC clock        : %s\n" "$(utcnow)"
+  echo "  ---------------------------------------------------------------"
+  echo "  Set your watch against a known time source before you shoot."
+  echo "  4 seconds of clock error is about 1 mile of longitude."
+  echo
+  do_selftest
+}
+
+# ---- entry point ----------------------------------------------------
+pick_awk
+install_engine
+load_conf
+load_prog
+case "$1" in
+  ""|menu) paint; menu ;;
+  learn)   paint; train_menu ;;
+  lesson)  shift; do_lesson "$(echo "${1:-F1}" | tr 'a-z' 'A-Z')" ;;
+  walk)    paint; walk_mode ;;
+  drill)   shift; if [ -n "$1" ]; then drill_one "$1"; else paint; drill_menu; fi ;;
+  sandbox) paint; sandbox_mode ;;
+  syllabus) teach -v cmd=t_syllabus -v done="$lessons" ;;
+  day|night|plain) set_colour "$1" ;;
+  plan)    shift; do_plan "$1" ;;
+  alm|almanac) shift; do_almanac "$1" "$2" ;;
+  sight)   shift
+           [ $# -lt 4 ] && { echo "usage: celnav sight \"UT\" body limb Hs [ie] [heye]"; exit 2; }
+           add_sight "$1" "$2" "$3" "$4" "${5:-$ie}" "${6:-$heye}" "$temp" "$press" ""
+           echo "sight recorded (${1})" ;;
+  fix)     shift; do_fix "$1" ;;
+  compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
+  stars)   shift; do_stars "$1" ;;
+  dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
+           save_conf; echo "DR set: $drlat $drlon  course $course  speed $speed" ;;
+  log)     list_sights ;;
+  clear)   : > "$SIGHTS"; echo "sight log cleared" ;;
+  test|selftest) do_selftest ;;
+  doctor|check) doctor ;;
+  about)   paint; about_menu ;;
+  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
+  where)   echo "engine:  $ENGINE"; echo "sights:  $SIGHTS"; echo "config:  $CONF" ;;
+  help|-h|--help) help_text ;;
+  version|--version) echo "celnav $CELNAV_VERSION" ;;
+  *) echo "celnav: there is no command '$1'."
+     echo
+     echo "  Working    plan  alm  sight  fix  compass  stars  dr  log  clear"
+     echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
+     echo "  Setup      day  night  plain  about  doctor  where  version"
+     echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"
+     echo
+     echo "  'celnav help' explains each of them."
+     exit 2 ;;
+esac
+
+exit 0
+#__BN_START_ENGINE__
 # =====================================================================
 #  celnav engine  --  offline celestial navigation core
 #  Pure POSIX awk.  No network, no external data files.
@@ -1316,8 +2077,8 @@ function cmd_stars(   i,jd){
   }
   hr(); print ""
 }
-__CELNAV_ENGINE__
-  cat > "$TEACH" <<'__CELNAV_TEACH__'
+#__BN_END_ENGINE__
+#__BN_START_TEACH__
 # =====================================================================
 #  celnav teaching module
 #  Loaded alongside engine.awk.  Everything here is drawing and text;
@@ -2658,711 +3419,4 @@ BEGIN{
     drill_mark(kind)
   }
 }
-__CELNAV_TEACH__
-}
-# ---------------------------------------------------------------------
-#  About.  Shared by both tools; each one supplies about_why and
-#  about_sources, which are the parts that differ.
-# ---------------------------------------------------------------------
-about_how() {
-  cat <<'A2'
-
-  HOW IT WAS WRITTEN
-  ---------------------------------------------------------------
-  By Claude, Anthropic's AI model, in conversation with Larry over
-  a few days in August 2026.  He decided what it should do and
-  judged whether it was right.  The code, the mathematics and the
-  tests are Claude's work.
-
-  Three rules were set at the start and never relaxed.
-
-  PORTABILITY.  POSIX sh and POSIX awk, and nothing else.  It runs
-  in a-Shell and iSH on an iPad, in Terminal on a Mac, in busybox
-  on a router.  Nothing is installed.  There is no dependency here
-  that can rot in a year, because there is no dependency.
-
-  NO NETWORK, EVER.  Every number the program needs is inside the
-  file you are running.  That is a constraint on the mathematics
-  and not only on the plumbing: it is why the planetary positions
-  are computed from orbital elements with a correction series
-  fitted here, rather than looked up in a table someone serves.
-
-  NOTHING ASSERTED THAT WAS NOT CHECKED.  Each algorithm is
-  implemented from a primary source and then validated against an
-  independent implementation - never against itself.
-
-  On that last one, honestly.  An AI writing code is confidently
-  wrong on a regular basis, and so is a person.  The defence is
-  not care, it is testing.  Real errors in this project were found
-  by machinery and by users, and would not have been found by
-  reading the code:
-
-    - One awk implementation ignores the seed you give its random
-      number generator.  A drill could therefore mark its own
-      correct answer wrong.  Found by running the suite under four
-      different awks, not by inspection.
-
-    - Both tools worked out "am I writing to a terminal?" from
-      inside a command substitution, where the answer is always
-      no.  Colour had never once worked, on any terminal, since
-      the day it was written.  The test suite checked that the
-      output is clean when piped - and passed, for entirely the
-      wrong reason.
-
-    - The three green lights of a mine clearance vessel were drawn
-      on two different masts.  A user saw that before any test
-      did, because he tried to account for every light in the
-      picture and could not.
-
-  So: the tests exist because the author is fallible, and the
-  interesting mistakes were caught by the tests and by the people
-  using it.  Which is the argument for sending feedback.
-
-A2
-}
-about_feedback() {
-  cat <<'A3'
-
-  FEEDBACK
-  ---------------------------------------------------------------
-  Please send it.  It is the reason this is public.
-
-A3
-  about_needs
-  cat <<'A3B'
-  The useful report is small and specific:
-
-    what you did        the exact command, or which menu item
-    what you saw        paste it, escape codes and all
-    what you expected   and why - the rule, the sight, the table
-
-  "This is not right, a sailing vessel would not show that" with
-  the picture pasted underneath is worth more than any amount of
-  general praise, and has already fixed real bugs.
-
-  Where:
-
-    https://github.com/larrys614/bashnav/issues
-
-  If you think the program disagrees with the Convention, with an
-  almanac, or with a published tide table, say so plainly.  Assume
-  the program is wrong until it is shown otherwise.  That is the
-  correct prior, and it is how the bugs above were found.
-
-  Corrections to the teaching are as welcome as corrections to the
-  code.  If a lesson is misleading, that is a defect.
-
-A3B
-}
-about_licence() {
-  cat <<'A4'
-
-  LICENCE AND WARRANTY
-  ---------------------------------------------------------------
-  Copyright 2026 M. Larry Sherman.
-  Licensed under the Apache License, Version 2.0.
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  You may use it, including commercially, modify it, and pass it
-  on.  You must keep the copyright and licence notices and say
-  what you changed.  You get an explicit patent grant.  You may
-  not use the author's name to endorse your version.
-
-  Tide station data carries its own terms, which this licence does
-  not change: the NOAA harmonic constants are public domain, and
-  the TICON-4 constants are CC BY 4.0.  Their attribution travels
-  with them.  See the NOTICE file.
-
-  NO WARRANTY.  Distributed on an "AS IS" basis, WITHOUT
-  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-  This is a training aid and a calculator.  It is not a certified
-  navigation system, it carries no authority, and it has never
-  been near a type approval.  Nothing in it relieves any vessel,
-  owner, master or crew of the consequences of neglecting to
-  comply with the rules of the road, of neglecting a proper
-  look-out, or of neglecting any precaution required by the
-  ordinary practice of seamen.
-
-  Carry a paper almanac, a paper tide table, and the rules.
-
-A4
-}
-about_menu() {
-  while :; do
-    cat <<'A0'
-
-  ABOUT
-
-    1  Why this exists       who wanted it, and what for
-    2  How it was written    and by what, and what went wrong
-    3  What is tested        and, more to the point, what is not
-    4  Sources               where the numbers come from
-    5  Feedback              what to send, where, and what is worth most
-    6  Licence and warranty  Apache 2.0, and what it does not cover
-
-    x  back
-A0
-    printf "  > "; IFS= read -r ac || return 0
-    case "$ac" in
-      1) about_why ;;
-      2) about_how ;;
-      3) about_tested ;;
-      4) about_sources ;;
-      5) about_feedback ;;
-      6) about_licence ;;
-      x|X|q|Q|"") return 0 ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-about_why() {
-  cat <<'A1'
-
-  WHY THIS EXISTS
-  ---------------------------------------------------------------
-  Larry Sherman asked for it.
-
-  He served in the United States Navy from 1984 to 1990 as an
-  FTG2/SS - a fire control technician, submarines - in USS Alaska
-  (SSBN-732), USS Lafayette (SSBN-616), USS Gato (SSN-615) and USS
-  Greenling (SSN-614).  Two ballistic missile boats and two fast
-  attacks, which is two quite different trades: one hides and one
-  goes looking.  He stood the manoeuvring watch on the fire control
-  tracking party, managing contacts and avoiding collisions through
-  places like the Strait of Gibraltar and the Race - the tide gate
-  at the mouth of Long Island Sound, and the door you go out of
-  from Groton.
-
-  Thirty-six years on he is sailing round the world in the Clipper
-  Race, and he wanted a
-  sight reduction that would work on an iPad in the middle of an
-  ocean: no signal, no subscription, no account to log in to, no
-  almanac to download first.
-
-  And he wanted it to DRAW the solution.  A fix that arrives as
-  three numbers teaches you nothing about whether to believe it.
-  A fix that arrives as three lines on a plot, with the cut
-  between them and an error ellipse around the result, tells you
-  at a glance whether you have a fix or an opinion.  That is why
-  the intercept plot is the point of this program rather than a
-  decoration on it.
-
-  Everything else follows from "no internet".  The almanac is not
-  fetched; it is computed, from orbital theory, inside the file
-  you are running.  There is no table to expire and no server to
-  go away.  It is text, you can read every line of it, and
-  "celnav doctor" will check it against an independent reference
-  in front of you.
-
-A1
-}
-about_sources() {
-  cat <<'A5'
-
-  SOURCES
-  ---------------------------------------------------------------
-  ASTRONOMY
-    Jean Meeus, "Astronomical Algorithms", 2nd edition.  The solar
-    theory is chapter 25 and the lunar main problem chapter 47,
-    with nutation and sidereal time from the same book.
-
-    E. M. Standish, Keplerian elements for approximate positions
-    of the major planets (Jet Propulsion Laboratory).  The raw
-    elements lose several arcminutes on Saturn to the great
-    inequality with Jupiter, so a periodic correction series was
-    fitted here against an independent ephemeris; Saturn is now
-    the most accurate planet in the set.
-
-    Precession and annual aberration by the standard series.
-    Star positions from the Hipparcos and Yale catalogues, with
-    proper motion applied for the date.  Delta T from the
-    Espenak-Meeus polynomials, with the observed plateau after
-    2005.
-
-  METHOD
-    The intercept method - Marcq St Hilaire - as in the Nautical
-    Almanac's sight reduction procedure.  Dip, refraction,
-    semi-diameter, parallax and index error applied in the usual
-    order.  The fix is an iterated least-squares solution of every
-    line of position at once, not a two-body cut, and the error
-    ellipse comes out of the normal matrix.
-
-  CHECKED BY
-    An independent reference ephemeris of JPL grade, over the
-    whole period the program covers, embedded so that the check
-    works with no network.  "celnav doctor" runs it.
-
-A5
-}
-about_tested() {
-  cat <<'A6'
-
-  WHAT IS TESTED, AND WHAT IS NOT
-  ---------------------------------------------------------------
-  THE NUMBERS.  "celnav doctor", which you can run yourself.
-
-    The almanac is checked, body by body and date by date, against
-    an independent reference ephemeris of JPL grade, embedded so
-    that the check works with no network.  It prints the worst
-    error it found in arcminutes.  If that number is not small,
-    nothing downstream of it means anything.
-
-  THE WHOLE CHAIN.  tests/run-tests.sh, under four awks and two
-  shells.
-
-    Three star sights taken from a known position are reduced,
-    and the fix has to come back to the position they were taken
-    from, to a tenth of a minute.  That exercises everything at
-    once: the almanac, dip, refraction, semi-diameter, parallax,
-    index error, the navigational triangle, the least-squares
-    solution and the run.  Every drill must also mark its own
-    correct answer as correct.
-
-  THE GOLDEN FILES.  tests/golden.sh
-
-    The almanac for five dates spread across twenty years, the
-    star list, and four worked reductions - a clean one, the same
-    one on the run, one with a five-mile blunder in it, and a
-    weak cut - captured as text and committed.  Any change to any
-    number turns up as a diff that has to be read and accepted on
-    purpose.
-
-  NOW THE HONEST PART.
-
-  All of that checks the ARITHMETIC.  None of it checks the
-  SEAMANSHIP.
-
-  A test can confirm that the program computes the sun's GHA to
-  within a tenth of a minute.  It cannot tell you whether the
-  advice in the lessons is good practice, whether the order the
-  corrections are explained in is the order you should learn
-  them, or whether the walkthrough matches how a sight is
-  actually taken on a wet deck at dawn.
-
-  Nor does it check the program against a printed Nautical
-  Almanac, which is a different authority from the one it was
-  validated against.  If you have one, that comparison is worth
-  more than anything else you could send.
-
-A6
-}
-about_needs() {
-  cat <<'A7'
-  AND HERE IS WHERE IT IS WORTH MOST.
-
-  1  A FIX THAT DISAGREES WITH YOURS.  If you work a sight by
-     hand or with tables and this program gives you something
-     else, that is the most valuable report there is.  Send the
-     sights, the time, the height of eye, the index error and
-     what you got.  One of us is wrong and it is worth knowing
-     which.
-
-  2  THE ALMANAC AGAINST A PRINTED ONE.  GHA, declination, SD and
-     HP for any body and time, checked against the Nautical
-     Almanac.  It has been validated against a computed reference,
-     never against the book.
-
-  3  THE TEACHING.  Whether the lessons and the walkthrough match
-     how it is really done - and whether anything in them would
-     build a bad habit.  Corrections to the teaching matter as
-     much as corrections to the code.
-
-  4  THE AWKWARD CASES.  A lower limb near the horizon, a very
-     high altitude, extreme temperature or pressure, a sight
-     close to the pole, a moon sight with a large parallax.  The
-     ordinary cases are well covered.  The edges are where the
-     corrections are applied in an order somebody has to check.
-
-A7
-}
-
-# ---- command implementations ---------------------------------------
-do_fix() {
-  if [ ! -s "$SIGHTS" ]; then echo; echo "  No sights in the log.  Enter one first."; echo; return; fi
-  ft="$fixtime"
-  [ -n "$1" ] && ft="$1"
-  engine -v cmd=reduce -v sfile="$SIGHTS" -v drlat="$drlat" -v drlon="$drlon" \
-         -v course="$course" -v speed="$speed" -v fixtime="$ft"
-}
-do_plan() {
-  u="$1"; [ -z "$u" ] && u=$(utcnow)
-  engine -v cmd=plan -v utc="$u" -v drlat="$drlat" -v drlon="$drlon"
-}
-do_almanac() {
-  u="$1"; [ -z "$u" ] && u=$(utcnow)
-  b="$2"; [ -z "$b" ] && b="sun,moon,venus,mars,jupiter,saturn"
-  engine -v cmd=almanac -v utc="$u" -v bodies="$b"
-}
-do_compass() {
-  engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
-         -v body="$2" -v cbrg="$3" -v variation="$4"
-}
-do_stars() { engine -v cmd=stars -v utc="$1"; }
-do_selftest() { engine -v cmd=selftest; }
-
-# ---- interactive: enter a sight ------------------------------------
-ask() {  # ask "prompt" "default" -> sets ANS
-  if [ -n "$2" ]; then printf "  %s [%s]: " "$1" "$2"; else printf "  %s: " "$1"; fi
-  IFS= read -r ANS
-  [ -z "$ANS" ] && ANS="$2"
-}
-enter_sight() {
-  echo
-  echo "  ---- new sight ----------------------------------------------"
-  ask "UT date (YYYY-MM-DD)" "$(utctoday)"; sd="$ANS"
-  ask "UT time (HHMMSS or HH:MM:SS)" ""; st=$(fixtimefmt "$ANS")
-  [ -z "$st" ] && { echo "  no time given - sight discarded"; return; }
-  ask "Body (name, star number, or ? for list)" "Sun"; sb="$ANS"
-  if [ "$sb" = "?" ]; then do_stars; ask "Body" "Sun"; sb="$ANS"; fi
-  case "$(echo "$sb" | tr 'A-Z' 'a-z')" in
-    sun|moon) ask "Limb (L lower / U upper)" "L"; sl=$(echo "$ANS"|tr 'a-z' 'A-Z') ;;
-    *) sl="C" ;;
-  esac
-  ask "Hs sextant altitude (DD MM.M)" ""; sh="$ANS"
-  [ -z "$sh" ] && { echo "  no altitude given - sight discarded"; return; }
-  ask "Index error, arcmin (+ = on the arc)" "$ie"; si="$ANS"
-  ask "Height of eye, metres" "$heye"; se="$ANS"
-  ask "Label (optional)" ""; sx="$ANS"
-  add_sight "$sd $st" "$sb" "$sl" "$sh" "$si" "$se" "$temp" "$press" "$sx"
-  echo "  sight recorded."
-  engine -v cmd=almanac -v utc="$sd $st" -v bodies="$sb"
-}
-set_dr() {
-  echo
-  ask "DR latitude  (e.g. 35 10.4 N)" "$drlat"; drlat="$ANS"
-  ask "DR longitude (e.g. 040 20.1 W)" "$drlon"; drlon="$ANS"
-  ask "Course made good, degrees true" "$course"; course="$ANS"
-  ask "Speed over ground, knots" "$speed"; speed="$ANS"
-  save_conf
-  echo "  DR set."
-}
-set_opts() {
-  echo
-  ask "Height of eye, metres" "$heye"; heye="$ANS"
-  ask "Standard index error, arcmin" "$ie"; ie="$ANS"
-  ask "Air temperature, deg C" "$temp"; temp="$ANS"
-  ask "Pressure, millibars" "$press"; press="$ANS"
-  save_conf
-  echo "  settings saved."
-}
-log_menu() {
-  while :; do
-    echo; list_sights; echo
-    echo "  d N = delete sight N     c = clear all     x = back"
-    printf "  > "; IFS= read -r a
-    case "$a" in
-      d\ *) del_sight "${a#d }" ;;
-      c) : > "$SIGHTS"; echo "  log cleared" ;;
-      x|"") return ;;
-    esac
-  done
-}
-help_text() {
-  cat <<'HLP'
-
-  CELNAV -- offline celestial navigation
-
-  Everything is computed from first principles: the almanac is built in,
-  so there is nothing to download and nothing expires.
-
-  THE WORKING CYCLE
-    1. Set your DR position, course and speed (menu 6).
-    2. Before twilight, run sight planning (menu 3) to see which bodies
-       are up, how high, and which three give the best cut.
-    3. Shoot your sights and enter each one (menu 1) with the UT time to
-       the second.  Time matters more than anything: 4 seconds of error
-       is about 1 mile of longitude.
-    4. Reduce and plot (menu 2).  You get the full working for each
-       sight, the least-squares fix, the residuals, and the plot.
-    5. Clear the log (menu 7) before the next round of sights.
-
-  ANGLE FORMATS
-    Latitude    35 10.4 N   or  -35.1733
-    Longitude   040 20.1 W  or  040:20.1W
-    Altitude    32 14.6     (degrees and decimal minutes)
-
-  ON THE RUN
-    Set course and speed and every LOP is advanced to the fix time for
-    you, so a sun-run-sun or a spread of sights over an hour still gives
-    one fix.  The fix time defaults to the last sight in the log.
-
-  COMMAND LINE (for scripting or a quick answer)
-
-    Working
-      celnav plan  [ "YYYY-MM-DD HH:MM:SS" ]   twilight, what is up, best three
-      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP
-      celnav sight "UT" body limb Hs [ie] [heye]    record one sight
-      celnav fix   [ "UT of fix" ]             reduce the log and plot
-      celnav compass "UT" body <bearing> [variation]
-      celnav stars [ "UT" ]                    the 57 stars plus Polaris
-      celnav dr <lat> <lon> [course] [speed]   set the DR
-      celnav log | clear                       list or empty the sight log
-
-    Learning
-      celnav learn                             the training menu
-      celnav lesson <code>                     one lesson, e.g. R3
-      celnav walk                              a real sight, step by step
-      celnav drill [corr|alm|red|int|full|fix] one marked drill
-      celnav sandbox                           the what-if triangle
-      celnav syllabus                          the lesson list and progress
-
-    Setup and checking
-      celnav doctor                            check awk, clock, data folder
-      celnav test                              the self test on its own
-      celnav day | night | plain               colour mode
-      celnav where | version | reinstall | help
-
-HLP
-}
-banner() {
-  echo
-  echo "  ==============================================================="
-  echo "   CELNAV $CELNAV_VERSION   celestial navigation, no internet needed"
-  echo "  ==============================================================="
-  printf "   DR %s  %s      course %03.0f T   speed %s kn\n" "$drlat" "$drlon" "$course" "$speed"
-  printf "   eye %s m   index error %s'   %s C  %s mb   sights logged: %s   [%s]\n" \
-         "$heye" "$ie" "$temp" "$press" "$(nsights)" "$cmode"
-  echo "  ---------------------------------------------------------------"
-}
-menu() {
-  while :; do
-    banner
-    cat <<'M'
-    1  Enter a sight              5  Compass check
-    2  Reduce sights -> FIX       6  Set DR, course and speed
-    3  Sight planning / stars     7  Sight log
-    4  Almanac for a time         8  Sextant and weather settings
-
-    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox
-
-    s  Star list   t  Self test   d  Check setup   c  Colour
-    a  About      h  Help       q  Quit
-M
-    printf "  > "
-    IFS= read -r c || exit 0
-    case "$c" in
-      1) enter_sight ;;
-      2) printf "  Fix time (blank = time of last sight): "; IFS= read -r ft
-         if [ -n "$ft" ]; then
-           case "$ft" in *-*) ;; *) ft="$(utctoday) $(fixtimefmt "$ft")" ;; esac
-         fi
-         do_fix "$ft" ;;
-      3) printf "  UT for planning (blank = now): "; IFS= read -r u
-         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
-         do_plan "$u" ;;
-      4) printf "  UT (blank = now): "; IFS= read -r u
-         if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
-         printf "  Bodies (blank = sun,moon,planets): "; IFS= read -r b
-         do_almanac "$u" "$b" ;;
-      5) printf "  UT (blank = now): "; IFS= read -r u; [ -z "$u" ] && u=$(utcnow)
-         case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac
-         printf "  Body: "; IFS= read -r b
-         printf "  Compass bearing observed: "; IFS= read -r cb
-         printf "  Variation from chart (E +, W -): "; IFS= read -r vr
-         do_compass "$u" "$b" "$cb" "$vr" ;;
-      6) set_dr ;;
-      7) log_menu ;;
-      8) set_opts ;;
-      9) train_menu ;;
-      s|S) do_stars ;;
-      t|T) do_selftest ;;
-      d|D) doctor ;;
-      c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
-           [ -n "$v" ] && set_colour "$v" ;;
-      a|A) about_menu ;;
-      h|H|\?) help_text ;;
-      q|Q) unpaint; exit 0 ;;
-      "") ;;
-      *) echo "  ?" ;;
-    esac
-  done
-}
-
-
-# =====================================================================
-#  Training mode
-# =====================================================================
-pause() { printf "  -- press return --"; IFS= read -r _junk; }
-
-do_lesson() {
-  teach -v cmd=t_lesson -v les="$1" || return 1
-  printf "  Your answer (a/b/c, or return to skip): "; IFS= read -r av
-  [ -z "$av" ] && return 0
-  if teach -v cmd=t_check -v les="$1" -v ans="$av"; then mark_done "$1"; fi
-}
-learn_menu() {
-  while :; do
-    teach -v cmd=t_syllabus -v done="$lessons"
-    printf "  Lesson code, n for the next one you have not done, or x to go back: "
-    IFS= read -r a
-    case "$a" in
-      x|X|"") return ;;
-      n|N)  nx=""
-            for L in F1 F2 F3 F4 F5 T1 T2 T3 T4 T5 S1 S2 S3 S4 S5 R1 R2 R3 R4 R5; do
-              case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
-            done
-            if [ -z "$nx" ]; then echo "  All twenty done. Try the drills."; else do_lesson "$nx"; fi ;;
-      *)    do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
-    esac
-  done
-}
-walk_mode() {
-  s=1
-  while [ "$s" -le 10 ]; do
-    teach -v cmd=t_walk -v step="$s"
-    printf "  return = next, b = back, x = leave: "; IFS= read -r a
-    case "$a" in x|X) return ;; b|B) [ "$s" -gt 1 ] && s=$((s-1)) ;; *) s=$((s+1)) ;; esac
-  done
-  echo "  That is the whole method. The drills will let you do it yourself."
-}
-drill_one() {
-  k="$1"; sd=$(newseed)
-  teach -v cmd=t_drill -v kind="$k" -v seed="$sd" || return 1
-  case "$k" in
-    corr) printf "  Ho = "; IFS= read -r x1; x2="" ;;
-    alm)  printf "  GHA = "; IFS= read -r x1; printf "  Dec (e.g. N21 14.3) = "; IFS= read -r x2 ;;
-    red)  printf "  Hc = ";  IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
-    int)  printf "  Intercept, + toward / - away, in nm = "; IFS= read -r x1; x2="" ;;
-    full) printf "  Intercept, + toward / - away, nm = "; IFS= read -r x1; printf "  Zn (degrees) = "; IFS= read -r x2 ;;
-    fix)  printf "  Fix latitude  = "; IFS= read -r x1; printf "  Fix longitude = "; IFS= read -r x2 ;;
-  esac
-  [ -z "$x1" ] && { echo "  skipped."; return 0; }
-  dtry=$((dtry+1))
-  if teach -v cmd=t_mark -v kind="$k" -v seed="$sd" -v a1="$x1" -v a2="$x2"; then dok=$((dok+1)); fi
-  save_prog
-}
-drill_menu() {
-  while :; do
-    echo
-    echo "  DRILLS                                     score so far: $dok of $dtry"
-    echo "  ---------------------------------------------------------------"
-    echo "   1  Sextant corrections      Hs to Ho"
-    echo "   2  The almanac              time and body to GHA and Dec"
-    echo "   3  Sight reduction          AP, GHA, Dec to Hc and Zn"
-    echo "   4  The intercept            Ho and Hc to miles, toward or away"
-    echo "   5  A complete sight         everything, end to end"
-    echo "   6  A three-star fix         three LOPs to a position"
-    echo "   m  Mixed - one of each, at random        r  reset the score"
-    echo "   x  back"
-    printf "  > "; IFS= read -r a
-    case "$a" in
-      1) drill_one corr ;; 2) drill_one alm ;; 3) drill_one red ;;
-      4) drill_one int ;;  5) drill_one full ;; 6) drill_one fix ;;
-      m|M) for k in corr alm red int full fix; do drill_one "$k"; done ;;
-      r|R) dok=0; dtry=0; save_prog; echo "  score reset" ;;
-      x|X|"") return ;;
-    esac
-  done
-}
-sandbox_mode() {
-  sl=35; sd=20; sh=310
-  while :; do
-    teach -v cmd=t_sandbox -v slat="$sl" -v sdec="$sd" -v slha="$sh"
-    echo "   l = latitude    d = declination    h = LHA    x = leave"
-    printf "  change what? "; IFS= read -r a
-    case "$a" in
-      l|L) printf "  latitude (-90 to 90, north +): "; IFS= read -r v; [ -n "$v" ] && sl="$v" ;;
-      d|D) printf "  declination (-90 to 90): "; IFS= read -r v; [ -n "$v" ] && sd="$v" ;;
-      h|H) printf "  LHA (0 to 360): "; IFS= read -r v; [ -n "$v" ] && sh="$v" ;;
-      x|X|"") return ;;
-    esac
-  done
-}
-train_menu() {
-  while :; do
-    load_prog
-    ndone=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]')
-    [ -n "$ndone" ] || ndone=0
-    echo
-    echo "  ==============================================================="
-    echo "   LEARN AND PRACTISE          lessons $ndone of 20   drills $dok/$dtry"
-    echo "  ==============================================================="
-    echo "   1  Lessons              twenty of them, from first principles"
-    echo "   2  Walkthrough          one real sight, explained line by line"
-    echo "   3  Drills               problems with answers, marked"
-    echo "   4  Sandbox              change one thing, watch the triangle move"
-    echo
-    echo "   x  back to the navigation menu"
-    printf "  > "; IFS= read -r a
-    case "$a" in
-      1) learn_menu ;; 2) walk_mode ;; 3) drill_menu ;; 4) sandbox_mode ;;
-      x|X|"") return ;;
-    esac
-  done
-}
-set_colour() {
-  case "$1" in
-    day|night|plain) cmode="$1"; save_conf; paint
-       echo "  colour mode: $cmode" ;;
-    *) echo "  usage: day | night | plain" ;;
-  esac
-}
-
-doctor() {
-  echo
-  echo "  CELNAV environment check"
-  echo "  ---------------------------------------------------------------"
-  printf "  shell            : %s\n" "${0##*/} (running under $(ps -p $$ -o comm= 2>/dev/null || echo sh))"
-  printf "  awk in use       : %s\n" "$AWK"
-  if awk_has_math "$AWK"; then echo "  awk maths        : OK (sin/cos/atan2/sqrt/log/exp present)"
-  else echo "  awk maths        : MISSING -- install gawk (see message above)"; fi
-  printf "  data directory   : %s" "$CELNAV_HOME"
-  #  subshell: see src/common/05-home.sh for why this is not optional
-  if mkdir -p "$CELNAV_HOME" 2>/dev/null && ( : > "$CELNAV_HOME/.wtest" ) 2>/dev/null; then
-     rm -f "$CELNAV_HOME/.wtest"; echo "  (writable)"
-  else echo "  (NOT WRITABLE)"; fi
-  printf "  engine file      : %s" "$ENGINE"
-  [ -f "$ENGINE" ] && echo "  (installed)" || echo "  (not yet written)"
-  printf "  UTC clock        : %s\n" "$(utcnow)"
-  echo "  ---------------------------------------------------------------"
-  echo "  Set your watch against a known time source before you shoot."
-  echo "  4 seconds of clock error is about 1 mile of longitude."
-  echo
-  do_selftest
-}
-
-# ---- entry point ----------------------------------------------------
-pick_awk
-install_engine
-load_conf
-load_prog
-case "$1" in
-  ""|menu) paint; menu ;;
-  learn)   paint; train_menu ;;
-  lesson)  shift; do_lesson "$(echo "${1:-F1}" | tr 'a-z' 'A-Z')" ;;
-  walk)    paint; walk_mode ;;
-  drill)   shift; if [ -n "$1" ]; then drill_one "$1"; else paint; drill_menu; fi ;;
-  sandbox) paint; sandbox_mode ;;
-  syllabus) teach -v cmd=t_syllabus -v done="$lessons" ;;
-  day|night|plain) set_colour "$1" ;;
-  plan)    shift; do_plan "$1" ;;
-  alm|almanac) shift; do_almanac "$1" "$2" ;;
-  sight)   shift
-           [ $# -lt 4 ] && { echo "usage: celnav sight \"UT\" body limb Hs [ie] [heye]"; exit 2; }
-           add_sight "$1" "$2" "$3" "$4" "${5:-$ie}" "${6:-$heye}" "$temp" "$press" ""
-           echo "sight recorded (${1})" ;;
-  fix)     shift; do_fix "$1" ;;
-  compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
-  stars)   shift; do_stars "$1" ;;
-  dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
-           save_conf; echo "DR set: $drlat $drlon  course $course  speed $speed" ;;
-  log)     list_sights ;;
-  clear)   : > "$SIGHTS"; echo "sight log cleared" ;;
-  test|selftest) do_selftest ;;
-  doctor|check) doctor ;;
-  about)   paint; about_menu ;;
-  reinstall) install_engine force; echo "engine rewritten: $ENGINE" ;;
-  where)   echo "engine:  $ENGINE"; echo "sights:  $SIGHTS"; echo "config:  $CONF" ;;
-  help|-h|--help) help_text ;;
-  version|--version) echo "celnav $CELNAV_VERSION" ;;
-  *) echo "celnav: there is no command '$1'."
-     echo
-     echo "  Working    plan  alm  sight  fix  compass  stars  dr  log  clear"
-     echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
-     echo "  Setup      day  night  plain  about  doctor  where  version"
-     echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"
-     echo
-     echo "  'celnav help' explains each of them."
-     exit 2 ;;
-esac
+#__BN_END_TEACH__
