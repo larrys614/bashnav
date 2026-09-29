@@ -20,7 +20,17 @@ awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1)+exp(1)+log(2); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
 }
 pick_awk() {
-  if [ -n "$CELNAV_AWK" ]; then AWK="$CELNAV_AWK"; return 0; fi
+  #  An awk named by hand is used as given -- but CHECKED first.  A
+  #  name that is not there produced "could not write engine-1.6.awk"
+  #  from the unpacker, which names the wrong thing entirely and is
+  #  hopeless on a device with no debugger.
+  if [ -n "$CELNAV_AWK" ]; then
+    AWK="$CELNAV_AWK"
+    if $AWK 'BEGIN{ exit 0 }' </dev/null >/dev/null 2>&1; then return 0; fi
+    echo "celnav: CELNAV_AWK is set to '$AWK', which will not run." >&2
+    echo "  Unset it, or name an awk that is installed." >&2
+    exit 1
+  fi
   for a in awk gawk mawk nawk original-awk "busybox awk"; do
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
@@ -65,13 +75,17 @@ load_conf() {
 }
 save_conf() {
   mkdir -p "$CELNAV_HOME"
-  {
-    echo "drlat=$drlat"; echo "drlon=$drlon"
-    echo "course=$course"; echo "speed=$speed"
-    echo "heye=$heye"; echo "ie=$ie"
-    echo "temp=$temp"; echo "press=$press"
-    echo "cmode=$cmode"
-  } > "$CONF"
+#  ONE command, ONE redirect.  Not "{ echo a; echo b; } > file":
+#  a-Shell loses all but one line of a compound command's output, which
+#  wrote a single-line config file and then hung the tool on relaunch --
+#  silent corruption, not an error.  A single printf is proven to work
+#  there.  See docs/HACKING.md.
+  printf '%s\n' \
+    "drlat=$drlat" "drlon=$drlon" \
+    "course=$course" "speed=$speed" \
+    "heye=$heye" "ie=$ie" \
+    "temp=$temp" "press=$press" \
+    "cmode=$cmode" > "$CONF"
 }
 
 # colour: day (white on black), night (red on black), plain (no escapes)
@@ -98,7 +112,7 @@ load_prog() {
 }
 save_prog() {
   mkdir -p "$CELNAV_HOME"
-  { echo "lessons=$lessons"; echo "dok=$dok"; echo "dtry=$dtry"; } > "$PROG"
+  printf '%s\n' "lessons=$lessons" "dok=$dok" "dtry=$dtry" > "$PROG"
 }
 mark_done() {
   case ",$lessons," in *,"$1",*) return 0 ;; esac

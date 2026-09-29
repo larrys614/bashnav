@@ -107,19 +107,37 @@ confirm it.
 
 > ### ⚠ Known problem, being worked on
 >
-> **The tools do not currently run reliably under a-Shell on iOS.** As of
-> 2026-08-31 the menus hang on an iPad after the first screen. The same builds
-> are correct on macOS, Linux and the BSDs, and pass the full test matrix
-> there.
+> **The tools are not yet proven end to end under a-Shell on iOS.** The same
+> builds are correct on macOS, Linux and the BSDs and pass the full test matrix
+> there. Four causes of the original failures are found and fixed; two remain.
 >
-> Two causes are known and fixed in the source; a third is still open:
+> **Fixed**
 >
-> - **Fixed** &mdash; every tool kept its data in `$HOME`, which iOS refuses to
->   write. They now find a writable folder (`~/Documents/…` on an iPad).
-> - **Fixed** &mdash; `deck-log` and `weather` used `/tmp`, which iOS does not
->   promise exists.
-> - **Open** &mdash; the interactive menus stop after the first screen under
->   a-Shell. Under investigation.
+> - Every tool kept its data in `$HOME`, which iOS refuses to write. They now
+>   find a writable folder &mdash; `~/Documents/…` on an iPad.
+> - `deck-log` and `weather` used `/tmp`, which iOS does not promise exists.
+>   They use the tool's own folder.
+> - Every menu and help screen printed through `cat <<EOF`, and each awk engine
+>   was written with one. **a-Shell does not deliver a heredoc**, so the menus
+>   hung and every engine on the device was zero bytes. Nothing here uses a
+>   heredoc now.
+> - Every config and progress file was written with `{ echo …; echo …; } > file`.
+>   **a-Shell keeps only one line of that**, which corrupted the file silently
+>   and hung the tool on its *next* launch. All seven are single `printf` calls
+>   now.
+>
+> **Still open**
+>
+> - `[ -t 1 ]` returns false under a-Shell, so colour is never shown. Needs a
+>   manual override.
+> - There is no `ps`, which `celnav doctor` uses to name the shell.
+>
+> **If you use a-Shell, type `dash` once.** Its author's reply to our report:
+> the default shell is "extremely lightweight … not fully POSIX compliant", and
+> `dash` ships alongside it and is compliant. Starting `dash` once makes it the
+> shell on every relaunch. The tools no longer *need* it &mdash; that is the
+> point of the two fixes above &mdash; but anything else you run there will
+> behave better.
 >
 > The honest reason this got out: **nothing in the test suite runs on iOS.**
 > The suite runs on machines with a writable `$HOME`, a `/tmp` and a

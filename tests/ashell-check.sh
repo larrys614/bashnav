@@ -1,5 +1,9 @@
 #!/bin/sh
-#  NO HEREDOC MAY FEED A COMMAND THAT PRINTS OR IS READ BACK.
+#  CONSTRUCTS a-SHELL CANNOT RUN.
+#
+#  Two of them, both found on the device, both silent rather than loud.
+#
+#  ---- 1. NO HEREDOC MAY FEED A COMMAND THAT PRINTS OR IS READ BACK.
 #
 #  a-Shell -- the iPad terminal this whole project exists for -- does not
 #  deliver a heredoc to the command reading it.  Larry's test, on the
@@ -31,7 +35,7 @@ bad=0
 for f in src/*/*.sh build.sh tests/*.sh; do
   [ -f "$f" ] || continue
   #  this file quotes the very patterns it looks for
-  case "$f" in */heredoc-check.sh) continue ;; esac
+  case "$f" in */ashell-check.sh) continue ;; esac
   awk -v F="$f" '
     /<</ && /cat/ {
       line = $0
@@ -62,5 +66,44 @@ for f in bin/*; do
   ' "$f" || bad=1
 done
 
-[ "$bad" = 0 ] && echo "HEREDOC OK"
+#  ---- 2. NO COMPOUND COMMAND MAY BE REDIRECTED TO A FILE.
+#
+#      { echo "a=$a"; echo "b=$b"; } > "$CONF"
+#
+#  a-Shell keeps only one line of that.  The config file comes back with
+#  a single line in it, load_conf reads nonsense, and the tool hangs on
+#  the NEXT launch -- so the damage shows up after the run that caused
+#  it, which is the worst possible shape for a bug.  No error, no exit
+#  status, nothing to notice.
+#
+#  Seven of these were in the tools, one or two in every one of the
+#  five: every config and every progress file.  They are now single
+#  printf calls, which Larry verified on the device:
+#
+#      printf '%s\n' a b >t   ->   a and b, on two lines.  Correct.
+#      { echo a; echo b; } >t  ->   fails.
+#
+#  Grouping WITHOUT a redirect is left alone -- "cmd || { a; b; }"
+#  appears in every tool's install_engine and the tools do run on the
+#  device, so it parses there.  Only the redirect form is banned.
+#  build.sh is deliberately NOT scanned here: it runs on a developer's
+#  machine, never on a-Shell, and its own "{ ... } > $out" is how each
+#  tool gets written.  What matters is what it EMITS, so the built tools
+#  are scanned instead -- up to the payload marker, past which the file
+#  is awk, not shell.
+for f in src/*/*.sh bin/*; do
+  [ -f "$f" ] || continue
+  case "$f" in */ashell-check.sh) continue ;; esac
+  awk -v F="$f" '
+    /^exit 0$/ { exit }
+    { line = $0; sub(/#.*/, "", line) }
+    line ~ /\}[[:space:]]*>[^&]/ || line ~ /\}[[:space:]]*>$/ {
+      printf "  %s:%d  compound command redirected to a file -- use one printf\n", F, FNR
+      bad++
+    }
+    END{ exit (bad>0) }
+  ' "$f" || bad=1
+done
+
+[ "$bad" = 0 ] && echo "ASHELL OK"
 exit $bad

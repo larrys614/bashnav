@@ -55,6 +55,29 @@ and `review.awk` alongside it. Test invocations must pass all three.
 Break the line before the `?` or use an `if`. `rv_colour()` and `rv_arc()` in
 `review.awk` are written as plain `if`s for exactly this reason.
 
+### a-Shell has two shells, and the default one is not POSIX-complete
+
+From a-Shell's author, in reply to the heredoc report:
+
+> a-Shell has two shells: the default version, extremely lightweight, designed
+> 8 years ago with the main requirement to have a minimal CPU footprint … With
+> the consequence that it is not fully POSIX compliant. The issue you pointed
+> is one of the places where it is not complete. … For your use case, I
+> recommend using `dash`.
+
+`dash` ships with a-Shell and is compliant. Starting it once makes it the shell
+on every relaunch (one window at a time on an iPad).
+
+**What that settles, and what it does not.** Heredocs work under `dash` —
+confirmed on the a-Shell Mac build, which runs the same shell. The
+compound-command redirect above does **not** come right under `dash`, so that
+fault is not in the shell but underneath it, and changing shells will not save
+you from it.
+
+The tools use neither construct now, so they do not depend on which shell is
+running. That is the point: the suite should not need a particular shell to be
+chosen for it.
+
 ### `$HOME` is not writable on iOS
 
     : "${CELNAV_HOME:=$HOME/.celnav}"          # WRONG on the target platform
@@ -147,6 +170,44 @@ the honest answer was no, nobody ever had.
 
 The review section picker appeared to ignore every keystroke. It was consuming
 the key file instead.
+
+### Never redirect a compound command to a file
+
+    { echo "cmode=$cmode"; echo "lon=$lon"; } > "$CONF"      # WRONG
+
+**a-Shell keeps only one line of that.** The config file comes back with a
+single line in it, `load_conf` reads nonsense, and the tool hangs on the *next*
+launch — so the damage appears after the run that caused it. No error, no exit
+status, nothing to notice.
+
+    printf '%s\n' "cmode=$cmode" "lon=$lon" > "$CONF"        # RIGHT
+
+One command, one redirect. Verified on the device:
+
+    printf '%s\n' a b >t     ->  a and b, on two lines.  Correct.
+    { echo a; echo b; } >t    ->  fails.
+
+Seven of these were in the tools — one or two in every one of the five, every
+config file and every progress file. This is the fault that made a tool hang on
+relaunch until its progress file was deleted.
+
+**Grouping without a redirect is fine.** `cmd || { a; b; }` appears in every
+tool's `install_engine`, and the tools do run on the device, so it parses there.
+Only the redirect form is banned. `tests/ashell-check.sh` enforces it, over
+`src/` and over the built tools up to the payload marker; `build.sh` is
+deliberately exempt, because it runs on a developer's machine and its own
+`{ … } > "$out"` is how each tool gets written.
+
+### An awk named by hand must be checked before it is used
+
+`<TOOL>_AWK` was taken on faith. Name one that is not installed and the first
+thing that fails is the unpacker, which reports
+
+    bashnav: could not write engine-1.6.awk
+
+— naming the wrong thing entirely, and hopeless on a device with no debugger.
+Each tool now runs the named awk once before trusting it, and says plainly that
+the variable is wrong if it will not start.
 
 ### A write probe must sit inside `( )`
 

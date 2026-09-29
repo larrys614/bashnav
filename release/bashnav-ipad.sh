@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003428582
+BASHNAV_BYTES=003431159
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -243,7 +243,17 @@ awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1)+exp(1)+log(2); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
 }
 pick_awk() {
-  if [ -n "$CELNAV_AWK" ]; then AWK="$CELNAV_AWK"; return 0; fi
+  #  An awk named by hand is used as given -- but CHECKED first.  A
+  #  name that is not there produced "could not write engine-1.6.awk"
+  #  from the unpacker, which names the wrong thing entirely and is
+  #  hopeless on a device with no debugger.
+  if [ -n "$CELNAV_AWK" ]; then
+    AWK="$CELNAV_AWK"
+    if $AWK 'BEGIN{ exit 0 }' </dev/null >/dev/null 2>&1; then return 0; fi
+    echo "celnav: CELNAV_AWK is set to '$AWK', which will not run." >&2
+    echo "  Unset it, or name an awk that is installed." >&2
+    exit 1
+  fi
   for a in awk gawk mawk nawk original-awk "busybox awk"; do
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
@@ -288,13 +298,17 @@ load_conf() {
 }
 save_conf() {
   mkdir -p "$CELNAV_HOME"
-  {
-    echo "drlat=$drlat"; echo "drlon=$drlon"
-    echo "course=$course"; echo "speed=$speed"
-    echo "heye=$heye"; echo "ie=$ie"
-    echo "temp=$temp"; echo "press=$press"
-    echo "cmode=$cmode"
-  } > "$CONF"
+#  ONE command, ONE redirect.  Not "{ echo a; echo b; } > file":
+#  a-Shell loses all but one line of a compound command's output, which
+#  wrote a single-line config file and then hung the tool on relaunch --
+#  silent corruption, not an error.  A single printf is proven to work
+#  there.  See docs/HACKING.md.
+  printf '%s\n' \
+    "drlat=$drlat" "drlon=$drlon" \
+    "course=$course" "speed=$speed" \
+    "heye=$heye" "ie=$ie" \
+    "temp=$temp" "press=$press" \
+    "cmode=$cmode" > "$CONF"
 }
 
 # colour: day (white on black), night (red on black), plain (no escapes)
@@ -321,7 +335,7 @@ load_prog() {
 }
 save_prog() {
   mkdir -p "$CELNAV_HOME"
-  { echo "lessons=$lessons"; echo "dok=$dok"; echo "dtry=$dtry"; } > "$PROG"
+  printf '%s\n' "lessons=$lessons" "dok=$dok" "dtry=$dtry" > "$PROG"
 }
 mark_done() {
   case ",$lessons," in *,"$1",*) return 0 ;; esac
@@ -3682,7 +3696,17 @@ awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
 }
 pick_awk() {
-  if [ -n "$COLREGS_AWK" ]; then AWK="$COLREGS_AWK"; return 0; fi
+  #  An awk named by hand is used as given -- but CHECKED first.  A
+  #  name that is not there produced "could not write engine-1.6.awk"
+  #  from the unpacker, which names the wrong thing entirely and is
+  #  hopeless on a device with no debugger.
+  if [ -n "$COLREGS_AWK" ]; then
+    AWK="$COLREGS_AWK"
+    if $AWK 'BEGIN{ exit 0 }' </dev/null >/dev/null 2>&1; then return 0; fi
+    echo "colregs: COLREGS_AWK is set to '$AWK', which will not run." >&2
+    echo "  Unset it, or name an awk that is installed." >&2
+    exit 1
+  fi
   for a in awk gawk mawk nawk original-awk "busybox awk"; do
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
@@ -3701,7 +3725,7 @@ load_conf() {
   done < "$CONF"
 }
 save_conf() { mkdir -p "$COLREGS_HOME"
-  { echo "cmode=$cmode"; echo "rstyle=$rstyle"; } > "$CONF"; }
+  printf '%s\n' "cmode=$cmode" "rstyle=$rstyle" > "$CONF"; }
 load_prog() {
   [ -f "$PROG" ] || return 0
   while IFS='=' read -r k v; do
@@ -3710,7 +3734,7 @@ load_prog() {
 }
 save_prog() {
   mkdir -p "$COLREGS_HOME"
-  { echo "lessons=$lessons"; echo "sok=$sok"; echo "stry=$stry"; } > "$PROG"
+  printf '%s\n' "lessons=$lessons" "sok=$sok" "stry=$stry" > "$PROG"
 }
 mark_done() {
   case ",$lessons," in *,"$1",*) return 0 ;; esac
@@ -7365,7 +7389,17 @@ awk_has_math() {
   $1 'BEGIN{ if (sin(1)>0 && atan2(1,1)>0) exit 0; exit 1 }' </dev/null 2>/dev/null
 }
 pick_awk() {
-  if [ -n "$TIDES_AWK" ]; then AWK="$TIDES_AWK"; return 0; fi
+  #  An awk named by hand is used as given -- but CHECKED first.  A
+  #  name that is not there produced "could not write engine-1.6.awk"
+  #  from the unpacker, which names the wrong thing entirely and is
+  #  hopeless on a device with no debugger.
+  if [ -n "$TIDES_AWK" ]; then
+    AWK="$TIDES_AWK"
+    if $AWK 'BEGIN{ exit 0 }' </dev/null >/dev/null 2>&1; then return 0; fi
+    echo "tides: TIDES_AWK is set to '$AWK', which will not run." >&2
+    echo "  Unset it, or name an awk that is installed." >&2
+    exit 1
+  fi
   for a in awk gawk mawk nawk original-awk "busybox awk"; do
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
@@ -7389,7 +7423,7 @@ load_conf() {
 }
 save_conf() {
   mkdir -p "$TIDES_HOME"
-  { echo "cmode=$cmode"; echo "station=$station"; echo "stationname=$stationname"; } > "$CONF"
+  printf '%s\n' "cmode=$cmode" "station=$station" "stationname=$stationname" > "$CONF"
 }
 paint() {
   [ "$cmode" = plain ] && return 0
@@ -17212,7 +17246,17 @@ awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
 }
 pick_awk() {
-  if [ -n "$DECKLOG_AWK" ]; then AWK="$DECKLOG_AWK"; return 0; fi
+  #  An awk named by hand is used as given -- but CHECKED first.  A
+  #  name that is not there produced "could not write engine-1.6.awk"
+  #  from the unpacker, which names the wrong thing entirely and is
+  #  hopeless on a device with no debugger.
+  if [ -n "$DECKLOG_AWK" ]; then
+    AWK="$DECKLOG_AWK"
+    if $AWK 'BEGIN{ exit 0 }' </dev/null >/dev/null 2>&1; then return 0; fi
+    echo "deck-log: DECKLOG_AWK is set to '$AWK', which will not run." >&2
+    echo "  Unset it, or name an awk that is installed." >&2
+    exit 1
+  fi
   for a in awk gawk mawk nawk original-awk "busybox awk"; do
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
@@ -17228,7 +17272,7 @@ load_conf() {
 }
 save_conf() {
   mkdir -p "$DECKLOG_HOME"
-  { echo "cmode=$cmode"; echo "units=$units"; echo "who=$who"; } > "$CONF"
+  printf '%s\n' "cmode=$cmode" "units=$units" "who=$who" > "$CONF"
 }
 paint() {
   [ "$cmode" = plain ] && return 0
@@ -18445,7 +18489,17 @@ awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
 }
 pick_awk() {
-  if [ -n "$WEATHER_AWK" ]; then AWK="$WEATHER_AWK"; return 0; fi
+  #  An awk named by hand is used as given -- but CHECKED first.  A
+  #  name that is not there produced "could not write engine-1.6.awk"
+  #  from the unpacker, which names the wrong thing entirely and is
+  #  hopeless on a device with no debugger.
+  if [ -n "$WEATHER_AWK" ]; then
+    AWK="$WEATHER_AWK"
+    if $AWK 'BEGIN{ exit 0 }' </dev/null >/dev/null 2>&1; then return 0; fi
+    echo "weather: WEATHER_AWK is set to '$AWK', which will not run." >&2
+    echo "  Unset it, or name an awk that is installed." >&2
+    exit 1
+  fi
   for a in awk gawk mawk nawk original-awk "busybox awk"; do
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
@@ -18457,7 +18511,8 @@ load_conf() {
     case "$k" in cmode) cmode="$v" ;; lon) lon="$v" ;; esac
   done < "$CONF"
 }
-save_conf() { mkdir -p "$WEATHER_HOME"; { echo "cmode=$cmode"; echo "lon=$lon"; } > "$CONF"; }
+save_conf() { mkdir -p "$WEATHER_HOME"
+  printf '%s\n' "cmode=$cmode" "lon=$lon" > "$CONF"; }
 load_prog() {
   [ -f "$PROG" ] || return 0
   while IFS='=' read -r k v; do case "$k" in lessons) lessons="$v" ;; esac; done < "$PROG"

@@ -1,5 +1,70 @@
 # Changelog
 
+## The other half of the a-Shell story
+
+a-Shell's author replied to the heredoc report:
+
+> a-Shell has two shells: the default version, extremely lightweight … With the
+> consequence that it is not fully POSIX compliant. The issue you pointed is one
+> of the places where it is not complete. … For your use case, I recommend using
+> `dash`.
+
+So the heredoc failure was the lightweight default shell, and `dash` ships
+alongside it and is compliant. Confirmed on the device: under `dash`, a heredoc
+works.
+
+**But it does not fix the second fault, and that one was worse.**
+
+    { echo "cmode=$cmode"; echo "lon=$lon"; } > "$CONF"
+
+a-Shell keeps only one line of that. `dash` does not change it, which means the
+fault is not in the shell but underneath it. And the shape of it is nasty: the
+config file comes back with a single line, `load_conf` reads nonsense, and the
+tool hangs on the **next** launch — so the damage shows up after the run that
+caused it, with no error and a clean exit status.
+
+Seven of them, one or two in every one of the five tools: every config file and
+every progress file. All now single `printf` calls, which is verified on the
+device:
+
+    printf '%s\n' a b >t     ->  a and b, on two lines.  Correct.
+    { echo a; echo b; } >t    ->  fails.
+
+Config round-trips checked for every tool — `celnav` 9 lines, `deck-log` 3,
+`tides` 3, `colregs` 2, `weather` 2 — written, read back, and surviving a
+relaunch.
+
+`tests/heredoc-check.sh` becomes **`tests/ashell-check.sh`** and now covers both
+constructs a-Shell cannot run, over `src/` and over the built tools up to the
+payload marker. `build.sh` is exempt from the redirect rule: it runs on a
+developer's machine and its own `{ … } > "$out"` is how each tool gets written.
+Watched failing before being trusted.
+
+### An awk named by hand is checked before it is used
+
+Found while running the matrix in a fresh container with no `gawk`. Forcing
+`CELNAV_AWK=gawk` was taken on faith, so the first thing that failed was the
+unpacker:
+
+    bashnav: could not write engine-1.6.awk
+
+which names the wrong thing entirely. On a device with no debugger that is
+hopeless. Each tool now runs the named awk once before trusting it:
+
+    celnav: CELNAV_AWK is set to 'nosuchawk', which will not run.
+      Unset it, or name an awk that is installed.
+
+### The status notice is current again
+
+The README listed two fixes and one open item. It now lists four and two: the
+heredoc and the compound redirect join `$HOME` and `/tmp` as fixed, and `[ -t 1 ]`
+returning false and the missing `ps` are named as still open. It also tells
+a-Shell users to type `dash` once — not because the tools need it any more, but
+because everything else they run there will behave better.
+
+**Still not claimed: that the suite runs end to end on an iPad.** Nobody has run
+this build on the device.
+
 ## The installer now knows how big it should be
 
 Larry hit a 404 on the `curl` line. The file was fine and the push had landed —

@@ -131,7 +131,17 @@ awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
 }
 pick_awk() {
-  if [ -n "$DECKLOG_AWK" ]; then AWK="$DECKLOG_AWK"; return 0; fi
+  #  An awk named by hand is used as given -- but CHECKED first.  A
+  #  name that is not there produced "could not write engine-1.6.awk"
+  #  from the unpacker, which names the wrong thing entirely and is
+  #  hopeless on a device with no debugger.
+  if [ -n "$DECKLOG_AWK" ]; then
+    AWK="$DECKLOG_AWK"
+    if $AWK 'BEGIN{ exit 0 }' </dev/null >/dev/null 2>&1; then return 0; fi
+    echo "deck-log: DECKLOG_AWK is set to '$AWK', which will not run." >&2
+    echo "  Unset it, or name an awk that is installed." >&2
+    exit 1
+  fi
   for a in awk gawk mawk nawk original-awk "busybox awk"; do
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
@@ -147,7 +157,7 @@ load_conf() {
 }
 save_conf() {
   mkdir -p "$DECKLOG_HOME"
-  { echo "cmode=$cmode"; echo "units=$units"; echo "who=$who"; } > "$CONF"
+  printf '%s\n' "cmode=$cmode" "units=$units" "who=$who" > "$CONF"
 }
 paint() {
   [ "$cmode" = plain ] && return 0

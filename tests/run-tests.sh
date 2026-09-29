@@ -504,11 +504,11 @@ WXLOG
   #  a heredoc feeding a command that prints: hangs on a-Shell, which is
   #  the platform this project is for. Every menu was built that way.
   if [ "$AW" != "$FIRSTAWK" ]; then :   # shell-only: once per shell
-  elif guard 60 sh tests/heredoc-check.sh; then
-    ok "no display text is printed through a heredoc"
+  elif guard 60 sh tests/ashell-check.sh; then
+    ok "no heredoc prints, and no compound command is redirected"
   else
     head -8 "$GUARD_OUT"
-    bad "a heredoc feeds a command that prints"
+    bad "a construct a-Shell cannot run"
   fi
 
   #  the iPad installer: the one thing between a working repo and a

@@ -34,7 +34,17 @@ awk_has_math() {
   $1 'BEGIN{ x=atan2(1,1)+sqrt(2.0)+sin(1)+cos(1); if(x>0) exit 0; exit 1 }' </dev/null >/dev/null 2>&1
 }
 pick_awk() {
-  if [ -n "$WEATHER_AWK" ]; then AWK="$WEATHER_AWK"; return 0; fi
+  #  An awk named by hand is used as given -- but CHECKED first.  A
+  #  name that is not there produced "could not write engine-1.6.awk"
+  #  from the unpacker, which names the wrong thing entirely and is
+  #  hopeless on a device with no debugger.
+  if [ -n "$WEATHER_AWK" ]; then
+    AWK="$WEATHER_AWK"
+    if $AWK 'BEGIN{ exit 0 }' </dev/null >/dev/null 2>&1; then return 0; fi
+    echo "weather: WEATHER_AWK is set to '$AWK', which will not run." >&2
+    echo "  Unset it, or name an awk that is installed." >&2
+    exit 1
+  fi
   for a in awk gawk mawk nawk original-awk "busybox awk"; do
     if awk_has_math "$a"; then AWK="$a"; return 0; fi
   done
@@ -46,7 +56,8 @@ load_conf() {
     case "$k" in cmode) cmode="$v" ;; lon) lon="$v" ;; esac
   done < "$CONF"
 }
-save_conf() { mkdir -p "$WEATHER_HOME"; { echo "cmode=$cmode"; echo "lon=$lon"; } > "$CONF"; }
+save_conf() { mkdir -p "$WEATHER_HOME"
+  printf '%s\n' "cmode=$cmode" "lon=$lon" > "$CONF"; }
 load_prog() {
   [ -f "$PROG" ] || return 0
   while IFS='=' read -r k v; do case "$k" in lessons) lessons="$v" ;; esac; done < "$PROG"
