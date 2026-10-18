@@ -83,6 +83,37 @@ function lampColour(c) {
    ===================================================================== */
 var lightIdx = 0, lightBrg = 40;
 
+
+/* =====================================================================
+   FLASHING LIGHTS
+
+   Annex I defines a flashing light as one flashing "at regular intervals
+   at a frequency of 120 flashes or more per minute" - so 2 Hz is the
+   defined minimum, and that is what is rendered here.  The rate is part
+   of the identification, not decoration: a steady yellow all-round light
+   and a flashing one are different vessels.
+
+   The engine's light records carry no flash flag - the fact lives in the
+   prose note - so the mapping is here, explicitly, one entry, with its
+   citation.  It is NOT inferred from the note text: string-matching prose
+   to decide what a light does is how a wrong light gets drawn.  If a
+   flashing light is added to the engine's table, add it here too.
+
+   Only one vessel in this data set has one.  (Rule 23(c)'s WIG craft, with
+   its high-intensity all-round flashing red, is not in the table at all.)
+   ===================================================================== */
+var FLASHING = {
+  /* vessel key : which lamps flash, by colour and arc */
+  hover: [{ col: 'Y', arc: 'A' }]      /* Rule 23(b) - all-round flashing yellow */
+};
+function lampFlashes(vesselKey, L) {
+  var f = FLASHING[vesselKey];
+  if (!f) return false;
+  for (var i = 0; i < f.length; i++)
+    if (f[i].col === L.col && f[i].arc === L.arc) return true;
+  return false;
+}
+
 function drawLights(vessel, th) {
   var W = 600, H = 340, seaY = 252, cx = W / 2;
   var uScale = 420, vScale = 196;
@@ -125,14 +156,22 @@ function drawLights(vessel, th) {
     var u = L.x * sind(th) - L.y * cosd(th);
     var x = cx + u * uScale, y = seaY - 16 - L.h * vScale;
     var col = lampColour(L.col);
-    el('circle', { cx: x, cy: y, r: 16, fill: col, opacity: 0.18 }, s);
-    el('circle', { cx: x, cy: y, r: 7.5, fill: col }, s);
+    var fl = lampFlashes(vessel.key, L);
+    /* Both circles go in a GROUP and the group is what animates.  Animating
+       the circles directly would have the CSS opacity override the halo's
+       own opacity="0.18" presentation attribute and destroy the glow. */
+    var host = fl ? el('g', { 'class': 'lamp-flash' }, s) : s;
+    el('circle', { cx: x, cy: y, r: 16, fill: col, opacity: 0.18 }, host);
+    el('circle', { cx: x, cy: y, r: 7.5, fill: col }, host);
     var t = el('text', {
       x: x + 13, y: y + 5, fill: col,
       'font-family': 'ui-monospace, Menlo, monospace',
       'font-size': 15, 'font-weight': 700
     }, s);
-    t.textContent = L.col;
+    /* The letter carries the pattern, same discipline as the colours: a
+       flashing lamp reads as flashing with no colour AND with no motion,
+       which is what somebody gets who has reduced motion switched on. */
+    t.textContent = fl ? L.col + ' fl' : L.col;
   });
 
   if (!visible.length) {
