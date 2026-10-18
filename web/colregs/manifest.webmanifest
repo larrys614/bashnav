@@ -1,0 +1,14 @@
+{
+  "name": "COLREGS — rules of the road",
+  "short_name": "COLREGS",
+  "description": "Identify vessels by their lights, shapes and sound signals. A training aid.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090b",
+  "theme_color": "#07090b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

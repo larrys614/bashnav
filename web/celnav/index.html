@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="celnav">
+<title>Camera sight</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="celnav.css">
+</head>
+<body>
+
+<header class="bar">
+  <h1 id="title">Camera sight</h1>
+  <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
+</header>
+
+<main>
+
+  <!-- The steps, because a sight is a sequence and the first version of
+       this page was a wall of controls with no order to them.  Larry took
+       a photograph and could not tell what to do next, which is the whole
+       verdict on that design. -->
+  <ol class="steps" id="steps">
+    <li data-step="1" class="on"><span>1</span> Photograph</li>
+    <li data-step="2"><span>2</span> Horizon</li>
+    <li data-step="3"><span>3</span> Body</li>
+    <li data-step="4"><span>4</span> Sight</li>
+  </ol>
+
+  <p class="tellme" id="tellme">Take a photograph of the sun or the moon with
+    the horizon in the same frame.</p>
+
+  <!-- ---------- step 1: the photograph ---------- -->
+  <section class="panel" id="s1">
+    <button class="btn btn-big" id="take">Take a photograph</button>
+    <button class="btn" id="choose">Choose one already taken</button>
+    <input type="file" id="fileCam" accept="image/*" capture="environment" hidden>
+    <input type="file" id="filePick" accept="image/*" hidden>
+    <p class="note" id="shotnote"></p>
+  </section>
+
+  <!-- ---------- the picture ----------
+       ONE viewer with two modes, not two viewers.  On a short pane the
+       whole picture plus a magnified strip plus the readout plus the
+       buttons did not fit, so the picture scrolled away from the very
+       controls it belongs with.  Same frame, switched. -->
+  <section class="panel" id="pic" hidden>
+    <div class="seg" role="group" aria-label="View">
+      <button class="segbtn on" id="view-wide" data-view="wide">Whole picture</button>
+      <button class="segbtn" id="view-zoom" data-view="zoom">Close up &times;4</button>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="cv"></canvas>
+      <canvas id="zoom" hidden></canvas>
+      <p class="zoomlbl" id="zoomlbl" hidden></p>
+    </div>
+  </section>
+
+  <!-- ---------- the readout, from step 2 onward ---------- -->
+  <section class="readout" id="readout" hidden>
+    <div class="big"><span class="lbl">Hs</span><span class="val" id="hs">&mdash;</span></div>
+    <div class="big"><span class="lbl">Ho</span><span class="val" id="ho">&mdash;</span></div>
+    <p class="chain" id="chain"></p>
+    <p class="conf" id="conf"></p>
+  </section>
+
+  <!-- ---------- steps 2 and 3: adjusting ----------
+       Buttons rather than dragging: on a moving boat you cannot hold a
+       finger steady to a pixel, your finger covers the line you are
+       adjusting, and a tap moves exactly one step however the deck is
+       behaving.  The steps are in ARCMINUTES because that is the quantity
+       being measured, so a button means the same on any camera. -->
+  <section class="panel" id="adjust" hidden>
+    <div class="pad" id="padTilt">
+      <p class="padlbl">Tilt the line</p>
+      <div class="row row4">
+        <button class="nudge" data-axis="t" data-step="1">&#8630; 1&deg;</button>
+        <button class="nudge" data-axis="t" data-step="0.1">&#8630; 0.1&deg;</button>
+        <button class="nudge" data-axis="t" data-step="-0.1">&#8631; 0.1&deg;</button>
+        <button class="nudge" data-axis="t" data-step="-1">&#8631; 1&deg;</button>
+      </div>
+    </div>
+
+    <div class="pad" id="padBody" hidden>
+      <p class="padlbl">Move left / right</p>
+      <div class="row row4">
+        <button class="nudge" data-axis="x" data-step="-10">&larr; 10&prime;</button>
+        <button class="nudge" data-axis="x" data-step="-1">&larr; 1&prime;</button>
+        <button class="nudge" data-axis="x" data-step="1">&rarr; 1&prime;</button>
+        <button class="nudge" data-axis="x" data-step="10">&rarr; 10&prime;</button>
+      </div>
+      <p class="padlbl">Size of the circle</p>
+      <div class="row">
+        <button class="nudge" data-axis="r" data-step="-2">&minus; bigger step</button>
+        <button class="nudge" data-axis="r" data-step="-0.5">&minus;</button>
+        <button class="nudge" data-axis="r" data-step="0.5">+</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- step 4: the sight ---------- -->
+  <section class="panel" id="sight" hidden>
+    <div class="fields">
+      <label>Body<select id="body"></select></label>
+      <label>Limb
+        <select id="limb">
+          <option value="L">Lower</option>
+          <option value="U">Upper</option>
+          <option value="C">Centre</option>
+        </select>
+      </label>
+      <label>UTC<input id="utc" type="text" inputmode="numeric" placeholder="2026-10-18 14:22:10"></label>
+      <label>Height of eye, m<input id="he" type="text" inputmode="decimal" value="3"></label>
+      <label>Calibration error, &prime;<input id="ie" type="text" inputmode="decimal" value="0"></label>
+      <label>Temp &deg;C<input id="tm" type="text" inputmode="decimal" value="12"></label>
+      <label>Pressure hPa<input id="pr" type="text" inputmode="decimal" value="1013"></label>
+      <label>35&nbsp;mm equiv, mm<input id="f35" type="text" inputmode="decimal" placeholder="from EXIF"></label>
+    </div>
+  </section>
+
+  <!-- The disclaimer folds away.  It is important and it is also eight
+       lines of text that pushed the controls off a small screen. -->
+  <details class="foot">
+    <summary>What this is worth, and what it is not</summary>
+    <p><strong>Not a sextant.</strong> A calibrated phone camera is worth
+      about two to three arcminutes &mdash; the same order as a plastic
+      lifeboat sextant, and several times worse than a metal one in
+      practised hands. Uncorrected lens distortion can cost tens of
+      arcminutes, so a sight from an uncalibrated camera is an estimate
+      and must be treated as one.</p>
+    <p class="note" id="build"></p>
+  </details>
+</main>
+
+<!-- OUTSIDE main, so it is pinned and cannot be scrolled away.  In a narrow
+     embedded pane the page was taller than the viewport and scrolling past
+     the end chained to the parent and dismissed the whole thing. -->
+<div class="dock" id="dock" hidden>
+  <!-- The primary action and the control that gets used are both pinned,
+       so the whole working set is on screen at any pane height.  At any
+       pane height these six buttons and Back/Next are on screen, and the
+       picture above them scrolls instead of the controls. -->
+  <button class="btn btn-go" id="snap" hidden>Find the edge for me</button>
+  <div class="row row6" id="dockrow">
+    <button class="nudge" data-axis="v" data-step="10">&uarr;10&prime;</button>
+    <button class="nudge" data-axis="v" data-step="1">&uarr;1&prime;</button>
+    <button class="nudge" data-axis="v" data-step="0.1">&uarr;0.1&prime;</button>
+    <button class="nudge" data-axis="v" data-step="-0.1">&darr;0.1&prime;</button>
+    <button class="nudge" data-axis="v" data-step="-1">&darr;1&prime;</button>
+    <button class="nudge" data-axis="v" data-step="-10">&darr;10&prime;</button>
+  </div>
+  <nav class="nav" id="nav">
+    <button class="btn" id="back">Back</button>
+    <button class="btn btn-go" id="next">Next</button>
+  </nav>
+</div>
+
+<script src="tables.js"></script>
+<script src="engine.js"></script>
+<script src="engine2.js"></script>
+<script src="camsight.js"></script>
+<script src="refine.js"></script>
+<script src="exif.js"></script>
+<script src="camui.js"></script>
+</body>
+</html>

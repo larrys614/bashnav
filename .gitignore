@@ -6,3 +6,16 @@ docs/_build.html
 __pycache__/
 *.tar.gz
 *.patch
+
+# Claude's desktop app writes here by default, and that default happens to
+# land inside this repository.  On 18 Oct 2026 it held the Clipper study
+# document - built from Clipper's copyrighted materials - untracked and
+# unignored, in a PUBLIC repo, on the branch about to be pushed.  It had
+# never been committed; it was one `git add -A` away from being published
+# under Larry's name in the repo he had invited Clipper to read.
+#
+# This line stops the accident.  It does NOT make the folder safe: an
+# ignore rule is bypassed by `git add -f`, and it does nothing for a zip,
+# an archive, or a copy of the working tree.  Nothing from Clipper's
+# materials belongs in this repository at all.
+Claude outputs/

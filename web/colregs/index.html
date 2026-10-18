@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="COLREGS">
+<title>COLREGS</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="colregs.css">
+</head>
+<body>
+
+<header class="bar">
+  <button class="back" id="back" hidden aria-label="Back">&#8249;</button>
+  <h1 id="title">COLREGS</h1>
+  <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
+</header>
+
+<main id="main">
+
+  <!-- ---------- home ---------- -->
+  <section class="view" id="v-home">
+    <p class="lede">The rules of the road. Identify what she is, and what she
+      is doing, from what she is showing you.</p>
+    <nav class="tiles">
+      <button class="tile" data-go="lights">
+        <span class="t-name">Lights</span>
+        <span class="t-sub">What is she, and what is she doing?</span>
+      </button>
+      <button class="tile" data-go="shapes">
+        <span class="t-name">Day shapes</span>
+        <span class="t-sub">The same meanings, by daylight</span>
+      </button>
+      <button class="tile" data-go="sounds">
+        <span class="t-name">Sound signals</span>
+        <span class="t-sub">What is she saying? &mdash; with sound</span>
+      </button>
+      <button class="tile" data-go="encounters">
+        <span class="t-name">Encounters</span>
+        <span class="t-sub">Who gives way, and what do you do?</span>
+      </button>
+      <button class="tile" data-go="rules">
+        <span class="t-name">The rules</span>
+        <span class="t-sub">Fifteen lessons</span>
+      </button>
+    </nav>
+    <p class="note" id="offline-note">Checking offline cache&hellip;</p>
+  </section>
+
+  <!-- ---------- lights ---------- -->
+  <section class="view" id="v-lights" hidden>
+    <div class="stage" id="light-stage"></div>
+    <p class="aspect" id="light-aspect"></p>
+    <div class="bearing">
+      <label for="brg">Your bearing from her</label>
+      <input type="range" id="brg" min="-180" max="180" step="1" value="40">
+      <output id="brg-out">040</output>
+    </div>
+    <p class="legend">
+      <span class="k k-w">W</span> white
+      <span class="k k-r">R</span> red
+      <span class="k k-g">G</span> green
+      <span class="k k-y">Y</span> yellow
+      &mdash; every lamp carries its letter, so the pattern reads with no colour at all.
+    </p>
+    <div class="answer" id="light-answer" hidden>
+      <h2 id="light-name"></h2>
+      <p><strong id="light-rule"></strong> <span id="light-note"></span></p>
+    </div>
+    <div class="ask">
+      <p class="ask-q">What is she?</p>
+      <div class="opts" id="light-opts"></div>
+      <p class="verdict" id="light-verdict" hidden></p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="light-next">Another</button>
+    </div>
+    <details class="ref">
+      <summary>All twenty, as a list</summary>
+      <div id="light-list"></div>
+    </details>
+  </section>
+
+  <!-- ---------- shapes ---------- -->
+  <section class="view" id="v-shapes" hidden>
+    <div class="stage" id="shape-stage"></div>
+    <p class="legend">Day shapes are <strong>black</strong>, seen against the sky.
+      In night mode they go red with everything else &mdash; a bright panel costs
+      you twenty minutes of dark adaptation, and that outranks fidelity.</p>
+    <div class="answer" id="shape-answer" hidden>
+      <h2 id="shape-name"></h2>
+      <p><strong id="shape-rule"></strong> <span id="shape-note"></span></p>
+    </div>
+    <div class="ask">
+      <p class="ask-q">What is she?</p>
+      <div class="opts" id="shape-opts"></div>
+      <p class="verdict" id="shape-verdict" hidden></p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="shape-next">Another</button>
+    </div>
+    <details class="ref">
+      <summary>All ten, as a list</summary>
+      <div id="shape-list"></div>
+    </details>
+  </section>
+
+  <!-- ---------- sounds ---------- -->
+  <section class="view" id="v-sounds" hidden>
+    <p class="lede">A terminal could only draw a blast. This can make one.</p>
+    <div class="stage stage-sound" id="sound-stage"></div>
+    <div class="actions">
+      <button class="btn btn-play" id="sound-play">&#9654;&nbsp; Sound it</button>
+      <button class="btn" id="sound-next">Another</button>
+    </div>
+    <div class="ask">
+      <p class="ask-q">What is she saying?</p>
+      <div class="opts" id="sound-opts"></div>
+      <p class="verdict" id="sound-verdict" hidden></p>
+    </div>
+    <div class="answer" id="sound-answer" hidden>
+      <h2 id="sound-meaning"></h2>
+      <p><strong id="sound-rule"></strong> <span id="sound-when"></span></p>
+    </div>
+    <p class="legend">
+      <span class="mono">#</span> short, about a second &nbsp;
+      <span class="mono">####</span> prolonged, four to six &nbsp;
+      <span class="mono">*</span> a stroke on the bell
+    </p>
+    <details class="ref">
+      <summary>All fifteen, as a list</summary>
+      <div id="sound-list"></div>
+    </details>
+  </section>
+
+  <!-- ---------- encounters ---------- -->
+  <section class="view" id="v-encounters" hidden>
+    <div class="stage" id="enc-stage"></div>
+    <p class="situation" id="enc-own"></p>
+    <p class="situation" id="enc-target"></p>
+    <div class="opts" id="enc-opts"></div>
+    <div class="answer" id="enc-answer" hidden>
+      <h2 id="enc-verdict"></h2>
+      <p><strong id="enc-rule"></strong> <span id="enc-why"></span></p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="enc-next">Another</button>
+    </div>
+  </section>
+
+  <!-- ---------- rules ---------- -->
+  <section class="view" id="v-rules" hidden>
+    <div id="rules-index"></div>
+    <article class="lesson" id="lesson" hidden>
+      <h2 id="lesson-title"></h2>
+      <pre id="lesson-body"></pre>
+      <div class="check">
+        <pre id="lesson-q"></pre>
+        <div class="opts" id="lesson-opts"></div>
+        <div class="answer" id="lesson-answer" hidden>
+          <h3 id="lesson-verdict"></h3>
+          <p id="lesson-why"></p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p><strong>A training aid, and only that.</strong> The rules themselves are
+  published by the IMO and are what govern at sea. Where this and the
+  Convention differ, the Convention is right and this is wrong.</p>
+  <p>Nothing here relieves any vessel, owner, master or crew of the consequences
+  of neglecting to comply with the rules, of neglecting a proper look-out, or of
+  neglecting any precaution required by the ordinary practice of seamen.</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="colregs.js"></script>
+</body>
+</html>

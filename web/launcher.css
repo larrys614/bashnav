@@ -1,0 +1,101 @@
+/* =====================================================================
+   The launcher.  Same tokens as colregs, deliberately: six tools that
+   look like six unrelated apps is six things to learn instead of one.
+
+   Two modes, and they are not light-and-dark.  Dark is normal, because
+   this is used after sunset.  NIGHT is red-on-black, because dark
+   adaptation takes twenty minutes to build and a second to lose.
+   ===================================================================== */
+:root {
+  --ground:  #07090b;
+  --panel:   #10151a;
+  --panel-2: #161c23;
+  --line:    #232b34;
+  --text:    #e6eaef;
+  --dim:     #8995a3;
+  --accent:  #6fb3d9;
+  --warn:    #ff4438;
+  --radius:  10px;
+  --tap:     56px;
+}
+:root[data-mode="night"] {
+  --ground:  #060101;
+  --panel:   #0e0303;
+  --panel-2: #140505;
+  --line:    #3a0f0c;
+  --text:    #cf2a20;
+  --dim:     #8a1d16;
+  --accent:  #e23a2c;
+  --warn:    #e23a2c;
+}
+/* The icons are full-colour artwork.  In night mode a bright icon costs
+   you the dark adaptation the mode exists to protect, so they are
+   knocked back to the one hue along with everything else. */
+:root[data-mode="night"] .tile img {
+  filter: grayscale(1) sepia(1) saturate(6) hue-rotate(-28deg) brightness(0.7);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--ground); color: var(--text);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+  overflow-x: hidden;
+}
+main { max-width: 760px; margin: 0 auto; padding: 0 16px 32px; }
+
+.bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+  border-bottom: 1px solid var(--line); background: var(--panel);
+  position: sticky; top: 0; z-index: 5;
+}
+.bar h1 { flex: 1; margin: 0; font-size: 17px; font-weight: 600; }
+.mode {
+  min-height: 40px; padding: 0 14px;
+  background: transparent; color: var(--accent);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  font: 600 13px/1 ui-monospace, Menlo, monospace; letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.lede { color: var(--dim); margin: 20px 0; }
+
+.tiles { display: grid; gap: 12px; margin-bottom: 32px; }
+@media (min-width: 560px) { .tiles { grid-template-columns: 1fr 1fr; } }
+
+.tile {
+  display: flex; gap: 14px; align-items: center;
+  min-height: var(--tap); padding: 14px 16px;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  text-decoration: none;
+}
+.tile:active { background: var(--panel-2); }
+.tile img { flex: 0 0 auto; width: 48px; height: 48px; border-radius: 8px; }
+.tile b { display: block; font-size: 17px; }
+.tile span { display: block; color: var(--dim); font-size: 14px; }
+
+/* A tool that is not built yet says so, and does not pretend to be a
+   link.  A tile that looks live and does nothing is worse than absent. */
+.tile[aria-disabled="true"] { opacity: 0.5; }
+.tile .soon {
+  margin-left: auto; flex: 0 0 auto;
+  font: 600 11px/1 ui-monospace, Menlo, monospace; letter-spacing: 0.08em;
+  color: var(--dim); border: 1px solid var(--line);
+  border-radius: 999px; padding: 5px 9px;
+}
+
+.install { border-top: 1px solid var(--line); padding-top: 20px; }
+.install h2 { font-size: 16px; margin: 20px 0 8px; }
+.install p { color: var(--dim); margin: 0 0 12px; }
+.install strong { color: var(--text); }
+.warn { color: var(--warn) !important; }
+
+.foot { border-top: 1px solid var(--line); margin-top: 28px; padding-top: 16px; }
+.foot p { color: var(--dim); font-size: 13px; margin: 0 0 8px; }
+.foot strong { color: var(--text); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

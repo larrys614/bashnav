@@ -1,0 +1,14 @@
+{
+  "name": "celnav — celestial navigation",
+  "short_name": "celnav",
+  "description": "Sight reduction, the almanac, and the fix.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090b",
+  "theme_color": "#07090b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

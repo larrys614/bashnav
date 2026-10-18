@@ -49,6 +49,32 @@ and your change will be silently overwritten by the next build.
 5. **POSIX `sh`, not bash.** No arrays, no `[[`, no `local`, no `$'...'`, no
    `${var,,}`. It has to run under dash and under a-Shell's shell.
 
+## Never `git add -A` in this repository
+
+Stage by explicit path. Always.
+
+This repo is public, and Larry works on Clipper Race material in the same
+place. On 18 Oct 2026 a `Claude outputs/` folder was sitting untracked in the
+working tree holding `clipper-procedures.md` and `clipper-procedures.pdf` —
+built from Clipper's copyrighted materials. It was unignored and on the branch
+about to be pushed. It had never been committed, and it was one `git add -A`
+from being published under Larry's name in the very repository he had invited
+Clipper to look at. Once pushed it would have been in the history whether or
+not the file were deleted afterwards.
+
+It is now in `.gitignore`, which stops that accident and no other: an ignore
+rule is bypassed by `git add -f`, and does nothing for an archive or a copy of
+the working tree.
+
+So the rule is about staging, not about that one folder:
+
+    git add web/ docs/ src/            # yes - say what you mean
+    git add -A                         # no
+    git commit -a                      # no
+
+And check `git status` before every commit. The cost is five seconds; the
+failure mode is somebody else's copyright in a public repository, permanently.
+
 ## The standard that governs
 
 For `colregs`, the COLREGs as published by the IMO. Where the program and the

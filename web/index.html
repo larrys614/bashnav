@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="bashnav">
+<title>Bash Navigation Software</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="launcher.css">
+</head>
+<body>
+
+<header class="bar">
+  <h1>Bash Navigation Software</h1>
+  <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
+</header>
+
+<main>
+  <p class="lede">Six tools for a boat with no signal. Each one installs as its
+    own icon and works with the antenna down.</p>
+
+  <nav class="tiles" id="tiles"></nav>
+
+  <section class="install">
+    <h2>Putting them on the home screen</h2>
+    <p>Each tool is a separate page, so each one gets its own icon. Open a tool,
+      then in Safari use <strong>Share &rarr; Add to Home Screen</strong>. Repeat
+      per tool. There is no installer and nothing to update by hand &mdash; a
+      tool reloads itself when its page changes.</p>
+    <p class="warn" id="warn" hidden></p>
+    <h2>What offline actually means here</h2>
+    <p>The first time you open a tool it caches itself. After that it runs with
+      no network at all, including in airplane mode and out of range. That is the
+      whole point, so it is worth proving once at the dock rather than
+      discovering it at sea: open every screen, turn the network off, and
+      relaunch from the icon.</p>
+  </section>
+
+  <footer class="foot">
+    <p><strong>Training aids and working tools, not a substitute for judgement.</strong>
+      Where any of these and the published rules, almanac or chart differ, the
+      published source is right and this is wrong.</p>
+    <p id="ver"></p>
+  </footer>
+</main>
+
+<script src="launcher.js"></script>
+</body>
+</html>
