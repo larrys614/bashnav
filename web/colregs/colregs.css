@@ -20,6 +20,7 @@
   --dim:     #8995a3;
   --accent:  #6fb3d9;
   --sea:     #1b2730;
+  --deck:    #ffd27f;      /* working lights: warm, and nothing like a nav light */
 
   --lamp-w: #f2f4f7;
   --lamp-r: #ff4438;
@@ -41,6 +42,7 @@
   --dim:     #8a1d16;
   --accent:  #e23a2c;
   --sea:     #1a0605;
+  --deck:    #e23a2c;
 
   /* every lamp red; the letter is what disambiguates */
   --lamp-w: #e23a2c;
@@ -214,6 +216,21 @@ input[type="range"]::-moz-range-thumb {
 .verdict[data-state="right"]::before { content: "\2713\00a0"; }
 .verdict[data-state="wrong"] { color: var(--lamp-r); }
 .verdict[data-state="wrong"]::before { content: "\2717\00a0"; }
+
+.deckrow { display: flex; margin: 0 0 10px; }
+.deckbtn {
+  flex: 1; min-height: 44px; background: var(--panel); color: var(--dim);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  font: 600 13px/1 ui-monospace, Menlo, monospace; letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.deckbtn[aria-pressed="true"] { background: var(--panel-2); color: var(--deck); border-color: var(--deck); }
+.decknote {
+  margin: 0 0 12px; padding: 10px 12px; font-size: 13px; line-height: 1.45;
+  color: var(--dim); background: var(--panel-2);
+  border-left: 3px solid var(--deck); border-radius: var(--radius);
+}
+.decknote strong { color: var(--text); }
 
 /* ---------- flashing lamps ----------
    Annex I's minimum is 120 flashes per minute, so 500 ms per cycle.  A

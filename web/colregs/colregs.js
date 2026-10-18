@@ -125,6 +125,35 @@ function lampFlash(vesselKey, L) {
   return null;
 }
 
+/* Working lights, and why they are worth drawing.
+
+   Rule 20(b): during the hours of darkness no other lights may be shown
+   except those that cannot be mistaken for the prescribed lights and do not
+   impair their visibility or distinctive character.  Rule 30(c): a vessel at
+   anchor MAY light her decks, and one of 100 m or more MUST.
+
+   So this is not decoration.  The lesson is what deck lights do to the
+   lights you are trying to read - which is why a trawler working with her
+   decks lit is hard to identify, and why the rule is written the way it is.
+   The nav lamps keep their true colours and letters; what changes is the
+   contrast they have to compete against. */
+var DECK_ON = false;
+
+function drawDeck(el, s, cx, seaY, W, deckCol) {
+  /* the lit deck: a warm pool over the hull, brightest amidships */
+  var grad = el('linearGradient', { id: 'deckglow', x1: 0, y1: 0, x2: 0, y2: 1 }, s);
+  el('stop', { offset: '0%',   'stop-color': deckCol, 'stop-opacity': 0.00 }, grad);
+  el('stop', { offset: '55%',  'stop-color': deckCol, 'stop-opacity': 0.34 }, grad);
+  el('stop', { offset: '100%', 'stop-color': deckCol, 'stop-opacity': 0.10 }, grad);
+  el('ellipse', { cx: cx, cy: seaY - 14, rx: 176, ry: 66, fill: 'url(#deckglow)' }, s);
+  /* the lamps themselves, strung along the deck */
+  for (var i = -2; i <= 2; i++) {
+    var x = cx + i * 54;
+    el('circle', { cx: x, cy: seaY - 22, r: 9, fill: deckCol, opacity: 0.16 }, s);
+    el('circle', { cx: x, cy: seaY - 22, r: 3, fill: deckCol, opacity: 0.95 }, s);
+  }
+}
+
 function drawLights(vessel, th) {
   var W = 600, H = 340, seaY = 252, cx = W / 2;
   var uScale = 420, vScale = 196;
@@ -162,6 +191,8 @@ function drawLights(vessel, th) {
     }, s);
   });
 
+  if (DECK_ON) drawDeck(el, s, cx, seaY, W, cssvar('--deck'));
+
   /* the lamps */
   visible.forEach(function (L) {
     var u = L.x * sind(th) - L.y * cosd(th);
@@ -193,6 +224,14 @@ function drawLights(vessel, th) {
     n.textContent = 'No lights visible from this bearing.';
   }
 
+  if (DECK_ON) {
+    /* The point of the exercise.  Working lights do not change a navigation
+       light; they change what it has to be seen against.  A warm wash over
+       the whole scene costs the lamps their contrast, which is exactly the
+       impairment Rule 20(b) is about - and exactly why she is hard to read. */
+    el('rect', { x: 0, y: 0, width: W, height: H,
+                 fill: cssvar('--deck'), opacity: 0.085 }, s);
+  }
   stage.appendChild(s);
   $('light-aspect').textContent = aspect_words(th);
 }
@@ -795,6 +834,14 @@ document.addEventListener('DOMContentLoaded', function () {
   $('brg').addEventListener('input', function () {
     lightBrg = parseFloat($('brg').value);
     $('brg-out').textContent = ('00' + Math.round(nrm360(lightBrg))).slice(-3);
+    drawLights(D.vessels[lightIdx], lightBrg);
+  });
+  $('deck').addEventListener('click', function () {
+    DECK_ON = !DECK_ON;
+    var b = $('deck');
+    b.setAttribute('aria-pressed', DECK_ON ? 'true' : 'false');
+    b.textContent = DECK_ON ? 'Deck lights ON' : 'Deck lights off';
+    $('decknote').hidden = !DECK_ON;
     drawLights(D.vessels[lightIdx], lightBrg);
   });
   $('light-next').addEventListener('click', lightsNext);

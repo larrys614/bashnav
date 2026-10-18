@@ -56,6 +56,9 @@
   <section class="view" id="v-lights" hidden>
     <div class="stage" id="light-stage"></div>
     <p class="aspect" id="light-aspect"></p>
+    <div class="deckrow">
+      <button class="deckbtn" id="deck" aria-pressed="false">Deck lights off</button>
+    </div>
     <div class="bearing">
       <label for="brg">Your bearing from her</label>
       <input type="range" id="brg" min="-180" max="180" step="1" value="40">
@@ -71,6 +74,13 @@
       120 or more flashes a minute, and the rate is part of the
       identification.
     </p>
+    <p class="decknote" id="decknote" hidden>Working lights are allowed, but
+      only so far as they cannot be mistaken for the prescribed lights and do
+      not impair their visibility or distinctive character, nor interfere with
+      keeping a proper look-out &mdash; <strong>Rule 20(b)</strong>. A vessel
+      at anchor may light her decks, and one of 100&nbsp;m or more must
+      &mdash; <strong>Rule 30(c)</strong>. This is why a trawler working with
+      her deck lights blazing is so hard to read.</p>
     <div class="answer" id="light-answer" hidden>
       <h2 id="light-name"></h2>
       <p><strong id="light-rule"></strong> <span id="light-note"></span></p>
