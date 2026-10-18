@@ -20,7 +20,7 @@
   /* A visible build stamp.  Debugging this remotely without one meant
      guessing which version was on the device, and the guess was wrong:
      the service worker below had been serving a cached build. */
-  const BUILD = '4 \u2014 18 Oct 2026';
+  const BUILD = '5 \u2014 18 Oct 2026';
   const R2D = 180 / Math.PI;
 
   const CN = extendCelnav(makeCelnav(window.CELNAV_TABLES));
@@ -29,7 +29,47 @@
   let img = null, cam = null, exif = null, scale = 1, step = 1, view = 'wide';
   let zwin = null;     // the close-up's source window, for mapping taps back
   const H = { y: 0, tiltDeg: 0 };
+  /* B.x, B.y is the point the sight is MEASURED TO.  It is the limb, not the
+     centre of the disc.
+     This was a 16-arcminute bug.  The circle fit gave the centre, and
+     corrections() then added the semi-diameter for a lower-limb sight - but
+     corrections() assumes Hs was measured TO THE LIMB, so adding SD to a
+     centre altitude counts the semi-diameter twice.  Marking the limb is
+     also what the observer can actually see: a crosshair sits on top of the
+     very edge being judged.  B.r is kept because the circle fit still finds
+     the disc; it is used to place the limb point and to check the plate
+     scale against the almanac's semi-diameter. */
   const B = { x: 0, y: 0, r: 14 };
+
+  /* ---- undo -------------------------------------------------------
+     Every action that moves the overlay pushes the previous state first, so
+     a bad "find the edge" is one tap to recover from rather than a reason to
+     start the sight again. */
+  const UNDO = [];
+  let nudging = false;     // one undo entry per press-and-hold, not per repeat
+  function mark() {
+    UNDO.push({ hy: H.y, ht: H.tiltDeg, bx: B.x, by: B.y, br: B.r });
+    if (UNDO.length > 40) UNDO.shift();
+    const u = $('undo'); if (u) u.disabled = false;
+  }
+  /* "Find the edge" fits a slope as well as an offset, and on a real
+     photograph a hazy or uneven horizon - or barrel distortion bending it -
+     can put a tilt in that is not really there.  This zeroes it without
+     moving the line's height at the point being measured. */
+  function level() {
+    if (!img) return;
+    mark();
+    H.tiltDeg = 0;
+    setConf('Horizon levelled.', '');
+    draw(); recompute();
+  }
+  function undo() {
+    const s = UNDO.pop(); if (!s) return;
+    H.y = s.hy; H.tiltDeg = s.ht; B.x = s.bx; B.y = s.by; B.r = s.br;
+    if (!UNDO.length) $('undo').disabled = true;
+    setConf('Undone.', '');
+    draw(); recompute();
+  }
   const pick = () => (step === 3 ? 'b' : 'h');
 
   const TELL = {
@@ -58,12 +98,14 @@
     show('sight', step === 4);
     show('dock', !!img);
     show('dockrow', step === 2 || step === 3);
-    show('snap', step === 2 || step === 3);
+    show('snaprow', step === 2 || step === 3);
     show('padTilt', step === 2);
     show('padBody', step === 3);
     $('back').disabled = step === 1;
-    $('next').textContent = step === 4 ? 'Done' : 'Next';
-    $('next').disabled = step === 4;
+    /* A disabled button labelled "Done" reads as stuck, which is exactly how
+       it read.  On the last step it starts another sight instead. */
+    $('next').textContent = step === 4 ? 'Another sight' : 'Next';
+    $('next').disabled = false;
     if (step < 2 || step > 3) view = 'wide';
     setView(step >= 2 && step <= 3 ? view : 'wide');
     show('pic', step >= 2);
@@ -90,6 +132,27 @@
     g.strokeStyle = 'rgba(0,0,0,0.85)'; g.lineWidth = 4; fn();
     g.strokeStyle = colour; g.lineWidth = 1.4; fn();
   }
+  /* The body marker: a short line TANGENT to the limb, parallel to the
+     horizon, with a gap at its centre so the edge being judged stays
+     visible through it.  A crosshair covered exactly the thing the observer
+     is trying to see. */
+  function drawBody(g, S, gap, colour) {
+    const a = H.tiltDeg / R2D;
+    const ux = Math.cos(a), uy = Math.sin(a);          // along the horizon
+    const L = 46 / Math.max(scale, 1e-6);              // image px, so ~46 on screen
+    const p = S([B.x, B.y]);
+    const d = [ux * 46, uy * 46];
+    halo(g, () => {
+      g.beginPath();
+      g.moveTo(p[0] - d[0], p[1] - d[1]);
+      g.lineTo(p[0] - d[0] * gap / 46, p[1] - d[1] * gap / 46);
+      g.moveTo(p[0] + d[0] * gap / 46, p[1] + d[1] * gap / 46);
+      g.lineTo(p[0] + d[0], p[1] + d[1]);
+      g.stroke();
+    }, colour);
+    void L;
+  }
+
   function draw() {
     if (!img || step < 2) return;
     if (view === 'zoom') { drawZoom(); return; }
@@ -103,11 +166,7 @@
     const [a, b] = horizonPts().map(S);
     halo(g, () => { g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); },
          pick() === 'h' ? '#6fb3d9' : 'rgba(111,179,217,0.5)');
-    const c = S([B.x, B.y]);
-    halo(g, () => { g.beginPath(); g.arc(c[0], c[1], Math.max(5, B.r * scale), 0, 7); g.stroke();
-                    g.moveTo(c[0] - 8, c[1]); g.lineTo(c[0] + 8, c[1]);
-                    g.moveTo(c[0], c[1] - 8); g.lineTo(c[0], c[1] + 8); g.stroke(); },
-         pick() === 'b' ? '#ff4438' : 'rgba(255,68,56,0.5)');
+    drawBody(g, S, 9, pick() === 'b' ? '#ff4438' : 'rgba(255,68,56,0.5)');
     drawZoom();
   }
 
@@ -135,10 +194,16 @@
       const [a, b] = horizonPts().map(T);
       halo(g, () => { g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }, '#6fb3d9');
     } else {
+      const a = H.tiltDeg / R2D, ux = Math.cos(a), uy = Math.sin(a);
       const c = T([B.x, B.y]);
-      halo(g, () => { g.beginPath(); g.arc(c[0], c[1], B.r * ZOOM, 0, 7); g.stroke();
-                      g.moveTo(c[0] - 12, c[1]); g.lineTo(c[0] + 12, c[1]);
-                      g.moveTo(c[0], c[1] - 12); g.lineTo(c[0], c[1] + 12); g.stroke(); }, '#ff4438');
+      halo(g, () => {
+        g.beginPath();
+        g.moveTo(c[0] - ux * 70, c[1] - uy * 70);
+        g.lineTo(c[0] - ux * 14, c[1] - uy * 14);
+        g.moveTo(c[0] + ux * 14, c[1] + uy * 14);
+        g.lineTo(c[0] + ux * 70, c[1] + uy * 70);
+        g.stroke();
+      }, '#ff4438');
     }
     zwin = { sx, sy, srcW, srcH };
     $('zoomlbl').textContent = ZOOM + ':1  ' + (pick() === 'h' ? 'horizon' : 'body') +
@@ -200,6 +265,7 @@
   /* ---- find the edge ----------------------------------------------------- */
   function snap() {
     if (!img) return;
+    mark();
     const c = document.createElement('canvas');
     c.width = img.width; c.height = img.height;
     const ctx = c.getContext('2d', { willReadFrequently: true });
@@ -217,10 +283,21 @@
               (r.rmsPx < 1 ? 'a clean edge.' : 'ragged; check it in the magnified view.'),
               r.rmsPx < 1 ? 'good' : 'bad');
     } else {
+      /* Fit the circle to the disc, then place the measured point ON THE LIMB
+         that was selected - lower limb is the edge nearest the horizon, which
+         is what the observer brings down to it.  corrections() then applies
+         the semi-diameter exactly once. */
       const r = RF.refineLimb(data, [B.x, B.y], B.r);
-      if (!r.ok) { setConf('No limb found. Tap on the body and set the circle near its size.', 'bad'); return; }
-      B.x = r.centre[0]; B.y = r.centre[1]; B.r = r.radius;
-      let msg = 'Limb: ' + r.used + ' rays, scatter ' + r.rmsPx.toFixed(2) + ' px';
+      if (!r.ok) { setConf('No limb found. Tap the middle of the sun and try again.', 'bad'); return; }
+      const a = H.tiltDeg / R2D;
+      const nx = -Math.sin(a), ny = Math.cos(a);     // perpendicular, toward the horizon
+      const limb = $('limb').value;
+      const sgn = limb === 'L' ? 1 : limb === 'U' ? -1 : 0;
+      B.x = r.centre[0] + sgn * r.radius * nx;
+      B.y = r.centre[1] + sgn * r.radius * ny;
+      B.r = r.radius;
+      let msg = (limb === 'C' ? 'Centre' : limb === 'L' ? 'Lower limb' : 'Upper limb') +
+                ': ' + r.used + ' rays, scatter ' + r.rmsPx.toFixed(2) + ' px';
       let state = r.rmsPx < 0.75 ? 'good' : '';
       /* The ephemeris knows the true semi-diameter, so the fitted disc is an
          independent check on the focal length.  It is far too small a ruler
@@ -255,6 +332,7 @@
   }
   function nudge(axis, stepv) {
     if (!img) return;
+    if (!nudging) { mark(); nudging = true; }
     if (axis === 't') { H.tiltDeg += stepv; draw(); recompute(); return; }
     if (axis === 'r') { B.r = Math.max(2, B.r + stepv); draw(); recompute(); return; }
     if (!cam) return;
@@ -317,6 +395,7 @@
       x = (ev.clientX - r.left) * (img.width / r.width);
       y = (ev.clientY - r.top) * (img.height / r.height);
     }
+    mark();
     if (pick() === 'h') H.y = y - Math.tan(H.tiltDeg / R2D) * (x - img.width / 2);
     else { B.x = x; B.y = y; }
     draw(); recompute();
@@ -329,14 +408,25 @@
     let t = null, n = 0;
     const go = () => { nudge(b.dataset.axis, parseFloat(b.dataset.step)); n++;
                        t = setTimeout(go, n < 4 ? 320 : n < 12 ? 110 : 45); };
-    const stop = () => { clearTimeout(t); t = null; n = 0; };
+    const stop = () => { clearTimeout(t); t = null; n = 0; nudging = false; };
     b.addEventListener('pointerdown', e => { e.preventDefault(); go(); });
     ['pointerup', 'pointerleave', 'pointercancel'].forEach(k => b.addEventListener(k, stop));
   });
   $('snap').addEventListener('click', snap);
-  $('next').addEventListener('click', () => goStep(step + 1));
+  $('undo').addEventListener('click', undo);
+  $('level').addEventListener('click', level);
+  $('next').addEventListener('click', () => {
+    if (step === 4) { UNDO.length = 0; $('undo').disabled = true; goStep(1); }
+    else goStep(step + 1);
+  });
   $('back').addEventListener('click', () => goStep(step - 1));
   ['body','limb','utc','he','ie','tm','pr','f35'].forEach(id => $(id).addEventListener('input', recompute));
+  /* Changing which limb was observed moves the measured point to the other
+     side of the disc, so the sight must be re-fitted rather than silently
+     keeping the old one. */
+  $('limb').addEventListener('change', () => {
+    if (img && step >= 2) setConf('Limb changed \u2014 press "Find the edge for me" again on step 3.', '');
+  });
 
   /* ---- boot ------------------------------------------------------------- */
   function setMode(m) {

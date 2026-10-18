@@ -146,7 +146,11 @@
        so the whole working set is on screen at any pane height.  At any
        pane height these six buttons and Back/Next are on screen, and the
        picture above them scrolls instead of the controls. -->
-  <button class="btn btn-go" id="snap" hidden>Find the edge for me</button>
+  <div class="row row3" id="snaprow" hidden>
+    <button class="btn btn-go" id="snap">Find the edge</button>
+    <button class="btn" id="undo" disabled>Undo</button>
+    <button class="btn" id="level">Level</button>
+  </div>
   <div class="row row6" id="dockrow">
     <button class="nudge" data-axis="v" data-step="10">&uarr;10&prime;</button>
     <button class="nudge" data-axis="v" data-step="1">&uarr;1&prime;</button>
