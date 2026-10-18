@@ -149,7 +149,22 @@ function ves_init(   i,n,a){
   VT[18] = "mineclear|Mine clearance vessel|Rule 27|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.98,"G") ";" yd(0.15,0.15,0.82,"G") ";" yd(0.15,-0.15,0.82,"G") "|Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.|The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not."
   VT[19] = "hover|Air-cushion vessel in non-displacement mode|Rule 23|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.60,"Y") "|The ordinary power-driven lights plus an all-round flashing yellow."
   VT[20] = "sail7|Sailing vessel under 7 m, or a vessel under oars|Rule 25|" ar(0.0,0,0.35,"W") "|If she carries nothing else she must show a torch or lantern in time to prevent collision."
-  NVES=20
+  #  Rule 23(c), added to the Convention by IMO resolution A.910(22).  The
+  #  flashing red is IN ADDITION to the ordinary power-driven lights, and
+  #  only while taking off, landing, or in flight near the surface.
+  VT[21] = "wig|WIG craft taking off, landing or in flight|Rule 23(c)|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.60,"R") "|The ordinary power-driven lights plus a high intensity all-round flashing red, shown only when taking off, landing or in flight near the surface."
+  #  NOT A CONVENTION LIGHT.  32 CFR 707.7 is a United States Navy special
+  #  rule, and the note says so, because a student must not learn this as
+  #  a COLREGS light.  It is here because it is a light you will actually
+  #  see, and because a submarine on the surface is hard to read: her
+  #  masthead lights sit far lower and closer together than a ship's.
+  #  Her ordinary lights keep their proper ARCS - masthead, the two
+  #  sidelights and a sternlight - but sit low and close together, which is
+  #  the point.  Written out rather than built from ar(), because ar() makes
+  #  every lamp all-round and that turned her sidelights into all-round
+  #  lights: the display then read her as "not making way".
+  VT[22] = "submarine|Submarine on the surface (US Navy identification light)|32 CFR 707.7|0.10,0,0.30,M,W,;0.06,0.11,0.20,S,G,;0.06,-0.11,0.20,P,R,;-0.30,0,0.16,T,W,;" ar(0.10,0,0.42,"Y") "|NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition."
+  NVES=22
   VES_READY=1
   return 0
 }

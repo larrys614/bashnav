@@ -103,15 +103,26 @@ var lightIdx = 0, lightBrg = 40;
    its high-intensity all-round flashing red, is not in the table at all.)
    ===================================================================== */
 var FLASHING = {
-  /* vessel key : which lamps flash, by colour and arc */
-  hover: [{ col: 'Y', arc: 'A' }]      /* Rule 23(b) - all-round flashing yellow */
+  /* vessel key : which lamps flash, by colour and arc, and with what rhythm.
+     'flash' is Annex I's 120-a-minute.  'group3' is the submarine's, which is
+     a different rhythm and therefore a different recognition. */
+  hover:     [{ col: 'Y', arc: 'A', pat: 'flash',  mark: 'fl' }],
+  /* Rule 23(b) - all-round flashing yellow */
+  wig:       [{ col: 'R', arc: 'A', pat: 'flash',  mark: 'fl' }],
+  /* Rule 23(c) - high intensity all-round flashing red, and only while
+     taking off, landing or in flight near the surface */
+  submarine: [{ col: 'Y', arc: 'A', pat: 'group3', mark: 'fl(3)' }]
+  /* 32 CFR 707.7, a US Navy special rule and NOT a Convention light: "one
+     flash per second for three seconds followed by a three second
+     off-period".  Three quick flashes then dark is the whole point - a
+     steady 2 Hz flash would be a different vessel. */
 };
-function lampFlashes(vesselKey, L) {
+function lampFlash(vesselKey, L) {
   var f = FLASHING[vesselKey];
-  if (!f) return false;
+  if (!f) return null;
   for (var i = 0; i < f.length; i++)
-    if (f[i].col === L.col && f[i].arc === L.arc) return true;
-  return false;
+    if (f[i].col === L.col && f[i].arc === L.arc) return f[i];
+  return null;
 }
 
 function drawLights(vessel, th) {
@@ -156,11 +167,11 @@ function drawLights(vessel, th) {
     var u = L.x * sind(th) - L.y * cosd(th);
     var x = cx + u * uScale, y = seaY - 16 - L.h * vScale;
     var col = lampColour(L.col);
-    var fl = lampFlashes(vessel.key, L);
+    var fl = lampFlash(vessel.key, L);
     /* Both circles go in a GROUP and the group is what animates.  Animating
        the circles directly would have the CSS opacity override the halo's
        own opacity="0.18" presentation attribute and destroy the glow. */
-    var host = fl ? el('g', { 'class': 'lamp-flash' }, s) : s;
+    var host = fl ? el('g', { 'class': 'lamp-' + fl.pat }, s) : s;
     el('circle', { cx: x, cy: y, r: 16, fill: col, opacity: 0.18 }, host);
     el('circle', { cx: x, cy: y, r: 7.5, fill: col }, host);
     var t = el('text', {
@@ -171,7 +182,7 @@ function drawLights(vessel, th) {
     /* The letter carries the pattern, same discipline as the colours: a
        flashing lamp reads as flashing with no colour AND with no motion,
        which is what somebody gets who has reduced motion switched on. */
-    t.textContent = fl ? L.col + ' fl' : L.col;
+    t.textContent = fl ? L.col + ' ' + fl.mark : L.col;
   });
 
   if (!visible.length) {

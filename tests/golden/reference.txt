@@ -42,6 +42,10 @@
                  Rule 23  The ordinary power-driven lights plus an all-round flashing yellow.
   sail7          Sailing vessel under 7 m, or a vessel under oars
                  Rule 25  If she carries nothing else she must show a torch or lantern in time to prevent collision.
+  wig            WIG craft taking off, landing or in flight
+                 Rule 23(c)  The ordinary power-driven lights plus a high intensity all-round flashing red, shown only when taking off, landing or in flight near the surface.
+  submarine      Submarine on the surface (US Navy identification light)
+                 32 CFR 707.7  NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition.
   ----------------------------------------------------------------------
   Show any one from any angle:  colregs light <key> <bearing>
 

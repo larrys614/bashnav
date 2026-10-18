@@ -1,6 +1,7 @@
 // colregs data -- generated from bin/colregs v1.15 by running the awk
 // engine's own table initialisers and dumping what they built.  Do not
-// hand-edit: regenerate with work/dump.awk so the two cannot drift.
+// hand-edit: regenerate with work/dump.awk and work/mkdata.py so the two
+// cannot drift.
 window.COLREGS_DATA = {
  "version": "1.15",
  "vessels": [
@@ -779,6 +780,92 @@ window.COLREGS_DATA = {
     }
    ],
    "note": "If she carries nothing else she must show a torch or lantern in time to prevent collision."
+  },
+  {
+   "key": "wig",
+   "name": "WIG craft taking off, landing or in flight",
+   "rule": "Rule 23(c)",
+   "lights": [
+    {
+     "x": 0.15,
+     "y": 0.0,
+     "h": 0.72,
+     "arc": "M",
+     "col": "W"
+    },
+    {
+     "x": 0.06,
+     "y": 0.11,
+     "h": 0.42,
+     "arc": "S",
+     "col": "G"
+    },
+    {
+     "x": 0.06,
+     "y": -0.11,
+     "h": 0.42,
+     "arc": "P",
+     "col": "R"
+    },
+    {
+     "x": -0.46,
+     "y": 0.0,
+     "h": 0.36,
+     "arc": "T",
+     "col": "W"
+    },
+    {
+     "x": 0.15,
+     "y": 0.0,
+     "h": 0.6,
+     "arc": "A",
+     "col": "R"
+    }
+   ],
+   "note": "The ordinary power-driven lights plus a high intensity all-round flashing red, shown only when taking off, landing or in flight near the surface."
+  },
+  {
+   "key": "submarine",
+   "name": "Submarine on the surface (US Navy identification light)",
+   "rule": "32 CFR 707.7",
+   "lights": [
+    {
+     "x": 0.1,
+     "y": 0.0,
+     "h": 0.3,
+     "arc": "M",
+     "col": "W"
+    },
+    {
+     "x": 0.06,
+     "y": 0.11,
+     "h": 0.2,
+     "arc": "S",
+     "col": "G"
+    },
+    {
+     "x": 0.06,
+     "y": -0.11,
+     "h": 0.2,
+     "arc": "P",
+     "col": "R"
+    },
+    {
+     "x": -0.3,
+     "y": 0.0,
+     "h": 0.16,
+     "arc": "T",
+     "col": "W"
+    },
+    {
+     "x": 0.1,
+     "y": 0.0,
+     "h": 0.42,
+     "arc": "A",
+     "col": "Y"
+    }
+   ],
+   "note": "NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition."
   }
  ],
  "shapes": [

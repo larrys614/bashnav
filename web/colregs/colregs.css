@@ -229,8 +229,24 @@ input[type="range"]::-moz-range-thumb {
   40%, 100% { opacity: 0.10; }
 }
 .lamp-flash { animation: lamp-flash 0.5s steps(1, end) infinite; }
+
+/* The submarine's identification beacon, 32 CFR 707.7: "one flash per second
+   for three seconds followed by a three second off-period".  A six-second
+   cycle - three flashes at one a second, then dark for three.  The RHYTHM is
+   the recognition, so it is rendered as specified rather than as a generic
+   blink. */
+@keyframes lamp-group3 {
+  0%,    6%  { opacity: 1; }
+  7%,   16%  { opacity: 0.10; }
+  17%,  23%  { opacity: 1; }
+  24%,  33%  { opacity: 0.10; }
+  34%,  40%  { opacity: 1; }
+  41%, 100%  { opacity: 0.10; }
+}
+.lamp-group3 { animation: lamp-group3 6s steps(1, end) infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .lamp-flash { animation: none; opacity: 1; }
+  .lamp-flash, .lamp-group3 { animation: none; opacity: 1; }
 }
 
 /* ---------- the reveal ---------- */
