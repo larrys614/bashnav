@@ -20,7 +20,7 @@
   /* A visible build stamp.  Debugging this remotely without one meant
      guessing which version was on the device, and the guess was wrong:
      the service worker below had been serving a cached build. */
-  const BUILD = '5 \u2014 18 Oct 2026';
+  const BUILD = '6 \u2014 18 Oct 2026';
   const R2D = 180 / Math.PI;
 
   const CN = extendCelnav(makeCelnav(window.CELNAV_TABLES));
@@ -76,14 +76,21 @@
     1: 'Take a photograph of the sun or the moon with the horizon in the same frame.',
     2: 'Tap on the horizon in the picture. It does not have to be exact — then press "Find the edge for me", and use the buttons to fine-tune. Watch Hs change as you do.',
     3: 'Now tap the sun or moon. Again roughly is fine — press "Find the edge for me" and it will fit a circle to the limb.',
-    4: 'Tell it which body and the time, and it works out Ho from Hs. Go Back to adjust the lines again.'
+    4: 'Tell it which body and the time, and it works out Ho from Hs. Give an assumed position, then keep the sight.',
+    5: 'The line of position. Keep two or three sights of different bodies and it solves the fix \u2014 the dashed ellipse is where 1\u2032 of sight error puts you.'
   };
 
   /* ---- step machinery ----------------------------------------------- */
   function show(id, on) { const e = $(id); if (e) e.hidden = !on; }
   function goStep(n) {
-    if (n < 1) n = 1; if (n > 4) n = 4;
-    if (n > 1 && !img) n = 1;
+    if (n < 1) n = 1; if (n > 5) n = 5;
+    /* Steps 2 and 3 need a photograph.  Steps 4 and 5 do not: sights kept
+       earlier must be reachable without shooting a new one, which they were
+       not - the whole navigation was hidden until an image loaded, so a
+       passage's worth of sights sat there unreachable. */
+    const haveSights = window.CELPLOT && window.CELPLOT.all().length > 0;
+    if (!img && n >= 2 && n <= 3) n = haveSights ? 5 : 1;
+    if (!img && n === 4 && !haveSights) n = 1;
     step = n;
     document.querySelectorAll('.steps li').forEach(li => {
       const s = +li.dataset.step;
@@ -91,12 +98,18 @@
       li.classList.toggle('done', s < step);
     });
     $('tellme').textContent = TELL[step];
+    if (step === 1 && window.CELPLOT && window.CELPLOT.all().length) {
+      const n = window.CELPLOT.all().length;
+      $('tellme').textContent += '  You have ' + n + ' sight' + (n === 1 ? '' : 's') +
+        ' kept \u2014 Next goes to the plot.';
+    }
     show('s1', step === 1);
-    show('pic', step >= 2);
-    show('readout', step >= 2);
+    show('pic', step >= 2 && step <= 4);
+    show('readout', step >= 2 && step <= 4);
     show('adjust', step === 2 || step === 3);
     show('sight', step === 4);
-    show('dock', !!img);
+    show('plot', step === 5);
+    show('dock', !!img || (window.CELPLOT && window.CELPLOT.all().length > 0));
     show('dockrow', step === 2 || step === 3);
     show('snaprow', step === 2 || step === 3);
     show('padTilt', step === 2);
@@ -104,11 +117,11 @@
     $('back').disabled = step === 1;
     /* A disabled button labelled "Done" reads as stuck, which is exactly how
        it read.  On the last step it starts another sight instead. */
-    $('next').textContent = step === 4 ? 'Another sight' : 'Next';
+    $('next').textContent = step === 5 ? 'Another sight' : 'Next';
     $('next').disabled = false;
+    if (step === 5) drawPlot();
     if (step < 2 || step > 3) view = 'wide';
     setView(step >= 2 && step <= 3 ? view : 'wide');
-    show('pic', step >= 2);
     setConf(step === 2 ? 'Tap the horizon, then Find the edge.'
           : step === 3 ? 'Tap the body, then Find the edge.' : '', '');
     draw(); recompute();
@@ -416,7 +429,8 @@
   $('undo').addEventListener('click', undo);
   $('level').addEventListener('click', level);
   $('next').addEventListener('click', () => {
-    if (step === 4) { UNDO.length = 0; $('undo').disabled = true; goStep(1); }
+    if (step === 5) { UNDO.length = 0; $('undo').disabled = true; goStep(1); }
+    else if (step === 1 && !img) goStep(5);      // straight to the kept sights
     else goStep(step + 1);
   });
   $('back').addEventListener('click', () => goStep(step - 1));
@@ -427,6 +441,96 @@
   $('limb').addEventListener('change', () => {
     if (img && step >= 2) setConf('Limb changed \u2014 press "Find the edge for me" again on step 3.', '');
   });
+
+  /* ---- keeping a sight, and plotting ------------------------------------
+     What is stored is the RAW sextant reading and the conditions, never Ho.
+     The whole correction chain is then re-run when the fix is solved, so
+     fixing the height of eye or the time or the limb fixes every sight that
+     used it instead of leaving a stale Ho behind. */
+  function currentSight() {
+    const utc = $('utc').value.trim();
+    if (!/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/.test(utc)) return { err: 'Enter a UTC time.' };
+    const body = $('body').value;
+    if (!body) return { err: 'Choose a body.' };
+    const hs = hsNow();
+    if (hs === null) return { err: 'No measurement yet \u2014 mark the horizon and the body first.' };
+    return { body: body, jd: CN.parse_utc(utc), hs: hs,
+             ie: parseFloat($('ie').value) || 0, he: parseFloat($('he').value) || 0,
+             tm: isNaN(parseFloat($('tm').value)) ? 10 : parseFloat($('tm').value),
+             pr: isNaN(parseFloat($('pr').value)) ? 1010 : parseFloat($('pr').value),
+             limb: $('limb').value, utc: utc };
+  }
+  function ap() {
+    const la = CN.parse_ang($('alat').value), lo = CN.parse_ang($('alon').value);
+    if (la === 'ERR' || lo === 'ERR' || isNaN(la) || isNaN(lo)) return null;
+    return { lat: la, lon: lo };
+  }
+  $('keep').addEventListener('click', function () {
+    const s = currentSight();
+    if (s.err) { $('keepnote').textContent = s.err; return; }
+    const n = window.CELPLOT.add(s);
+    $('keepnote').textContent = n + ' sight' + (n === 1 ? '' : 's') + ' kept. ' +
+      (n < 2 ? 'One more of a different body gives a fix.' : 'Go on to the plot.');
+    if (!ap()) $('keepnote').textContent += '  An assumed position is needed to plot it.';
+    goStep(step);                 /* the plot is reachable now; refresh the nav */
+  });
+  $('clearsights').addEventListener('click', function () {
+    window.CELPLOT.clear(); drawPlot(); goStep(step);
+  });
+
+  function drawPlot() {
+    const host = $('sheet'), list = $('sightlist');
+    const P = ap();
+    list.textContent = '';
+    if (!P) {
+      host.textContent = '';
+      $('fixnote').textContent = 'Give an assumed latitude and longitude on step 4 \u2014 ' +
+        'an intercept is measured FROM somewhere.';
+      return;
+    }
+    const sol = window.CELPLOT.solve(CN, P.lat, P.lon,
+      parseFloat($('spd').value) || 0, parseFloat($('crs').value) || 0);
+    if (!sol) {
+      host.textContent = '';
+      $('fixnote').textContent = 'No sights kept yet.';
+      return;
+    }
+    window.CELPLOT.draw('http://www.w3.org/2000/svg', host, sol, {
+      css: n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9'
+    });
+
+    sol.lops.forEach(function (L, i) {
+      const row = document.createElement('div');
+      row.className = 'srow';
+      const b = document.createElement('b'); b.textContent = L.name;
+      const sp = document.createElement('span');
+      sp.textContent = 'Zn ' + ('00' + Math.round(L.zn)).slice(-3) + '  ' +
+        (L.intercept >= 0 ? 'toward ' : 'away ') + Math.abs(L.intercept).toFixed(1) + ' nm';
+      const x = document.createElement('button');
+      x.textContent = 'remove'; x.type = 'button';
+      x.addEventListener('click', function () { window.CELPLOT.remove(i); drawPlot(); });
+      row.appendChild(b); row.appendChild(sp); row.appendChild(x);
+      list.appendChild(row);
+    });
+
+    if (sol.n < 2) {
+      $('fixnote').textContent = 'One line of position. You are somewhere on it. ' +
+        'A second body at a good angle gives a fix.';
+    } else if (!sol.ok) {
+      $('fixnote').textContent = 'The lines are parallel \u2014 this is not a fix. ' +
+        'Shoot a body at least 40\u00b0 away in azimuth.';
+    } else {
+      const g = sol.geom;
+      let t = 'FIX  ' + CN.fmt_lat(sol.lat) + '  ' + CN.fmt_lon(sol.lon);
+      if (g && !g.parallel) {
+        t += '   \u2014 1\u2032 of sight error puts it out ' + g.major.toFixed(1) +
+             ' nm along ' + ('00' + Math.round(g.brg)).slice(-3) + 'T and ' +
+             g.minor.toFixed(1) + ' nm across.';
+        if (g.major > 3.0) t += '  WEAK CUT: add a body 40\u2013120\u00b0 away.';
+      }
+      $('fixnote').textContent = t;
+    }
+  }
 
   /* ---- boot ------------------------------------------------------------- */
   function setMode(m) {
