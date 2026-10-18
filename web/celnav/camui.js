@@ -20,7 +20,7 @@
   /* A visible build stamp.  Debugging this remotely without one meant
      guessing which version was on the device, and the guess was wrong:
      the service worker below had been serving a cached build. */
-  const BUILD = '6 \u2014 18 Oct 2026';
+  const BUILD = '7 \u2014 18 Oct 2026';
   const R2D = 180 / Math.PI;
 
   const CN = extendCelnav(makeCelnav(window.CELNAV_TABLES));
@@ -131,6 +131,14 @@
   function arcminPerPx() { return cam ? Math.atan(1 / cam.f) * R2D * 60 : 0; }
   function rebuildCam() {
     if (!img) return;
+    /* A calibration measured on THIS frame size wins: it carries the lens
+       distortion, which EXIF cannot.  One taken on a different frame size is
+       a different lens or a crop, and is not used. */
+    const C = loadCal();
+    if (C && C.w === img.width && C.h === img.height) {
+      cam = CS.makeCam(img.width, img.height, C.f, C.k1, C.k2);
+      return;
+    }
     const f35 = parseFloat($('f35').value) || (exif && exif.focal35);
     cam = f35 ? CS.makeCam(img.width, img.height,
                            CS.fpxFrom35mm(f35, img.width, img.height), 0, 0) : null;
@@ -378,7 +386,7 @@
                                 : '  |  no focal length in the photo — enter it on step 4') +
           (exif && exif.model ? '  |  ' + exif.model : '');
         $('shotnote').textContent = note;
-        goStep(2);
+        goStep(2); cameraNote();
       };
       im.src = url;
     };
@@ -531,6 +539,151 @@
       $('fixnote').textContent = t;
     }
   }
+
+  /* ---- what the photograph itself says about the camera -----------------
+     The settings matter as much as the technique.  A digitally zoomed frame
+     is a crop upscaled and its focal length may be a fiction; a missing
+     focal length means the plate scale is a guess; and a saved calibration
+     beats both.  Say which of those is in force rather than quietly using
+     whichever happened to be available. */
+  function cameraNote() {
+    const e = $('camwarn'), C = loadCal();
+    if (!img) { e.textContent = ''; return; }
+    const bits = [];
+    let state = '';
+    if (C && C.w === img.width && C.h === img.height) {
+      bits.push('Using your saved calibration: f ' + C.f.toFixed(0) +
+                ' px, k1 ' + C.k1.toFixed(4) + ', fitted to ' + C.rms.toFixed(2) + "'.");
+      state = 'good';
+    } else if (C) {
+      bits.push('A calibration is saved but for a ' + C.w + '\u00d7' + C.h +
+                ' frame, not this one \u2014 a different lens or a crop. Not used.');
+      state = 'bad';
+    }
+    if (exif && exif.digitalZoom && exif.digitalZoom > 1.01) {
+      bits.push('DIGITAL ZOOM \u00d7' + exif.digitalZoom.toFixed(2) +
+                ' \u2014 this frame is a crop, and the focal length in it may be ' +
+                'a fiction. Re-shoot without zooming.');
+      state = 'bad';
+    }
+    if (!C && !(exif && exif.focal35))
+      bits.push('No focal length in the photograph and no calibration \u2014 ' +
+                'the plate scale is whatever you type, so the sight is a guess.');
+    if (exif && exif.lensModel) bits.push('Lens: ' + exif.lensModel + '.');
+    if (!C) bits.push('Uncalibrated: lens distortion is unmodelled and can cost ' +
+                      'tens of arcminutes. Calibrate once and it is done.');
+    e.textContent = bits.join('  ');
+    e.dataset.state = state;
+  }
+
+  /* ---- calibration ------------------------------------------------------ */
+  const CALKEY = 'celnav-calibration';
+  function loadCal() {
+    try { return JSON.parse(localStorage.getItem(CALKEY) || 'null'); } catch (e) { return null; }
+  }
+  function saveCal(c) { try { localStorage.setItem(CALKEY, JSON.stringify(c)); } catch (e) {} }
+
+  let calImg = null, calScale = 1, calPt = null;
+  const CALOBS = [];
+
+  function calDraw() {
+    if (!calImg) return;
+    const cv = $('calcv'), g = cv.getContext('2d');
+    const maxW = Math.min($('calstage').clientWidth, 760) - 2;
+    calScale = Math.min(1, maxW / calImg.width);
+    cv.width = Math.round(calImg.width * calScale);
+    cv.height = Math.round(calImg.height * calScale);
+    g.drawImage(calImg, 0, 0, cv.width, cv.height);
+    const mark = (p, col, label) => {
+      const x = p[0] * calScale, y = p[1] * calScale;
+      g.strokeStyle = 'rgba(0,0,0,0.85)'; g.lineWidth = 3.5;
+      g.beginPath(); g.arc(x, y, 9, 0, 7); g.stroke();
+      g.strokeStyle = col; g.lineWidth = 1.4;
+      g.beginPath(); g.arc(x, y, 9, 0, 7); g.stroke();
+      if (label) { g.fillStyle = col; g.font = '12px ui-monospace, Menlo, monospace';
+                   g.fillText(label, x + 12, y + 4); }
+    };
+    CALOBS.forEach(o => mark(o.p, '#2fd45f', o.name));
+    if (calPt) mark(calPt, '#ff4438', null);
+  }
+  function calFile(f) {
+    if (!f) return;
+    const fr = new FileReader();
+    fr.onload = function () {
+      const url = URL.createObjectURL(new Blob([fr.result], { type: f.type || 'image/jpeg' }));
+      const im = new Image();
+      im.onload = function () {
+        calImg = im; URL.revokeObjectURL(url);
+        CALOBS.length = 0; calPt = null;
+        try { const x = EX.readExif(fr.result); if (x && x.focal35) $('f35').value = x.focal35; } catch (e) {}
+        calNote(); calDraw();
+      };
+      im.src = url;
+    };
+    fr.readAsArrayBuffer(f);
+  }
+  function calNote(msg, state) {
+    const n = CALOBS.length;
+    $('calnote').textContent = msg !== undefined ? msg :
+      (!calImg ? 'No photograph yet.'
+       : n + ' star' + (n === 1 ? '' : 's') + ' marked. ' +
+         (n < 3 ? 'Three is the minimum, four or more is better \u2014 and include one near a corner and one near the middle, or focal length and distortion cannot be told apart.'
+                : 'Ready to solve.'));
+    $('calnote').dataset.state = state || '';
+  }
+  $('caltake').addEventListener('click', () => $('calfile').click());
+  $('calfile').addEventListener('change', e => calFile(e.target.files && e.target.files[0]));
+  $('calcv').addEventListener('pointerdown', function (ev) {
+    if (!calImg) return;
+    const r = $('calcv').getBoundingClientRect();
+    calPt = [(ev.clientX - r.left) * (calImg.width / r.width),
+             (ev.clientY - r.top) * (calImg.height / r.height)];
+    calDraw(); calNote('Now say which star that is, and add it.');
+  });
+  $('caladd').addEventListener('click', function () {
+    if (!calPt) { calNote('Tap a star in the picture first.', 'bad'); return; }
+    const i = +$('calstar').value;
+    if (CALOBS.some(o => o.idx === i)) { calNote('That star is already marked.', 'bad'); return; }
+    CALOBS.push({ p: calPt, idx: i, name: CN.stars.SNAME[i],
+                  ra: CN.stars.SRA[i], dec: CN.stars.SDEC[i] });
+    calPt = null; calDraw(); calNote();
+  });
+  $('calundo').addEventListener('click', function () {
+    CALOBS.pop(); calPt = null; calDraw(); calNote();
+  });
+  $('calsolve').addEventListener('click', function () {
+    if (!calImg) { calNote('No photograph.', 'bad'); return; }
+    const f35 = parseFloat($('f35').value);
+    const f0 = f35 ? CS.fpxFrom35mm(f35, calImg.width, calImg.height)
+                   : Math.max(calImg.width, calImg.height) * 0.72;
+    const r = window.CELCALIB.solveCamera(
+      CALOBS.map(o => ({ p: o.p, ra: o.ra, dec: o.dec, name: o.name })),
+      f0, calImg.width / 2, calImg.height / 2);
+    if (r.err) { calNote(r.err, 'bad'); return; }
+    saveCal({ f: r.f, k1: r.k1, k2: r.k2, rms: r.rmsArcmin,
+              w: calImg.width, h: calImg.height, stars: r.stars });
+    calNote('Saved. f ' + r.f.toFixed(0) + ' px, k1 ' + r.k1.toFixed(4) +
+            ', k2 ' + r.k2.toFixed(4) + ' \u2014 ' + r.stars + ' stars, ' +
+            r.pairs + ' pairs, fitted to ' + r.rmsArcmin.toFixed(2) + " arcmin." +
+            (r.warn ? '  ' + r.warn : ''), r.warn ? 'bad' : 'good');
+    rebuildCam(); recompute(); cameraNote();
+  });
+  $('gocal').addEventListener('click', function () {
+    show('cal', true); show('steps', false); show('tellme', false);
+    show('s1', false); show('pic', false); show('readout', false);
+    show('adjust', false); show('sight', false); show('plot', false);
+    show('dock', false);
+    const sel = $('calstar');
+    if (!sel.options.length)
+      CN.stars.SNAME.forEach((n, i) => {
+        const o = document.createElement('option'); o.value = i; o.textContent = n; sel.appendChild(o);
+      });
+    calNote();
+  });
+  $('calclose').addEventListener('click', function () {
+    show('cal', false); show('steps', true); show('tellme', true);
+    goStep(4); cameraNote();
+  });
 
   /* ---- boot ------------------------------------------------------------- */
   function setMode(m) {

@@ -209,6 +209,12 @@ main {
 }
 .nudge:active { background: var(--accent); color: var(--ground); }
 
+#calcv { display: block; max-width: 100%; max-height: 34dvh; height: auto;
+         width: auto; touch-action: none; }
+#callist { display: grid; gap: 6px; }
+.row3 { grid-template-columns: 1fr 1fr 1fr; }
+.fields label button { width: 100%; }
+
 /* ---------- the plotting sheet ---------- */
 .sheet {
   background: var(--panel); border: 1px solid var(--line);

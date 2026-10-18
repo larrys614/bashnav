@@ -27,7 +27,12 @@ function parseTiff(v, base) {
   const TAGS = {
     0x0112: 'orientation', 0x010F: 'make', 0x0110: 'model',
     0x8769: '_exifIfd', 0xA002: 'wPx', 0xA003: 'hPx',
-    0x920A: 'focal', 0xA405: 'focal35', 0x829A: 'exposure', 0x8827: 'iso'
+    0x920A: 'focal', 0xA405: 'focal35', 0x829A: 'exposure', 0x8827: 'iso',
+    /* DigitalZoomRatio is the one that matters most: a digitally zoomed
+       frame is a crop upscaled, and whether focal35 reflects that is not
+       guaranteed.  A wrong plate scale is a confident wrong sight. */
+    0xA404: 'digitalZoom', 0xA20E: 'fpXRes', 0xA210: 'fpUnit',
+    0x9291: 'subsec', 0xA433: 'lensMake', 0xA434: 'lensModel'
   };
   function readIfd(ifdOff) {
     if (ifdOff <= 0 || base + ifdOff + 2 > v.byteLength) return;

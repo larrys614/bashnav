@@ -122,11 +122,13 @@
       <label>Temp &deg;C<input id="tm" type="text" inputmode="decimal" value="12"></label>
       <label>Pressure hPa<input id="pr" type="text" inputmode="decimal" value="1013"></label>
       <label>35&nbsp;mm equiv, mm<input id="f35" type="text" inputmode="decimal" placeholder="from EXIF"></label>
+      <label>Calibration<button class="btn" id="gocal" type="button">Calibrate the camera</button></label>
       <label>Assumed latitude<input id="alat" type="text" inputmode="text" placeholder="41 14.0N"></label>
       <label>Assumed longitude<input id="alon" type="text" inputmode="text" placeholder="071 05.0W"></label>
       <label>Course made good<input id="crs" type="text" inputmode="decimal" value="0"></label>
       <label>Speed, knots<input id="spd" type="text" inputmode="decimal" value="0"></label>
     </div>
+    <p class="conf" id="camwarn"></p>
     <button class="btn btn-go" id="keep">Keep this sight</button>
     <p class="note" id="keepnote"></p>
   </section>
@@ -137,6 +139,30 @@
     <p class="chain" id="fixnote"></p>
     <div id="sightlist"></div>
     <button class="btn" id="clearsights">Clear all sights</button>
+  </section>
+
+  <!-- ---------- calibration ----------
+       Not a step in taking a sight, so not a step in the sequence: it is
+       done once per camera and then forgotten about. -->
+  <section class="panel" id="cal" hidden>
+    <p class="tellme" id="caltell">Photograph a patch of sky well up from the
+      horizon with four or more stars you can name. Tap each one and say which
+      it is. No time or position is needed &mdash; the angle between two stars
+      is a property of the sky.</p>
+    <button class="btn btn-go" id="caltake">Take or choose a sky photograph</button>
+    <input type="file" id="calfile" accept="image/*" hidden>
+    <div class="stage" id="calstage"><canvas id="calcv"></canvas></div>
+    <div class="fields">
+      <label>This star is<select id="calstar"></select></label>
+      <label>&nbsp;<button class="btn" id="caladd" type="button">Add it</button></label>
+    </div>
+    <div id="callist"></div>
+    <p class="conf" id="calnote"></p>
+    <div class="row row3">
+      <button class="btn btn-go" id="calsolve">Solve</button>
+      <button class="btn" id="calundo">Remove last</button>
+      <button class="btn" id="calclose">Done</button>
+    </div>
   </section>
 
   <!-- The disclaimer folds away.  It is important and it is also eight
@@ -186,6 +212,7 @@
 <script src="camsight.js"></script>
 <script src="refine.js"></script>
 <script src="exif.js"></script>
+<script src="calib.js"></script>
 <script src="plot.js"></script>
 <script src="camui.js"></script>
 </body>
