@@ -136,14 +136,15 @@ claims, and nothing on the boat would say so.
 
 ## Loose ends
 
-1. **`docs/index.html` still describes two tools.** The site predates `tides`,
-   `deck-log`, `weather` and `bashnav`. `docs/make-site.sh` already builds
-   `docs/img/tides-day.svg` and `docs/img/tides-find.svg` and nothing uses
-   them. The README covers all six fully; the site is the stale surface.
-2. **Five orphaned SVGs on GitHub** from before a rename — `contacts.svg`,
-   `lights.svg`, `lights-mineclear.svg`, `plot.svg`, `sky.svg`. Identical blob
-   SHAs to their new names, nothing references them. Extracting a tarball adds
-   files but never removes them, so they must be deleted on Larry's side.
+1. ~~**`docs/index.html` still describes two tools.**~~ **Closed 19 Oct 2026.**
+   The site now covers all six tools and the browser build, shows the real
+   output as pictures with the terminal text folded underneath each one, and
+   `make-site.sh` fails the build if any picture comes out blank. Every SVG it
+   generates is now used by something.
+2. ~~**Five orphaned SVGs on GitHub** from before a rename.~~ **Closed 19 Oct
+   2026** — `contacts.svg`, `lights.svg`, `lights-mineclear.svg`, `plot.svg`
+   and `sky.svg` removed with `git rm`. They were byte-identical duplicates of
+   the `colregs-*` and `celnav-*` names and nothing referenced them.
 3. **A Shortcuts recipe for iPad GPS → `tides near`**, so a position can be
    handed to the tool without typing it. The Shortcuts groundwork is now in the
    README — a-Shell's **Execute Command** action, set to run **In App** — and

@@ -75,6 +75,25 @@ p{max-width:66ch; margin:0 0 16px}
 
 /* ---- plates: real output, framed like a chart figure ---- */
 figure{margin:26px 0 8px}
+
+/*  The pictures are the tools' real output, converted to SVG by
+    docs/ansi2svg.awk - the program's actual colours rather than a
+    plain-text approximation of them.  The terminal text is kept
+    underneath each one: it is what you will really see, it is
+    selectable and searchable, and it is what a screen reader gets. */
+.shot{display:block; width:100%; height:auto; border:1px solid var(--rule); background:var(--ink3)}
+.asterm{margin:8px 0 0}
+.asterm>summary{
+  cursor:pointer; list-style:none; padding:7px 0;
+  font-family:var(--mono); font-size:12px; letter-spacing:.02em;
+  color:var(--magenta-dim);
+}
+.asterm>summary::-webkit-details-marker{display:none}
+.asterm>summary::before{content:"\25B8\00a0"; display:inline-block; transition:transform .12s}
+.asterm[open]>summary::before{transform:rotate(90deg)}
+.asterm>summary:hover{color:var(--magenta)}
+.asterm .plate{margin-top:4px}
+@media (prefers-reduced-motion: reduce){ .asterm>summary::before{transition:none} }
 .plate{
   background:var(--ink3); border:1px solid var(--rule); border-left:2px solid var(--magenta-dim);
   overflow-x:auto; padding:16px 18px;
@@ -87,6 +106,16 @@ figure{margin:26px 0 8px}
 .plate pre .g{color:var(--green)} .plate pre .r{color:var(--red)}
 .plate pre .w{color:#fff} .plate pre .y{color:var(--amber)}
 .plate pre .d{color:var(--buff3)}
+
+/*  The lamp letters again, but in PROSE.  The rules above are scoped to
+    .plate pre, so a <span class="r">R</span> in a paragraph rendered plain
+    white - on the one page that explains how the letters carry the pattern
+    when the colour is gone.  Same palette, usable anywhere. */
+p .r,li .r,figcaption .r{color:var(--red)}
+p .g,li .g,figcaption .g{color:var(--green)}
+p .w,li .w,figcaption .w{color:#fff}
+p .y,li .y,figcaption .y{color:var(--amber)}
+p .r,p .g,p .w,p .y,li .r,li .g,li .w,li .y{font-family:var(--mono); font-weight:500}
 figcaption{
   font-family:var(--mono); font-size:11.5px; color:var(--buff3);
   letter-spacing:.03em; margin-top:10px; max-width:74ch;
@@ -156,14 +185,16 @@ footer p{max-width:70ch}
 <header>
   <p class="eyebrow">Bash Navigation Software</p>
   <h1>Navigation tools that need<br><em>nothing but a shell</em></h1>
-  <p class="lede">Celestial navigation and the rules of the road, written in POSIX <strong>sh</strong> and <strong>awk</strong>. No dependencies, no network, no almanac that expires. Each tool is <strong>one file</strong> you can copy onto anything with a terminal — including an iPad in the middle of an ocean.</p>
+  <p class="lede">Celestial navigation and the rules of the road, written in POSIX <strong>sh</strong> and <strong>awk</strong>. No dependencies, no network, no almanac that expires. Each tool is <strong>one file</strong> you can copy onto anything with a terminal. For an iPad there is a <a href="#web">browser build</a> — same engines, same answers, no terminal needed.</p>
   <pre class="cmd"><span class="c"># three star sights, taken at morning twilight</span>
 celnav sight "2026-08-29 07:30:00" Dubhe     C "19 32.1"
 celnav sight "2026-08-29 07:34:00" Bellatrix C "49 37.2"
 celnav sight "2026-08-29 07:38:00" Markab    C "29 01.3"
 celnav fix</pre>
   <figure>
-    <div class="plate"><pre>INTERCEPT PLOT  (AP at centre, N up)
+    <img class="shot" src="img/celnav-plot.svg" alt="The intercept plot: dead reckoning at the centre, three lettered lines of position, and the fix where they cross with its error ellipse" loading="lazy">
+    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
+      <div class="plate"><pre>INTERCEPT PLOT  (AP at centre, N up)
                              |    N :          //
                              |      :        //
                              |      :      //
@@ -192,6 +223,7 @@ W                           /|  ----:                                   E
        //                     |     :
      ///                      |   S :                       5 nm per row
 AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre></div>
+    </details>
     <figcaption><b>A plotting sheet, drawn in characters.</b> Your dead reckoning at the centre, one lettered line of position for each sight, and the fix where they cross — about ten miles north and sixteen west of where you thought you were.</figcaption>
   </figure>
   <div class="tools">
@@ -203,8 +235,41 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
       <h3>colregs</h3>
       <p>The international rules of the road: lights and shapes drawn from any angle, encounter scenarios, sound signals, and fifteen lessons on the rules themselves.</p>
     </div>
+    <div class="tool">
+      <h3>tides</h3>
+      <p>Harmonic prediction for 8,334 stations worldwide, each in its own standard time. The table and the curve, with the turns marked.</p>
+    </div>
+    <div class="tool">
+      <h3>deck-log</h3>
+      <p>The boat’s records in one book: the deck log, engine, provisions and spares. Append-only, UTC, corrections as new entries — because a log has standing after an incident.</p>
+    </div>
+    <div class="tool">
+      <h3>weather</h3>
+      <p>Reads your own observations and reasons about what is coming, showing its working. It cannot forecast without a network; it can make you your own forecaster.</p>
+    </div>
+    <div class="tool">
+      <h3>bashnav</h3>
+      <p>The launcher: one command in front of the other five, for when you are cold and the screen is wet and five names is four too many.</p>
+    </div>
   </div>
 </header>
+
+<section id="web">
+  <p class="eyebrow">On an iPad, or anything with a browser</p>
+  <h2>The browser build <span class="rule">&mdash; same engines, no terminal</span></h2>
+  <p>The shell tools need a POSIX shell, and on iOS that turned out to be a dead end: a-Shell cannot give them colour (<code>[&nbsp;-t&nbsp;1&nbsp;]</code> is false even printing straight to the screen), will not execute a script by path, and treats a compound redirect as a parse error. Those are platform faults, not bugs that can be fixed. So the shell suite is a <strong>Mac and Linux</strong> tool, and the iPad gets its own build.</p>
+  <p>It is not a port in the loose sense. The data was produced by <em>running the awk engine&rsquo;s own table initialisers</em> rather than transcribed, and the geometry was checked against that engine over every integer bearing. The celestial engine was diffed against it over 20,568 reference values and reproduces the shell tool&rsquo;s own self-test, against an independent reference ephemeris, to 0.151&prime;.</p>
+  <ul>
+    <li><a href="https://larrys614.github.io/bashnav/web/"><b>The launcher</b></a> &mdash; a tile per tool.</li>
+    <li><a href="https://larrys614.github.io/bashnav/web/colregs/"><b>colregs</b></a> &mdash; complete. Lights, day shapes, sound signals that actually sound, encounters and the rules.</li>
+    <li><a href="https://larrys614.github.io/bashnav/web/celnav/"><b>celnav</b></a> &mdash; the camera sight so far: measure an altitude from a photograph, reduce it, and plot the line of position.</li>
+  </ul>
+  <p>Each is its own page with its own manifest and service worker, so each installs as a <strong>separate home-screen icon</strong> &mdash; in Safari, Share then Add to Home Screen; on a Mac, Add to Dock &mdash; and each caches itself on first load and then works with no signal at all. <span class="small dim">Prove that once at the dock rather than at sea: open every screen, turn the network off, relaunch from the icon.</span></p>
+
+  <h3>Where the browser version is better, and where it is not</h3>
+  <p>Better, because a terminal could not do it: the sound signals are <em>sounded</em> rather than drawn; night mode puts every lamp red while the letters <span class="r">R</span> <span class="g">G</span> <span class="w">W</span> <span class="y">Y</span> keep the pattern unambiguous; and a camera can measure a sextant altitude, which no shell tool was ever going to manage.</p>
+  <p>Not better, and worth saying plainly: <strong>a phone camera is worth about two to three arcminutes once calibrated</strong> &mdash; the same order as a plastic lifeboat sextant, several times worse than a metal one in practised hands. Uncorrected lens distortion can cost tens of arcminutes, which is why the build carries a star-field calibration and says so on the page when it has not been done.</p>
+</section>
 
 <section id="why">
   <p class="eyebrow">Design</p>
@@ -230,14 +295,22 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
     <li><b>Fix geometry in miles,</b> so a weak cut is named as weak before you steer on it.</li>
   </ul>
   <figure>
-    <div class="plate"><pre>Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre
+    <img class="shot" src="img/celnav-working.svg" alt="One sight reduced in full: the sextant correction chain, the almanac values, and the navigational triangle solved at the assumed position" loading="lazy">
+    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
+      <div class="plate"><pre>Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre
   Hs     19 32.1'     GHA   283 41.6'     assumed pos 35 00.0'N 040 00.0'W
   IE         -1.5'    Dec   N61 36.5'     LHA 243 41.6'
   Dip        -3.0'    SD         -       Hc     19 23.3'
   Ha     19 27.6'     HP         -       Zn    026 51.9'
   Ref        -2.8'
   Ho     19 24.8'                          Intercept    1.5 nm TOWARD</pre></div>
+    </details>
     <figcaption><b>Nothing is hidden.</b> The left column is the sextant chain, the middle is the almanac, the right is the navigational triangle solved at the assumed position.</figcaption>
+  </figure>
+
+  <figure>
+    <img class="shot" src="img/celnav-sky.svg" alt="The sky at morning twilight: the horizon at the rim, overhead at the centre, every body above the horizon placed by altitude and azimuth, with the best three for a fix marked" loading="lazy">
+    <figcaption><b>What is up there, and which three to shoot.</b> The rim is your horizon and the centre is straight overhead. A good fix wants bodies spread around the compass, so it names the three that cut best rather than the three that are brightest.</figcaption>
   </figure>
 
   <h3>Accuracy, measured rather than claimed</h3>
@@ -257,7 +330,9 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
   <h3>It teaches, as well as computes</h3>
   <p>Twenty lessons from first principles, an annotated walkthrough of one real sight, six kinds of drill generated from the real almanac and marked, and a sandbox where you change one number and watch the navigational triangle move.</p>
   <figure>
-    <div class="plate"><pre>SANDBOX -- the navigational triangle
+    <img class="shot" src="img/celnav-triangle.svg" alt="The navigational triangle drawn on the observer’s own sky, overhead at the centre and the horizon at the rim" loading="lazy">
+    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
+      <div class="plate"><pre>SANDBOX -- the navigational triangle
 ----------------------------------------------------------------------
                              N
                       .................
@@ -287,6 +362,7 @@ W.                            Z``````````````+             .E
 ----------------------------------------------------------------------
 latitude    35.0    declination    20.0    LHA   310.0
   computed altitude Hc 43.71      azimuth Zn 95.3 T</pre></div>
+    </details>
     <figcaption><b>The navigational triangle, on your own sky.</b> Centre is straight overhead, the rim is your horizon. Change your latitude, the declination or the hour angle and the shape moves with it.</figcaption>
   </figure>
 </section>
@@ -296,7 +372,9 @@ latitude    35.0    declination    20.0    LHA   310.0
   <h2>colregs <span class="rule">— the rules of the road, in characters</span></h2>
   <p>The lights are not drawings. Each one is described by its position on the vessel, its height, and its arc of visibility, and the program works out what you can see from where you are standing. Shoot her from astern and the masthead lights correctly disappear.</p>
   <figure>
-    <div class="plate"><pre>WHAT DO YOU SEE?
+    <img class="shot" src="img/colregs-lights.svg" alt="A vessel restricted in her ability to manoeuvre seen from 040 degrees: red over white over red, with her sidelights" loading="lazy">
+    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
+      <div class="plate"><pre>WHAT DO YOU SEE?
 ----------------------------------------------------------------------
 masthead height
                                     <span class="r">R</span>
@@ -318,6 +396,7 @@ deck                           :    ::
 ----------------------------------------------------------------------
 You are broad on her starboard bow.
 Letters are the colours: W white  R red  G green  Y yellow</pre></div>
+    </details>
     <figcaption><b>Red over white over red, and a sternlight:</b> a vessel restricted in her ability to manoeuvre, seen from her starboard bow. Every light also carries its colour as a letter, so the pattern is unambiguous in night mode, in plain text, and for anyone who does not see red and green.</figcaption>
   </figure>
   <ul>
@@ -328,7 +407,9 @@ Letters are the colours: W white  R red  G green  Y yellow</pre></div>
     <li><b>Fifteen lessons</b> on the rules themselves, each ending with a question.</li>
   </ul>
   <figure>
-    <div class="plate"><pre>WHAT DO YOU DO?
+    <img class="shot" src="img/colregs-encounter.svg" alt="An encounter laid out with the lights seen, the bearing, and four courses of action to choose between" loading="lazy">
+    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
+      <div class="plate"><pre>WHAT DO YOU DO?
 ----------------------------------------------------------------------
                          HEAD  UP
                        .................
@@ -363,12 +444,15 @@ You see a power-driven vessel showing her red sidelight, bearing 073 relative, h
  b) Give way: alter to starboard and pass under her stern.
  c) Give way: alter to port to cut across ahead of her.
  d) Slow down and let her decide.</pre></div>
+    </details>
     <figcaption><b>Head up, you in the middle.</b> She is crossing from your starboard side, so you are the give-way vessel — and Rule 15 says avoid crossing ahead of her, which means altering to starboard and passing under her stern.</figcaption>
   </figure>
   <h3>Plotting a developing situation</h3>
   <p>The snapshot asks who gives way. This asks the harder question: is there a risk at all, how close will she come, and does your action actually open the distance? Three observations six minutes apart, with the scatter a hand bearing compass really gives you.</p>
   <figure>
-    <div class="plate"><pre>COLLISION AVOIDANCE -- a radar plot
+    <img class="shot" src="img/colregs-scenario.svg" alt="A collision avoidance scenario: own vessel, a contact, and the question of what the rules require" loading="lazy">
+    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
+      <div class="plate"><pre>COLLISION AVOIDANCE -- a radar plot
 ----------------------------------------------------------------------
 You are a power-driven vessel, steering 162 T at 8 knots.
 Visibility is good and you have her in sight.
@@ -411,10 +495,13 @@ W.              .             +             .              .E
 The marks are where she was, relative to you, at each observation.
 
 Q1  Is there a risk of collision?</pre></div>
+    </details>
     <figcaption><b>A steady bearing and a closing range.</b> Answer the three questions and it works the solution: the CPA, the time to it, and her true course and speed from the vector triangle — then replays both tracks under the action <em>you</em> chose, and tells you the CPA that action actually produced.</figcaption>
   </figure>
   <figure>
-    <div class="plate"><pre>In sight of one another (Rule 34)
+    <img class="shot" src="img/colregs-sound.svg" alt="The sound signals used in sight of one another, each blast pattern against its meaning" loading="lazy">
+    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
+      <div class="plate"><pre>In sight of one another (Rule 34)
   #                  I am altering my course to starboard
   # #                I am altering my course to port
   # # #              I am operating astern propulsion
@@ -431,7 +518,70 @@ In or near an area of restricted visibility (Rule 35)
   #### # # #         A vessel being towed, and manned
   *****              At anchor
   * * * ***** * * *  Aground</pre></div>
+    </details>
     <figcaption><b>A short blast is about a second; a prolonged blast four to six.</b> The distinction that matters is not the pattern but the context: Rule 34 signals are for vessels in sight of one another and say what you are doing; Rule 35 signals are for restricted visibility and say what kind of vessel you are.</figcaption>
+  </figure>
+</section>
+
+<section id="tides">
+  <p class="eyebrow">Tool three</p>
+  <h2>tides <span class="rule">&mdash; harmonic prediction, 8,334 stations</span></h2>
+  <p>Not a downloaded table that expires. The harmonic constants are aboard, and the prediction is computed from them for any date, past or future, with no network.</p>
+  <ul>
+    <li><b>Every station in its own standard time,</b> because that is how a tide table is read and how a harbour speaks. Converting them all to UTC would be tidier and wrong.</li>
+    <li><b>Loose search.</b> Type part of a name in any order &mdash; <code>new lon</code> finds New London &mdash; because nobody remembers a station&rsquo;s full official name at 0400.</li>
+    <li><b>The curve as well as the table,</b> with the turns marked, so the shape of the day is visible rather than four numbers to interpolate between.</li>
+  </ul>
+  <figure>
+    <img class="shot" src="img/tides-day.svg" alt="A day&rsquo;s tide table and curve for New London: four turns, the curve drawn across twenty-four hours with the highs and lows marked" loading="lazy">
+    <figcaption><b>A day at New London.</b> The table, and the curve with its turns &mdash; drawn in characters, because that is what a terminal has.</figcaption>
+  </figure>
+  <figure>
+    <img class="shot" src="img/tides-find.svg" alt="Searching for a tide station by part of its name: four matches for &lsquo;new lon&rsquo;, numbered for picking" loading="lazy">
+    <figcaption><b>Finding a station.</b> Part of the name, in any order, and the matches numbered for picking.</figcaption>
+  </figure>
+  <p class="small dim">No tidal <em>current</em> data. NOAA has 4,430 current stations but United States waters only, and worldwide coverage is the point of the thing &mdash; so it is left out rather than offered for a quarter of the planet.</p>
+</section>
+
+<section id="deck-log">
+  <p class="eyebrow">Tool four</p>
+  <h2>deck-log <span class="rule">&mdash; the boat&rsquo;s records</span></h2>
+  <p>The deck log, the engine, provisions and spares, in one book kept by one person at one moment. A watch stander says the report once; nobody says it three times at 0400.</p>
+  <ul>
+    <li><b>Append only, UTC, corrections as new records.</b> The maritime convention is that you do not erase a log &mdash; you line through, initial and write the correction. A log has standing after an incident, and that cannot be retrofitted.</li>
+    <li><b>Inventory is derived, never stored.</b> The holding of any part is computed by replaying the log, so it cannot disagree with the log, because it <em>is</em> the log. A stored count is the obvious design and it is the one that drifts.</li>
+    <li><b>Told at the moment of use.</b> &ldquo;That was your last one, one short of your minimum&rdquo; &mdash; while you are still standing at the engine, not in a report afterwards.</li>
+    <li><b>Four states, not two.</b> A reading, a zero (which is a reading), asked-and-not-taken, and asked-and-not-observable. A form that punishes blanks gets invented numbers.</li>
+  </ul>
+  <figure>
+    <img class="shot" src="img/decklog-menu.svg" alt="The deck-log menu: log an entry, weather, engine inspection, work done, spares, shopping list, the log, and what is outstanding" loading="lazy">
+    <figcaption><b>One book, several tabs.</b> Including the question that matters on passage: what is still outstanding.</figcaption>
+  </figure>
+</section>
+
+<section id="weather">
+  <p class="eyebrow">Tool five</p>
+  <h2>weather <span class="rule">&mdash; read your own barometer</span></h2>
+  <p><strong>With no network it cannot forecast.</strong> No GRIBs, no synoptic charts, no models. What it does is make you your own forecaster from the barometer, the sky and the wind &mdash; and it says so in its own <code>about</code> rather than implying otherwise.</p>
+  <p>Celestial is what you do when GPS dies. This is what you do when the sat comms die.</p>
+  <ul>
+    <li><b>It shows its working.</b> Barometric tendency, backing and veering, Buys Ballot, the atmospheric tide correction applied before any statement about trend, swell as early warning, fog from dew point against sea temperature, cloud base from the spread.</li>
+    <li><b>You forecast first.</b> It shows nothing of its reasoning until your call is committed &mdash; otherwise you have not forecast anything, you have read an answer and agreed with it.</li>
+    <li><b>Three scorers:</b> you, the rules, and persistence. Persistence is the honest floor: a forecast that cannot beat &ldquo;much as it is now&rdquo; has shown no skill.</li>
+  </ul>
+  <figure>
+    <img class="shot" src="img/weather-menu.svg" alt="The weather menu: what the log says, a lesson, from a 500 millibar chart, make a forecast, and the score" loading="lazy">
+    <figcaption><b>Observe, predict, compare, score.</b> The app&rsquo;s misses go on the record alongside yours.</figcaption>
+  </figure>
+</section>
+
+<section id="bashnav">
+  <p class="eyebrow">And a launcher</p>
+  <h2>bashnav <span class="rule">&mdash; one command in front of five</span></h2>
+  <p>Pure <code>sh</code>, no awk, no network. It finds the tools next to itself, on the path, or in the place the operating system actually lets an app write, and puts a numbered list in front of them.</p>
+  <figure>
+    <img class="shot" src="img/bashnav-menu.svg" alt="The bashnav launcher menu listing celnav, colregs, tides, deck-log and weather" loading="lazy">
+    <figcaption><b>Five names is four too many</b> when you are cold and the screen is wet.</figcaption>
   </figure>
 </section>
 

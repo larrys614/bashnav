@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="564" height="198" viewBox="0 0 564 198">
+<title>bashnav: the launcher, one icon in front of the other five</title>
+<rect width="564" height="198" fill="#0b1a22"/>
+<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="13">
+<text x="38.0 46.0 54.0 62.0" y="27.0" fill="#c9d6dc">BASH</text>
+<text x="78.0 86.0 94.0 102.0 110.0 118.0 126.0 134.0 142.0 150.0" y="27.0" fill="#c9d6dc">NAVIGATION</text>
+<text x="166.0 174.0 182.0 190.0 198.0 206.0 214.0 222.0" y="27.0" fill="#c9d6dc">SOFTWARE</text>
+<text x="238.0 246.0 254.0" y="27.0" fill="#c9d6dc">1.0</text>
+<text x="30.0 38.0 46.0 54.0 62.0 70.0 78.0 86.0 94.0 102.0 110.0 118.0 126.0 134.0 142.0 150.0 158.0 166.0 174.0 182.0 190.0 198.0 206.0 214.0 222.0 230.0 238.0 246.0 254.0 262.0 270.0 278.0 286.0 294.0 302.0 310.0 318.0 326.0 334.0 342.0 350.0 358.0 366.0 374.0 382.0 390.0 398.0 406.0 414.0 422.0 430.0 438.0 446.0 454.0 462.0 470.0 478.0 486.0 494.0 502.0 510.0 518.0 526.0" y="44.0" fill="#c9d6dc">===============================================================</text>
+<text x="46.0" y="78.0" fill="#c9d6dc">1</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0" y="78.0" fill="#c9d6dc">celnav</text>
+<text x="150.0 158.0 166.0 174.0 182.0 190.0 198.0 206.0 214.0" y="78.0" fill="#c9d6dc">Celestial</text>
+<text x="230.0 238.0 246.0 254.0 262.0 270.0 278.0 286.0 294.0 302.0 310.0" y="78.0" fill="#c9d6dc">navigation,</text>
+<text x="326.0 334.0 342.0 350.0 358.0" y="78.0" fill="#c9d6dc">sight</text>
+<text x="374.0 382.0 390.0 398.0 406.0 414.0 422.0 430.0 438.0" y="78.0" fill="#c9d6dc">reduction</text>
+<text x="454.0 462.0 470.0" y="78.0" fill="#c9d6dc">and</text>
+<text x="486.0 494.0 502.0" y="78.0" fill="#c9d6dc">the</text>
+<text x="518.0 526.0 534.0" y="78.0" fill="#c9d6dc">fix</text>
+<text x="46.0" y="95.0" fill="#c9d6dc">2</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0 118.0" y="95.0" fill="#c9d6dc">colregs</text>
+<text x="150.0 158.0 166.0 174.0 182.0" y="95.0" fill="#c9d6dc">Rules</text>
+<text x="198.0 206.0" y="95.0" fill="#c9d6dc">of</text>
+<text x="222.0 230.0 238.0" y="95.0" fill="#c9d6dc">the</text>
+<text x="254.0 262.0 270.0 278.0 286.0" y="95.0" fill="#c9d6dc">road,</text>
+<text x="302.0 310.0 318.0 326.0 334.0 342.0 350.0" y="95.0" fill="#c9d6dc">lights,</text>
+<text x="366.0 374.0 382.0" y="95.0" fill="#c9d6dc">and</text>
+<text x="398.0 406.0 414.0 422.0 430.0 438.0 446.0 454.0 462.0" y="95.0" fill="#c9d6dc">collision</text>
+<text x="478.0 486.0 494.0 502.0 510.0 518.0 526.0 534.0 542.0" y="95.0" fill="#c9d6dc">avoidance</text>
+<text x="46.0" y="112.0" fill="#c9d6dc">3</text>
+<text x="70.0 78.0 86.0 94.0 102.0" y="112.0" fill="#c9d6dc">tides</text>
+<text x="150.0 158.0 166.0 174.0" y="112.0" fill="#c9d6dc">Tide</text>
+<text x="190.0 198.0 206.0 214.0 222.0 230.0 238.0 246.0 254.0 262.0" y="112.0" fill="#c9d6dc">prediction</text>
+<text x="278.0 286.0 294.0" y="112.0" fill="#c9d6dc">for</text>
+<text x="310.0 318.0 326.0 334.0 342.0" y="112.0" fill="#c9d6dc">8,334</text>
+<text x="358.0 366.0 374.0 382.0 390.0 398.0 406.0 414.0" y="112.0" fill="#c9d6dc">stations</text>
+<text x="46.0" y="129.0" fill="#c9d6dc">4</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0 118.0 126.0" y="129.0" fill="#c9d6dc">deck-log</text>
+<text x="150.0 158.0 166.0" y="129.0" fill="#c9d6dc">The</text>
+<text x="182.0 190.0 198.0 206.0 214.0 222.0" y="129.0" fill="#c9d6dc">boat's</text>
+<text x="238.0 246.0 254.0 262.0 270.0 278.0 286.0 294.0" y="129.0" fill="#c9d6dc">records:</text>
+<text x="310.0 318.0 326.0 334.0 342.0" y="129.0" fill="#c9d6dc">deck,</text>
+<text x="358.0 366.0 374.0 382.0 390.0 398.0 406.0" y="129.0" fill="#c9d6dc">engine,</text>
+<text x="422.0 430.0 438.0 446.0 454.0 462.0 470.0 478.0 486.0 494.0" y="129.0" fill="#c9d6dc">provisions</text>
+<text x="46.0" y="146.0" fill="#c9d6dc">5</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0 118.0" y="146.0" fill="#c9d6dc">weather</text>
+<text x="150.0 158.0 166.0 174.0" y="146.0" fill="#c9d6dc">Read</text>
+<text x="190.0 198.0 206.0 214.0" y="146.0" fill="#c9d6dc">your</text>
+<text x="230.0 238.0 246.0" y="146.0" fill="#c9d6dc">own</text>
+<text x="262.0 270.0 278.0 286.0 294.0 302.0 310.0 318.0 326.0" y="146.0" fill="#c9d6dc">barometer</text>
+<text x="46.0" y="180.0" fill="#c9d6dc">q</text>
+<text x="70.0 78.0 86.0 94.0" y="180.0" fill="#c9d6dc">Quit</text>
+</g>
+</svg>

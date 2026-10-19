@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="548" height="249" viewBox="0 0 548 249">
+<title>deck-log: the boat's records</title>
+<rect width="548" height="249" fill="#0b1a22"/>
+<g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,DejaVu Sans Mono,monospace" font-size="13">
+<text x="38.0 46.0 54.0 62.0 70.0 78.0 86.0 94.0" y="27.0" fill="#c9d6dc">DECK-LOG</text>
+<text x="110.0 118.0 126.0" y="27.0" fill="#c9d6dc">1.1</text>
+<text x="366.0 374.0 382.0 390.0 398.0 406.0 414.0 422.0 430.0 438.0 446.0 454.0 462.0 470.0 478.0 486.0 494.0" y="27.0" fill="#c9d6dc">2026-10-19T23:22Z</text>
+<text x="30.0 38.0 46.0 54.0 62.0 70.0 78.0 86.0 94.0 102.0 110.0 118.0 126.0 134.0 142.0 150.0 158.0 166.0 174.0 182.0 190.0 198.0 206.0 214.0 222.0 230.0 238.0 246.0 254.0 262.0 270.0 278.0 286.0 294.0 302.0 310.0 318.0 326.0 334.0 342.0 350.0 358.0 366.0 374.0 382.0 390.0 398.0 406.0 414.0 422.0 430.0 438.0 446.0 454.0 462.0 470.0 478.0 486.0 494.0 502.0 510.0 518.0 526.0" y="44.0" fill="#c9d6dc">===============================================================</text>
+<text x="38.0 46.0 54.0 62.0 70.0 78.0 86.0" y="61.0" fill="#c9d6dc">nothing</text>
+<text x="102.0 110.0 118.0 126.0 134.0 142.0" y="61.0" fill="#c9d6dc">logged</text>
+<text x="158.0 166.0 174.0" y="61.0" fill="#c9d6dc">yet</text>
+<text x="46.0" y="95.0" fill="#c9d6dc">1</text>
+<text x="70.0 78.0 86.0" y="95.0" fill="#c9d6dc">Log</text>
+<text x="102.0 110.0" y="95.0" fill="#c9d6dc">an</text>
+<text x="126.0 134.0 142.0 150.0 158.0" y="95.0" fill="#c9d6dc">entry</text>
+<text x="262.0" y="95.0" fill="#c9d6dc">5</text>
+<text x="286.0 294.0 302.0 310.0 318.0 326.0" y="95.0" fill="#c9d6dc">Spares</text>
+<text x="342.0 350.0 358.0 366.0 374.0 382.0" y="95.0" fill="#c9d6dc">aboard</text>
+<text x="46.0" y="112.0" fill="#c9d6dc">2</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0 118.0" y="112.0" fill="#c9d6dc">Weather</text>
+<text x="134.0 142.0 150.0 158.0" y="112.0" fill="#c9d6dc">only</text>
+<text x="262.0" y="112.0" fill="#c9d6dc">6</text>
+<text x="286.0 294.0 302.0 310.0 318.0 326.0 334.0 342.0" y="112.0" fill="#c9d6dc">Shopping</text>
+<text x="358.0 366.0 374.0 382.0" y="112.0" fill="#c9d6dc">list</text>
+<text x="46.0" y="129.0" fill="#c9d6dc">3</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0" y="129.0" fill="#c9d6dc">Engine</text>
+<text x="126.0 134.0 142.0 150.0 158.0 166.0 174.0 182.0 190.0 198.0" y="129.0" fill="#c9d6dc">inspection</text>
+<text x="262.0" y="129.0" fill="#c9d6dc">7</text>
+<text x="286.0 294.0 302.0" y="129.0" fill="#c9d6dc">The</text>
+<text x="318.0 326.0 334.0" y="129.0" fill="#c9d6dc">log</text>
+<text x="46.0" y="146.0" fill="#c9d6dc">4</text>
+<text x="70.0 78.0 86.0 94.0" y="146.0" fill="#c9d6dc">Work</text>
+<text x="110.0 118.0 126.0 134.0" y="146.0" fill="#c9d6dc">done</text>
+<text x="262.0" y="146.0" fill="#c9d6dc">8</text>
+<text x="286.0 294.0 302.0 310.0" y="146.0" fill="#c9d6dc">What</text>
+<text x="326.0 334.0" y="146.0" fill="#c9d6dc">is</text>
+<text x="350.0 358.0 366.0 374.0 382.0 390.0 398.0 406.0 414.0 422.0 430.0" y="146.0" fill="#c9d6dc">outstanding</text>
+<text x="46.0" y="180.0" fill="#c9d6dc">p</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0 118.0 126.0 134.0 142.0" y="180.0" fill="#c9d6dc">Provisions</text>
+<text x="174.0" y="180.0" fill="#c9d6dc">s</text>
+<text x="198.0 206.0 214.0 222.0 230.0 238.0 246.0 254.0 262.0" y="180.0" fill="#c9d6dc">Stocktake</text>
+<text x="294.0" y="180.0" fill="#c9d6dc">e</text>
+<text x="318.0 326.0 334.0 342.0 350.0 358.0 366.0 374.0 382.0" y="180.0" fill="#c9d6dc">Equipment</text>
+<text x="414.0" y="180.0" fill="#c9d6dc">n</text>
+<text x="438.0 446.0 454.0" y="180.0" fill="#c9d6dc">New</text>
+<text x="470.0 478.0 486.0 494.0" y="180.0" fill="#c9d6dc">part</text>
+<text x="46.0" y="197.0" fill="#c9d6dc">x</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0 118.0" y="197.0" fill="#c9d6dc">Correct</text>
+<text x="134.0 142.0" y="197.0" fill="#c9d6dc">an</text>
+<text x="158.0 166.0 174.0 182.0 190.0" y="197.0" fill="#c9d6dc">entry</text>
+<text x="46.0" y="231.0" fill="#c9d6dc">c</text>
+<text x="70.0 78.0 86.0 94.0 102.0 110.0" y="231.0" fill="#c9d6dc">Colour</text>
+<text x="142.0" y="231.0" fill="#c9d6dc">a</text>
+<text x="166.0 174.0 182.0 190.0 198.0" y="231.0" fill="#c9d6dc">About</text>
+<text x="230.0" y="231.0" fill="#c9d6dc">h</text>
+<text x="254.0 262.0 270.0 278.0" y="231.0" fill="#c9d6dc">Help</text>
+<text x="310.0" y="231.0" fill="#c9d6dc">q</text>
+<text x="334.0 342.0 350.0 358.0" y="231.0" fill="#c9d6dc">Quit</text>
+</g>
+</svg>

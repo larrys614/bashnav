@@ -133,7 +133,73 @@ awk $TENG -v cmode=day -v cmd=search -v q="new lon" -v k=12 </dev/null \
   | awk -f docs/ansi2svg.awk -v title="tides: searching for a station by part of its name, in any order" \
   > docs/img/tides-find.svg
 
+#  The rest of the plates the site shows, as pictures.  Every one is the
+#  real tool's real output: run it, cut the region, pipe it through
+#  ansi2svg.  A sed range that stops matching yields a SILENTLY EMPTY svg,
+#  so each was probed before being wired in here, and the check at the
+#  bottom of this script fails the build if any picture comes out tiny.
+awk -f "$CENG" -v cmode=day -v cmd=reduce -v sfile="$CH/sights.txt" \
+    -v drlat="35 00 N" -v drlon="040 00 W" -v course=0 -v speed=0 </dev/null \
+  | sed -n '/Sight a:/,/Intercept/p' \
+  | awk -f docs/ansi2svg.awk -v title="celnav: one sight reduced, every number shown" \
+  > docs/img/celnav-working.svg
+
+awk -f "$CENG" -f "$CH/teach-$CV.awk" -v cmode=day -v cmd=t_sandbox \
+    -v slat=35 -v sdec=20 -v slha=310 </dev/null \
+  | sed -n '/SANDBOX/,/Zn/p' \
+  | awk -f docs/ansi2svg.awk -v title="celnav: the navigational triangle on your own sky" \
+  > docs/img/celnav-triangle.svg
+
+awk $REN -v cmode=day -v cmd=enc -v seed=21 -v which=2 </dev/null \
+  | sed -n '/WHAT DO YOU DO/,/^   d)/p' \
+  | awk -f docs/ansi2svg.awk -v title="colregs: an encounter, and what the rules require of you" \
+  > docs/img/colregs-encounter.svg
+
+awk $REN -v cmode=day -v cmd=scen -v seed=42 </dev/null \
+  | sed -n '/COLLISION AVOIDANCE/,/^  Q1/p' \
+  | awk -f docs/ansi2svg.awk -v title="colregs: a collision avoidance scenario" \
+  > docs/img/colregs-scenario.svg
+
+#  cmd=sndtable, not refsound - refsound is the binary's alias for it, and
+#  the engine does not know that name.
+awk $REN -v cmode=day -v cmd=sndtable </dev/null \
+  | sed -n '/In sight of one another/,/bend/p' \
+  | awk -f docs/ansi2svg.awk -v title="colregs: the sound signals, in sight of one another" \
+  > docs/img/colregs-sound.svg
+
+#  The three tools the site never mentioned, and the launcher.  Their menus
+#  ARE the illustration: they say what each tool does better than prose
+#  about them would.  These come from the binaries rather than the engines,
+#  so they are monochrome - cmode_now() tests [ -t 1 ] and stdout is a pipe -
+#  but the picture still carries the site's typography and palette.
+DL="$tmp/decklog"; WX="$tmp/weather"
+mkdir -p "$DL" "$WX"
+export DECKLOG_HOME="$DL" WEATHER_HOME="$WX"
+./bin/bashnav </dev/null 2>/dev/null \
+  | sed -n '/BASH NAVIGATION SOFTWARE/,/Quit/p' \
+  | awk -f docs/ansi2svg.awk -v title="bashnav: the launcher, one icon in front of the other five" \
+  > docs/img/bashnav-menu.svg
+./bin/weather </dev/null 2>/dev/null \
+  | sed -n '/WEATHER /,/Quit/p' \
+  | awk -f docs/ansi2svg.awk -v title="weather: read your own barometer" \
+  > docs/img/weather-menu.svg
+./bin/deck-log </dev/null 2>/dev/null \
+  | sed -n '/DECK-LOG /,/Quit/p' \
+  | awk -f docs/ansi2svg.awk -v title="deck-log: the boat's records" \
+  > docs/img/decklog-menu.svg
+
 echo "docs/img: $(ls docs/img/*.svg | wc -l) coloured pictures"
+
+#  A picture that came out empty is the failure this script is most likely
+#  to have, and it fails silently: the sed range stops matching, ansi2svg
+#  writes a valid but blank svg, and the page looks subtly wrong rather
+#  than broken.  So check every one of them has real content.
+bad=0
+for f in docs/img/*.svg; do
+  b=$(wc -c < "$f")
+  [ "$b" -lt 1200 ] && { echo "EMPTY PICTURE: $f ($b bytes) - its sed range has stopped matching"; bad=$((bad+1)); }
+done
+[ "$bad" = 0 ] || { echo "$bad picture(s) came out blank"; exit 1; }
 
 echo "docs/index.html written ($(wc -l < docs/index.html) lines)"
 grep -c '{{' docs/index.html >/dev/null && {
