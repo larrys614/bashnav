@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '11 \u2014 20 Oct 2026';
+var BUILD = '12 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -435,6 +435,19 @@ function stepQuiz() {
   card.appendChild(el('div', 'qnum', 'Question ' + (r.i + 1) + ' of ' + r.qs.length));
   card.appendChild(el('p', 'qtext', q.q));
 
+  //  Already worked: show the answer and the mark you gave it, and do not
+  //  offer to mark it again.
+  if (r.marks && r.marks[r.i]) {
+    card.appendChild(el('p', 'atext', q.a || 'A recall prompt \u2014 check yourself against the reference.'));
+    card.appendChild(el('p', 'qsrc' + (q.kind === 'hand' ? ' hand' : ''),
+      (q.kind === 'hand' ? 'hand-written \u00b7 ' : '') + srcLine(q)));
+    card.appendChild(el('p', 'note', r.marks[r.i] === 'right'
+      ? 'You marked this one right.' : 'You marked this one wrong.'));
+    navRow(card, r, stepQuiz, 'Done');
+    body.appendChild(card);
+    return;
+  }
+
   //  THE ANSWER IS NOT BUILT YET.  It is not in the DOM, hidden or
   //  otherwise, until the button below is pressed.
   var show = el('button', 'btn wide go', 'Show the answer');
@@ -470,6 +483,10 @@ function stepQuiz() {
         var pr = prog(r.sid);
         pr.seen[q.q] = 1;
         if (m[1] === 'right') { r.right++; pr.right++; } else { r.wrong++; pr.wrong++; }
+        //  Remembered so Back can show what you told yourself, and so a
+        //  second look does not count twice.
+        if (!r.marks) r.marks = {};
+        r.marks[r.i] = m[1];
         saveProg();
         r.i++;
         stepQuiz();
@@ -635,7 +652,7 @@ function makeChoices(q, pool) {
  */
 function isOrder(q) { return !!(q && q.seq && q.seq.length); }
 
-function renderOrder(card, q, mark, advLabel, onAdv) {
+function renderOrder(card, q, mark, advLabel, onAdv, nav) {
   var chosen = [];
   var pool = shuffle(q.seq.concat(q.extra || []));
   var hint = el('p', 'note', 'Tap them into the order they happen. One does not ' +
@@ -701,6 +718,11 @@ function renderOrder(card, q, mark, advLabel, onAdv) {
         q.extra.join('\u201d, \u201c') + '\u201d.'));
     }
     mark(ok, chosen.join(' \u2192 '));
+    //  THE CALLER OWNS THE NAVIGATION.  This used to append its own
+    //  advance button, so an ordering question was the one kind with no
+    //  Back on it -- and in a ten-question test that is one screen in
+    //  three you could not return from.
+    if (nav) { nav(card); return; }
     var nx = el('button', 'btn wide go', advLabel);
     nx.setAttribute('data-advance', '1');
     nx.style.marginTop = '14px';
@@ -724,6 +746,73 @@ function startTest(sid) {
   stepTest();
 }
 
+//  ---- going back ----------------------------------------------------
+//  REVIEW ONLY.  You can return to a question you have answered and see
+//  what you picked and what was right, and you cannot change the mark.
+//  Letting an answer be changed on a second look would make the pass
+//  threshold a statement about persistence rather than knowledge.
+function navRow(card, r, step, endLabel) {
+  var row = el('div', 'btnrow');
+  row.style.marginTop = '14px';
+  if (r.i > 0) {
+    var bk = el('button', 'btn', 'Back');
+    bk.setAttribute('data-back', '1');
+    bk.addEventListener('click', function () { r.i--; step(); });
+    row.appendChild(bk);
+  }
+  var nx = el('button', 'btn go',
+    r.i + 1 >= r.qs.length ? (endLabel || 'See the score') : 'Next');
+  nx.setAttribute('data-advance', '1');
+  nx.addEventListener('click', function () { r.i++; step(); });
+  row.appendChild(nx);
+  card.appendChild(row);
+}
+
+//  A question already answered, redrawn as it was marked.
+function drawAnswered(card, r, item, step, endLabel) {
+  var q = item.q;
+  if (isOrder(q)) {
+    var yours = el('ol', 'seq-picked');
+    (item.picked || []).forEach(function (t, i) {
+      var li = el('li', 'seq-row chosen');
+      li.setAttribute('data-mark', item.ok ? 'right' : 'wrong');
+      li.appendChild(el('span', 'seq-n', String(i + 1)));
+      li.appendChild(el('span', null, t));
+      yours.appendChild(li);
+    });
+    card.appendChild(el('p', 'qsrc', item.ok ? 'You had it, in that order.'
+                                             : 'You gave:'));
+    card.appendChild(yours);
+    if (!item.ok) {
+      card.appendChild(el('p', 'qsrc', 'The order is:'));
+      var right = el('ol', 'seq-picked right');
+      q.seq.forEach(function (t, i) {
+        var li = el('li', 'seq-row chosen');
+        li.setAttribute('data-mark', 'right');
+        li.appendChild(el('span', 'seq-n', String(i + 1)));
+        li.appendChild(el('span', null, t));
+        right.appendChild(li);
+      });
+      card.appendChild(right);
+    }
+  } else {
+    var grid = el('div', 'choices');
+    item.choices.forEach(function (c, n) {
+      var b = el('button', 'choice');
+      b.disabled = true;
+      b.appendChild(el('i', null, 'ABCD'.charAt(n)));
+      b.appendChild(el('span', null, c.t));
+      if (c.ok) b.setAttribute('data-mark', 'right');
+      else if (c.t === item.picked) b.setAttribute('data-mark', 'wrong');
+      grid.appendChild(b);
+    });
+    card.appendChild(grid);
+  }
+  card.appendChild(el('p', 'qsrc' + (q.kind === 'hand' ? ' hand' : ''),
+    (q.kind === 'hand' ? 'hand-written \u00b7 ' : '') + srcLine(q)));
+  navRow(card, r, step, endLabel);
+}
+
 function stepTest() {
   var r = RUN, body = $('drill-body');
   body.textContent = '';
@@ -735,13 +824,17 @@ function stepTest() {
   var card = el('div', 'card');
   card.appendChild(el('div', 'qnum', 'Question ' + (r.i + 1) + ' of ' + r.qs.length));
   card.appendChild(el('p', 'qtext', q.q));
+  if (item.done) { drawAnswered(card, r, item, stepTest); body.appendChild(card); return; }
   if (isOrder(q)) {
     renderOrder(card, q, function (ok, got) {
       if (ok) r.right++;
+      item.done = true; item.ok = ok;
+      item.picked = got ? got.split(' \u2192 ') : [];
       r.answers.push({ q: q, got: got, ok: ok });
       card.appendChild(el('p', 'qsrc', srcLine(q)));
     }, r.i + 1 >= r.qs.length ? 'See the score' : 'Next',
-       function () { r.i++; stepTest(); });
+       function () { r.i++; stepTest(); },
+       function (c) { navRow(c, r, stepTest); });
     body.appendChild(card);
     return;
   }
@@ -762,17 +855,14 @@ function stepTest() {
       });
       if (!c.ok) b.setAttribute('data-mark', 'wrong');
       if (c.ok) r.right++;
+      item.done = true; item.ok = c.ok; item.picked = c.t;
       r.answers.push({ q: q, got: c.t, ok: c.ok });
       card.appendChild(el('p', 'qsrc' + (q.kind === 'hand' ? ' hand' : ''),
         (q.kind === 'hand' ? 'hand-written \u00b7 ' : '') + srcLine(q)));
       //  A STABLE HOOK, so nothing has to find this button by its words.
       //  A test that matched on "next" clicked an answer containing the
       //  word instead, the question never advanced, and the page hung.
-      var nx = el('button', 'btn wide go', r.i + 1 >= r.qs.length ? 'See the score' : 'Next');
-      nx.setAttribute('data-advance', '1');
-      nx.style.marginTop = '14px';
-      nx.addEventListener('click', function () { r.i++; stepTest(); });
-      card.appendChild(nx);
+      navRow(card, r, stepTest);
     });
     grid.appendChild(b);
   });
@@ -896,12 +986,20 @@ function stepDiag() {
   var card = el('div', 'card');
   card.appendChild(el('div', 'qnum', 'Question ' + (r.i + 1) + ' of ' + r.qs.length));
   card.appendChild(el('p', 'qtext', q.q));
+  if (item.done) {
+    drawAnswered(card, r, item, stepDiag, 'What should I study?');
+    body.appendChild(card);
+    return;
+  }
   if (isOrder(q)) {
-    renderOrder(card, q, function (ok) {
+    renderOrder(card, q, function (ok, got) {
       if (ok) r.right++;
+      item.done = true; item.ok = ok;
+      item.picked = got ? got.split(' \u2192 ') : [];
       r.answers.push({ section: q.section, ok: ok });
     }, r.i + 1 >= r.qs.length ? 'What should I study?' : 'Next',
-       function () { r.i++; stepDiag(); });
+       function () { r.i++; stepDiag(); },
+       function (c) { navRow(c, r, stepDiag, 'What should I study?'); });
     body.appendChild(card);
     return;
   }
@@ -920,12 +1018,9 @@ function stepDiag() {
       });
       if (!c.ok) b.setAttribute('data-mark', 'wrong');
       if (c.ok) r.right++;
+      item.done = true; item.ok = c.ok; item.picked = c.t;
       r.answers.push({ section: q.section, ok: c.ok });
-      var nx = el('button', 'btn wide go', r.i + 1 >= r.qs.length ? 'What should I study?' : 'Next');
-      nx.setAttribute('data-advance', '1');
-      nx.style.marginTop = '14px';
-      nx.addEventListener('click', function () { r.i++; stepDiag(); });
-      card.appendChild(nx);
+      navRow(card, r, stepDiag, 'What should I study?');
     });
     grid.appendChild(b);
   });

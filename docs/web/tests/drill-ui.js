@@ -480,6 +480,45 @@ window.answerCurrent = function (right) {
   if (!after) fail('the answer did not appear when asked for');
   else console.log('  ok   and appears when asked for');
 
+  // ---- GOING BACK IS REVIEW, NOT A SECOND ATTEMPT --------------------
+  //  You can return to a question you have answered and see what you
+  //  picked against what was right. You cannot change the mark: an answer
+  //  that can be changed on a second look makes the pass threshold a
+  //  statement about persistence rather than knowledge.
+  await page.evaluate(() => { openSection(0); startTest(PACK.sections[0].id); });
+  await page.waitForTimeout(150);
+  const back = await page.evaluate(async () => {
+    //  answer the first two, right then wrong
+    answerCurrent(true);
+    await new Promise(r => setTimeout(r, 20));
+    const noBackYet = !document.querySelector('#drill-body [data-back]');
+    document.querySelector('#drill-body [data-advance]').click();
+    await new Promise(r => setTimeout(r, 20));
+    answerCurrent(false);
+    await new Promise(r => setTimeout(r, 20));
+    const rightBefore = RUN.right, iBefore = RUN.i;
+    //  go back to the first
+    const bk = document.querySelector('#drill-body [data-back]');
+    if (!bk) return { noBack: true };
+    bk.click();
+    await new Promise(r => setTimeout(r, 30));
+    const onFirst = RUN.i === 0;
+    const liveChoice = !!document.querySelector('#drill-body .choice:not([disabled])');
+    const showsMark = !!document.querySelector('#drill-body [data-mark="right"]');
+    //  and forward again, without the score changing
+    document.querySelector('#drill-body [data-advance]').click();
+    await new Promise(r => setTimeout(r, 30));
+    return { noBackYet, onFirst, liveChoice, showsMark,
+             rightSame: RUN.right === rightBefore, backTo: iBefore };
+  });
+  if (back.noBack) fail('no Back button on an answered question');
+  else if (!back.noBackYet) fail('Back was offered on the very first question');
+  else if (!back.onFirst) fail('Back did not return to the previous question');
+  else if (back.liveChoice) fail('a reviewed question still accepts an answer, so the mark can be changed');
+  else if (!back.showsMark) fail('a reviewed question does not show which option was right');
+  else if (!back.rightSame) fail('going back and forward changed the score');
+  else console.log('  ok   Back reviews an answered question and cannot change the mark');
+
   // ---- failing the test keeps the next section locked ------------------
   await page.evaluate(() => { openSection(0); startTest(PACK.sections[0].id); });
   await page.waitForTimeout(150);
