@@ -72,6 +72,41 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### Two options a reader would call the same option
+
+*Fixed 20 Oct 2026.* A graded question offered both
+
+    The sails end up in front of the forestay, and winching them back is
+    hard, slow, and damages sail or hanks.
+    Sails end up in front of the forestay, and winching them back is hard,
+    slow, and damages sail or hanks
+
+-- the same sentence apart from a leading "The" and a full stop. Two right
+answers, one mark, and picking the better-written one was marked wrong.
+
+`makeChoices` compared pool answers with `!==`, which only catches a match
+byte for byte. It now compares on how an answer *reads*: case folded,
+punctuation collapsed, and a leading article dropped. Options are also
+checked against each other, not only against the answer.
+
+The pack was not at fault and did not change. The two sentences are
+answers to two different questions, which is legitimate -- the fault was
+offering both inside one question, so the fix belongs where the options
+are chosen.
+
+**The first attempt at a fix was worse than the bug.** A build-time rule
+that removed any answer reading the same as another in its section would
+have deleted 27 sound questions to repair one offered pair: "what is the
+first action" and "what comes after X" can land on the same step, and both
+are fair questions. The pack builder now reports the count and removes
+nothing.
+
+The test for this was also wrong first time round. It put the near
+duplicate in a pool of five and asked whether it was offered -- but the
+options are shuffled, so it passed three times in four. The duplicate is
+now the only same-kind candidate, and same-kind is drained first, so it is
+drawn or the fix worked. Confirmed to fail with the comparison weakened.
+
 ### A new worker does not change the page that installed it
 
 *Fixed 20 Oct 2026, and it is why several fixes appeared not to work.*

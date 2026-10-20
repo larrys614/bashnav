@@ -175,6 +175,35 @@ window.answerCurrent = function (right) {
     fail('exactly one carried option must be the right one: ' + JSON.stringify(carried.right));
   else console.log('  ok   a question that carries its own wrong options gets those and no others');
 
+  //  AND A POOL-DRAWN OPTION MUST NOT READ AS THE ANSWER.  Comparing with
+  //  !== only catches a byte-for-byte match, so a graded question offered
+  //  the same sentence twice -- once with a leading "The" and a full stop,
+  //  once without -- and marked the better-written one wrong.
+  const nearDup = await page.evaluate(() => {
+    //  The near-duplicate is the ONLY same-kind candidate, and
+    //  makeChoices drains same-kind before other-kind -- so it is drawn
+    //  first or not at all. Without that the shuffle decides whether the
+    //  test notices, and a test that passes three times in four is not a
+    //  test. (Checked: this one does fail with the comparison weakened
+    //  back to a byte-for-byte !==.)
+    const q = { kind: 'fact', a: 'Sails end up in front of the forestay and are hard to winch back' };
+    const pool = [q,
+      { kind: 'fact', a: 'The sails end up in front of the forestay and are hard to winch back.' },
+      { kind: 'hand', a: 'A quite different wrong answer about the mainsail' },
+      { kind: 'hand', a: 'Another quite different wrong answer about the kite' },
+      { kind: 'hand', a: 'A third quite different wrong answer about the yankee' }];
+    const out = makeChoices(q, pool);
+    const norm = x => x.toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/^(the|a|an) /, '').trim();
+    const keys = out.map(o => norm(o.t));
+    return { n: out.length, unique: new Set(keys).size,
+             right: out.filter(o => o.ok).length };
+  });
+  if (nearDup.n !== 4) fail('makeChoices did not return four options: ' + nearDup.n);
+  else if (nearDup.unique !== 4)
+    fail('two options read as the same option, so the question has two right answers');
+  else if (nearDup.right !== 1) fail('not exactly one option is correct');
+  else console.log('  ok   a pool option that reads as the answer is not offered');
+
   //  and a question without them still draws from the pool
   const drawn = await page.evaluate(() => {
     const q = { kind: 'fact', a: 'mine' };

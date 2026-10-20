@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '6 \u2014 20 Oct 2026';
+var BUILD = '7 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -481,6 +481,22 @@ function stepQuiz() {
 //  question, so the wrong options are the confusions that actually
 //  happen rather than obvious throwaways. A test you can pass by
 //  elimination has not tested anything.
+//  TWO OPTIONS A READER WOULD CALL THE SAME OPTION.  Comparing answers
+//  with !== only catches a byte-for-byte match. A graded question offered
+//  "The sails end up in front of the forestay, and winching them back is
+//  hard, slow, and damages sail or hanks." alongside the same sentence
+//  without its leading "The" and its full stop -- two right answers, one
+//  mark, and picking the better-written one was marked wrong.
+function sameAnswer(a, b) {
+  var f = function (x) {
+    return String(x || '').toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .replace(/^(the|a|an) /, '')
+      .trim();
+  };
+  return f(a) === f(b);
+}
+
 function makeChoices(q, pool) {
   //  A QUESTION MAY CARRY ITS OWN WRONG OPTIONS, AND WHERE IT DOES THEY
   //  ARE THE ONLY ONES USED.  Drawing distractors from the section pool
@@ -495,14 +511,24 @@ function makeChoices(q, pool) {
     carried.push({ t: q.a, ok: true });
     return shuffle(carried);
   }
-  var same = pool.filter(function (o) {
-    return o.a && o.a !== q.a && o.kind === q.kind && !(o.ch && o.ch.length);
-  });
-  var other = pool.filter(function (o) {
-    return o.a && o.a !== q.a && o.kind !== q.kind && !(o.ch && o.ch.length);
-  });
-  var picks = shuffle(same).slice(0, 3);
-  if (picks.length < 3) picks = picks.concat(shuffle(other).slice(0, 3 - picks.length));
+  var usable = function (o) {
+    return o.a && !sameAnswer(o.a, q.a) && !(o.ch && o.ch.length) &&
+           !(o.seq && o.seq.length);
+  };
+  var same = pool.filter(function (o) { return usable(o) && o.kind === q.kind; });
+  var other = pool.filter(function (o) { return usable(o) && o.kind !== q.kind; });
+  var picks = [];
+  var take = function (list) {
+    shuffle(list).forEach(function (o) {
+      if (picks.length >= 3) return;
+      //  ... and not the same as one already picked, either.
+      for (var i = 0; i < picks.length; i++)
+        if (sameAnswer(picks[i].a, o.a)) return;
+      picks.push(o);
+    });
+  };
+  take(same);
+  take(other);
   var out = picks.map(function (o) { return { t: o.a, ok: false }; });
   out.push({ t: q.a, ok: true });
   return shuffle(out);
