@@ -68,7 +68,7 @@ the working tree.
 
 So the rule is about staging, not about that one folder:
 
-    git add web/ docs/ src/            # yes - say what you mean
+    git add docs/ src/                 # yes - say what you mean
     git add -A                         # no
     git commit -a                      # no
 

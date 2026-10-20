@@ -59,17 +59,51 @@ tool at all.
 
 ## The browser build: all six tools
 
-*Closed 20 Oct 2026.* `web/` now carries the launcher and all six tools.
+*Closed 20 Oct 2026.* `docs/web/` now carries the launcher and all six tools.
 a-Shell proved a dead end for colour and for running a script by path, so the
 iPad gets the browser build and the shell suite is for Mac and Linux.
 
 | | |
 |---|---|
-| `web/celnav/` | camera sight: an altitude from a photograph |
-| `web/colregs/` | lights, shapes, sounds, the rules |
-| `web/tides/` | harmonic prediction, all 8,334 stations |
-| `web/deck-log/` | the boat's records, append-only in IndexedDB |
-| `web/weather/` | read your own barometer |
+| `docs/web/celnav/` | camera sight: an altitude from a photograph |
+| `docs/web/colregs/` | lights, shapes, sounds, the rules |
+| `docs/web/tides/` | harmonic prediction, all 8,334 stations |
+| `docs/web/deck-log/` | the boat's records, append-only in IndexedDB |
+| `docs/web/weather/` | read your own barometer |
+| `docs/web/drill/` | a study machine, shipped with no material in it |
+
+### Where the site lives, and why `docs/web/`
+
+*Moved 20 Oct 2026.* GitHub Pages is set to **`main` → `/docs`**, which makes
+`docs/` the root of the website and everything above it unpublished. The browser
+build used to sit at `web/` in the repository root, so Pages never served it:
+the three links to it from `docs/index.html` were 404s, and so was every tool.
+
+Moving it to `docs/web/` fixes that without changing a single URL, because
+`docs/` *is* the site root — the tools are still at
+`https://larrys614.github.io/bashnav/web/<tool>/`. That matters more than it
+sounds: the origin and path are what a service worker caches under, what
+IndexedDB keys on, and what an Add-to-Home-Screen icon points at. A layout that
+changed the URL would have orphaned every installed icon and every stored log.
+
+What it impacts, and what had to change with it:
+
+- The harnesses in `docs/web/tests/` walk up to the repository root to reach
+  `src/`, so each gained a level: `../..` became `../../..`. The tides harness
+  caught this itself by failing to find `stations.dat`.
+- `docs/web/tides/gen/mkindex.py` and the three `gen/make-*-web.sh` scripts
+  write into the build, so their output paths gained the `docs/` prefix.
+- `docs/.nojekyll` stops Pages running Jekyll over 112 static files that need
+  no rendering. Before the move, Jekyll was building the landing page out of
+  `README.md` and serving it under its default theme — which is why the
+  published front page was a plain white Markdown render rather than the
+  designed site in `docs/index.html`.
+- `CLAUDE.md`'s staging example is now `git add docs/ src/`, since `web/` is no
+  longer a top-level directory.
+
+The deliberate consequence: a file is published only if it is under `docs/`.
+`src/`, `bin/`, `tests/` and `release/` are not served, and moving something
+into `docs/` is now an explicit act rather than a side effect.
 
 `deck-log` and `weather` **share one log**: both are served from this origin,
 and IndexedDB is per-origin rather than per-path, so they genuinely share one
@@ -82,15 +116,15 @@ would not work offline, which is the entire point.
 
 `tests/run-tests.sh` stays POSIX `sh` and `awk` so it runs on the boat. The
 browser suites need `node`, `python3` and a headless Chromium, so they live in
-`web/tests/` and are run before a push:
+`docs/web/tests/` and are run before a push:
 
-    sh web/tests/run-tides-web.sh [--full]
-    sh web/tests/run-decklog-web.sh
-    sh web/tests/run-weather-web.sh
+    sh docs/web/tests/run-tides-web.sh [--full]
+    sh docs/web/tests/run-decklog-web.sh
+    sh docs/web/tests/run-weather-web.sh
 
 Nothing in them is checked against a number somebody typed. Every reference
 value is **emitted by running the awk engine**, and the harnesses load the
-**shipped** files under `web/`, so a stale copy cannot pass. The browser
+**shipped** files under `docs/web/`, so a stale copy cannot pass. The browser
 stages skip themselves with a message when playwright is absent rather than
 failing.
 

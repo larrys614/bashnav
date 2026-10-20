@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="drill">
+<title>drill</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="drill.css">
+</head>
+<body>
+
+<header class="bar">
+  <button class="back" id="back" hidden aria-label="Back">&#8249;</button>
+  <h1 id="title">drill</h1>
+  <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
+</header>
+
+<main id="main">
+
+  <!-- ================= no pack loaded ================= -->
+  <section class="view" id="v-empty" hidden>
+    <p class="lede">This tool ships empty. It holds no questions and no material
+      of its own &mdash; you load a content pack from your own device, it is read
+      here in the browser, and it never leaves the device it is on.</p>
+
+    <div class="panel">
+      <h2>Load a pack</h2>
+      <input type="file" id="f-pack" accept=".json,application/json" style="width:100%">
+      <p class="note" id="load-note" style="margin-top:10px">A
+        <span class="mono">.drillpack.json</span> file. Nothing is uploaded: the
+        file is read by this page and kept in this browser&rsquo;s own storage, on
+        this device only.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Why it works this way</h2>
+      <p>Material somebody else owns can be studied without ever being published.
+        The machine is published; the material is yours and stays yours. Which
+        also means two people with the same pack get the same drill, and nobody
+        without it gets anything at all.</p>
+      <p class="note">It needs a real web address to work &mdash; saved progress,
+        offline use and a home-screen icon all depend on it. A file opened
+        straight from a Files app has none of those, and on iOS will not run at
+        all.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Making a pack</h2>
+      <p>A pack is one JSON file: a list of sections, each with its reference
+        text, and a list of questions tagged with the section they belong to.
+        A question with an answer can be graded; one without is a recall prompt
+        you mark yourself. The format is documented in
+        <span class="mono">docs/web/drill/README.md</span>.</p>
+    </div>
+    <p class="foot"><span id="ver"></span></p>
+  </section>
+
+  <!-- ================= home ================= -->
+  <section class="view" id="v-home" hidden>
+    <div class="panel status">
+      <div class="who">
+        <div class="nm" id="pack-title">&mdash;</div>
+        <div class="wh" id="pack-note"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Where you are</h2>
+      <div class="score"><div class="big" id="prog-n">0</div>
+        <div class="of" id="prog-of"></div></div>
+      <p class="note" id="prog-note" style="margin-top:6px"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Sections</h2>
+      <p class="note">The reference is always open, including for sections you
+        have not reached. Only the graded test waits its turn &mdash; being locked
+        out of a procedure you are carrying this for would be the one failure
+        that matters.</p>
+      <ul class="sections" id="seclist" style="margin-top:12px"></ul>
+    </div>
+
+    <nav class="btnrow">
+      <button class="btn go" data-go="diag">Where am I weak?</button>
+      <button class="btn" data-go="doc">The document</button>
+      <button class="btn" data-go="about">About</button>
+    </nav>
+    <p class="foot"><span id="ver2"></span></p>
+  </section>
+
+  <!-- ================= a section ================= -->
+  <section class="view" id="v-section" hidden>
+    <div class="panel status">
+      <div class="who">
+        <div class="nm" id="sec-title"></div>
+        <div class="wh" id="sec-sub"></div>
+      </div>
+    </div>
+    <nav class="secnav" id="sec-tabs"></nav>
+    <div id="sec-body"></div>
+  </section>
+
+  <!-- ================= drilling ================= -->
+  <section class="view" id="v-drill" hidden>
+    <div class="panel status">
+      <div class="who">
+        <div class="nm" id="drill-title"></div>
+        <div class="wh" id="drill-sub"></div>
+      </div>
+    </div>
+    <div id="drill-body"></div>
+  </section>
+
+  <!-- ================= the diagnostic ================= -->
+  <section class="view" id="v-diag" hidden>
+    <div class="panel">
+      <h2>Where am I weak?</h2>
+      <p>A spread of questions across the sections you have actually worked,
+        scored per section so you can see which ones have gone soft. It does not
+        guess about sections you have not studied &mdash; a gap is reported as a
+        gap, because a gap that looks like a zero gets you a confidently wrong
+        answer about your own readiness.</p>
+      <div id="diag-body" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <!-- ================= the document ================= -->
+  <section class="view" id="v-doc" hidden>
+    <div class="panel">
+      <h2>The whole document</h2>
+      <input type="search" id="q-find" placeholder="Search&hellip;" autocomplete="off"
+             autocapitalize="off" spellcheck="false">
+      <p class="note" id="find-note" style="margin-top:8px"></p>
+    </div>
+    <div class="panel"><div class="ref" id="doc-body"></div></div>
+  </section>
+
+  <!-- ================= about ================= -->
+  <section class="view" id="v-about" hidden>
+    <div class="panel">
+      <h2>What this is</h2>
+      <p>A study machine with no material in it. It reads a content pack from
+        your own device and drills you on it: reference, recall practice, and a
+        graded test that opens the next section when you pass it.</p>
+    </div>
+    <div class="panel">
+      <h2>Never tell before you ask</h2>
+      <p>No answer is in the page until you have asked for it. Not hidden, not
+        collapsed, not greyed &mdash; absent. An answer you can reveal with a long
+        press or find by zooming is an answer you have read, and then you have not
+        recalled anything.</p>
+      <p>The same rule as the lights quiz in <span class="mono">colregs</span>,
+        and for the same reason.</p>
+    </div>
+    <div class="panel">
+      <h2>Two kinds of question</h2>
+      <p><strong>Recall prompts</strong> have no written answer. You answer from
+        memory, then check yourself against the reference and mark it. Harder,
+        and the better of the two for learning.</p>
+      <p><strong>Graded questions</strong> have an answer, so they can be asked as
+        multiple choice and marked objectively. The wrong options are drawn from
+        the same section &mdash; which makes them the plausible confusions rather
+        than obvious throwaways. That is what the test is built from, so the mark
+        that opens the next section is earned rather than self-awarded.</p>
+    </div>
+    <div class="panel">
+      <h2>Where the questions came from</h2>
+      <p>Each question shows its source &mdash; the part, the subsection and the
+        row &mdash; so any answer can be checked against the reference in one tap.
+        A question whose answer is wrong is then findable rather than lurking.</p>
+      <p>Questions a pack marks as hand-written are shown as such, because they
+        carry somebody&rsquo;s reading of the material rather than a lift from it.</p>
+    </div>
+    <div class="panel">
+      <h2>Your pack, and your progress</h2>
+      <p id="about-pack" class="note"></p>
+      <div class="btnrow" style="margin-top:10px">
+        <button class="btn" id="b-replace">Load a different pack</button>
+        <button class="btn" id="b-reset">Reset my progress</button>
+      </div>
+      <p class="note" id="reset-note"></p>
+    </div>
+    <div class="panel">
+      <h2>Offline</h2>
+      <p id="off-state" class="note">Checking&hellip;</p>
+    </div>
+    <p class="foot"><strong>A study aid, not the source.</strong> Where this and
+      the document it was built from differ, the document is right and this is
+      wrong &mdash; and where the document and whoever is responsible for the real
+      procedure differ, they are right and the document is wrong.
+      <span id="ver3"></span></p>
+  </section>
+
+</main>
+
+<script src="drill.js"></script>
+</body>
+</html>
