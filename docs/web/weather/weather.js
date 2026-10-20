@@ -281,20 +281,14 @@ function drawLessonIndex() {
     box.appendChild(b);
   });
 }
-function showLesson(key) {
-  var l = null;
-  LESSONS.forEach(function (x) { if (x.key === key) l = x; });
-  if (!l) return;
-  markDone(key);
-  $('les-index').hidden = true;
-  $('les-body').hidden = false;
-  var box = $('les-text');
-  box.textContent = '';
+//  One renderer for the lesson and for its deeper section, so the two
+//  cannot drift apart in how they present the author's emphasis.
+function drawLines(box, lines) {
   var firstLine = true;
-  l.body.forEach(function (b) {
+  lines.forEach(function (b) {
     if (b.s === 'gap') { box.appendChild(el('div', 'gap')); return; }
     if (b.s === 'rule') { box.appendChild(document.createElement('hr')); return; }
-    //  the first printed line of every lesson is its heading
+    //  the first printed line of a section is its heading
     if (firstLine) {
       firstLine = false;
       box.appendChild(el('h3', null, b.p.map(function (p) { return p.t; }).join('').trim()));
@@ -307,6 +301,18 @@ function showLesson(key) {
     });
     box.appendChild(p);
   });
+}
+
+function showLesson(key) {
+  var l = null;
+  LESSONS.forEach(function (x) { if (x.key === key) l = x; });
+  if (!l) return;
+  markDone(key);
+  $('les-index').hidden = true;
+  $('les-body').hidden = false;
+  var box = $('les-text');
+  box.textContent = '';
+  drawLines(box, l.body);
   var q = $('les-q');
   q.textContent = '';
   if (l.q) {
@@ -324,6 +330,25 @@ function showLesson(key) {
     q.appendChild(show);
     q.appendChild(ans);
   } else q.hidden = true;
+
+  //  LEARN MORE, OFFERED AND NOT IMPOSED.  The lesson above is what you
+  //  need on deck; the deeper section is why it is true. It is not in the
+  //  page until it is asked for, which keeps the lesson the length it was
+  //  written to be.
+  var more = $('les-more');
+  more.textContent = '';
+  if (l.more && l.more.length) {
+    more.hidden = false;
+    var btn = el('button', 'btn wide', 'Learn more');
+    btn.setAttribute('data-more', key);
+    btn.addEventListener('click', function () {
+      btn.remove();
+      drawLines(more, l.more);
+      more.scrollIntoView({ block: 'start' });
+    });
+    more.appendChild(btn);
+  } else more.hidden = true;
+
   window.scrollTo(0, 0);
 }
 
@@ -335,7 +360,14 @@ function drawAbout() {
     ? RECS.length + ' records in the shared log, ' + OBS.length + ' of them observations.'
     : 'No log on this device yet. Keep a watch in deck-log and this fills in.';
   if (!('caches' in window)) { $('off-state').textContent = 'This browser will not cache for offline use.'; return; }
-  caches.open('weather-v1').then(function (c) { return c.match('./'); }).then(function (hit) {
+  //  FIND THE CACHE, DO NOT NAME IT.  The name lived here and in sw.js,
+  //  so bumping the worker's version -- which every change to a cached
+  //  file requires -- left this looking in a cache that no longer exists
+  //  and reporting "not cached" on a tool that was perfectly cached.
+  caches.keys().then(function (ks) {
+    var k = ks.filter(function (x) { return x.indexOf('weather-') === 0; })[0];
+    return k ? caches.open(k).then(function (c) { return c.match('./'); }) : null;
+  }).then(function (hit) {
     $('off-state').textContent = hit
       ? 'Cached. This runs with no network at all.'
       : 'Not cached yet \u2014 open this page once with a connection.';

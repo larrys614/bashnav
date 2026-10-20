@@ -162,6 +162,37 @@ const OBS = [
   if (q2.indexOf(ansRec) < 0) fail('the answer does not appear when asked for');
   else console.log('  ok   and tells when asked');
 
+  // ---- LEARN MORE: OFFERED, AND NOT IN THE PAGE UNTIL ASKED FOR ------
+  //  Same rule as the answer. The lesson is the length it was written to
+  //  be; the deeper section is there for the reader who wants it, and a
+  //  deeper section that is merely hidden is one that has been read.
+  const deep = await page.evaluate(() => {
+    const l = LESSONS.filter(x => x.more && x.more.length)[0];
+    //  NOT the first line: drawLines renders that as a trimmed heading, so
+    //  a probe taken from it carries leading spaces the page never shows.
+    //  Take a body line, and trim it, because the page trims too.
+    const lines = l.more.map(b => (b.p || []).map(p => p.t).join('').trim())
+                        .filter(t => t.length > 30);
+    return l ? { key: l.key, probe: lines[2] } : null;
+  });
+  if (!deep) fail('no lesson in lessons.js carries a deeper section');
+  else {
+    await page.evaluate(k => showLesson(k), deep.key);
+    await page.waitForTimeout(120);
+    const before = await page.evaluate(() => document.getElementById('les-more').textContent);
+    const btn = await page.evaluate(() => !!document.querySelector('#les-more [data-more]'));
+    if (!btn) fail('the deeper section is not offered on a lesson that has one');
+    else if (before.indexOf(deep.probe) >= 0)
+      fail('the deeper section is already in the page before it is asked for');
+    else {
+      await page.evaluate(() => document.querySelector('#les-more [data-more]').click());
+      await page.waitForTimeout(120);
+      const after = await page.evaluate(() => document.getElementById('les-more').textContent);
+      if (after.indexOf(deep.probe) < 0) fail('the deeper section does not appear when asked for');
+      else console.log('  ok   learn more is offered, absent until asked, and appears (' + deep.key + ')');
+    }
+  }
+
   // ---- layout --------------------------------------------------------
   for (const w of [744, 390, 320]) {
     await page.setViewportSize({ width: w, height: 900 });

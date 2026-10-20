@@ -32,6 +32,11 @@ BEGIN{
     if(n>=1){ hr(); printf "  %s %s\n", cw("Question:",C_ACC), QA[1]; print "" }
   }
   else if(cmd=="lessonq"){ n=split(lesson_q(key),QA,"|"); if(n>=2) print QA[2] }
+  #  the second tier: the deeper section, and whether one exists at all
+  else if(cmd=="lessonmore"){
+    if(!lesson_more(key)){ printf "  no deeper section for: %s\n", key; exit 2 }
+  }
+  else if(cmd=="lessonhasmore"){ exit (les_has_more(key) ? 0 : 1) }
   else if(cmd=="lessonlist"){ for(i=1;i<=LS_N;i++) print LS_K[i] }
 
   #  the machine forecasts, built only after the user's is committed

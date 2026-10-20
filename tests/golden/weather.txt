@@ -181,6 +181,78 @@ Probably not - that is very close to the daily atmospheric tide, which is about 
   Question: Why does no hurricane ever form on the equator?
 
 Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in the world, and nothing to start it rotating. About 5 degrees is the practical minimum.
+=== weather learn coriolis, deeper ===
+
+  FROM OUTSIDE, IT IS ANGULAR MOMENTUM
+  ----------------------------------------------------------------------
+  Stand off the planet and watch. In that frame nothing curves and
+  nothing is pushing. What is conserved is angular momentum
+  about the earth's axis.
+
+  A point at latitude L sits a cos L from the axis, so the ground
+  there is already running east at:
+
+    equator        1,674 km/h
+    30 degrees     1,450
+    45 degrees     1,184
+    60 degrees       837
+    pole               0
+
+  A shell in flight feels almost no torque about that axis - drag
+  aside, gravity acts straight at the centre - so its own
+  u x r is fixed. Carry it closer to the axis and it must run
+  faster east; carry it further out and it must run slower.
+
+
+  TWO SHELLS, BOTH FIRED FROM 45 NORTH
+  ----------------------------------------------------------------------
+    fired    distance from axis   ground below      the shell
+    north    shrinks              east SLOWER       outruns it
+    south    grows                east FASTER       lags it
+
+  Fired north it lands EAST of the aim. Fired south it lands WEST.
+  Going north, east is to your right. Going south, west is to your
+  right. Both deflect right - and in the southern hemisphere
+  both deflect left. That is Coriolis, with no force anywhere in it.
+
+  The size is real and small. A 16 inch shell at full range - 38 km,
+  about 90 seconds of flight - arrives where the ground runs 7 km/h
+  slower to the east, which works out at roughly 90 metres of
+  sideways error. That is the hundred yards the gunnery tables have
+  always carried.
+
+  Not to be confused with DRIFT, which in gunnery means the sideways
+  deviation from the shell's own spin on a rifled barrel. Long range
+  tables correct for both. They are different things with different
+  causes, and only one of them reverses with hemisphere.
+
+
+  AND NOW THE WIND
+  ----------------------------------------------------------------------
+  Pressure pushes air from the high toward the low. The instant it
+  moves, the same bookkeeping turns it right, so it never runs
+  straight down the gradient. It ends up going around:
+
+    northern hemisphere   anticlockwise around a low
+                          clockwise around a high
+    southern hemisphere   both the other way
+
+  Friction is what turns circling into weather. At the surface the
+  air is slowed, feels less deflection, and pressure wins a little,
+  so the flow spirals IN to a low and OUT of a high:
+
+    in   ->  convergence  ->  air must rise  ->  cloud, and rain
+    out  ->  divergence   ->  air must sink  ->  clearing, and dry
+
+  That is why a low is wet and a high is dry. It is the same friction
+  that puts twist in a sail - see gradient for the numbers.
+
+  Honest boundary: angular momentum about the axis settles the
+  north-south case completely, which is why the two shells are the
+  demonstration. East-west motion needs a second idea as well - how
+  gravity and the centrifugal term balance, which tilts the local
+  vertical. Do not expect one principle to cover both directions.
+
 === weather learn gradient ===
 
   GRADIENT WIND, SURFACE WIND, AND FRICTION

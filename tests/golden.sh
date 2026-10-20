@@ -271,6 +271,13 @@ WX="-f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk -f src/
     echo "=== weather learn $k ==="
     $AW $WX -v cmode=plain -v cmd=lesson -v key="$k" </dev/null
     $AW $WX -v cmode=plain -v cmd=lessonq -v key="$k" </dev/null
+    #  and the deeper section where there is one, because golden exists so
+    #  that any change to what a reader sees becomes a reviewable diff --
+    #  and the deeper sections are the longest thing the tool prints.
+    if $AW $WX -v cmode=plain -v cmd=lessonhasmore -v key="$k" </dev/null >/dev/null 2>&1; then
+      echo "=== weather learn $k, deeper ==="
+      $AW $WX -v cmode=plain -v cmd=lessonmore -v key="$k" </dev/null
+    fi
   done
   for n in 1 0; do
     echo "=== weather chart, north=$n ==="

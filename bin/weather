@@ -285,6 +285,16 @@ do_learn() {
   printf "  %s\n" "$(eng -v cmd=lessonq -v key="$1")"
   echo
   mark_done "$1"
+  #  A SECOND TIER, OFFERED AND NOT IMPOSED. The lesson above is what you
+  #  need on deck; this is why it is true. Asked for by name so the
+  #  shorter lesson stays the default.
+  if eng -v cmd=lessonhasmore -v key="$1" >/dev/null 2>&1; then
+    printf "  there is more on this one - read it? [y/N] "
+    IFS= read -r m || m=""
+    case "$m" in
+      y|Y) echo; eng -v cmd=lessonmore -v key="$1" ;;
+    esac
+  fi
 }
 
 do_chart() {
@@ -1600,6 +1610,88 @@ function lesson_q(k){
   if(k=="seasons")  return "Northern winter is when the earth is CLOSEST to the sun. So why is it cold?|Because the seasons are the 23.5 degree tilt, not the distance. The northern hemisphere is leaning away, so the sun is low, the days are short, and the same energy is spread over more ground. The distance varies by about 3 percent and is swamped by it."
   return ""
 }
+
+# =====================================================================
+#  A SECOND TIER.  Each lesson stays short enough to read on a pitching
+#  boat; the deeper material sits behind a prompt, for the reader who
+#  wants to know why and not only what.  Same rule as the lessons
+#  themselves: it has to change what the app says or what you would do.
+# =====================================================================
+function les_has_more(k){
+  return (k=="coriolis")
+}
+
+function lesson_more(k){
+  if(k=="coriolis"){
+    lph("FROM OUTSIDE, IT IS ANGULAR MOMENTUM")
+    lp("Stand off the planet and watch. In that frame nothing curves and")
+    lp("nothing is pushing. What is conserved is " cw("angular momentum",C_ACC))
+    lp("about the earth's axis.")
+    print ""
+    lp("A point at latitude L sits " cw("a cos L",C_ACC) " from the axis, so the ground")
+    lp("there is already running east at:")
+    print ""
+    lp("  equator        1,674 km/h")
+    lp("  30 degrees     1,450")
+    lp("  45 degrees     1,184")
+    lp("  60 degrees       837")
+    lp("  " cw("pole               0",C_ACC))
+    print ""
+    lp("A shell in flight feels almost no torque about that axis - drag")
+    lp("aside, gravity acts straight at the centre - so its own")
+    lp(cw("u x r",C_ACC) " is fixed. Carry it closer to the axis and it must run")
+    lp("faster east; carry it further out and it must run slower.")
+    print ""
+    lph("TWO SHELLS, BOTH FIRED FROM 45 NORTH")
+    lp("  fired    distance from axis   ground below      the shell")
+    lp("  north    shrinks              east SLOWER       outruns it")
+    lp("  south    grows                east FASTER       lags it")
+    print ""
+    lp("Fired north it lands EAST of the aim. Fired south it lands WEST.")
+    lp("Going north, east is to your right. Going south, west is to your")
+    lp("right. " cw("Both deflect right",C_ACC) " - and in the southern hemisphere")
+    lp("both deflect left. That is Coriolis, with no force anywhere in it.")
+    print ""
+    lp("The size is real and small. A 16 inch shell at full range - 38 km,")
+    lp("about 90 seconds of flight - arrives where the ground runs 7 km/h")
+    lp("slower to the east, which works out at roughly " cw("90 metres",C_ACC) " of")
+    lp("sideways error. That is the hundred yards the gunnery tables have")
+    lp("always carried.")
+    print ""
+    lpd("Not to be confused with DRIFT, which in gunnery means the sideways")
+    lpd("deviation from the shell's own spin on a rifled barrel. Long range")
+    lpd("tables correct for both. They are different things with different")
+    lpd("causes, and only one of them reverses with hemisphere.")
+    print ""
+    lph("AND NOW THE WIND")
+    lp("Pressure pushes air from the high toward the low. The instant it")
+    lp("moves, the same bookkeeping turns it right, so it never runs")
+    lp("straight down the gradient. It ends up going " cw("around",C_ACC) ":")
+    print ""
+    lp("  northern hemisphere   anticlockwise around a low")
+    lp("                        clockwise around a high")
+    lp("  " cw("southern hemisphere   both the other way",C_ACC))
+    print ""
+    lp("Friction is what turns circling into weather. At the surface the")
+    lp("air is slowed, feels less deflection, and pressure wins a little,")
+    lp("so the flow spirals " cw("IN to a low",C_ACC) " and " cw("OUT of a high",C_ACC) ":")
+    print ""
+    lp("  in   ->  convergence  ->  air must rise  ->  cloud, and rain")
+    lp("  out  ->  divergence   ->  air must sink  ->  clearing, and dry")
+    print ""
+    lp("That is why a low is wet and a high is dry. It is the same friction")
+    lp("that puts twist in a sail - see " cw("gradient",C_ACC) " for the numbers.")
+    print ""
+    lpd("Honest boundary: angular momentum about the axis settles the")
+    lpd("north-south case completely, which is why the two shells are the")
+    lpd("demonstration. East-west motion needs a second idea as well - how")
+    lpd("gravity and the centrifugal term balance, which tilts the local")
+    lpd("vertical. Do not expect one principle to cover both directions.")
+    print ""
+    return 1
+  }
+  return 0
+}
 # =====================================================================
 #  weather -- dispatch
 # =====================================================================
@@ -1634,6 +1726,11 @@ BEGIN{
     if(n>=1){ hr(); printf "  %s %s\n", cw("Question:",C_ACC), QA[1]; print "" }
   }
   else if(cmd=="lessonq"){ n=split(lesson_q(key),QA,"|"); if(n>=2) print QA[2] }
+  #  the second tier: the deeper section, and whether one exists at all
+  else if(cmd=="lessonmore"){
+    if(!lesson_more(key)){ printf "  no deeper section for: %s\n", key; exit 2 }
+  }
+  else if(cmd=="lessonhasmore"){ exit (les_has_more(key) ? 0 : 1) }
   else if(cmd=="lessonlist"){ for(i=1;i<=LS_N;i++) print LS_K[i] }
 
   #  the machine forecasts, built only after the user's is committed

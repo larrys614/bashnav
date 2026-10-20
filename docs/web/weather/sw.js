@@ -3,7 +3,11 @@
 //
 // The log itself is never cached: it lives in IndexedDB, shared with
 // deck-log, and a cache is something the browser may throw away.
-const CACHE = 'weather-v1';
+//  Bump on any change to a cached file. The worker is cache-first, so an
+//  installed copy serves what it already has until THIS file's bytes
+//  differ. The page no longer names this string -- it finds the cache by
+//  prefix -- so bumping it here is all that is needed.
+const CACHE = 'weather-v2';
 const FILES = ['./', './index.html', './weather.css', './weather.js',
                './log.js', './store.js', './wx.js', './score.js',
                './chart.js', './lessons.js',

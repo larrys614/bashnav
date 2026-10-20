@@ -10,9 +10,15 @@
 #
 # Run from the repository root:  sh docs/web/tides/gen/make-tides-web.sh
 set -e
-ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
+#  FOUR LEVELS, NOT THREE.  These live at docs/web/<tool>/gen/, so
+#  ../../.. is docs/ and not the repository root.  It was three for as
+#  long as the build lived at web/<tool>/gen/, and after the move to
+#  docs/ the wrong ROOT and the un-updated "$ROOT/web/..." paths
+#  cancelled each other out exactly -- so this script kept working
+#  while both halves of it were wrong.  Correcting one alone breaks it.
+ROOT=$(cd "$(dirname "$0")/../../../.." && pwd)
 SRC="$ROOT/src/tides"
-WEB="$ROOT/web/tides"
+WEB="$ROOT/docs/web/tides"
 
 AWK=awk
 for a in mawk gawk awk; do
@@ -20,7 +26,7 @@ for a in mawk gawk awk; do
 done
 
 echo "awk:      $AWK"
-"$AWK" -f "$SRC/tables.awk" -f "$ROOT/web/tides/gen/dumptab.awk" </dev/null > "$WEB/tables.js"
+"$AWK" -f "$SRC/tables.awk" -f "$ROOT/docs/web/tides/gen/dumptab.awk" </dev/null > "$WEB/tables.js"
 echo "tables.js $(wc -c < "$WEB/tables.js" | tr -d ' ') bytes"
 
 cp "$SRC/stations.dat" "$WEB/stations.dat"
@@ -30,5 +36,5 @@ else
   echo "stations.dat COPY DIFFERS FROM SRC" >&2; exit 1
 fi
 
-python3 "$ROOT/web/tides/gen/mkindex.py"
+python3 "$ROOT/docs/web/tides/gen/mkindex.py"
 echo "done"

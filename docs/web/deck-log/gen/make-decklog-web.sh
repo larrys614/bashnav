@@ -9,13 +9,19 @@
 #
 # Run from the repository root:  sh docs/web/deck-log/gen/make-decklog-web.sh
 set -e
-ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
+#  FOUR LEVELS, NOT THREE.  These live at docs/web/<tool>/gen/, so
+#  ../../.. is docs/ and not the repository root.  It was three for as
+#  long as the build lived at web/<tool>/gen/, and after the move to
+#  docs/ the wrong ROOT and the un-updated "$ROOT/web/..." paths
+#  cancelled each other out exactly -- so this script kept working
+#  while both halves of it were wrong.  Correcting one alone breaks it.
+ROOT=$(cd "$(dirname "$0")/../../../.." && pwd)
 SRC="$ROOT/src/decklog"
 #  The engine is assembled exactly as build.sh assembles it, from
 #  src/common/log.awk and src/common/colour.awk plus the decklog files.
 #  Note that src/decklog/log.awk is a byte-identical DUPLICATE of
 #  src/common/log.awk that the build does not use.
-OUT="$ROOT/web/deck-log/menus.js"
+OUT="$ROOT/docs/web/deck-log/menus.js"
 
 AWK=awk
 for a in mawk gawk awk; do command -v "$a" >/dev/null 2>&1 && { AWK=$a; break; }; done
@@ -24,7 +30,7 @@ for a in mawk gawk awk; do command -v "$a" >/dev/null 2>&1 && { AWK=$a; break; }
 #  dispatch, and it writes to a named file so that dispatch cannot print
 #  over the top of it.
 "$AWK" -v OUTF="$OUT" \
-   -f "$ROOT/web/deck-log/gen/dumpmenus.awk" \
+   -f "$ROOT/docs/web/deck-log/gen/dumpmenus.awk" \
    -f "$ROOT/src/common/log.awk" -f "$ROOT/src/common/colour.awk" \
    -f "$SRC/views.awk" -f "$SRC/screens.awk" \
    </dev/null >/dev/null 2>&1 || true

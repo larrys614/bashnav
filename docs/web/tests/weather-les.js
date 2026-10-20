@@ -31,8 +31,35 @@ function render(les) {
   L.push('');
   return L.join('\n') + '\n';
 }
-let bad = 0;
+//  THE SECOND TIER IS CHECKED THE SAME WAY, and that is the whole reason
+//  it was written in the awk rather than straight into JavaScript: deeper
+//  content is exactly where a quiet divergence between the two builds
+//  would matter most, and this is the only thing that would notice.
+function awkMore(k) {
+  return execFileSync('mawk', ['-v', 'cmode=plain', '-v', 'cmd=lessonmore', '-v', 'key=' + k,
+    '-v', 'LOG=/dev/null'].concat(ENG), { input: '', encoding: 'utf8' });
+}
+function renderMore(les) {
+  return les.more.map(function (b) {
+    if (b.s === 'gap') return '';
+    if (b.s === 'rule') return RULE;
+    return b.p.map(function (p) { return p.t; }).join('');
+  }).join('\n') + '\n';
+}
+let bad = 0, moreN = 0;
 L.forEach(function (les) {
+  if (les.more) {
+    moreN++;
+    const wantM = awkMore(les.key);
+    const gotM = renderMore(les);
+    if (gotM !== wantM) {
+      bad++;
+      const a = gotM.split('\n'), b = wantM.split('\n');
+      console.log('  FAIL ' + les.key + ' (the deeper section)');
+      for (let i = 0; i < Math.max(a.length, b.length); i++)
+        if (a[i] !== b[i]) { console.log('    js  |' + a[i] + '|'); console.log('    awk |' + b[i] + '|'); break; }
+    }
+  }
   const want = awkLesson(les.key);
   const got = render(les);
   if (got !== want) {
@@ -46,6 +73,7 @@ L.forEach(function (les) {
 const styles = {};
 L.forEach(l => l.body.forEach(b => (b.p || []).forEach(p => { styles[p.s] = (styles[p.s] || 0) + 1; })));
 console.log(L.length + ' lessons reconstructed from lessons.js and compared with the awk');
+console.log('  ' + moreN + ' of them carry a deeper section, compared the same way');
 console.log('  spans by style: ' + Object.keys(styles).sort().map(k => k + ' ' + styles[k]).join(', '));
 console.log(bad ? bad + ' LESSONS DIFFER' : 'every lesson is character-identical, emphasis preserved');
 process.exit(bad ? 1 : 0);

@@ -11,10 +11,16 @@
 #
 # Run from the repository root:  sh docs/web/weather/gen/make-weather-web.sh
 set -e
-ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
+#  FOUR LEVELS, NOT THREE.  These live at docs/web/<tool>/gen/, so
+#  ../../.. is docs/ and not the repository root.  It was three for as
+#  long as the build lived at web/<tool>/gen/, and after the move to
+#  docs/ the wrong ROOT and the un-updated "$ROOT/web/..." paths
+#  cancelled each other out exactly -- so this script kept working
+#  while both halves of it were wrong.  Correcting one alone breaks it.
+ROOT=$(cd "$(dirname "$0")/../../../.." && pwd)
 SRC="$ROOT/src/weather"
-GEN="$ROOT/web/weather/gen"
-OUT="$ROOT/web/weather/lessons.js"
+GEN="$ROOT/docs/web/weather/gen"
+OUT="$ROOT/docs/web/weather/lessons.js"
 TMP=${TMPDIR:-/tmp}/weather-lessons.$$
 mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT
@@ -35,8 +41,8 @@ ENG="-f $ROOT/src/common/log.awk -f $ROOT/src/common/colour.awk \
 #  here, and this checks they stay byte-identical rather than drifting
 #  into two readers of one append-only format.
 for f in log.js store.js; do
-  cp "$ROOT/web/deck-log/$f" "$ROOT/web/weather/$f"
-  if cmp -s "$ROOT/web/deck-log/$f" "$ROOT/web/weather/$f"; then
+  cp "$ROOT/docs/web/deck-log/$f" "$ROOT/docs/web/weather/$f"
+  if cmp -s "$ROOT/docs/web/deck-log/$f" "$ROOT/docs/web/weather/$f"; then
     echo "$f  copied from deck-log, byte-identical"
   else
     echo "make-weather-web: $f differs from deck-log's copy" >&2; exit 1
@@ -75,6 +81,17 @@ for k in $keys; do
     | "$AWK" -f "$GEN/dumpq.awk" >> "$OUT"
   "$AWK" -v cmode=plain -v cmd=lessonq -v key="$k" -v LOG=/dev/null $ENG </dev/null \
     | "$AWK" -f "$GEN/dumpa.awk" >> "$OUT"
+  #  the second tier, where the lesson has one. Captured the same way as
+  #  the body, so the browser gets the same words with the same emphasis
+  #  and the character-for-character check below covers it too.
+  if "$AWK" -v cmode=plain -v cmd=lessonhasmore -v key="$k" -v LOG=/dev/null \
+       $ENG </dev/null >/dev/null 2>&1; then
+    printf "    more: [\n" >> "$OUT"
+    "$AWK" -v cmode=day -v cmd=lessonmore -v key="$k" -v LOG=/dev/null $ENG </dev/null \
+      | "$AWK" -f "$GEN/dumplessons.awk" >> "$OUT"
+    printf "    ],\n" >> "$OUT"
+  fi
+  printf "  },\n" >> "$OUT"
 done
 
 {

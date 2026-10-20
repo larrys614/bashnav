@@ -332,6 +332,79 @@ failures, which is exactly the number of impossible dates in 2000–2040.
 
 ---
 
+## weather: a second tier, and the Coriolis lesson
+
+*Added 20 Oct 2026.* Each lesson stays short enough to read on a pitching
+boat. Where there is more to say, it sits behind a prompt -- `there is more
+on this one` in the shell, a **Learn more** button in the browser -- and it
+is not in the page until it is asked for, the same rule the answers follow.
+
+`coriolis` has the first one, to Larry's design: the phenomenon seen from an
+inertial frame, where nothing curves and nothing pushes, and what is
+conserved is angular momentum about the earth's axis. The demonstration is
+naval gunfire. Fired north from 45 N a shell carries that latitude's
+eastward speed, moves closer to the axis, must speed up eastward to conserve
+`u x r`, and outruns the slower ground beneath: it lands east of the aim.
+Fired south it lags the faster ground and lands west. Going north, east is
+to the right; going south, west is to the right. **Both deflect right**, and
+both deflect left in the southern hemisphere.
+
+Then the payoff: pressure pushes air from the high toward the low, the same
+bookkeeping turns it right the instant it moves, so it circles rather than
+running down the gradient -- and friction at the surface tips the balance
+back toward pressure, which is the net inflow to a low and outflow from a
+high, convergence and rain against subsidence and clear.
+
+Three honesty notes are written into the lesson, because each is a place it
+could mislead:
+
+- Angular momentum about the axis settles the **north-south** case
+  completely, which is why the two shells are the demonstration. East-west
+  motion needs the gravity and centrifugal balance as well, and the lesson
+  says so rather than implying one principle covers both.
+- The shell feels *almost* no torque about the axis. Drag shrinks the
+  effect; it does not change its sign.
+- Gunnery **drift** is the deviation from the shell's own spin on a rifled
+  barrel, a different cause, and only the earth-rotation part reverses with
+  hemisphere. Long-range tables correct for both.
+
+The figures are computed, not recalled: ground speed east 1,674 km/h at the
+equator, 1,184 at 45 degrees; a 16 inch shell at 38 km and about 90 seconds
+of flight arrives where the ground runs 7.1 km/h slower east, giving ~89 m
+of sideways error -- the hundred yards the tables carry.
+
+**Written in the awk, which is the point.** `lesson_more()` sits beside
+`lesson_body()`, the generator captures it the same way, and
+`weather-les.js` reconstructs it from `lessons.js` and compares it with the
+awk character for character. Deeper content is exactly where a quiet
+divergence between the two builds would matter most, and that diff is the
+only thing that would notice; confirmed to catch a single changed word.
+`golden.sh` captures it too, and the browser suite drives the button:
+offered, absent from the DOM until pressed, present after.
+
+### Three latent faults the move had left in the generators
+
+Found while regenerating `lessons.js`, and none had bitten because nothing
+had run these since the site moved under `docs/`:
+
+1. **`ROOT` was three levels up, not four.** These scripts live at
+   `docs/web/<tool>/gen/`, so `../../..` is `docs/`, not the repository
+   root.
+2. **The paths still said `$ROOT/web/...`.** The path sweep after the move
+   skipped anything preceded by a slash, to protect the
+   `github.io/bashnav/web/` URLs, and `$ROOT/web` looked like one of those.
+3. **So the two cancelled exactly** -- a wrong root plus an un-updated path
+   landed on the right directory, and the scripts kept working while both
+   halves were wrong. Correcting one alone broke them, which is how they
+   were found. All three generators now reproduce their committed output
+   byte for byte.
+
+And `weather.js` had the service worker's cache name written out a second
+time, to report offline status -- so bumping the worker, which every change
+to a cached file requires, would have left the page looking in a cache that
+no longer existed and reporting "not cached" on a tool that was cached. It
+now finds the cache by prefix instead of naming it.
+
 ## Next: set and drift
 
 *Agreed 2026-08-29. Designed, not built.* Lives **in `tides`**.

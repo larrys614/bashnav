@@ -22,6 +22,16 @@ do_learn() {
   printf "  %s\n" "$(eng -v cmd=lessonq -v key="$1")"
   echo
   mark_done "$1"
+  #  A SECOND TIER, OFFERED AND NOT IMPOSED. The lesson above is what you
+  #  need on deck; this is why it is true. Asked for by name so the
+  #  shorter lesson stays the default.
+  if eng -v cmd=lessonhasmore -v key="$1" >/dev/null 2>&1; then
+    printf "  there is more on this one - read it? [y/N] "
+    IFS= read -r m || m=""
+    case "$m" in
+      y|Y) echo; eng -v cmd=lessonmore -v key="$1" ;;
+    esac
+  fi
 }
 
 do_chart() {
