@@ -39,6 +39,14 @@ function synthPack() {
     questions.push({ section: s.id, kind: 'hand', q: `${s.title} — why does the order matter?`,
       a: 'Because the later thing depends on the earlier one',
       where: { part: s.parts[0], sub: 'Discussion', row: 'hand-written' } });
+    //  One question that carries its own wrong options, so the public
+    //  test covers that path without needing anybody's real pack.
+    questions.push({ section: s.id, kind: 'oddone',
+      q: `${s.title} — three of these are on the checklist and one is not. Which is not?`,
+      a: 'The invented item that does not belong on this list',
+      ch: ['The first invented item on the list', 'The second invented item on the list',
+           'The third invented item on the list'],
+      where: { part: s.parts[0], sub: 'Checklist', row: 'checklist' } });
   });
   return { format: 'bashnav-drill-pack/1', title: 'Test pack', note: 'Synthetic. Not real material.',
            built: '2026-10-20', pass: 80, sections, questions, back: '<p>Back matter.</p>' };
@@ -61,6 +69,25 @@ function synthPack() {
   let bad = 0;
   const fail = m => { bad++; console.log('  FAIL ' + m); };
   console.log('build ' + await page.evaluate(() => window.BUILD));
+
+  // ---- A CHANGED APP MUST BUMP THE SERVICE WORKER CACHE --------------
+  //  The worker is cache-first, so an installed copy keeps serving the
+  //  drill.js it already cached. The browser only reinstalls the worker
+  //  when sw.js itself changes, which means shipping a fix without
+  //  touching sw.js ships nothing to anyone who has already used the
+  //  tool -- and to them it looks like the fix did not work.
+  {
+    const dir = path.resolve(__dirname, '..', 'drill');
+    const swTxt = fs.readFileSync(path.join(dir, 'sw.js'), 'utf8');
+    const jsTxt = fs.readFileSync(path.join(dir, 'drill.js'), 'utf8');
+    const swV = (swTxt.match(/CACHE\s*=\s*'drill-v(\d+)'/) || [])[1];
+    const bV = (jsTxt.match(/BUILD\s*=\s*'(\d+)/) || [])[1];
+    if (!swV || !bV) fail('could not read the cache version or the build number');
+    else if (swV !== bV)
+      fail('sw.js caches drill-v' + swV + ' but drill.js says build ' + bV +
+           ' -- an installed copy would keep serving the old app');
+    else console.log('  ok   the service worker cache and the build number agree (v' + swV + ')');
+  }
 
   // ---- it ships empty ------------------------------------------------
   const emptyShown = await page.evaluate(() => !document.getElementById('v-empty').hidden);
@@ -85,6 +112,63 @@ function synthPack() {
   }, JSON.parse(fs.readFileSync(badPath, 'utf8')));
   if (!refused || /not exposed/.test(refused)) fail('a pack pointing at a missing section was not refused: ' + refused);
   else console.log('  ok   a pack with orphan questions is refused whole: "' + refused + '"');
+
+  // ---- A QUESTION'S OWN WRONG OPTIONS ARE THE ONLY ONES USED ---------
+  //  Some questions cannot have their options drawn from the section
+  //  pool, because the pool contains other right answers: "which of
+  //  these is on the checklist" against three more items off the same
+  //  checklist is a question with four right answers and one mark.
+  //  Those questions carry their own wrong options, and the app must
+  //  use exactly those and nothing else.
+  const carried = await page.evaluate(() => {
+    const q = { kind: 'oddone', a: 'the right one',
+                ch: ['wrong one', 'wrong two', 'wrong three'] };
+    const pool = [q, { kind: 'oddone', a: 'a pool answer that must not appear' },
+                  { kind: 'fact', a: 'another pool answer that must not appear' }];
+    const out = makeChoices(q, pool);
+    return { texts: out.map(o => o.t).sort(), right: out.filter(o => o.ok).map(o => o.t) };
+  });
+  const wantCarried = ['the right one', 'wrong one', 'wrong three', 'wrong two'];
+  if (JSON.stringify(carried.texts) !== JSON.stringify(wantCarried))
+    fail('carried options were not the only ones offered: ' + JSON.stringify(carried.texts));
+  else if (carried.right.length !== 1 || carried.right[0] !== 'the right one')
+    fail('exactly one carried option must be the right one: ' + JSON.stringify(carried.right));
+  else console.log('  ok   a question that carries its own wrong options gets those and no others');
+
+  //  and a question without them still draws from the pool
+  const drawn = await page.evaluate(() => {
+    const q = { kind: 'fact', a: 'mine' };
+    const pool = [q, { kind: 'fact', a: 'one' }, { kind: 'fact', a: 'two' },
+                  { kind: 'fact', a: 'three' }];
+    return makeChoices(q, pool).map(o => o.t).sort();
+  });
+  if (drawn.length !== 4 || drawn.indexOf('mine') < 0)
+    fail('a question without carried options did not draw four from the pool: ' + JSON.stringify(drawn));
+  else console.log('  ok   and one without them still draws from the section pool');
+
+  //  the answer offered as a wrong option is a question that marks you
+  //  wrong for being right, and is cheap to refuse at load time
+  const selfRefuse = await page.evaluate(() => validate({
+    format: 'bashnav-drill-pack/1', sections: [{ id: 'a', title: 'A' }],
+    questions: [{ section: 'a', q: 'x', a: 'y', ch: ['y', 'z', 'w'] }] }));
+  if (!/wrong option/.test(selfRefuse || ''))
+    fail('a pack offering an answer as its own wrong option was not refused: ' + selfRefuse);
+  else console.log('  ok   a pack offering an answer as its own wrong option is refused');
+
+  //  and the pack actually loaded must satisfy the same rules
+  const chBad = await page.evaluate(() => {
+    const out = { n: 0, bad: [] };
+    PACK.questions.forEach(function (q) {
+      if (!q.ch || !q.ch.length) return;
+      out.n++;
+      if (q.ch.length !== 3) out.bad.push(q.q + ' :: ' + q.ch.length + ' options');
+      if (q.ch.indexOf(q.a) >= 0) out.bad.push(q.q + ' :: answer among the wrong options');
+      if (new Set(q.ch).size !== q.ch.length) out.bad.push(q.q + ' :: a repeated option');
+    });
+    return out;
+  });
+  if (chBad.bad.length) fail(chBad.bad.length + ' four-option questions are malformed: ' + chBad.bad[0]);
+  else console.log('  ok   all ' + chBad.n + ' four-option questions in this pack are well formed');
 
   // ---- the gate -------------------------------------------------------
   const states = await page.$$eval('#seclist .seclink', els =>

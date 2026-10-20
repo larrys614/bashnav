@@ -5,7 +5,12 @@
 // material, and a cache is something the browser may throw away and
 // something a later version of this worker deletes wholesale on
 // activate. Only the empty machine is cached here.
-const CACHE = 'drill-v1';
+//  BUMP THIS WHENEVER ANY CACHED FILE CHANGES.  The fetch handler below
+//  is cache-first, so an installed copy serves the drill.js it cached and
+//  a new deploy never reaches it -- the browser only reinstalls the
+//  worker when THIS file's bytes differ.  The version here must match
+//  BUILD in drill.js, and the test harness checks that it does.
+const CACHE = 'drill-v2';
 const FILES = ['./', './index.html', './drill.css', './drill.js',
                './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', e => {

@@ -87,7 +87,15 @@ One JSON file. Version 1:
       "q":       "What is checked first?",
       "a":       "The thing is checked first",
       "kind":    "fact",
-      "where":   { "part": "Part 1", "sub": "The chain", "row": "1" } }
+      "where":   { "part": "Part 1", "sub": "The chain", "row": "1" } },
+    { "section": "alpha",
+      "q":       "Three of these are on the checklist. Which one is not?",
+      "a":       "The item that belongs to a different checklist",
+      "ch":      ["The first item on this checklist",
+                  "The second item on this checklist",
+                  "The third item on this checklist"],
+      "kind":    "oddone",
+      "where":   { "part": "Part 1", "sub": "Preparation", "row": "checklist" } }
   ],
   "back": "<p>Appendices, sources, anything that follows.</p>"
 }
@@ -100,9 +108,40 @@ One JSON file. Version 1:
 - `a: ""` makes it a recall prompt.
 - `kind` is free text. `hand` is the only one the app treats specially.
 - `where` is shown as the source line. All three fields are optional.
+- `ch` is optional: exactly three wrong options that travel with the
+  question. See below.
 
 A pack whose questions point at sections it does not contain is
-**refused whole**, rather than loaded with silent holes in it.
+**refused whole**, rather than loaded with silent holes in it. So is one
+whose question offers its own answer as a wrong option.
+
+### `ch` — when a question must name its own wrong options
+
+Normally the app builds the three wrong options from the other answers in
+the same section, preferring ones of the same `kind`. That works while the
+answers are mutually exclusive, and breaks when they are not.
+
+*Which of these is on the hoist preparation checklist?* drawn from the
+section pool can offer three more items **off the same checklist**: four
+right answers and one mark. A question like that has to carry its own wrong
+options, and when `ch` is present the app uses exactly those three and its
+own answer, and nothing from the pool.
+
+A wrong option should still be real. The packs built so far use the
+document's own words in the wrong place — a genuine item from a
+neighbouring checklist, or a genuine step of this sequence in the wrong
+position — rather than invented text. On procedural material that matters:
+a plausible wrong instruction is memorable precisely because it is
+plausible, and unlike every other answer in the pack it has no source row
+to check it against.
+
+Two rules the app enforces at load time, because neither failure is
+visible while drilling:
+
+- a wrong option that equals the answer is a question with two right
+  options, and the mark it gives is wrong either way;
+- the same wrong option twice is a question with three options wearing
+  four labels.
 
 ### A section needs enough graded questions to be fair
 
@@ -119,8 +158,19 @@ The harness builds its **own** synthetic pack, so the test in this
 repository carries nobody's material either. Pass a pack as an argument
 to run the same checks against a real one.
 
+It also checks that **the service worker cache version matches `BUILD` in
+`drill.js`**. The worker is cache-first, so an installed copy keeps serving
+the `drill.js` it already cached, and the browser only reinstalls the worker
+when `sw.js` itself changes. Shipping a fix without touching `sw.js` ships
+nothing to anyone who has already used the tool — and to them it looks like
+the fix did not work. Bump `CACHE` and `BUILD` together; the test is there
+so it is checked rather than remembered.
+
 It drives the whole thing: ships-empty, pack load, a damaged pack
-refused, the gate, a locked section's reference still readable, the
+refused, a question's carried wrong options being the only ones offered,
+a pack offering its answer as its own wrong option refused, every
+four-option question in the loaded pack well formed, the gate, a locked
+section's reference still readable, the
 answer absent from the DOM before the reveal, failing leaves the next
 section locked, passing unlocks it, progress surviving a reload, the
 diagnostic separating unstudied from weak, the document view and its

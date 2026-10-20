@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '1 \u2014 20 Oct 2026';
+var BUILD = '2 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -124,6 +124,20 @@ function validate(p) {
   }
   var orphan = 0;
   for (i = 0; i < p.questions.length; i++) if (!ids[p.questions[i].section]) orphan++;
+  //  A CARRIED WRONG OPTION THAT EQUALS THE ANSWER IS A QUESTION WITH TWO
+  //  RIGHT OPTIONS, and the mark it gives you is a lie either way. Cheap
+  //  to check here, impossible to notice while drilling.
+  for (i = 0; i < p.questions.length; i++) {
+    var qq = p.questions[i];
+    if (!qq.ch || !qq.ch.length) continue;
+    if (!Array.isArray(qq.ch)) return 'question ' + (i + 1) + ' has wrong options that are not a list';
+    for (var j = 0; j < qq.ch.length; j++) {
+      if (qq.ch[j] === qq.a)
+        return 'question ' + (i + 1) + ' offers its own answer as a wrong option';
+      if (qq.ch.indexOf(qq.ch[j]) !== j)
+        return 'question ' + (i + 1) + ' offers the same wrong option twice';
+    }
+  }
   //  A pack whose questions point at sections it does not contain is
   //  damaged, and loading it half-way would give a drill with silent
   //  holes in it. Rejected whole.
@@ -444,11 +458,24 @@ function stepQuiz() {
 //  happen rather than obvious throwaways. A test you can pass by
 //  elimination has not tested anything.
 function makeChoices(q, pool) {
+  //  A QUESTION MAY CARRY ITS OWN WRONG OPTIONS, AND WHERE IT DOES THEY
+  //  ARE THE ONLY ONES USED.  Drawing distractors from the section pool
+  //  works when the answers are mutually exclusive, and breaks when they
+  //  are not.  "Which of these is on the hoist preparation checklist?"
+  //  drawn from the pool can offer three other items off the same
+  //  checklist: three right answers marked wrong.  Those questions have
+  //  to name their own wrong options -- items from a NEIGHBOURING
+  //  checklist, real text in the wrong place -- and the pack does that.
+  if (q.ch && q.ch.length) {
+    var carried = q.ch.slice(0, 3).map(function (t) { return { t: t, ok: false }; });
+    carried.push({ t: q.a, ok: true });
+    return shuffle(carried);
+  }
   var same = pool.filter(function (o) {
-    return o.a && o.a !== q.a && o.kind === q.kind;
+    return o.a && o.a !== q.a && o.kind === q.kind && !(o.ch && o.ch.length);
   });
   var other = pool.filter(function (o) {
-    return o.a && o.a !== q.a && o.kind !== q.kind;
+    return o.a && o.a !== q.a && o.kind !== q.kind && !(o.ch && o.ch.length);
   });
   var picks = shuffle(same).slice(0, 3);
   if (picks.length < 3) picks = picks.concat(shuffle(other).slice(0, 3 - picks.length));

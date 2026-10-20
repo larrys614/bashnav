@@ -72,6 +72,32 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### A drill question may carry its own wrong options
+
+*Added 20 Oct 2026.* `drill` builds a test's four options from the other
+answers in the same section, preferring ones of the same `kind`. That holds
+while the answers are mutually exclusive and fails when they are not: *which
+of these is on the hoist preparation checklist?* can draw three more items
+off the same checklist, and offer four right answers against one mark.
+
+A question may now carry `ch` -- exactly three wrong options -- and when it
+does the app uses those and its own answer, and nothing from the pool.
+Two rules are enforced when a pack loads, because neither failure is visible
+while drilling: a wrong option equal to the answer is a question with two
+right options, and a repeated wrong option is three options wearing four
+labels.
+
+**`sw.js` had to change with it, and that is the part worth remembering.**
+The worker is cache-first, so an installed copy keeps serving the `drill.js`
+it cached, and a browser only reinstalls a worker when `sw.js` itself
+changes. A fix shipped without touching `sw.js` reaches nobody who has
+already used the tool, and to them it looks as though the fix did not work.
+`CACHE` is now `drill-v2`, `BUILD` is `2`, and `run-drill-web.sh` asserts
+the two agree -- so bumping the cache is checked rather than remembered.
+
+The app still ships with no material in it. What uses `ch` is the pack,
+which is built outside this repository and stays on Larry's own machines.
+
 ### Where the site lives, and why `docs/web/`
 
 *Moved 20 Oct 2026.* GitHub Pages is set to **`main` → `/docs`**, which makes
