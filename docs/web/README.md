@@ -42,6 +42,31 @@ and the documentation site is served at the top. Each tool is its own page:
 Open one in **Safari** on the iPad and use **Share → Add to Home Screen**. Each
 URL gets its own icon, because each has its own manifest.
 
+### An installed copy is its own world — observed on an iPad, 20 Oct 2026
+
+A tool added to the Home Screen or the Dock runs as an installed copy with
+**its own storage and its own service worker**, separate from Safari's for the
+same address. Observed directly: a Dock shortcut to `drill` stayed on build 3
+while Safari moved on to build 5, and kept the first content pack it was ever
+given no matter how many times a new one was loaded in Safari.
+
+What follows from that, and it is worth knowing before relying on any of this
+at sea:
+
+- **Each copy caches its own app.** Build numbers can differ between the Dock
+  icon and a Safari tab. The footer tells you which build a copy is running.
+- **Each copy has its own storage.** For `drill` that means its own content
+  pack and its own progress; load the pack in every copy you intend to use.
+- **For `deck-log` and `weather` that means its own log.** Entries written in
+  an installed copy do not appear in Safari, and the other way round — two
+  separate records, both of which look like *the* log. Pick one copy per tool
+  and keep to it, and check which one your existing entries are in before
+  trusting either.
+
+Whether storage is shared has varied by iOS version, so treat the above as
+what this iPad does rather than as a rule. The practical habit is the same
+either way: one copy per tool.
+
 Pages publishes everything under `docs/`, and nothing above it. That is why the
 browser build lives here rather than at the repository root: `src/`, `bin/`,
 `tests/` and `release/` are not served, and a file has to be moved into `docs/`
