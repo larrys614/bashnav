@@ -72,6 +72,25 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### The home screen says which pack is loaded
+
+*Added 20 Oct 2026.* Loading a pack replaces the one in the browser's
+storage, and nothing on screen said which one was being drilled. A rebuilt
+pack therefore looked identical to the one it replaced, and a question
+reported as fixed came round again from the old pack -- four times in one
+morning, each time read as the fix not having worked.
+
+The home screen now shows the pack's `built` date and a short content
+digest, `id`, which the builder sets. The date alone is not enough:
+rebuilding twice in a morning is the normal case while the questions are
+being worked on.
+
+Two test assertions were wrong and were corrected with it. The reveal check
+asked whether the FIRST question's answer was on screen while the practice
+loop had moved on to another, and both it and the leak check searched
+`innerHTML` for raw answer text, which an answer containing `&` or `<` can
+never match -- so a leak could have been reported as absent.
+
 ### Ordering questions: put these in order, one does not belong
 
 *Added 20 Oct 2026.* A four-option question can test which step **belongs**.

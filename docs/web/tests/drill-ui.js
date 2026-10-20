@@ -248,6 +248,24 @@ window.answerCurrent = function (right) {
   if (seqStats.bad.length) fail(seqStats.bad.length + ' ordering questions are malformed: ' + seqStats.bad[0]);
   else console.log('  ok   all ' + seqStats.n + ' ordering questions in this pack are well formed');
 
+  // ---- the home screen says WHICH pack is loaded ---------------------
+  //  Loading a pack replaces the one in storage. With nothing on screen to
+  //  tell them apart, a rebuilt pack looks exactly like the one it
+  //  replaced, and a question you were told was fixed comes round again
+  //  because the old pack is still the one being drilled.
+  const ident = await page.evaluate(() => ({
+    note: document.getElementById('pack-note').textContent,
+    built: PACK.built || '',
+    id: PACK.id || '',
+  }));
+  if (ident.built && ident.note.indexOf(ident.built) < 0)
+    fail('the home screen does not say which pack is loaded: ' + ident.note);
+  else if (ident.id && ident.note.indexOf(ident.id) < 0)
+    fail('the home screen does not show the pack id, so two packs built the ' +
+         'same day look identical: ' + ident.note);
+  else console.log('  ok   the home screen names the loaded pack (' +
+                   ident.built + (ident.id ? ' ' + ident.id : '') + ')');
+
   // ---- the gate -------------------------------------------------------
   const states = await page.$$eval('#seclist .seclink', els =>
     els.map(e => e.getAttribute('data-state')));
@@ -290,8 +308,13 @@ window.answerCurrent = function (right) {
       await new Promise(r => setTimeout(r, 10));
     }
     const q = RUN.qs[RUN.i];
-    const html = document.getElementById('drill-body').innerHTML;
-    return { graded: !!q.a, hasAnswer: q.a ? html.indexOf(q.a) >= 0 : false,
+    //  textContent, not innerHTML: an answer containing "&" or "<" is
+    //  escaped in the markup and a substring search for the raw text
+    //  misses it -- which would report a leak as absent, or a reveal as
+    //  having failed. textContent is also the stricter check for the leak
+    //  itself, since it includes text that is present but hidden.
+    const seen = document.getElementById('drill-body').textContent;
+    return { graded: !!q.a, hasAnswer: q.a ? seen.indexOf(q.a) >= 0 : false,
              qa: q.a ? q.a.slice(0, 40) : '(no graded question reached)' };
   });
   if (!leak.graded) fail('could not reach a graded question to test the leak');
@@ -303,8 +326,12 @@ window.answerCurrent = function (right) {
   });
   await page.waitForTimeout(120);
   const after = await page.evaluate(() => {
-    const q = RUN.qs[0];
-    return q.a ? document.getElementById('drill-body').innerHTML.indexOf(q.a) >= 0 : true;
+    //  The question ON SCREEN, not the first one in the run: the leak loop
+    //  above advances through the practice set, so checking qs[0] asked
+    //  about a question that is no longer displayed. It passed only while
+    //  the loop happened to stop on the first one.
+    const q = RUN.qs[RUN.i];
+    return q.a ? document.getElementById('drill-body').textContent.indexOf(q.a) >= 0 : true;
   });
   if (!after) fail('the answer did not appear when asked for');
   else console.log('  ok   and appears when asked for');

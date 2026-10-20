@@ -102,6 +102,13 @@ One JSON file. Version 1:
 ```
 
 - `pass` is the mark that opens the next section. Default 80.
+- `built` and `id` are shown on the home screen, and a pack builder should
+  set both. Loading a pack **replaces** the one in storage, so without
+  something on screen to tell them apart a rebuilt pack looks exactly like
+  the one it replaced — and a question you were told was fixed comes round
+  again from the old pack. The date alone is not enough: rebuilding twice
+  in a morning is the normal case while the questions are being worked on,
+  so `id` should be a short digest of the content.
 - `sections` are drilled in the order given.
 - `html` is rendered as the reference. Headings, lists, tables and
   blockquotes are all styled; wide tables scroll inside their own box.
