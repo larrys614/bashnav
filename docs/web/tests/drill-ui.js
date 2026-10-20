@@ -397,9 +397,13 @@ window.answerCurrent = function (right) {
     note: document.getElementById('pack-note').textContent,
     built: PACK.built || '',
     id: PACK.id || '',
+    build: window.BUILD || '',
   }));
   if (ident.built && ident.note.indexOf(ident.built) < 0)
     fail('the home screen does not say which pack is loaded: ' + ident.note);
+  else if (ident.note.indexOf('build ' + String(ident.build).split(' ')[0]) < 0)
+    fail('the home screen does not say which app build is running, so a report ' +
+         'about a question names only half of what it depends on: ' + ident.note);
   else if (ident.id && ident.note.indexOf(ident.id) < 0)
     fail('the home screen does not show the pack id, so two packs built the ' +
          'same day look identical: ' + ident.note);

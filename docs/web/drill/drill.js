@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '10 \u2014 20 Oct 2026';
+var BUILD = '11 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -220,10 +220,16 @@ function drawHome() {
   //  had been rebuilt looked identical to the one it replaced, and the
   //  same question you thought was fixed came round again. The built date
   //  and the question count are what tell them apart at a glance.
+  //  THE APP'S BUILD BELONGS ON THE SAME LINE AS THE PACK'S ID.  Which
+  //  app and which pack are the two things any report about a question
+  //  depends on, and they were in different places -- the build in the
+  //  footer, the pack at the top -- so answering "which are you on" took
+  //  two looks and usually got one of them.
   $('pack-note').textContent = (PACK.note ? PACK.note + '   \u00b7   ' : '') +
     PACK.sections.length + ' sections, ' + PACK.questions.length + ' questions' +
     (PACK.built ? '   \u00b7   pack ' + PACK.built +
-                  (PACK.id ? ' (' + PACK.id + ')' : '') : '');
+                  (PACK.id ? ' (' + PACK.id + ')' : '') : '') +
+    '   \u00b7   app build ' + BUILD;
 
   var done = PACK.sections.filter(function (s) { return passed(s.id); }).length;
   $('prog-n').textContent = done;
