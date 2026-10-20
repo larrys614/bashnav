@@ -9,6 +9,7 @@ before a push and are deliberately kept out of that suite.
     sh web/tests/run-tides-web.sh --full     615 stations x 4 dates
     sh web/tests/run-decklog-web.sh          the record layer and the page
     sh web/tests/run-weather-web.sh          the reasoning, prose and all
+    sh web/tests/run-drill-web.sh            the study machine, end to end
 
 ## The method
 
@@ -153,3 +154,45 @@ in every month. `sc_jdn` of 31 February is a perfectly good day number
 and `sc_civil` correctly maps it back to 3 March. The same mistake, in a
 different costume, had already discarded three quarters of the deck-log
 size corpus. **Check the counts, not only the agreement.**
+
+
+---
+
+# drill
+
+The only suite here that is **entirely** a browser test, because the app
+is entirely a browser app: there is no awk engine behind it to diff
+against. So the harness builds its own synthetic pack and drives the
+whole thing. Pass a real pack as an argument to run the same checks
+against it.
+
+What it asserts, in order: it ships empty; a pack loads; a pack whose
+questions point at missing sections is refused whole; section 1 is open
+and 2 is locked; **a locked section's reference is still fully
+readable**; only its test waits, with the reason given; **the answer is
+absent from the DOM before the reveal, not merely hidden**; failing
+leaves the next section locked; passing unlocks it and records the best
+mark; progress survives a reload; the diagnostic names unstudied
+sections instead of scoring them zero; the document view renders and
+searches; and nothing scrolls sideways at 744, 390 or 320 px.
+
+## The selector that matched its own payload
+
+The harness found the Next button by matching the word "next" in button
+text. A real pack contained an answer reading *"It authorizes the next
+action"* — so it clicked the answer, the question never advanced, and
+the loop spun until the page died. Seven minutes of nothing, and the
+first run with the synthetic pack had passed, because none of the
+invented answers happened to contain the word.
+
+Two fixes, and the first one is the real one: the app's advance, reveal
+and self-mark buttons now carry `data-advance`, `data-reveal` and
+`data-mark-self`, so **nothing has to match prose**. And every drill
+loop has a guard, so a drill that cannot advance fails loudly instead of
+hanging.
+
+This is the third time in this repository that a harness has shared a
+mechanism with its own payload: a tab-separated dump split a record
+whose value was a literal tab, and a `pkill -f` pattern matched the
+shell running it. The lesson has a shape — **never key a test on
+something the data can also contain.**

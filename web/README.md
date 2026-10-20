@@ -9,12 +9,20 @@ dependencies, no network once loaded.
     tides/            harmonic prediction, 8,334 stations         (v1.1)
     deck-log/         the boat's records, append-only              (v1.1)
     weather/          read your own barometer                      (v1.0)
+    drill/            a study machine with no material in it        (v1.0)
     icons/            one icon per tool, drawn to read at 60 px
     tests/            verifying the browser builds against the awk
 
-All six are built. `deck-log` and `weather` share one log: both are
-served from this origin, and IndexedDB is per-origin rather than
-per-path, so they genuinely share one store.
+All six marine tools are built. `deck-log` and `weather` share one log:
+both are served from this origin, and IndexedDB is per-origin rather
+than per-path, so they genuinely share one store.
+
+`drill/` is a different kind of thing. It carries **no material at
+all** — no questions, no reference text, nothing of anybody's. It reads
+a content pack the user loads from their own device, which never leaves
+it. That is how material somebody else owns can be studied without ever
+being published: the machine is published, the material is not. See
+`web/drill/README.md` for the pack format.
 
 ## Installing
 
@@ -28,6 +36,7 @@ Each tool is then its own page:
     https://larrys614.github.io/bashnav/web/tides/
     https://larrys614.github.io/bashnav/web/deck-log/
     https://larrys614.github.io/bashnav/web/weather/
+    https://larrys614.github.io/bashnav/web/drill/
 
 Open one in **Safari** on the iPad and use **Share → Add to Home Screen**. Each
 URL gets its own icon, because each has its own manifest.

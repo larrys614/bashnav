@@ -1,0 +1,14 @@
+{
+  "name": "drill — a study machine",
+  "short_name": "drill",
+  "description": "Sections, recall practice and a graded test that opens the next section. Ships empty: it reads a content pack from your own device and never uploads it.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090b",
+  "theme_color": "#07090b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
