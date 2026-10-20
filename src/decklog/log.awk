@@ -103,7 +103,15 @@ function lg_parse(line,   n, f, i, p, key, val){
   n = split(line, f, "|")
   if(n < 3){ LG_ERR="too few fields"; return 0 }
   if(!lg_ts_ok(f[1])){ LG_ERR="bad timestamp: " f[1]; return 0 }
-  if(f[2] !~ /^[a-z][a-z0-9]{0,4}$/){ LG_ERR="bad type: " f[2]; return 0 }
+  #  NO INTERVAL EXPRESSION HERE.  This was /^[a-z][a-z0-9]{0,4}$/, which
+  #  is correct POSIX ERE and which mawk 1.3.3 does not implement: it
+  #  reads {0,4} as four literal characters, so "eng" does not match and
+  #  lg_parse REJECTS EVERY RECORD.  The tool then refuses to write one
+  #  ("refused to write a malformed record") and reads an existing log as
+  #  empty -- total failure, on the awk that `awk` is on Debian, Ubuntu
+  #  and a-Shell.  gawk implements intervals, so a gawk run proves
+  #  nothing here.  tests/interval-check.awk now forbids the construct.
+  if(f[2] !~ /^[a-z]([a-z0-9]([a-z0-9]([a-z0-9][a-z0-9]?)?)?)?$/){ LG_ERR="bad type: " f[2]; return 0 }
   #  The record must be COMPLETE.  Without this a half-written line
   #  parses cleanly and quietly loses whatever never reached the disk.
   if(f[n] != "~"){ LG_ERR="incomplete record (no terminator)"; return 0 }

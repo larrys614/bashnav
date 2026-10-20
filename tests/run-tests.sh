@@ -560,6 +560,23 @@ WXLOG
   done
   [ "$fp" = 0 ] && ok "no parameter shadows a function name"
 
+  #  ---- POSIX interval expressions in a regex ----------------------
+  #  mawk 1.3.3 does not implement {n,m}: it reads the braces as literal
+  #  characters, so a correct POSIX ERE silently matches nothing.
+  #  deck-log shipped with /^[a-z][a-z0-9]{0,4}$/ guarding the record
+  #  type and was COMPLETELY DEAD under that mawk - it rejected every
+  #  record, refused to write an entry, and read an existing log as
+  #  empty. gawk implements intervals, which is why it reached a
+  #  release. Found on 2026-10-20 by running the browser build's
+  #  record-layer diff on a machine whose mawk was the older one.
+  iv=$($AW -f tests/interval-check.awk $(find src -name '*.awk' | sort) 2>&1)
+  if [ -n "$iv" ]; then
+    bad "an awk regex uses an interval expression, which mawk 1.3.3 ignores"
+    echo "$iv" | head -4
+  else
+    ok "no awk regex uses a {n,m} interval expression"
+  fi
+
   #  ---- a function name used as an ordinary variable ---------------
   #  fnparam-check catches a function name used as a PARAMETER; this is
   #  the other half. teach.awk defined p() while screens.awk used p as a
