@@ -72,6 +72,27 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### A new worker does not change the page that installed it
+
+*Fixed 20 Oct 2026, and it is why several fixes appeared not to work.*
+
+The worker is cache-first, so the page you are reading was built from the
+files the **old** worker had cached. Reloading fetches the new `sw.js`,
+installs it, and lets it claim the page -- but the scripts already loaded
+stay as they are. The new app appears on the **second** reload, and nothing
+said so.
+
+The practical effect: an installed copy sat on **build 3** through several
+reloads while builds 4 and 5 were published, and every fix shipped into it
+read as a fix that had not worked. Three separate causes were chased before
+this one, because each of them was also real.
+
+The page now listens for `controllerchange` and reloads itself once, so a
+published build arrives on the first reload instead of the second. Mid-test
+it does not: losing a part-finished test to an automatic reload is worse
+than waiting one screen, so it shows a line saying the new version loads
+when the test is left.
+
 ### The build/cache check now runs without a browser
 
 *Moved 20 Oct 2026, after it missed the thing it was for.*

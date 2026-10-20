@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '5 \u2014 20 Oct 2026';
+var BUILD = '6 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -1028,6 +1028,30 @@ window.addEventListener('DOMContentLoaded', function () {
       }).catch(function () {});
     } else {
       navigator.serviceWorker.register('sw.js').catch(function () {});
+      //  A NEW WORKER DOES NOT CHANGE THE PAGE THAT INSTALLED IT.  The
+      //  worker is cache-first, so the page you are reading was built from
+      //  the files the OLD worker had cached. Reloading fetches the new
+      //  sw.js, installs it and lets it claim the page -- but the already
+      //  loaded scripts stay as they are. The new app appears on the
+      //  SECOND reload, and nothing said so: an app sat three builds
+      //  behind through several reloads, and every fix shipped into it
+      //  read as a fix that had not worked.
+      var swapped = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (swapped) return;
+        swapped = true;
+        //  Not mid-question. Losing a part-finished test to an automatic
+        //  reload is worse than waiting one screen for the new version.
+        if (RUN && RUN.qs && RUN.i < RUN.qs.length) {
+          var n = $('sw-note');
+          if (n) {
+            n.textContent = 'A new version is ready. It loads when you leave this test.';
+            n.hidden = false;
+          }
+          return;
+        }
+        location.reload();
+      });
     }
   }
 });
