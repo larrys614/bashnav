@@ -111,6 +111,43 @@ Put that URL into the repository's "About" panel (the gear icon top right of the
 repository home page) along with a few topics: `navigation`, `celestial-navigation`,
 `colregs`, `sailing`, `posix`, `shell`, `awk`.
 
+### `github.com` and `github.io` are two different things
+
+Worth understanding before you point anyone at either.
+
+**`github.com` is the forge.** It holds the repository: files, history, issues,
+settings. What you see there is GitHub's own application showing you your
+repository — it renders the README for you and gates Settings behind your login.
+
+**`github.io` is a plain web host.** Pages takes one folder from one branch and
+serves it as an ordinary website. No application, no rendering, no login.
+`larrys614.github.io/bashnav/web/drill/` is `docs/web/drill/index.html` handed
+out the way any web server hands out a file.
+
+The mapping is mechanical — account name becomes the subdomain, repository name
+becomes the first path segment:
+
+    github.com/larrys614/bashnav      the repository
+    larrys614.github.io/bashnav/      the site built from docs/ inside it
+
+**Why two domains rather than one.** A published page can run JavaScript. Served
+from `github.com`, that JavaScript would share an origin with the cookie that
+keeps you logged in — and a browser lets same-origin code read it, so anyone
+publishing a page could harvest the logins of whoever visited. A separate domain
+is a separate origin, so published code cannot reach GitHub's session at all.
+
+The browser build depends on the same mechanism: its origin is
+`larrys614.github.io`, and a deck log in IndexedDB or a drill pack in storage is
+keyed to that origin. This is why the move to `docs/web/` was done in a way that
+kept the URL identical — a changed URL is a changed storage key, and every saved
+log and loaded pack would have been orphaned.
+
+**The distinction that matters most here:** `.io` serves only what is under the
+published folder. `.com` shows **everything in the repository**, served or not.
+`src/`, `bin/`, `tests/` and `release/` are not part of the website, and are
+still fully visible to anyone on `.com`, because the repository is public.
+*Not served* is not *not public*. See `CLAUDE.md` on staging.
+
 ## 8. Offer the two files as a release — (changes things, optional)
 
 People who only want the tools should not have to clone anything.
