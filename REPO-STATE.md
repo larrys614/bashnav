@@ -72,6 +72,46 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### One answer inside another is still one answer
+
+*Fixed 20 Oct 2026, the same fault a layer down.* Normalising the text
+catches a leading "The" and a full stop. It cannot catch this:
+
+    The vang, the mainsheet and the topping lift.
+    Vang, Mainsheet, Topping lift -- depower: ease the vang and mainsheet,
+    raise the boom with the topping lift.
+
+Both name the same three controls; the second only says more about them.
+Asked *which three controls govern leech tension*, they are one answer
+offered twice.
+
+So the comparison moved from how an option reads to what it says. Significant
+words, stop words and short tokens removed, and if every significant word of
+the shorter option is in the longer, it is not a distractor. It suppresses 46
+of 6,316 in-section pairs -- narrow, not sweeping.
+
+Two things it taught, both of which were bugs in the fix rather than in the
+code it fixed:
+
+- **A number is always significant, however short.** Dropping tokens of two
+  characters or fewer threw digits away with the noise, so "6 of them" and
+  "4 of them" reduced to the same words. The synthetic test pack, whose
+  answers differ only by a number, is what caught it -- the small pack is
+  exactly where a stricter filter bites first.
+- **A section can run out.** As more questions carry their own options, the
+  pool left for the rest shrinks; in `safety` it shrank to nothing, which
+  would have rendered one question with a single option -- an automatic
+  mark, worse than the duplicate the filtering was added to prevent. The
+  last resort is now the whole pack: an easier distractor, but the reader
+  still has to know their own section's answer, and a fair easy question
+  beats a free one.
+
+An acknowledged gap, written into the code: the three-word floor means a
+short option inside a longer answer is still offered. "Crew briefed" sits
+inside "crew briefed and ready on the foredeck". Lowering the floor would
+catch those and empty the pool at the same time, since "lower" alone is
+inside half the mainsail procedures. The floor is the price of the rule.
+
 ### Two options a reader would call the same option
 
 *Fixed 20 Oct 2026.* A graded question offered both

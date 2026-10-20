@@ -204,6 +204,40 @@ window.answerCurrent = function (right) {
   else if (nearDup.right !== 1) fail('not exactly one option is correct');
   else console.log('  ok   a pool option that reads as the answer is not offered');
 
+  //  ONE ANSWER INSIDE ANOTHER IS STILL ONE ANSWER.  Normalising the text
+  //  cannot see this: "The vang, the mainsheet and the topping lift" and
+  //  "Vang, Mainsheet, Topping lift - depower: ease the vang and
+  //  mainsheet, raise the boom with the topping lift" name the same three
+  //  controls, and were offered as two options to one question.
+  const subset = await page.evaluate(() => {
+    const a = 'The vang, the mainsheet and the topping lift.';
+    const b = 'Vang, Mainsheet, Topping lift \u2014 depower: ease the vang and ' +
+              'mainsheet, raise the boom with the topping lift.';
+    return {
+      pair: sameAnswer(a, b),
+      //  ... but genuinely different answers must still differ, or the
+      //  rule would empty the pool instead of cleaning it.
+      diff: sameAnswer('Release the FOOT', 'Release the LUFF'),
+      diff2: sameAnswer('Raise the alarm \u2014 shout MOB', 'Stop the boat and throw the danbuoy'),
+    };
+  });
+  if (!subset.pair) fail('an answer contained inside another was not recognised as the same answer');
+  else if (subset.diff || subset.diff2) fail('two genuinely different answers were called the same');
+  else console.log('  ok   an answer contained inside another counts as the same answer');
+
+  //  A SECTION CAN RUN OUT OF DISTRACTORS, and a question with no wrong
+  //  option is an automatic mark -- worse than the duplicate the
+  //  filtering was added to prevent.
+  const starved = await page.evaluate(() => {
+    const q = { kind: 'fact', a: 'An answer whose section pool has nothing left to offer' };
+    const out = makeChoices(q, [q]);     // a pool of one: itself
+    return { n: out.length, right: out.filter(o => o.ok).length };
+  });
+  if (starved.n < 4)
+    fail('an exhausted section gave only ' + starved.n + ' option(s); one of them would be a free mark');
+  else if (starved.right !== 1) fail('not exactly one option is correct after falling back');
+  else console.log('  ok   an exhausted section falls back to the whole pack for options');
+
   //  and a question without them still draws from the pool
   const drawn = await page.evaluate(() => {
     const q = { kind: 'fact', a: 'mine' };

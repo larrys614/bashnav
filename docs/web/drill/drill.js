@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '7 \u2014 20 Oct 2026';
+var BUILD = '8 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -487,6 +487,53 @@ function stepQuiz() {
 //  hard, slow, and damages sail or hanks." alongside the same sentence
 //  without its leading "The" and its full stop -- two right answers, one
 //  mark, and picking the better-written one was marked wrong.
+var STOPW = (' a an the and or of to in on at is are was be by for with from it ' +
+  'its this that these those as if then than so not no do does did you your they ' +
+  'them their there here what which who when where how why all any into onto out ' +
+  'up down off over under before after while during each both other others same ' +
+  'more most less least must should would could ').split(' ');
+
+function contentWords(x) {
+  var out = {}, n = 0, ws = String(x || '').toLowerCase().match(/[a-z0-9]+/g) || [];
+  ws.forEach(function (w) {
+    //  A NUMBER IS ALWAYS SIGNIFICANT, however short. Dropping short
+    //  tokens threw digits away with the noise, so "6 of them" and "4 of
+    //  them" reduced to the same words and counted as one answer -- and
+    //  so did every "Fact 1 / Fact 2" style answer in the test pack,
+    //  which is how this was noticed.
+    if (STOPW.indexOf(w) >= 0 || out[w]) return;
+    if (w.length <= 2 && !/^[0-9]+$/.test(w)) return;
+    out[w] = 1; n++;
+  });
+  out.__n = n;
+  return out;
+}
+
+//  ONE ANSWER INSIDE ANOTHER IS STILL ONE ANSWER.  Normalising the text
+//  catches a leading "The" and a full stop. It cannot catch this, which
+//  is the same fault a layer down:
+//
+//    "The vang, the mainsheet and the topping lift."
+//    "Vang, Mainsheet, Topping lift - depower: ease the vang and
+//     mainsheet, raise the boom with the topping lift."
+//
+//  Both name the same three controls; the second only says more about
+//  them. Asked "which three controls govern leech tension", they are one
+//  answer offered twice. So the comparison moved from how the text reads
+//  to what it says: if every significant word of the shorter option is in
+//  the longer, it is not a distractor.
+//
+//  A deliberate consequence: a longer option that merely restates the
+//  answer with extra detail is suppressed either way round, since the
+//  subset test does not care which is which.
+//
+//  And an acknowledged gap: the three-word floor means a SHORT option
+//  inside a longer answer is still offered. "Crew briefed" sits inside
+//  "crew briefed and ready on the foredeck" and will be offered against
+//  it, because "crew briefed" has two significant words. Lowering the
+//  floor would catch those and empty the pool at the same time -- "lower"
+//  alone is inside half the mainsail procedures. The floor is the price
+//  of the rule, not an oversight.
 function sameAnswer(a, b) {
   var f = function (x) {
     return String(x || '').toLowerCase()
@@ -494,7 +541,18 @@ function sameAnswer(a, b) {
       .replace(/^(the|a|an) /, '')
       .trim();
   };
-  return f(a) === f(b);
+  if (f(a) === f(b)) return true;
+  var wa = contentWords(a), wb = contentWords(b);
+  var small = wa.__n <= wb.__n ? wa : wb, big = small === wa ? wb : wa;
+  //  Three words is the floor. Below it almost anything is a subset of
+  //  something -- "Lower" sits inside half the mainsail procedures -- and
+  //  suppressing those would empty the pool rather than clean it.
+  if (small.__n < 3) return false;
+  for (var k in small) {
+    if (k === '__n' || !small.hasOwnProperty(k)) continue;
+    if (!big[k]) return false;
+  }
+  return true;
 }
 
 function makeChoices(q, pool) {
@@ -529,6 +587,17 @@ function makeChoices(q, pool) {
   };
   take(same);
   take(other);
+  //  A SECTION CAN RUN OUT.  As more questions carry their own options,
+  //  the pool left for the rest shrinks -- and in the safety section it
+  //  shrank to nothing, which would have rendered one question with a
+  //  single option: an automatic mark, which is worse than the duplicate
+  //  this filtering was added to prevent. So the last resort is the whole
+  //  pack. An option from another part is an easier distractor, but the
+  //  reader still has to know their own section's answer, and a fair
+  //  easy question beats a free one.
+  if (picks.length < 3 && typeof PACK === 'object' && PACK && PACK.questions) {
+    take(PACK.questions.filter(usable));
+  }
   var out = picks.map(function (o) { return { t: o.a, ok: false }; });
   out.push({ t: q.a, ok: true });
   return shuffle(out);
