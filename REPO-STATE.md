@@ -72,6 +72,29 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### The build/cache check now runs without a browser
+
+*Moved 20 Oct 2026, after it missed the thing it was for.*
+
+`drill.js` build 5 was written to this repository, reported as written, and
+committed -- and what landed was build 4. The write and the commit raced,
+and nothing compared the committed bytes with the bytes that had been
+tested. The published pair then said **build 4 in `drill.js` and `drill-v5`
+in `sw.js`**: a mismatch whose whole purpose is to be caught.
+
+The check existed, inside `drill-ui.js`, behind the playwright gate -- so
+it ran in the container and never on the machine that does the committing,
+because playwright is not installed there. It is now two lines of `sed` at
+the top of `run-drill-web.sh`, before the gate, so a plain
+
+    sh docs/web/tests/run-drill-web.sh
+
+catches it anywhere, with no browser and no node. Confirmed to fail on a
+deliberate mismatch.
+
+The general form, for next time: **a test that runs only where the work is
+done, and not where the work is delivered, does not cover delivery.**
+
 ### Replacing a pack with a file of the same name
 
 *Fixed 20 Oct 2026, and it is the fault that caused the other three.*

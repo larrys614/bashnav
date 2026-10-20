@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '4 \u2014 20 Oct 2026';
+var BUILD = '5 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -974,9 +974,30 @@ window.addEventListener('DOMContentLoaded', function () {
     b.addEventListener('click', function () { go(b.getAttribute('data-go')); });
   });
   $('f-pack').addEventListener('change', function (e) {
-    if (e.target.files && e.target.files[0]) loadPack(e.target.files[0]);
+    var f = e.target.files && e.target.files[0];
+    //  CLEAR THE INPUT, ALWAYS.  A file input fires `change` only when the
+    //  selection CHANGES, and a file is the same selection if it has the
+    //  same name -- so after loading `procedures.drillpack.json` once,
+    //  picking another file of that name did nothing at all. No error, no
+    //  note, the old pack simply stayed, and it looked as though the app
+    //  offered no way to replace it. Clearing the value after every
+    //  attempt makes the next selection always a change.
+    e.target.value = '';
+    if (f) loadPack(f);
   });
-  $('b-replace').addEventListener('click', function () { go('empty'); });
+  $('b-replace').addEventListener('click', function () {
+    $('f-pack').value = '';
+    //  Say what is loaded now, so replacing it is a deliberate act and the
+    //  result can be checked against what was expected.
+    $('load-note').textContent = PACK
+      ? 'Loaded now: ' + (PACK.title || 'a pack') +
+        (PACK.built ? ', built ' + PACK.built : '') +
+        (PACK.id ? ' (' + PACK.id + ')' : '') +
+        '. Picking a file replaces it.'
+      : 'A .drillpack.json file. Nothing is uploaded.';
+    $('load-note').className = 'note';
+    go('empty');
+  });
   $('b-reset').addEventListener('click', function () {
     //  Destructive and irreversible, so it asks.
     if (!window.confirm('Reset every score and lock every section again? The pack stays loaded.')) return;

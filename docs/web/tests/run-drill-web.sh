@@ -13,8 +13,33 @@ ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 cd "$ROOT"
 trap '[ -n "$SRV" ] && kill $SRV 2>/dev/null || true' EXIT
 
+# ---- checks that need no browser, so they run everywhere ------------
+# THE BUILD NUMBER AND THE CACHE VERSION MUST AGREE.  The worker is
+# cache-first, so an installed copy keeps serving the drill.js it cached
+# and a browser only reinstalls the worker when sw.js changes -- ship one
+# without the other and the fix reaches nobody who has used the tool.
+#
+# This check already existed inside the browser suite, which meant it did
+# not run on a machine without playwright. It then missed exactly what it
+# was for: a drill.js that failed to reach the repository was committed
+# alongside a bumped sw.js, and the published pair said build 4 and
+# drill-v5. Two lines of grep would have caught it on any machine, so now
+# they do.
+B=$(sed -n "s/.*BUILD *= *'\([0-9][0-9]*\).*/\1/p" docs/web/drill/drill.js | head -1)
+C=$(sed -n "s/.*CACHE *= *'drill-v\([0-9][0-9]*\)'.*/\1/p" docs/web/drill/sw.js | head -1)
+if [ -z "$B" ] || [ -z "$C" ]; then
+  echo "FAIL -- cannot read BUILD from drill.js or CACHE from sw.js"
+  exit 1
+fi
+if [ "$B" != "$C" ]; then
+  echo "FAIL -- drill.js is build $B but sw.js caches drill-v$C."
+  echo "        An installed copy would keep serving the old app."
+  exit 1
+fi
+echo "  ok   drill.js build $B and sw.js cache drill-v$C agree"
+
 if ! node -e 'require("playwright")' >/dev/null 2>&1; then
-  echo "SKIPPED -- the drill suite is entirely a browser test and needs playwright:"
+  echo "SKIPPED -- the rest of the drill suite is a browser test and needs playwright:"
   echo "          npm i -D playwright"
   exit 0
 fi
