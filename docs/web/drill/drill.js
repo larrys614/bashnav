@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '9 \u2014 20 Oct 2026';
+var BUILD = '10 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -1093,7 +1093,12 @@ window.addEventListener('DOMContentLoaded', function () {
     e.target.value = '';
     if (f) loadPack(f);
   });
-  $('b-replace').addEventListener('click', function () {
+  //  Two buttons, one behaviour: the one on the home screen beside the
+  //  pack's name, and the one on the About screen.
+  ['b-replace', 'b-replace-home'].forEach(function (id) {
+    if ($(id)) $(id).addEventListener('click', replacePack);
+  });
+  function replacePack() {
     $('f-pack').value = '';
     //  Say what is loaded now, so replacing it is a deliberate act and the
     //  result can be checked against what was expected.
@@ -1105,7 +1110,7 @@ window.addEventListener('DOMContentLoaded', function () {
       : 'A .drillpack.json file. Nothing is uploaded.';
     $('load-note').className = 'note';
     go('empty');
-  });
+  }
   $('b-reset').addEventListener('click', function () {
     //  Destructive and irreversible, so it asks.
     if (!window.confirm('Reset every score and lock every section again? The pack stays loaded.')) return;

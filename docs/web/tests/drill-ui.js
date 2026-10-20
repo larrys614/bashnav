@@ -367,6 +367,27 @@ window.answerCurrent = function (right) {
                                { timeout: 8000 }).catch(() => {});
   }
 
+  // ---- THE CONTROL FOR LOADING A DIFFERENT PACK IS ON THE HOME SCREEN -
+  //  It existed only on the About screen, under a heading nobody had
+  //  reason to open, so replacing a pack looked impossible from the
+  //  outside. It belongs next to the name of the pack that is loaded,
+  //  which is where you look when you want a different one.
+  const replaceBtn = await page.evaluate(() => {
+    const b = document.getElementById('b-replace-home');
+    if (!b) return { there: false };
+    const inHome = !!b.closest('#v-home');
+    b.click();
+    return { there: true, inHome, wentToEmpty: !document.getElementById('v-empty').hidden,
+             picker: !!document.getElementById('f-pack') };
+  });
+  if (!replaceBtn.there) fail('no control on the home screen for loading a different pack');
+  else if (!replaceBtn.inHome) fail('the load-a-different-pack control is not on the home screen');
+  else if (!replaceBtn.wentToEmpty || !replaceBtn.picker)
+    fail('the home-screen control did not reach the file picker');
+  else console.log('  ok   a different pack can be loaded from the home screen');
+  await page.evaluate(() => go('home'));
+  await page.waitForTimeout(80);
+
   // ---- the home screen says WHICH pack is loaded ---------------------
   //  Loading a pack replaces the one in storage. With nothing on screen to
   //  tell them apart, a rebuilt pack looks exactly like the one it
