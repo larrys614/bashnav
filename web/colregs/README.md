@@ -41,7 +41,7 @@ Three things a terminal could not do:
 
 `data.js` was produced by appending a dumper to the awk engine's own table
 initialisers and printing what they built — `ves_init()`, `shp_init()`,
-`enc_init()`, `snd_init()`, and the fifteen `les()` lessons. Twenty vessels,
+`enc_init()`, `snd_init()`, and the fifteen `les()` lessons. Twenty-two vessels,
 ten shapes, twenty-eight encounters, fifteen signals, fifteen lessons.
 
 **Do not hand-edit it.** Regenerate it, so the web build and the shell build

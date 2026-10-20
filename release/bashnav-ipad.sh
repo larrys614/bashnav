@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003432834
+BASHNAV_BYTES=003432841
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -4058,7 +4058,7 @@ about_needs() {
     '  much damage a wrong one would do.' \
     '' \
     '  1  WHO GIVES WAY, AND WHAT TO DO.  The twenty-eight encounters,' \
-    '     and the sixty-five distinct give-way calls the lights quiz' \
+    '     and the seventy-three distinct give-way calls the lights quiz' \
     '     can make.  A wrong light table makes you misname a ship.  A' \
     '     wrong verdict here makes you TURN THE WRONG WAY, which is' \
     '     the difference between a training aid that is imperfect and' \
@@ -4066,7 +4066,7 @@ about_needs() {
     '     once during development and caught by hand, by a reader, not' \
     '     by any test.  Rules 12 to 18.' \
     '' \
-    '  2  THE LIGHT TABLES.  Twenty vessels, and every picture,' \
+    '  2  THE LIGHT TABLES.  Twenty-two vessels, and every picture,' \
     '     question and answer is computed from them.  Two errors in' \
     '     them have already been found by users - both by somebody' \
     '     looking at a picture, trying to account for every light in' \
