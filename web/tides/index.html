@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="tides">
+<title>tides</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="tides.css">
+</head>
+<body>
+
+<header class="bar">
+  <button class="back" id="back" hidden aria-label="Back">&#8249;</button>
+  <h1 id="title">tides</h1>
+  <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
+</header>
+
+<main id="main">
+
+  <!-- ================= the day ================= -->
+  <section class="view" id="v-day" hidden>
+
+    <div class="panel station">
+      <div class="who">
+        <div class="nm" id="st-name">&mdash;</div>
+        <div class="wh" id="st-where"></div>
+        <span class="kindtag" id="st-kind"></span>
+      </div>
+      <button class="btn" id="st-change">Change</button>
+    </div>
+
+    <div class="panel dates">
+      <button id="d-prev" aria-label="Previous day">&#8249;</button>
+      <div class="d" id="d-label">&mdash;<small></small></div>
+      <button id="d-next" aria-label="Next day">&#8250;</button>
+    </div>
+
+    <div class="panel">
+      <h2>The day&rsquo;s water</h2>
+      <div class="curvewrap"><canvas id="curve" width="720" height="300"></canvas></div>
+      <div class="legend">
+        <span><i style="background:var(--curve)"></i>height above datum</span>
+        <span id="key-now"><i style="background:var(--now)"></i>time now</span>
+        <span><i style="background:var(--datum)"></i>chart datum (zero)</span>
+      </div>
+      <p class="note" id="curve-note"></p>
+    </div>
+
+    <div class="panel">
+      <h2>High and low water</h2>
+      <table class="tide"><thead><tr>
+        <th>&nbsp;</th><th>Time</th><th style="text-align:right">Height</th><th style="text-align:right">&nbsp;</th>
+      </tr></thead><tbody id="hl-body"></tbody></table>
+      <p class="note" id="hl-note"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Depth and clearance</h2>
+      <p class="note">Charted depths are <em>below</em> datum and the tide adds to
+        them. Charted bridge clearances are <em>above</em> HAT and the tide takes
+        them away. Leave a box empty to skip that part.</p>
+      <div class="fields" style="margin-top:10px">
+        <div class="f"><label for="i-charted">Charted depth, m</label>
+          <input type="number" id="i-charted" inputmode="decimal" step="0.1" placeholder="e.g. 2.4"></div>
+        <div class="f"><label for="i-draft">Your draught, m</label>
+          <input type="number" id="i-draft" inputmode="decimal" step="0.1" placeholder="e.g. 1.8"></div>
+        <div class="f"><label for="i-clear">Under the keel wanted, m</label>
+          <input type="number" id="i-clear" inputmode="decimal" step="0.1" placeholder="e.g. 0.5"></div>
+        <div class="f"><label for="i-air">Charted bridge clearance, m</label>
+          <input type="number" id="i-air" inputmode="decimal" step="0.1" placeholder="e.g. 18.0"></div>
+        <div class="f"><label for="i-mast">Your air draught, m</label>
+          <input type="number" id="i-mast" inputmode="decimal" step="0.1" placeholder="e.g. 16.5"></div>
+        <div class="f" style="display:flex;align-items:flex-end">
+          <button class="btn wide" id="i-clearbtn">Clear boxes</button></div>
+      </div>
+      <div id="depth-out" style="margin-top:14px"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Sun and moon</h2>
+      <div class="phase"><span id="moonart"></span>
+        <span><span class="pn" id="ph-name"></span>
+          <span class="ps" id="ph-sub"></span></span></div>
+      <div class="sky" id="sky-list"></div>
+      <p class="note">A low-precision series: a rising or a setting to a minute
+        or two. For a sight, use celnav.</p>
+    </div>
+
+    <details class="asterm" id="term-wrap">
+      <summary>Show it as the terminal does</summary>
+      <pre id="term" aria-label="Terminal rendering"></pre>
+    </details>
+
+  </section>
+
+  <!-- ================= the station picker ================= -->
+  <section class="view" id="v-pick" hidden>
+    <p class="lede">A tide cannot be computed from a position. It depends on the
+      shape of the coast and the depth and resonance of the basin, so every place
+      needs constants somebody measured there. You pick a <em>station</em>, not a
+      place &mdash; and the nearest one in a straight line can be on the wrong
+      side of a headland.</p>
+
+    <div class="panel">
+      <h2>Search by name</h2>
+      <input type="search" id="q" placeholder="falmouth &middot; lon new &middot; ^st mary"
+             autocomplete="off" autocapitalize="off" spellcheck="false">
+      <p class="note" style="margin-top:8px">Every word has to appear somewhere in
+        the name, the region or the country, in any order and anywhere inside a
+        word, so <span class="mono">lon new</span> finds New London. Type any of
+        <span class="mono">^ $ . [ ] | ( ) * + ? { }</span> and it is used as a
+        regular expression instead.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Nearest to a position</h2>
+      <div class="fields">
+        <div class="f"><label for="i-lat">Latitude</label>
+          <input type="number" id="i-lat" inputmode="decimal" step="0.0001" placeholder="41.5"></div>
+        <div class="f"><label for="i-lon">Longitude</label>
+          <input type="number" id="i-lon" inputmode="decimal" step="0.0001" placeholder="-71.3"></div>
+      </div>
+      <div class="btnrow" style="margin-top:10px">
+        <button class="btn go" id="b-near">Nearest to that</button>
+        <button class="btn" id="b-gps">Use my position</button>
+      </div>
+      <p class="note" id="gps-note"></p>
+    </div>
+
+    <div class="panel" id="recent-panel" hidden>
+      <h2>Recent</h2>
+      <div id="recent"></div>
+    </div>
+
+    <div class="panel">
+      <h2 id="res-head">Results</h2>
+      <div id="results"></div>
+    </div>
+  </section>
+
+  <!-- ================= about ================= -->
+  <section class="view" id="v-about" hidden>
+    <div class="panel">
+      <h2>What this is</h2>
+      <p>Harmonic tide prediction from constants measured at 8,334 stations. It
+        runs entirely in the browser with no network, which is the point: a tide
+        table is worth most where there is no signal.</p>
+      <p>The synthesis follows Foreman, as carried by UTide &mdash; 70
+        constituents with their satellite modulations and shallow-water terms.
+        The same engine runs in the POSIX&nbsp;awk version of this tool; the
+        browser build is checked against it over hundreds of thousands of
+        values, and agrees to the last bit or two.</p>
+    </div>
+    <div class="panel">
+      <h2>Reference and subordinate stations</h2>
+      <p>A <strong>reference</strong> station has harmonic constants measured
+        there, and its curve is a real synthesis.</p>
+      <p>A <strong>subordinate</strong> station has no constants of its own. It
+        carries time and height corrections to a reference station, which is how
+        a paper tide table has always worked. For those, the high and low waters
+        are the reference&rsquo;s turns corrected, and the curve between them is
+        drawn as a half cosine. There is no honest way to synthesise a continuous
+        curve out of offsets, so this build does not pretend to.</p>
+    </div>
+    <div class="panel">
+      <h2>Times, datums and what is missing</h2>
+      <p>Times are the station&rsquo;s own <strong>standard time</strong> &mdash;
+        no summer time, exactly like a printed tide table. The datum is named on
+        the day&rsquo;s screen; heights are above it.</p>
+      <p>Nothing here knows about the weather. A deep low or a hard onshore blow
+        moves the real water by a half metre or more, and a river in flood moves
+        it further. Harmonics predict the astronomical tide and nothing else.</p>
+    </div>
+    <div class="panel">
+      <h2>Where the data comes from</h2>
+      <p>Assembled from <a href="https://github.com/neaps/tide-database">neaps/tide-database</a>
+        (CC&nbsp;BY&nbsp;4.0). NOAA harmonics are public domain; TICON-4
+        harmonics are CC&nbsp;BY&nbsp;4.0.</p>
+    </div>
+    <div class="panel">
+      <h2>Offline</h2>
+      <p id="off-state" class="note">Checking&hellip;</p>
+      <div class="bararea" id="off-bar" hidden><i></i></div>
+      <button class="btn wide" id="b-offline" style="margin-top:10px">Save everything for offline use</button>
+    </div>
+    <p class="foot"><strong>A training and cross-checking aid, not a substitute
+      for judgement.</strong> Where this and the published tide tables for the
+      port differ, the published tables are right and this is wrong.
+      <span id="ver"></span></p>
+  </section>
+
+</main>
+
+<script src="tables.js"></script>
+<script src="engine.js"></script>
+<script src="tides.js"></script>
+</body>
+</html>

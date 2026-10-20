@@ -12,7 +12,7 @@ var TOOLS = [
   { id: 'colregs',  name: 'colregs',  ver: '1.15',
     desc: 'Lights, shapes, sounds and the rules of the road', ready: true },
   { id: 'tides',    name: 'tides',    ver: '1.1',
-    desc: 'Harmonic prediction, 8,334 stations', ready: false },
+    desc: 'Harmonic prediction, 8,334 stations', ready: true },
   { id: 'weather',  name: 'weather',  ver: '1.0',
     desc: 'Read your own barometer', ready: false },
   { id: 'deck-log', name: 'deck-log', ver: '1.1',

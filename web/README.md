@@ -6,10 +6,12 @@ dependencies, no network once loaded.
     index.html        the launcher: one tile per tool
     colregs/          rules of the road, lights, shapes, sounds   (v1.15)
     celnav/           camera sight: an altitude from a photograph
+    tides/            harmonic prediction, 8,334 stations         (v1.1)
     icons/            one icon per tool, drawn to read at 60 px
+    tests/            verifying the browser builds against the awk
 
-`tides/`, `weather/` and `deck-log/` are not built yet; the launcher shows
-them as "NOT YET" rather than as links that go nowhere.
+`weather/` and `deck-log/` are not built yet; the launcher shows them as
+"NOT YET" rather than as links that go nowhere.
 
 ## Installing
 
@@ -20,6 +22,7 @@ Each tool is then its own page:
     https://larrys614.github.io/bashnav/web/
     https://larrys614.github.io/bashnav/web/colregs/
     https://larrys614.github.io/bashnav/web/celnav/
+    https://larrys614.github.io/bashnav/web/tides/
 
 Open one in **Safari** on the iPad and use **Share → Add to Home Screen**. Each
 URL gets its own icon, because each has its own manifest.

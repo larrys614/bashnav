@@ -1,0 +1,14 @@
+{
+  "name": "tides — harmonic prediction",
+  "short_name": "tides",
+  "description": "High and low water, the curve, and under-keel and bridge clearance, from harmonic constants at 8,334 stations. Works offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090b",
+  "theme_color": "#07090b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

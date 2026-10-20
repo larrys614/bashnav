@@ -1,0 +1,281 @@
+/* =====================================================================
+   tides -- the day's water, offline.
+
+   Two modes, as in colregs, and they are not light-and-dark.  Dark is
+   normal.  NIGHT is red-on-black because dark adaptation takes twenty
+   minutes to build and a second to lose, and a tide is something you
+   check on deck at three in the morning.
+
+   The curve is drawn in one colour and the water under it filled, so it
+   reads as water and not as a graph.  In night mode it goes red with
+   everything else; the numbers on the axis are what carry the height,
+   and they do not depend on colour at all.
+   ===================================================================== */
+
+:root {
+  --ground:  #07090b;
+  --panel:   #10151a;
+  --panel-2: #161c23;
+  --line:    #232b34;
+  --text:    #e6eaef;
+  --dim:     #8995a3;
+  --accent:  #6fb3d9;
+
+  --water:   #1d3a4d;      /* the fill under the curve */
+  --water-2: #2a5570;
+  --curve:   #7fc6ef;
+  --now:     #ffd60a;      /* the time-now rule */
+  --datum:   #48606f;      /* chart datum, and the seabed line */
+  --high:    #7fc6ef;
+  --low:     #c9a86a;
+  --good:    #2fd45f;      /* enough water */
+  --bad:     #ff4438;      /* not enough */
+  --sun:     #ffd27f;
+  --moon:    #d7dce2;
+
+  --tap: 56px;
+  --radius: 10px;
+}
+
+:root[data-mode="night"] {
+  --ground:  #060101;
+  --panel:   #0e0303;
+  --panel-2: #140505;
+  --line:    #3a0f0c;
+  --text:    #cf2a20;
+  --dim:     #8a1d16;
+  --accent:  #e23a2c;
+
+  --water:   #2a0806;
+  --water-2: #3d0d0a;
+  --curve:   #e23a2c;
+  --now:     #ff6b5e;
+  --datum:   #6b1a14;
+  --high:    #e23a2c;
+  --low:     #a82218;
+  --good:    #e23a2c;
+  --bad:     #ff6b5e;
+  --sun:     #e23a2c;
+  --moon:    #a82218;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--ground);
+  color: var(--text);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+  overflow-x: hidden;
+  /* Stops a scroll at the top of the page from chaining to the host and
+     dismissing an embedded view.  A sailor swiping a tide curve should
+     not be able to close the app by accident. */
+  overscroll-behavior: none;
+}
+
+/* ---------------------------------------------------------------------
+   [hidden] FIRST, and with !important.
+
+   `hidden` is only a presentation hint: any `display` rule beats it.
+   In an earlier build every step of the camera sight showed its controls
+   at once because `.panel { display: grid }` quietly won, and the screen
+   was unusable.  This rule has to sit above every component rule in the
+   file, which is why it is here and not further down.
+   --------------------------------------------------------------------- */
+[hidden] { display: none !important; }
+
+.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ---- the bar ------------------------------------------------------- */
+.bar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
+  background: var(--ground);
+  border-bottom: 1px solid var(--line);
+}
+.bar h1 {
+  flex: 1 1 auto; min-width: 0;
+  margin: 0; font-size: 17px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bar button {
+  flex: 0 0 auto;
+  min-height: 40px; padding: 0 12px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 13px; font-weight: 600; letter-spacing: .04em;
+}
+.bar .back { font-size: 24px; line-height: 1; padding: 0 14px; }
+
+main { padding: 12px; max-width: 760px; margin: 0 auto; }
+
+.lede { color: var(--dim); margin: 4px 0 16px; }
+.note { color: var(--dim); font-size: 13px; }
+.warn { color: var(--bad); }
+
+/* ---- panels -------------------------------------------------------- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.panel > h2 {
+  margin: 0 0 10px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* ---- the station banner -------------------------------------------- */
+.station { display: flex; align-items: flex-start; gap: 10px; }
+.station .who { flex: 1 1 auto; min-width: 0; }
+.station .nm { font-size: 18px; font-weight: 600; }
+.station .wh { color: var(--dim); font-size: 13px; }
+.kindtag {
+  display: inline-block; margin-top: 4px;
+  padding: 2px 7px; border-radius: 5px;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  border: 1px solid var(--line); color: var(--dim);
+}
+.kindtag.sub { color: var(--low); border-color: var(--low); }
+
+/* ---- the date strip ------------------------------------------------ */
+.dates { display: flex; align-items: center; gap: 8px; }
+.dates .d {
+  flex: 1 1 auto; text-align: center;
+  font-size: 16px; font-weight: 600;
+}
+.dates .d small { display: block; color: var(--dim); font-weight: 400; font-size: 12px; }
+.dates button {
+  flex: 0 0 auto; width: 48px; height: 44px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 20px; line-height: 1;
+}
+
+/* ---- the curve ----------------------------------------------------- */
+.curvewrap { position: relative; }
+#curve { display: block; width: 100%; height: auto; border-radius: 6px; }
+.legend {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  margin-top: 8px; font-size: 12px; color: var(--dim);
+}
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; }
+
+/* ---- the table ----------------------------------------------------- */
+table.tide { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+table.tide th {
+  text-align: left; font-size: 11px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--dim);
+  padding: 0 0 6px; border-bottom: 1px solid var(--line);
+}
+table.tide td { padding: 9px 0; border-bottom: 1px solid var(--line); }
+table.tide tr:last-child td { border-bottom: 0; }
+table.tide .k { font-weight: 700; width: 4.5em; }
+table.tide .k.H { color: var(--high); }
+table.tide .k.L { color: var(--low); }
+table.tide .t { font-family: ui-monospace, Menlo, monospace; width: 5.5em; }
+table.tide .h { text-align: right; font-family: ui-monospace, Menlo, monospace; }
+table.tide .ft { text-align: right; color: var(--dim); font-size: 13px; width: 5.5em; }
+
+/* ---- the sky panel ------------------------------------------------- */
+.sky { display: grid; grid-template-columns: auto auto auto; justify-content: start;
+       gap: 6px 22px; font-size: 14px; }
+.sky .hd { color: var(--dim); font-size: 11px; font-weight: 700;
+           letter-spacing: .07em; text-transform: uppercase; }
+.sky .lb { color: var(--dim); }
+.sky .vl { font-family: ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }
+.phase { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.phase svg { flex: 0 0 auto; }
+.phase .pn { font-weight: 600; }
+.phase .ps { color: var(--dim); font-size: 13px; }
+
+/* ---- forms --------------------------------------------------------- */
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fields label { display: block; font-size: 12px; color: var(--dim); margin-bottom: 3px; }
+.fields .f { min-width: 0; }
+input[type="text"], input[type="number"], input[type="search"], select {
+  width: 100%; min-height: 44px; padding: 0 10px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 16px;            /* 16px or iOS zooms the page on focus */
+  font-variant-numeric: tabular-nums;
+}
+input:focus-visible, select:focus-visible, button:focus-visible, .row:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.btn {
+  min-height: var(--tap); padding: 0 16px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 15px; font-weight: 600;
+}
+.btn.wide { width: 100%; }
+.btn.go { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: .45; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.btnrow .btn { flex: 1 1 auto; }
+
+/* ---- result rows (stations, windows) ------------------------------- */
+.row {
+  display: block; width: 100%; text-align: left;
+  min-height: var(--tap); padding: 10px 12px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  margin-bottom: 8px;
+}
+.row b { display: block; font-size: 15px; font-weight: 600; }
+.row span { display: block; color: var(--dim); font-size: 13px; }
+.row .far { float: right; color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+/* ---- clearance verdicts -------------------------------------------- */
+.verdict { font-size: 15px; margin: 2px 0 10px; }
+.verdict b { font-variant-numeric: tabular-nums; }
+.verdict.ok b { color: var(--good); }
+.verdict.no b { color: var(--bad); }
+.windows { margin: 0; padding: 0; list-style: none; }
+.windows li {
+  display: flex; justify-content: space-between; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+.windows li:last-child { border-bottom: 0; }
+.windows li span { color: var(--dim); }
+
+/* ---- the terminal view --------------------------------------------- */
+details.asterm { margin-top: 10px; }
+details.asterm summary {
+  cursor: pointer; color: var(--dim); font-size: 13px;
+  padding: 6px 0; list-style: none;
+}
+details.asterm summary::-webkit-details-marker { display: none; }
+details.asterm summary::before { content: "\25B8\00a0"; }
+details.asterm[open] summary::before { content: "\25BE\00a0"; }
+details.asterm pre {
+  margin: 6px 0 0; padding: 10px;
+  background: #000; color: #d8dee4;
+  border: 1px solid var(--line); border-radius: 6px;
+  font-family: ui-monospace, Menlo, monospace; font-size: 12px; line-height: 1.35;
+  overflow-x: auto;
+}
+:root[data-mode="night"] details.asterm pre { color: var(--text); }
+
+/* ---- progress ------------------------------------------------------ */
+.bararea { height: 4px; background: var(--panel-2); border-radius: 2px; overflow: hidden; }
+.bararea i { display: block; height: 100%; background: var(--accent); width: 0; }
+
+.foot { color: var(--dim); font-size: 13px; margin: 20px 0 8px; }
+.foot strong { color: var(--text); }
+
+@media (max-width: 420px) {
+  .fields { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
