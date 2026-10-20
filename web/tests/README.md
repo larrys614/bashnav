@@ -7,6 +7,7 @@ before a push and are deliberately kept out of that suite.
 
     sh web/tests/run-tides-web.sh            a quick pass, 9 stations
     sh web/tests/run-tides-web.sh --full     615 stations x 4 dates
+    sh web/tests/run-decklog-web.sh          the record layer and the page
 
 ## The method
 
@@ -46,3 +47,56 @@ times are exact.
 An earlier run reported two failures at exactly half the dump's own print
 quantum — 43 ms is half of `%.12e` on a Julian Date of 2.46 million. The
 fix was to dump full double precision, not to loosen the tolerance.
+
+
+---
+
+# deck-log
+
+The log is append-only and **shared** with the awk build: the same file,
+byte for byte, not two formats that look alike. A record one tool writes
+that the other cannot read is permanent damage, discovered months later
+by something trying to read it. So the record layer is checked in both
+directions before anything else.
+
+| | |
+|---|---|
+| `decklog-rt.awk` / `.js` | awk writes, JS reads; JS writes, awk reads; byte for byte |
+| `decklog-views.awk` / `.js` | holdings and open defects over generated logs, up to 100,000 records |
+| `decklog-imp.awk` | the plausibility limits *and their wording*, over the whole numeric range |
+| `decklog-merge.js` | commutative, idempotent, lossless, conflicts kept |
+| `decklog-ui.js` | a real entry made through the page, exported, read back by the awk tool |
+
+## The corpus travels as hex
+
+`decklog-rt.awk` emits its awkward values, and the records built from
+them, as **hex**. Carrying them in any text encoding would mean the test
+sharing a mechanism with the thing it is testing, and a bug in the
+escaping would cancel out and pass. It is not hypothetical: an earlier
+version used a tab-separated dump, and the one case whose value is a
+literal tab split the record in half — the harness sharing a delimiter
+with its own payload, which is the same class of bug the log format
+exists to prevent.
+
+## Two faults these found
+
+**The confirmation was wiped by the redraw.** `commitSection` set the
+message and then called `drawSection()`, which overwrote it with its own
+"already logged" note — so the one message this tool most needs to
+deliver, that you have just used your last impeller and are short of
+your minimum, was destroyed on the way to the screen.
+
+**The parts catalogue was invented.** An earlier `views.js` shipped
+twelve plausible spares and an eighteen-item checklist written from the
+specification's prose rather than from the tool. The checklist was not
+the tool's checklist and the catalogue did not exist in the tool at all.
+Both now come from `gen/make-decklog-web.sh`, which dumps them.
+
+## A generated corpus can throw itself away
+
+The 100,000-record run first reported `22176 good, 77824 bad` and still
+*passed*, because both readers correctly rejected the same malformed
+timestamps: the generator's month field ran past 12 after day 336 and
+produced `2026-447-01T00:00Z`. A diff between two readers cannot notice
+that three quarters of its corpus is being discarded by both of them.
+Check the counts, not only the agreement.

@@ -16,7 +16,7 @@ var TOOLS = [
   { id: 'weather',  name: 'weather',  ver: '1.0',
     desc: 'Read your own barometer', ready: false },
   { id: 'deck-log', name: 'deck-log', ver: '1.1',
-    desc: "The boat's records: deck, engine, provisions", ready: false }
+    desc: "The boat's records: deck, engine, provisions", ready: true }
 ];
 
 function $(id) { return document.getElementById(id); }

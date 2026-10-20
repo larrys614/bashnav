@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="deck-log">
+<title>deck-log</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="decklog.css">
+</head>
+<body>
+
+<header class="bar">
+  <button class="back" id="back" hidden aria-label="Back">&#8249;</button>
+  <h1 id="title">deck-log</h1>
+  <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
+</header>
+
+<main id="main">
+
+  <!-- ================= home ================= -->
+  <section class="view" id="v-home" hidden>
+
+    <div class="panel nag" id="nag" hidden>
+      <h2>Back it up</h2>
+      <p id="nag-text"></p>
+      <button class="btn wide" id="nag-go">Export the log now</button>
+    </div>
+
+    <div class="panel status">
+      <div class="who">
+        <div class="nm" id="st-slot">&mdash;</div>
+        <div class="wh" id="st-last"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <button class="btn wide go" id="b-entry" style="min-height:64px;font-size:17px">New entry</button>
+      <p class="note" id="entry-note" style="margin-top:10px"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Where things stand</h2>
+      <ul class="items" id="standing"></ul>
+    </div>
+
+    <nav class="btnrow">
+      <button class="btn" data-go="log">The log</button>
+      <button class="btn" data-go="boat">The boat</button>
+      <button class="btn" data-go="backup">Backup</button>
+      <button class="btn" data-go="about">About</button>
+    </nav>
+
+    <p class="foot"><strong>The log records what happened on this boat.</strong>
+      Nothing else may write to it &mdash; no drill, no scenario, no prediction
+      merely looked up. It is evidence after an incident, read by people who
+      were not there. <span id="ver"></span></p>
+  </section>
+
+  <!-- ================= the entry ================= -->
+  <section class="view" id="v-entry" hidden>
+    <div class="panel status">
+      <div class="who">
+        <div class="nm" id="e-slot"></div>
+        <div class="wh">Times are UTC. The record is UTC whatever you display.</div>
+      </div>
+    </div>
+
+    <nav class="secnav" id="secnav"></nav>
+
+    <div class="panel" id="sec-panel">
+      <h2 id="sec-title"></h2>
+      <p class="note" id="sec-note"></p>
+      <div id="sec-fields"></div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn" id="e-decline">Decline this section</button>
+      <button class="btn go" id="e-commit">Log this section</button>
+    </div>
+    <p class="note" id="e-state" style="margin-top:10px"></p>
+  </section>
+
+  <!-- ================= the log ================= -->
+  <section class="view" id="v-log" hidden>
+    <div class="panel">
+      <h2>The log, most recent first</h2>
+      <p class="note" id="log-count"></p>
+      <ul class="items" id="log-list"></ul>
+    </div>
+    <details class="asterm">
+      <summary>Show the raw records</summary>
+      <pre id="log-raw" aria-label="Raw log records"></pre>
+    </details>
+  </section>
+
+  <!-- ================= the boat ================= -->
+  <section class="view" id="v-boat" hidden>
+    <div class="panel">
+      <h2>Open defects</h2>
+      <p class="note">A finding is not an event that is over when it is written.
+        It stays open until a job records that it closes it.</p>
+      <ul class="items" id="defect-list"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>What is in the locker</h2>
+      <p class="note">Derived by replaying the log, never stored. The count
+        cannot disagree with the log, because it <em>is</em> the log.</p>
+      <ul class="items" id="hold-list"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>Shopping list</h2>
+      <p class="note">Everything the man behind the counter will ask for, on one
+        screen, with no signal.</p>
+      <ul class="items" id="short-list"></ul>
+    </div>
+
+    <div class="panel">
+      <h2>Equipment</h2>
+      <ul class="items" id="eq-list"></ul>
+      <button class="btn wide" id="b-addeq" style="margin-top:10px">Add equipment</button>
+    </div>
+
+    <div class="panel">
+      <h2>Parts</h2>
+      <ul class="items" id="pt-list"></ul>
+      <button class="btn wide" id="b-addpt" style="margin-top:10px">Add a part</button>
+    </div>
+
+    <div class="panel">
+      <h2>The registry as text</h2>
+      <p class="note">Facts about the boat, not counts. Edit it here and it is
+        saved as typed &mdash; the same escaping rule as the log.</p>
+      <textarea id="reg-text" rows="8" style="width:100%;min-height:160px;padding:10px;
+        background:var(--panel-2);color:var(--text);border:1px solid var(--line);
+        border-radius:8px;font-family:ui-monospace,Menlo,monospace;font-size:13px"></textarea>
+      <div class="btnrow" style="margin-top:10px">
+        <button class="btn go" id="b-regsave">Save the registry</button>
+      </div>
+      <p class="note" id="reg-state"></p>
+    </div>
+  </section>
+
+  <!-- ================= backup ================= -->
+  <section class="view" id="v-backup" hidden>
+    <div class="panel">
+      <h2>Export is the backup</h2>
+      <p>The log lives in this browser's storage on this device. That is
+        reliable, but it is <strong>per-device, invisible, and you can erase it</strong>
+        by clearing website data. A boat's record cannot live only there.</p>
+      <p class="note" id="persist-state"></p>
+      <p class="note" id="backup-state"></p>
+      <div class="btnrow" style="margin-top:10px">
+        <button class="btn go" id="b-share">Share or mail it</button>
+        <button class="btn" id="b-download">Download it</button>
+      </div>
+      <p class="note" id="share-note"></p>
+    </div>
+
+    <div class="panel">
+      <h2>Import never replaces. It merges.</h2>
+      <p>Replacing a log with an imported one is the most destructive thing this
+        app could do, and it is one mis-tap from losing a passage. So there is no
+        replace. Nothing is written until you have seen the preview.</p>
+      <input type="file" id="imp-file" accept=".log,.txt,text/plain"
+             style="width:100%;margin-top:8px">
+      <div id="imp-preview" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- ================= about ================= -->
+  <section class="view" id="v-about" hidden>
+    <div class="panel">
+      <h2>What this is</h2>
+      <p>The boat's records: the deck log, weather, engine and provisions, in one
+        tool, prompting every three hours. It shares one log with the POSIX
+        <span class="mono">awk</span> build &mdash; the same file, byte for byte,
+        not two formats that look alike.</p>
+      <p>Three-hourly on the clock, because that gives the real three-hour
+        pressure characteristic and includes all four synoptic hours
+        (0000/0600/1200/1800&nbsp;UTC) that forecast verification needs. The
+        observation cadence is the app's, not the watch's.</p>
+    </div>
+
+    <div class="panel">
+      <h2>A log is a record, not a notes file</h2>
+      <p><strong>Append only.</strong> Nothing is ever edited in place or deleted
+        &mdash; not by convention, but because the storage itself only appends.</p>
+      <p><strong>Corrections are new records.</strong> The maritime convention is
+        that you do not erase a log: you line through, initial, and write the
+        correction. The electronic equivalent keeps both visible for ever.</p>
+      <p><strong>UTC always.</strong> Display in whatever you like; the record is
+        UTC.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Four states, not two</h2>
+      <ul class="items">
+        <li><span class="nm"><b>1013.2</b><span>observed, and here it is</span></span></li>
+        <li><span class="nm"><b>0</b><span>observed, and the answer was none. Zero is a reading.</span></span></li>
+        <li><span class="nm"><b>&ndash;</b><span>asked, and not taken</span></span></li>
+        <li><span class="nm"><b>/</b><span>asked, and not observable &mdash; dark, fog, obscured</span></span></li>
+        <li><span class="nm"><b>absent</b><span>never asked: the section was declined, or this version had no such field</span></span></li>
+      </ul>
+      <p class="note">A form that punishes blanks gets invented numbers. Somebody
+        who did not read the barometer writes something plausible rather than
+        leave a gap that looks like negligence. Make &ldquo;I did not observe
+        this&rdquo; a first-class, recorded, unremarkable answer and people use it
+        honestly.</p>
+    </div>
+
+    <div class="panel">
+      <h2>True wind, never apparent</h2>
+      <p>On a sailing boat apparent wind changes every time you alter course. Log
+        apparent and the backing-and-veering analysis reports a dramatic veer on
+        every tack and a backing breeze on every gybe &mdash; and that is the most
+        useful rule there is. It would have been noise, and plausible-looking
+        noise. So the log stores <strong>true</strong> wind, with course and speed
+        at the same instant so the correction can be checked.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Carried forward, and not</h2>
+      <p><strong>State persists; a measurement does not.</strong> At 1800 the
+        course really is what it was at 1500 unless somebody changed it, so it is
+        shown as a default. The pressure at 1800 is <em>not</em> the 1500 reading
+        unless changed &mdash; it is a new reading or it is nothing, so no default
+        is offered at all. Had carry-forward applied to everything, the log would
+        have grown a column of barometer readings nobody took: worse than a gap,
+        because it looks like data.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Who may write to it</h2>
+      <p>The log records what happened on this boat, and nothing else may write to
+        it. A real sight and a real fix, an observed tide height, a contact
+        plotted for a real CPA, anything entered at the nav desk &mdash; yes. Every
+        drill, quiz, scenario and sandbox sight &mdash; never. A log containing
+        invented vessels from a training scenario is not untidy, it is dangerous.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Offline, and storage</h2>
+      <p id="off-state" class="note">Checking&hellip;</p>
+    </div>
+
+    <p class="foot"><strong>A working record, not a substitute for the ship's
+      official log</strong> where one is required. Where this and your own
+      records differ, your own records are right.</p>
+  </section>
+
+</main>
+
+<script src="log.js"></script>
+<script src="menus.js"></script>
+<script src="store.js"></script>
+<script src="views.js"></script>
+<script src="decklog.js"></script>
+</body>
+</html>

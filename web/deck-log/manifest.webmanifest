@@ -1,0 +1,14 @@
+{
+  "name": "deck-log — the boat's records",
+  "short_name": "deck-log",
+  "description": "The deck log, weather, engine and provisions in one append-only record, prompting every three hours. Works offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07090b",
+  "theme_color": "#07090b",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

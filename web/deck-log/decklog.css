@@ -1,0 +1,319 @@
+/* =====================================================================
+   deck-log -- the boat's records.
+
+   Two modes, as everywhere in this suite, and they are not light-and-
+   dark. Dark is normal. NIGHT is red-on-black because the three-hourly
+   entry falls at 0300 as often as at 1500, and dark adaptation takes
+   twenty minutes to build and a second to lose.
+
+   One rule governs the entry screens: a state carried forward is shown
+   as a default, a measurement never is. The two look different on
+   purpose -- a field with a default shows it in the box, a field
+   without shows nothing at all -- because the whole point is that
+   return means "yes, still" in one case and "not taken" in the other.
+   ===================================================================== */
+
+:root {
+  --ground:  #07090b;
+  --panel:   #10151a;
+  --panel-2: #161c23;
+  --line:    #232b34;
+  --text:    #e6eaef;
+  --dim:     #8995a3;
+  --accent:  #6fb3d9;
+
+  --ok:      #2fb35f;      /* an item checked and sound */
+  --att:     #e8a33d;      /* needs attention: a defect, open */
+  --bad:     #ff4438;      /* short of minimum, overdue */
+  --none:    #5a6673;      /* not observed, not observable */
+  --carry:   #7a8796;      /* a value carried forward, not a reading */
+
+  --tap: 56px;
+  --radius: 10px;
+}
+
+:root[data-mode="night"] {
+  --ground:  #060101;
+  --panel:   #0e0303;
+  --panel-2: #140505;
+  --line:    #3a0f0c;
+  --text:    #cf2a20;
+  --dim:     #8a1d16;
+  --accent:  #e23a2c;
+
+  --ok:      #a82218;
+  --att:     #e23a2c;
+  --bad:     #ff6b5e;
+  --none:    #6b1a14;
+  --carry:   #8a1d16;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--ground);
+  color: var(--text);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+  overflow-x: hidden;
+  /* Stops a scroll at the top of the page from chaining to the host and
+     dismissing an embedded view.  A watch stander scrolling the log should
+     not be able to close the app by accident. */
+  overscroll-behavior: none;
+}
+
+/* ---------------------------------------------------------------------
+   [hidden] FIRST, and with !important.
+
+   `hidden` is only a presentation hint: any `display` rule beats it.
+   In an earlier build every step of the camera sight showed its controls
+   at once because `.panel { display: grid }` quietly won, and the screen
+   was unusable.  This rule has to sit above every component rule in the
+   file, which is why it is here and not further down.
+   --------------------------------------------------------------------- */
+[hidden] { display: none !important; }
+
+.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ---- the bar ------------------------------------------------------- */
+.bar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
+  background: var(--ground);
+  border-bottom: 1px solid var(--line);
+}
+.bar h1 {
+  flex: 1 1 auto; min-width: 0;
+  margin: 0; font-size: 17px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bar button {
+  flex: 0 0 auto;
+  min-height: 40px; padding: 0 12px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 13px; font-weight: 600; letter-spacing: .04em;
+}
+.bar .back { font-size: 24px; line-height: 1; padding: 0 14px; }
+
+main { padding: 12px; max-width: 760px; margin: 0 auto; }
+
+.lede { color: var(--dim); margin: 4px 0 16px; }
+.note { color: var(--dim); font-size: 13px; }
+.warn { color: var(--bad); }
+
+/* ---- panels -------------------------------------------------------- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.panel > h2 {
+  margin: 0 0 10px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .09em; text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* ---- the status banner --------------------------------------------- */
+.status { display: flex; align-items: flex-start; gap: 10px; }
+.status .who { flex: 1 1 auto; min-width: 0; }
+.status .nm { font-size: 18px; font-weight: 600; }
+.status .wh { color: var(--dim); font-size: 13px; }
+.kindtag {
+  display: inline-block; margin-top: 4px;
+  padding: 2px 7px; border-radius: 5px;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  border: 1px solid var(--line); color: var(--dim);
+}
+.kindtag.sub { color: var(--low); border-color: var(--low); }
+
+/* ---- the slot strip ------------------------------------------------ */
+.slots { display: flex; align-items: center; gap: 8px; }
+.slots .d {
+  flex: 1 1 auto; text-align: center;
+  font-size: 16px; font-weight: 600;
+}
+.slots .d small { display: block; color: var(--dim); font-weight: 400; font-size: 12px; }
+.slots button {
+  flex: 0 0 auto; width: 48px; height: 44px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 20px; line-height: 1;
+}
+
+/* ---- forms --------------------------------------------------------- */
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fields label { display: block; font-size: 12px; color: var(--dim); margin-bottom: 3px; }
+.fields .f { min-width: 0; }
+input[type="text"], input[type="number"], input[type="search"], select {
+  width: 100%; min-height: 44px; padding: 0 10px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 16px;            /* 16px or iOS zooms the page on focus */
+  font-variant-numeric: tabular-nums;
+}
+input:focus-visible, select:focus-visible, button:focus-visible, .row:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.btn {
+  min-height: var(--tap); padding: 0 16px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 15px; font-weight: 600;
+}
+.btn.wide { width: 100%; }
+.btn.go { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: .45; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.btnrow .btn { flex: 1 1 auto; }
+
+/* ---- rows ----------------------------------------------------------- */
+.row {
+  display: block; width: 100%; text-align: left;
+  min-height: var(--tap); padding: 10px 12px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  margin-bottom: 8px;
+}
+.row b { display: block; font-size: 15px; font-weight: 600; }
+.row span { display: block; color: var(--dim); font-size: 13px; }
+.row .far { float: right; color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+/* ---- the terminal view --------------------------------------------- */
+details.asterm { margin-top: 10px; }
+details.asterm summary {
+  cursor: pointer; color: var(--dim); font-size: 13px;
+  padding: 6px 0; list-style: none;
+}
+details.asterm summary::-webkit-details-marker { display: none; }
+details.asterm summary::before { content: "\25B8\00a0"; }
+details.asterm[open] summary::before { content: "\25BE\00a0"; }
+details.asterm pre {
+  margin: 6px 0 0; padding: 10px;
+  background: #000; color: #d8dee4;
+  border: 1px solid var(--line); border-radius: 6px;
+  font-family: ui-monospace, Menlo, monospace; font-size: 12px; line-height: 1.35;
+  overflow-x: auto;
+}
+:root[data-mode="night"] details.asterm pre { color: var(--text); }
+
+/* ---- progress ------------------------------------------------------ */
+.bararea { height: 4px; background: var(--panel-2); border-radius: 2px; overflow: hidden; }
+.bararea i { display: block; height: 100%; background: var(--accent); width: 0; }
+
+.foot { color: var(--dim); font-size: 13px; margin: 20px 0 8px; }
+.foot strong { color: var(--text); }
+
+@media (max-width: 420px) {
+  .fields { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ---- the entry form -------------------------------------------------
+   A field is one row: label, the control, and the two decline buttons.
+   `-` and `/` are first-class answers, not an escape hatch, so they are
+   always present and always the same size as everything else. A form
+   that punishes blanks gets invented numbers -- somebody who did not
+   read the barometer writes something plausible rather than leave a gap
+   that looks like negligence.
+   --------------------------------------------------------------------- */
+.field { margin-bottom: 14px; }
+.field > .lab {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: 13px; margin-bottom: 5px;
+}
+.field > .lab b { font-weight: 600; color: var(--text); }
+.field > .lab .carried {
+  margin-left: auto; color: var(--carry); font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.field .ctl { display: flex; gap: 8px; align-items: stretch; }
+.field .ctl input { flex: 1 1 auto; min-width: 0; }
+.declines { display: flex; gap: 6px; flex: 0 0 auto; }
+.dbtn {
+  width: 46px; min-height: 44px;
+  background: var(--panel-2); color: var(--none);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 17px; font-weight: 700; line-height: 1;
+}
+.dbtn[aria-pressed="true"] { color: var(--ground); background: var(--none); border-color: var(--none); }
+:root[data-mode="night"] .dbtn[aria-pressed="true"] { color: var(--ground); }
+.field .why { margin-top: 6px; font-size: 13px; color: var(--att); }
+.field .why .btnrow { margin-top: 6px; }
+
+/* the coded menus: the VOS 0-9 codes, as a grid of keys */
+.codes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.code {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 46px; padding: 0 10px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 14px; text-align: left;
+}
+.code i {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 5px;
+  background: var(--line); color: var(--text);
+  display: grid; place-items: center;
+  font-style: normal; font-weight: 700; font-size: 12px;
+}
+.code[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.code[aria-pressed="true"] i { background: var(--accent); color: var(--ground); }
+
+/* ---- sections, states and lists -------------------------------------- */
+.secnav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.secnav button {
+  flex: 1 1 auto; min-height: 44px; padding: 0 10px;
+  background: var(--panel-2); color: var(--dim);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+}
+.secnav button[aria-current="true"] { color: var(--accent); border-color: var(--accent); }
+.secnav button .tick { color: var(--ok); }
+
+.items { margin: 0; padding: 0; list-style: none; }
+.items li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--line);
+}
+.items li:last-child { border-bottom: 0; }
+.items .nm { flex: 1 1 auto; min-width: 0; }
+.items .nm b { display: block; font-weight: 600; font-size: 15px; }
+.items .nm span { display: block; color: var(--dim); font-size: 13px; }
+.items .num { font-variant-numeric: tabular-nums; text-align: right; }
+.tag {
+  flex: 0 0 auto; padding: 2px 7px; border-radius: 5px;
+  font-size: 11px; font-weight: 700; letter-spacing: .05em;
+  border: 1px solid currentColor;
+}
+.tag.ok { color: var(--ok); }
+.tag.att { color: var(--att); }
+.tag.bad { color: var(--bad); }
+.tag.none { color: var(--none); }
+
+.statebtns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.statebtns button {
+  min-height: 44px; background: var(--panel-2); color: var(--dim);
+  border: 1px solid var(--line); border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+}
+.statebtns button[aria-pressed="true"] { border-color: currentColor; }
+.statebtns button.o[aria-pressed="true"] { color: var(--ok); }
+.statebtns button.a[aria-pressed="true"] { color: var(--att); }
+.statebtns button.n[aria-pressed="true"],
+.statebtns button.x[aria-pressed="true"] { color: var(--none); }
+
+.logline {
+  font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+  word-break: break-all; color: var(--dim);
+}
+.nag { border-color: var(--att); }
+.nag h2 { color: var(--att); }
