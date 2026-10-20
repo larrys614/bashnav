@@ -1,0 +1,398 @@
+// =====================================================================
+//  weather -- the reasoning.  A port of src/weather/wx.awk.
+//
+//  EVERY RULE SHOWS ITS WORKING.  A forecast handed over without its
+//  reasoning teaches nothing; the explanation is the product.  So the
+//  report is not a verdict with a paragraph attached -- each rule emits
+//  what it concluded and, separately, why, and the page shows both.
+//
+//  And it can only ever be as good as the log behind it.  With no
+//  network there is no model, no GRIB and no chart.  What there is, is
+//  the one category of weather data that is never wrong: observations
+//  the user made.
+//
+//  The report is emitted as STRUCTURED ITEMS, and the terminal text is
+//  rendered from them.  That is what lets the browser build be diffed
+//  against `weather what` line for line while still being a web page
+//  rather than a dump of one.
+// =====================================================================
+'use strict';
+
+var WX = (function () {
+
+  var NONE = -9999;
+  function num(s) { if (s === '' || s === '-' || s === '/' || s === undefined) return NONE; return +s || (s === '0' || +s === 0 ? 0 : NONE); }
+  function has(x) { return x > -9000; }
+
+  //  Angle difference on the circle.  350 against 010 is 20 degrees, not
+  //  340, and getting this wrong would misreport every veer near north.
+  function d180(a) { while (a > 180) a -= 360; while (a < -180) a += 360; return a; }
+
+  //  Minutes between two of our timestamps.  Days from a civil date, so
+  //  month ends and leap years come out right without a date library.
+  function mins(ts) {
+    var y = +ts.substr(0, 4), mo = +ts.substr(5, 2), d = +ts.substr(8, 2);
+    var h = +ts.substr(11, 2), mi = +ts.substr(14, 2);
+    var a = Math.trunc((14 - mo) / 12), y2 = y + 4800 - a, m2 = mo + 12 * a - 3;
+    var jd = d + Math.trunc((153 * m2 + 2) / 5) + 365 * y2 + Math.trunc(y2 / 4)
+             - Math.trunc(y2 / 100) + Math.trunc(y2 / 400) - 32045;
+    return jd * 1440 + h * 60 + mi;
+  }
+
+  // ---------------------------------------------------------------
+  //  The observation history: the nav and wx records, oldest first.
+  //  A nav entry and the wx entry taken with it share a timestamp and
+  //  are ONE observation, so they are merged -- and only with the
+  //  immediately preceding one, exactly as the awk does, which is why
+  //  records of other types are skipped before the merge test and not
+  //  after.
+  // ---------------------------------------------------------------
+  function load(recs) {
+    var W = [], i, r, o;
+    for (i = 0; i < recs.length; i++) {
+      r = recs[i];
+      if (r.type !== 'nav' && r.type !== 'wx') continue;
+      if (W.length && W[W.length - 1].ts === r.ts) {
+        o = W[W.length - 1];
+      } else {
+        o = { ts: r.ts, wdir: NONE, wspd: NONE, p: NONE, tend: '',
+              air: NONE, dew: NONE, sea: NONE, cld: NONE,
+              swp: NONE, swd: NONE, lat: '',
+              cl: -1, cm: -1, ch: -1, vis: -1 };
+        W.push(o);
+      }
+      var v = r.v;
+      if (v.wdir !== undefined && v.wdir !== '') o.wdir = num(v.wdir);
+      if (v.wspd !== undefined && v.wspd !== '') o.wspd = num(v.wspd);
+      if (v.mslp !== undefined && v.mslp !== '') o.p = num(v.mslp);
+      if (v.ptend !== undefined && v.ptend !== '' && v.ptend !== '-') o.tend = v.ptend;
+      if (v.airt !== undefined && v.airt !== '') o.air = num(v.airt);
+      if (v.dewp !== undefined && v.dewp !== '') o.dew = num(v.dewp);
+      if (v.seat !== undefined && v.seat !== '') o.sea = num(v.seat);
+      if (v.cloud !== undefined && v.cloud !== '') o.cld = num(v.cloud);
+      if (v.swper !== undefined && v.swper !== '') o.swp = num(v.swper);
+      if (v.swdir !== undefined && v.swdir !== '') o.swd = num(v.swdir);
+      if (v.cl !== undefined && v.cl !== '' && v.cl !== '-' && v.cl !== '/') o.cl = +v.cl;
+      if (v.cm !== undefined && v.cm !== '' && v.cm !== '-' && v.cm !== '/') o.cm = +v.cm;
+      if (v.ch !== undefined && v.ch !== '' && v.ch !== '-' && v.ch !== '/') o.ch = +v.ch;
+      if (v.vis !== undefined && v.vis !== '' && v.vis !== '-' && v.vis !== '/') o.vis = +v.vis;
+      if (v.lat !== undefined && v.lat !== '') o.lat = v.lat;
+    }
+    return W;
+  }
+
+  //  Northern or southern, from a latitude written as "41 14.0N" or "-33.9"
+  function north(s) {
+    if (s === '' || s === undefined) return true;
+    if (/[Ss]$/.test(s)) return false;
+    if (s.charAt(0) === '-') return false;
+    return true;
+  }
+  function latdeg(s) { var x = parseFloat(s) || 0; return x < 0 ? -x : x; }
+
+  // ---------------------------------------------------------------
+  //  The atmospheric tide.
+  //
+  //  Solar heating drives a wave that travels westward with the sun,
+  //  and it is on every barometer.  In the tropics the glass falls two
+  //  to three millibars between mid-morning and mid-afternoon EVERY DAY
+  //  IN PERFECT WEATHER, and a sailor who does not know that reads a
+  //  routine afternoon fall as a system approaching.
+  //
+  //  Dominantly SEMIdiurnal -- twice a day, not once.  Maxima near 1000
+  //  and 2200 local, minima near 0400 and 1600.  About 1.4 hPa in the
+  //  tropics, falling steeply with latitude.
+  //
+  //  So the correction is applied BEFORE anything is said about
+  //  tendency, and it is said out loud.
+  // ---------------------------------------------------------------
+  var PI = 3.14159265;
+  function tide(ts, lon, lat) {
+    var utch = +ts.substr(11, 2) + (+ts.substr(14, 2)) / 60.0;
+    var solar = utch + (parseFloat(lon) || 0) / 15.0;
+    while (solar < 0) solar += 24;
+    while (solar >= 24) solar -= 24;
+    var la = latdeg(lat);
+    var amp = 1.4 * Math.pow(Math.cos(la * PI / 180.0), 3);
+    if (amp < 0) amp = -amp;
+    return amp * Math.cos(2 * PI * (solar - 10.0) / 12.0);
+  }
+
+  // ---------------------------------------------------------------
+  //  Buys Ballot.
+  //
+  //  Wind direction is where it comes FROM, so with your back to it you
+  //  face wdir+180.  The low is 90 degrees to your left in the northern
+  //  hemisphere, which is (wdir+180) - 90 = wdir + 90.  To your right in
+  //  the southern: wdir + 270.
+  //
+  //  The awk's first version added and subtracted the 90 the other way
+  //  round and pointed at the exact opposite side of the sky.  Sanity
+  //  check kept here too: a westerly in the northern hemisphere (270)
+  //  gives 000, and a low to the north with a westerly is what a
+  //  mid-latitude depression does.
+  // ---------------------------------------------------------------
+  function bb(wdir, isNorth) {
+    var b = isNorth ? wdir + 90 : wdir + 270;
+    while (b >= 360) b -= 360;
+    while (b < 0) b += 360;
+    return Math.trunc(b + 0.5) % 360;
+  }
+
+  // ---- the printf forms the awk uses ------------------------------
+  // ---------------------------------------------------------------
+  //  C's printf, not JavaScript's toFixed.
+  //
+  //  They disagree on an exact tie.  C rounds half to EVEN (IEEE 754's
+  //  default mode), so %.0f of 12.5 is 12; JavaScript's toFixed is
+  //  specified to pick the larger value, so it gives 13.  The 500 mb
+  //  rules divide the wind by two, which lands on .5 for every even
+  //  wind speed, and 506 of 1078 chart cases disagreed on exactly that.
+  //
+  //  The exact decimal expansion of a double is finite, and toFixed
+  //  with enough places returns it, so the tie can be detected rather
+  //  than guessed at: expand, then round the DECIMAL string.
+  // ---------------------------------------------------------------
+  function cfixed(x, nd) {
+    //  C prints inf and nan, not Infinity and NaN.  A 500 mb wind of
+    //  zero knots is nonsense input, but the awk prints "inf to inf
+    //  hours" for it and a port that prints something else is not a
+    //  port.  The UI refuses zero; this stays faithful.
+    if (x === Infinity) return 'inf';
+    if (x === -Infinity) return '-inf';
+    if (x !== x) return 'nan';
+    var neg = x < 0 || (x === 0 && 1 / x < 0);
+    var s = Math.abs(x).toFixed(60);
+    var dot = s.indexOf('.');
+    var ip = s.substring(0, dot), fp = s.substring(dot + 1);
+    var keep = fp.substring(0, nd), rest = fp.substring(nd);
+    var up = false;
+    var first = rest.charAt(0);
+    if (first > '5') up = true;
+    else if (first === '5') {
+      //  a tie only if everything after the 5 is zero
+      if (/[1-9]/.test(rest.substring(1))) up = true;
+      else {
+        var lastKept = nd > 0 ? keep.charAt(nd - 1) : ip.charAt(ip.length - 1);
+        up = ((+lastKept) % 2) === 1;      // round half to even
+      }
+    }
+    var digits = ip + keep;
+    if (up) {
+      var arr = digits.split(''), i = arr.length - 1;
+      for (;;) {
+        if (i < 0) { arr.unshift('1'); break; }
+        if (arr[i] === '9') { arr[i] = '0'; i--; }
+        else { arr[i] = String((+arr[i]) + 1); break; }
+      }
+      digits = arr.join('');
+    }
+    var ilen = digits.length - nd;
+    var outI = digits.substring(0, ilen) || '0';
+    var outF = digits.substring(ilen);
+    return (neg ? '-' : '') + outI + (nd > 0 ? '.' + outF : '');
+  }
+  function cplus(x, nd) { return (x >= 0 && !(x === 0 && 1 / x < 0) ? '+' : '') + cfixed(x, nd); }
+
+  function f1(x) { return cfixed(x, 1); }
+  function pm1(x) { return cplus(x, 1); }                          // awk's %+.1f
+  function d3(x) {                                                 // awk's %03d
+    var n = Math.trunc(x), s = String(Math.abs(n));
+    while (s.length < (n < 0 ? 2 : 3)) s = '0' + s;
+    return (n < 0 ? '-' : '') + s;
+  }
+  function di(x) { return String(Math.trunc(x)); }                 // awk's %d
+
+  // ---------------------------------------------------------------
+  //  The report.  Each item is {k, t}: 'say' a conclusion, 'why' the
+  //  working behind it, 'warn' a conclusion that matters, 'acc' one
+  //  worth noticing, 'gap' a blank line.
+  // ---------------------------------------------------------------
+  function report(W, lon) {
+    var out = [], n = W.length;
+    function say(t) { out.push({ k: 'say', t: t }); }
+    function why(t) { out.push({ k: 'why', t: t }); }
+    function warn(t) { out.push({ k: 'warn', t: t }); }
+    function acc(t) { out.push({ k: 'acc', t: t }); }
+    function gap() { out.push({ k: 'gap', t: '' }); }
+
+    if (n < 2) {
+      say('Not enough observations yet.');
+      why('Almost every rule here needs history, not a snapshot: a tendency');
+      why('is a rate, backing is a change, a front is a sequence. Log a few');
+      why('three-hourly entries and this page starts working.');
+      return out;
+    }
+
+    var last = W[n - 1], i, k = 0;
+    //  the most recent earlier observation with a pressure, for the trend
+    for (i = n - 2; i >= 0; i--) if (has(W[i].p) && has(last.p)) break;
+    k = i;
+    var prev = k >= 0 ? W[k] : null;
+
+    // ---- pressure -------------------------------------------------
+    if (prev && has(last.p) && has(prev.p)) {
+      var dt = (mins(last.ts) - mins(prev.ts)) / 60.0;
+      var dp = last.p - prev.p;
+      var t1 = tide(prev.ts, lon, prev.lat), t2 = tide(last.ts, lon, last.lat);
+      var corr = dp - (t2 - t1);
+      say('Pressure ' + f1(last.p) + ', ' + pm1(dp) + ' hPa in ' + f1(dt) + ' hours.');
+      if (lon !== '' && lon !== undefined && lon !== null) {
+        say('Allowing for the daily atmospheric tide: ' + pm1(corr) + ' hPa.');
+        why('the tide alone accounts for ' + pm1(t2 - t1) + ' of that. It is semidiurnal,');
+        why('about 1.4 hPa in the tropics and much less in high latitudes,');
+        why('and in the tropics it falls 2-3 mb every afternoon in fine weather.');
+      } else corr = dp;
+      if (dt > 0) {
+        if (corr <= -3.0 * (dt / 3.0)) warn('That is a serious fall. Expect a deepening system and a rising wind.');
+        else if (corr <= -1.5 * (dt / 3.0)) say('A definite fall. Something is coming.');
+        else if (corr >= 1.5 * (dt / 3.0)) say('Rising. The gradient is easing or a ridge is building.');
+        else say('Near steady.');
+        why('a rate matters more than a level: 1000 hPa steady is a quiet day,');
+        why('1015 falling fast is not.');
+      }
+    } else {
+      say('No pressure trend - fewer than two entries carry a pressure.');
+    }
+
+    // ---- wind: backing or veering, and Buys Ballot ----------------
+    if (prev && has(last.wdir) && has(prev.wdir)) {
+      var dw = d180(last.wdir - prev.wdir);
+      gap();
+      if (dw > 10) say('Wind has VEERED ' + di(dw + 0.5) + ' degrees, ' + d3(prev.wdir) + ' to ' + d3(last.wdir) + '.');
+      else if (dw < -10) say('Wind has BACKED ' + di(-dw + 0.5) + ' degrees, ' + d3(prev.wdir) + ' to ' + d3(last.wdir) + '.');
+      else say('Wind steady in direction, about ' + d3(last.wdir) + '.');
+      if (north(last.lat)) {
+        if (dw > 10) { why('northern hemisphere: veering with a rising glass usually means the'); }
+        if (dw > 10) { why('centre has passed to the north of you and the cold front is through.'); }
+        if (dw < -10) { why('northern hemisphere: backing with a falling glass puts the centre'); }
+        if (dw < -10) { why('to your north and closing. This is the one to take seriously.'); }
+      } else {
+        why('southern hemisphere: the sense of all of this reverses.');
+      }
+    }
+    if (has(last.wdir)) {
+      gap();
+      say('Back to the wind: the low is roughly ' + d3(bb(last.wdir, north(last.lat))) + ' from you.');
+      why('Buys Ballot. Stand with your back to the wind: in the northern');
+      why('hemisphere the low is on your left, in the southern, on your right.');
+    }
+
+    // ---- fog -------------------------------------------------------
+    if (has(last.dew) && has(last.sea)) {
+      gap();
+      if (last.dew >= last.sea - 0.5) {
+        warn('Fog is likely: the dew point is at or above the sea temperature.');
+        why('air moving over water colder than its own dew point condenses.');
+      } else {
+        say('Fog unlikely: dew point ' + f1(last.dew) + ', sea ' + f1(last.sea) +
+            ', a margin of ' + f1(last.sea - last.dew) + '.');
+      }
+    }
+
+    // ---- cloud base ------------------------------------------------
+    if (has(last.air) && has(last.dew)) {
+      gap();
+      say('Cloud base about ' + di((last.air - last.dew) * 400) + ' ft (' +
+          di((last.air - last.dew) * 125) + ' m).');
+      why('the spread closes at about 2.5 C per 1000 ft - a parcel cools at 3,');
+      why('its dew point falls at 0.5, and the difference is what counts. Not');
+      why('the lapse rate alone: that would put the base a fifth too low.');
+    }
+
+    // ---- the cloud sequence ---------------------------------------
+    cloud(W, out);
+
+    // ---- visibility ------------------------------------------------
+    if (last.vis >= 0 && prev && prev.vis >= 0 && last.vis !== prev.vis) {
+      gap();
+      if (last.vis < prev.vis) {
+        say('Visibility is closing in: code ' + di(prev.vis) + ' down to ' + di(last.vis) + '.');
+        why('with a falling glass that is usually rain arriving ahead of a front;');
+        why('with the dew point near the sea temperature it is fog.');
+      } else {
+        say('Visibility improving: code ' + di(prev.vis) + ' up to ' + di(last.vis) + '.');
+      }
+    }
+
+    // ---- swell, the earliest warning there is ----------------------
+    if (has(last.swp) && last.swp >= 12) {
+      gap();
+      acc('A ' + di(last.swp) + '-second swell from ' + d3(last.swd) + '.');
+      why('long-period swell outruns the storm that made it. This can be the');
+      why('first news of a system, with a steady glass and a clear sky.');
+    }
+
+    return out;
+  }
+
+  // ---------------------------------------------------------------
+  //  The cloud sequence -- the rule those three cloud codes are FOR.
+  //
+  //  A warm front announces itself hours ahead, in order: cirrus, then
+  //  cirrostratus thickening and lowering, then altostratus, then rain.
+  //  Reading it needs cloud TYPE over time, which is why the observation
+  //  asks for CL, CM and CH separately and why total cover cannot do it.
+  //
+  //  In the first build the awk asked for all three and never used
+  //  them, which is how you teach somebody to stop filling in a form.
+  // ---------------------------------------------------------------
+  function cloud(W, out) {
+    var n = W.length;
+    if (n < 2) return false;
+    out.push({ k: 'gap', t: '' });
+    var hi = 0, mid = 0, lo = 0, i;
+    for (i = 1; i <= n; i++) {
+      if (W[i - 1].ch > 0) hi = i;
+      if (W[i - 1].cm > 0 && i >= hi && hi > 0) mid = i;
+      if (W[i - 1].cl >= 6 && mid > 0 && i >= mid) lo = i;
+    }
+    if (lo > 0) {
+      out.push({ k: 'warn', t: 'The cloud has run the whole warm-front sequence: high, then' });
+      out.push({ k: 'warn', t: 'middle, and now low stratus. The front is on you or past.' });
+    } else if (mid > 0 && mid > hi - 1) {
+      out.push({ k: 'acc', t: 'Cirrus has thickened to middle cloud - the classic warm front' });
+      out.push({ k: 'acc', t: 'sequence, and it is well under way.' });
+      out.push({ k: 'why', t: 'expect the glass to keep falling, the wind to back, and rain' });
+    } else if (hi > 0 && W[n - 1].ch > 0) {
+      out.push({ k: 'say', t: 'High cloud is in. On its own it means very little -' });
+      out.push({ k: 'say', t: 'but if it thickens and lowers over the next watches, that is a' });
+      out.push({ k: 'say', t: 'warm front announcing itself hours ahead.' });
+    } else {
+      //  nothing to say, and the blank line already emitted is what the
+      //  awk leaves behind too
+      return false;
+    }
+    out.push({ k: 'why', t: 'cirrus -> cirrostratus -> altostratus -> nimbostratus and rain' });
+    return true;
+  }
+
+  // ---------------------------------------------------------------
+  //  The terminal rendering: the exact text `weather what` prints, so
+  //  the two builds can be held side by side character for character.
+  // ---------------------------------------------------------------
+  var RULE = '  ' + new Array(71).join('-');
+  function renderTerminal(items, enough) {
+    var L = [''];
+    L.push('  WHAT THE LOG SAYS');
+    L.push(RULE);
+    items.forEach(function (it) {
+      if (it.k === 'gap') L.push('');
+      else if (it.k === 'why') L.push('     ' + it.t);
+      else L.push('  ' + it.t);
+    });
+    if (!enough) { L.push(''); return L.join('\n') + '\n'; }
+    L.push(RULE);
+    L.push('  This reasons only from what you logged. It is not a forecast:');
+    L.push('  no model, no chart, no GRIB. It is you, reading your own barometer.');
+    L.push('');
+    return L.join('\n') + '\n';
+  }
+
+  return { NONE: NONE, num: num, has: has, d180: d180, mins: mins, load: load,
+           north: north, latdeg: latdeg, tide: tide, bb: bb,
+           report: report, renderTerminal: renderTerminal,
+           cfixed: cfixed, cplus: cplus };
+})();
+
+if (typeof module !== 'undefined') module.exports = WX;

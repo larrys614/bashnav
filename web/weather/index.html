@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="weather">
+<title>weather</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="stylesheet" href="weather.css">
+</head>
+<body>
+
+<header class="bar">
+  <button class="back" id="back" hidden aria-label="Back">&#8249;</button>
+  <h1 id="title">weather</h1>
+  <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
+</header>
+
+<main id="main">
+
+  <!-- ================= home ================= -->
+  <section class="view" id="v-home" hidden>
+    <p class="lede">With no network this cannot forecast. What it does is make
+      you your own forecaster, from the barometer, the sky and the wind.
+      Celestial is what you do when GPS dies; this is what you do when the sat
+      comms die.</p>
+
+    <div class="panel status">
+      <div class="who">
+        <div class="nm" id="st-obs">&mdash;</div>
+        <div class="wh" id="st-sub"></div>
+      </div>
+    </div>
+
+    <nav class="tiles btnrow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn go" data-go="what" style="min-height:64px">What the log says</button>
+      <button class="btn" data-go="fcast" style="min-height:64px">Make a forecast</button>
+      <button class="btn" data-go="score" style="min-height:64px">The score</button>
+      <button class="btn" data-go="chart" style="min-height:64px">From a 500&nbsp;mb chart</button>
+      <button class="btn" data-go="learn" style="min-height:64px">Lessons</button>
+      <button class="btn" data-go="about" style="min-height:64px">About</button>
+    </nav>
+
+    <div class="panel" style="margin-top:12px">
+      <h2>Your longitude</h2>
+      <p class="note">Needed for local solar time, so the daily atmospheric tide
+        can be taken off the pressure trend before anything is said about it.
+        Without it, an ordinary tropical afternoon reads as a system approaching.</p>
+      <div class="fields" style="margin-top:10px">
+        <div class="f"><label for="i-lon">Longitude, degrees (east positive)</label>
+          <input type="number" id="i-lon" inputmode="decimal" step="0.1" placeholder="-72.0"></div>
+        <div class="f" style="display:flex;align-items:flex-end">
+          <button class="btn wide" id="b-lonsave">Save it</button></div>
+      </div>
+      <p class="note" id="lon-state"></p>
+    </div>
+
+    <p class="foot"><strong>This reasons only from what you logged.</strong> It is
+      not a forecast: no model, no chart, no GRIB. It is you, reading your own
+      barometer. <span id="ver"></span></p>
+  </section>
+
+  <!-- ================= what the log says ================= -->
+  <section class="view" id="v-what" hidden>
+    <div class="panel">
+      <h2>What the log says</h2>
+      <div class="reason" id="what-out"></div>
+    </div>
+    <details class="asterm">
+      <summary>Show it as the terminal does</summary>
+      <pre id="what-term" aria-label="Terminal rendering"></pre>
+    </details>
+  </section>
+
+  <!-- ================= the forecast ================= -->
+  <section class="view" id="v-fcast" hidden>
+    <div class="panel">
+      <h2>Yours first</h2>
+      <p>Nothing of mine until yours is written down. If the app prints its guess
+        before asking for yours, you have not forecast anything &mdash; you have
+        read an answer and agreed with it. It feels like learning and is not.</p>
+      <div class="fields" style="margin-top:10px">
+        <div class="f"><label for="i-hours">How many hours ahead</label>
+          <select id="i-hours">
+            <option value="6">6 hours</option>
+            <option value="12" selected>12 hours</option>
+            <option value="24">24 hours</option>
+          </select></div>
+        <div class="f"><label>Valid at</label>
+          <input type="text" id="i-valid" readonly></div>
+      </div>
+      <p class="note">Forecasts are made <em>for</em> a synoptic hour, so the
+        observation that verifies one is an entry somebody would have made anyway.</p>
+    </div>
+
+    <div class="panel" id="fc-fields">
+      <h2>Your call</h2>
+      <p class="note">Leave a field empty to leave it out. A forecast is several
+        claims and can be two thirds right, so each is scored on its own.</p>
+      <div class="fields" style="margin-top:10px">
+        <div class="f"><label for="f-wdir">Wind direction, degrees true</label>
+          <input type="number" id="f-wdir" inputmode="numeric"></div>
+        <div class="f"><label for="f-wspd">Wind speed, knots</label>
+          <input type="number" id="f-wspd" inputmode="numeric"></div>
+        <div class="f"><label for="f-mslp">Sea level pressure, hPa</label>
+          <input type="number" id="f-mslp" inputmode="decimal" step="0.1"></div>
+        <div class="f"><label for="f-sea">Sea state, 0&ndash;9</label>
+          <input type="number" id="f-sea" inputmode="numeric" min="0" max="9"></div>
+      </div>
+      <button class="btn wide go" id="b-commit" style="margin-top:12px">Commit mine, then show me yours</button>
+      <p class="note" id="fc-state"></p>
+    </div>
+
+    <div class="panel" id="fc-compare" hidden>
+      <h2>Now mine</h2>
+      <table class="score" id="fc-table"></table>
+      <p class="note" id="fc-why"></p>
+      <p class="note">Log the observation this was made for when it comes, then
+        look at the score. Three are scored, not one: scoring only you would make
+        this an oracle, and it is not one.</p>
+    </div>
+  </section>
+
+  <!-- ================= the score ================= -->
+  <section class="view" id="v-score" hidden>
+    <div class="panel">
+      <h2>The score</h2>
+      <p class="note">Weighted error points, from the WxChallenge: half a point
+        per knot, one per millibar, a tenth per degree of wind direction &mdash;
+        so a near miss scores like a near miss. <strong>Lower is better.</strong></p>
+      <div id="score-out" style="margin-top:12px"></div>
+    </div>
+    <div class="panel">
+      <h2>Why persistence is on the sheet</h2>
+      <p>&ldquo;In twelve hours it will be much as it is now&rdquo; is the honest
+        floor. It is hard to beat at short range, and a forecast that does not
+        beat it has shown no skill at all. Standard practice in operational
+        meteorology, and free to compute.</p>
+      <p>Scoring the rules as well as you keeps the app honest &mdash; its misses
+        go on the record &mdash; and teaches calibration: a rule right seven times
+        in ten is useful <em>once you know it is seven in ten</em>. And it lets you
+        eventually win, which is the point. A training tool that cannot be
+        outgrown is badly built.</p>
+    </div>
+    <details class="asterm">
+      <summary>Show it as the terminal does</summary>
+      <pre id="score-term" aria-label="Terminal rendering"></pre>
+    </details>
+  </section>
+
+  <!-- ================= the 500 mb chart ================= -->
+  <section class="view" id="v-chart" hidden>
+    <div class="panel">
+      <h2>From a 500 millibar chart</h2>
+      <p>This app cannot fetch a chart and never will. But a 500&nbsp;mb chart
+        arrives by <strong>HF radiofax</strong>, on an SSB receiver, at sea, with
+        no connectivity at all &mdash; which is exactly the situation the rest of
+        this is built for. Read three numbers off the fax and the rules do the
+        rest, showing every step.</p>
+      <div class="fields" style="margin-top:12px">
+        <div class="f"><label for="c-brg">Bearing to the 564 line, degrees</label>
+          <input type="number" id="c-brg" inputmode="numeric" placeholder="e.g. 015"></div>
+        <div class="f"><label for="c-dist">Its distance, nm</label>
+          <input type="number" id="c-dist" inputmode="numeric" placeholder="e.g. 300"></div>
+        <div class="f"><label for="c-or">The line&rsquo;s orientation, degrees</label>
+          <input type="number" id="c-or" inputmode="numeric" placeholder="e.g. 260"></div>
+        <div class="f"><label for="c-w5">500 mb wind there, knots</label>
+          <input type="number" id="c-w5" inputmode="numeric" placeholder="e.g. 65"></div>
+        <div class="f"><label for="c-hemi">Hemisphere</label>
+          <select id="c-hemi"><option value="1">Northern</option><option value="0">Southern</option></select></div>
+      </div>
+      <p class="note" id="chart-warn"></p>
+    </div>
+    <div class="panel">
+      <div class="reason" id="chart-out"></div>
+    </div>
+    <details class="asterm">
+      <summary>Show it as the terminal does</summary>
+      <pre id="chart-term" aria-label="Terminal rendering"></pre>
+    </details>
+  </section>
+
+  <!-- ================= the lessons ================= -->
+  <section class="view" id="v-learn" hidden>
+    <div class="panel" id="les-index">
+      <h2>Lessons</h2>
+      <p class="note">Each one earns its place by changing what the app says or
+        what you would do. One of them says plainly where that stops being true,
+        which is the point of the rule.</p>
+      <div id="les-list" style="margin-top:10px"></div>
+    </div>
+    <div class="panel" id="les-body" hidden>
+      <div class="lesson" id="les-text"></div>
+      <div class="qbox" id="les-q" hidden></div>
+      <button class="btn wide" id="les-back" style="margin-top:12px">Back to the lessons</button>
+    </div>
+  </section>
+
+  <!-- ================= about ================= -->
+  <section class="view" id="v-about" hidden>
+    <div class="panel">
+      <h2>The honest limit</h2>
+      <p><strong>With no network this cannot forecast.</strong> No GRIBs, no
+        synoptic charts, no models. What it does is make you your own forecaster
+        from the barometer, the sky and the wind.</p>
+      <p>It works entirely in the <strong>observation</strong> column of the three
+        kinds of weather data &mdash; ground truth you measured. It cannot
+        forecast, but what it reasons <em>from</em> is the one category that is
+        never wrong, and the one still available when the antenna comes down.</p>
+    </div>
+    <div class="panel">
+      <h2>One shared log</h2>
+      <p>This reads the observations <span class="mono">deck-log</span> keeps, on
+        this device, in the same browser storage &mdash; one shared store, as it
+        should be. The watch stander says the report once.</p>
+      <p class="note" id="share-state"></p>
+    </div>
+    <div class="panel">
+      <h2>Never tell before you ask</h2>
+      <p>The forecast screen shows nothing of the app&rsquo;s reasoning until your
+        own call is committed to the log. Not greyed out, not collapsed, not
+        behind a tap &mdash; absent. House rule, and it came from the
+        <span class="mono">colregs</span> lights quiz telling you the aspect and
+        then asking for it.</p>
+    </div>
+    <div class="panel">
+      <h2>Where the rules come from</h2>
+      <p>The 500&nbsp;mb rules are from Sienkiewicz and Chesneau,
+        <em>Mariner&rsquo;s Guide to the 500-Millibar Chart</em>, NOAA &mdash;
+        public domain. The scoring is the WxChallenge&rsquo;s weighted error
+        points. The observation follows the VOS standard. Sources are in
+        <span class="mono">docs/SOURCES.md</span>; nothing in the lessons is
+        copied from anywhere.</p>
+    </div>
+    <div class="panel">
+      <h2>Offline</h2>
+      <p id="off-state" class="note">Checking&hellip;</p>
+    </div>
+    <p class="foot"><strong>Rules of thumb: good ones, and still rules of
+      thumb.</strong> What is tested is that the app applies its stated rules
+      correctly and reports its own score honestly &mdash; not that the forecast
+      is right. It will often be wrong; that is the nature of the subject, and it
+      is why both scorers exist.</p>
+  </section>
+
+</main>
+
+<script src="log.js"></script>
+<script src="store.js"></script>
+<script src="wx.js"></script>
+<script src="score.js"></script>
+<script src="chart.js"></script>
+<script src="lessons.js"></script>
+<script src="weather.js"></script>
+</body>
+</html>

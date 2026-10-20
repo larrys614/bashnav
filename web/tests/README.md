@@ -8,6 +8,7 @@ before a push and are deliberately kept out of that suite.
     sh web/tests/run-tides-web.sh            a quick pass, 9 stations
     sh web/tests/run-tides-web.sh --full     615 stations x 4 dates
     sh web/tests/run-decklog-web.sh          the record layer and the page
+    sh web/tests/run-weather-web.sh          the reasoning, prose and all
 
 ## The method
 
@@ -100,3 +101,55 @@ timestamps: the generator's month field ran past 12 after day 336 and
 produced `2026-447-01T00:00Z`. A diff between two readers cannot notice
 that three quarters of its corpus is being discarded by both of them.
 Check the counts, not only the agreement.
+
+
+---
+
+# weather
+
+The weather output is **prose**. Every rule shows its working, and the
+working is the product — so a port that gets the numbers right and the
+words approximately right has not ported it. Everything is compared
+character for character against what the awk actually prints.
+
+| | |
+|---|---|
+| `weather-wx.js` | 400 generated observation histories vs `weather what` |
+| `weather-sc.js` | 300 generated logs vs `weather score` |
+| `weather-ch.js` | 1,078 cases vs `weather chart` |
+| `weather-vt.awk` | every real day 2000–2040 through the valid-time conversion |
+| `weather-les.js` | the lessons reconstructed from `lessons.js` vs `weather learn` |
+| `weather-ui.js` | the page driven, including the rule that it must not tell before it asks |
+
+## What `weather-ui.js` is really for
+
+It asserts the comparison table is **empty before the commit**, not
+merely hidden. Hidden is not good enough: a guess you can glimpse is a
+guess you have read, and then the user has not forecast anything.
+
+## Three faults these found
+
+**The user was never scored.** `do_forecast` wrote `by=user` while the
+report's three names are `you rules persist`, so the one column the
+learning loop exists for was accumulated and never printed. The existing
+`score-e2e.sh` wrote its own fixture with `by=you` and so never met the
+tool; it now drives `weather forecast`, logs the observation the forecast
+was made for, and reads the tool's own score sheet.
+
+**C's `printf` rounds half to even; JavaScript's `toFixed` does not.**
+`%.0f` of 12.5 is 12 in C and 13 in JavaScript. The 500 mb rules divide
+the wind by two, which lands on an exact half for every even wind speed:
+506 of 1,078 chart cases disagreed on exactly that.
+
+**C prints `inf`, not `Infinity`.** A 500 mb wind of zero divides by
+zero, and the awk prints "inf to inf hours".
+
+## And one in the harness, twice
+
+A generated corpus can throw itself away and still pass. The valid-time
+check first reported 276 round-trip failures — which is precisely the
+number of impossible dates in 2000–2040, because the loop ran `d=1..31`
+in every month. `sc_jdn` of 31 February is a perfectly good day number
+and `sc_civil` correctly maps it back to 3 March. The same mistake, in a
+different costume, had already discarded three quarters of the deck-log
+size corpus. **Check the counts, not only the agreement.**

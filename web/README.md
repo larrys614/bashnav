@@ -8,11 +8,13 @@ dependencies, no network once loaded.
     celnav/           camera sight: an altitude from a photograph
     tides/            harmonic prediction, 8,334 stations         (v1.1)
     deck-log/         the boat's records, append-only              (v1.1)
+    weather/          read your own barometer                      (v1.0)
     icons/            one icon per tool, drawn to read at 60 px
     tests/            verifying the browser builds against the awk
 
-`weather/` is not built yet; the launcher shows it as "NOT YET" rather
-than as a link that goes nowhere.
+All six are built. `deck-log` and `weather` share one log: both are
+served from this origin, and IndexedDB is per-origin rather than
+per-path, so they genuinely share one store.
 
 ## Installing
 
@@ -25,6 +27,7 @@ Each tool is then its own page:
     https://larrys614.github.io/bashnav/web/celnav/
     https://larrys614.github.io/bashnav/web/tides/
     https://larrys614.github.io/bashnav/web/deck-log/
+    https://larrys614.github.io/bashnav/web/weather/
 
 Open one in **Safari** on the iPad and use **Share → Add to Home Screen**. Each
 URL gets its own icon, because each has its own manifest.

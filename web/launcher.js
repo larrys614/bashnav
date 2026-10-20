@@ -14,7 +14,7 @@ var TOOLS = [
   { id: 'tides',    name: 'tides',    ver: '1.1',
     desc: 'Harmonic prediction, 8,334 stations', ready: true },
   { id: 'weather',  name: 'weather',  ver: '1.0',
-    desc: 'Read your own barometer', ready: false },
+    desc: 'Read your own barometer', ready: true },
   { id: 'deck-log', name: 'deck-log', ver: '1.1',
     desc: "The boat's records: deck, engine, provisions", ready: true }
 ];
