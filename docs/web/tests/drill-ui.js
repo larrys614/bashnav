@@ -248,6 +248,42 @@ window.answerCurrent = function (right) {
   if (seqStats.bad.length) fail(seqStats.bad.length + ' ordering questions are malformed: ' + seqStats.bad[0]);
   else console.log('  ok   all ' + seqStats.n + ' ordering questions in this pack are well formed');
 
+  // ---- A SECOND PACK OF THE SAME NAME MUST REPLACE THE FIRST ---------
+  //  A file input fires `change` only when the selection changes, and a
+  //  file counts as the same selection if it has the same NAME. Every pack
+  //  built by the same builder has the same name, so after the first load
+  //  the picker was a no-op: no error, no note, the old pack simply
+  //  stayed, and it read as the app offering no way to replace it. Five
+  //  bug reports in a morning came out of that one line.
+  {
+    const twin = path.join(TMP, 'twin', 'synth.drillpack.json');
+    fs.mkdirSync(path.dirname(twin), { recursive: true });
+    const second = JSON.parse(fs.readFileSync(packPath, 'utf8'));
+    second.id = 'deadbeef';
+    second.built = '2026-01-01';
+    fs.writeFileSync(twin, JSON.stringify(second));
+    const before = await page.evaluate(() => (PACK && PACK.id) || '');
+    await page.evaluate(() => { document.getElementById('b-replace').click(); });
+    await page.waitForTimeout(80);
+    await page.setInputFiles('#f-pack', twin);
+    await page.waitForFunction(() => window.PACK && PACK.id === 'deadbeef',
+                               { timeout: 8000 }).catch(() => {});
+    const now = await page.evaluate(() => ({
+      id: (PACK && PACK.id) || '', val: document.getElementById('f-pack').value }));
+    if (now.id !== 'deadbeef')
+      fail('a second pack of the same filename did not replace the first (still ' +
+           (now.id || before) + ')');
+    else if (now.val !== '')
+      fail('the file input kept its value, so the next same-named file will not load');
+    else console.log('  ok   a second pack of the same filename replaces the first');
+    //  put the pack under test back
+    await page.evaluate(() => { document.getElementById('b-replace').click(); });
+    await page.waitForTimeout(80);
+    await page.setInputFiles('#f-pack', packPath);
+    await page.waitForFunction(() => window.PACK && PACK.id !== 'deadbeef',
+                               { timeout: 8000 }).catch(() => {});
+  }
+
   // ---- the home screen says WHICH pack is loaded ---------------------
   //  Loading a pack replaces the one in storage. With nothing on screen to
   //  tell them apart, a rebuilt pack looks exactly like the one it

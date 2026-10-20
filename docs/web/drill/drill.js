@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '3 \u2014 20 Oct 2026';
+var BUILD = '4 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -215,8 +215,15 @@ function qsFor(sid, graded) {
    ===================================================================== */
 function drawHome() {
   $('pack-title').textContent = PACK.title || 'Content pack';
+  //  WHICH PACK IS THIS?  Loading a pack replaces the one in storage, and
+  //  nothing on screen said which one you were drilling -- so a pack that
+  //  had been rebuilt looked identical to the one it replaced, and the
+  //  same question you thought was fixed came round again. The built date
+  //  and the question count are what tell them apart at a glance.
   $('pack-note').textContent = (PACK.note ? PACK.note + '   \u00b7   ' : '') +
-    PACK.sections.length + ' sections, ' + PACK.questions.length + ' questions';
+    PACK.sections.length + ' sections, ' + PACK.questions.length + ' questions' +
+    (PACK.built ? '   \u00b7   pack ' + PACK.built +
+                  (PACK.id ? ' (' + PACK.id + ')' : '') : '');
 
   var done = PACK.sections.filter(function (s) { return passed(s.id); }).length;
   $('prog-n').textContent = done;

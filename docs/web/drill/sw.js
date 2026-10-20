@@ -10,7 +10,7 @@
 //  a new deploy never reaches it -- the browser only reinstalls the
 //  worker when THIS file's bytes differ.  The version here must match
 //  BUILD in drill.js, and the test harness checks that it does.
-const CACHE = 'drill-v4';
+const CACHE = 'drill-v5';
 const FILES = ['./', './index.html', './drill.css', './drill.js',
                './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', e => {

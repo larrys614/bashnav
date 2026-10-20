@@ -72,6 +72,33 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### Replacing a pack with a file of the same name
+
+*Fixed 20 Oct 2026, and it is the fault that caused the other three.*
+
+A file input fires `change` only when the selection **changes**, and a file
+counts as the same selection if it has the same **name**. The input's value
+was never cleared, so after loading `procedures.drillpack.json` once,
+picking another file of that name did nothing at all: no error, no note,
+the old pack simply stayed. From the outside the app appeared to offer no
+way to replace a pack.
+
+Every pack a builder produces tends to have the same filename, so this hit
+on the second pack and every pack after it. Five bug reports in one morning
+were questions that had already been removed, read out of a pack that could
+not be replaced.
+
+`f-pack.value` is now cleared after every attempt, so the next selection is
+always a change. Replace also prints which pack is loaded now, so replacing
+it is a deliberate act with a checkable result. The harness covers it, and
+the check was confirmed to fail with the one line reverted.
+
+The lesson is the one the service worker already taught in this same tool:
+**a fix that cannot be identified from the outside is not delivered.** Three
+things now carry a readable identity -- the app (`build N`, matched to
+`drill-vN`), the pack (`built` and `id`, on the home screen), and the file
+(`procedures-<id>.drillpack.json`, from the builder).
+
 ### The home screen says which pack is loaded
 
 *Added 20 Oct 2026.* Loading a pack replaces the one in the browser's
