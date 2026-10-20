@@ -54,7 +54,7 @@ do_forecast() {
   echo "   Return to leave a field out."
   echo
   fld_start
-  fld for "$valid"; fld by user
+  fld for "$valid"; fld by you
   ask "wind direction, degrees true"  wdir
   ask "wind speed, knots"             wspd
   ask "sea level pressure, hPa"       mslp

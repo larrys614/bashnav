@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003434047
+BASHNAV_BYTES=003434640
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -18692,7 +18692,7 @@ do_forecast() {
   echo "   Return to leave a field out."
   echo
   fld_start
-  fld for "$valid"; fld by user
+  fld for "$valid"; fld by you
   ask "wind direction, degrees true"  wdir
   ask "wind speed, knots"             wspd
   ask "sea level pressure, hPa"       mslp
@@ -19431,6 +19431,16 @@ function sc_verify(logfile,   i, j, by, fo, o, f, p, nf, any, tot, cnt, fields, 
     if(!lg_at(i)) continue
     fo = LG["for"]; by = LG["by"]
     if(fo=="" || by=="") continue
+    #  THE USER'S OWN FORECASTS WERE NEVER SCORED.  do_forecast writes
+    #  by=user; this report's three names are "you rules persist", so
+    #  TOT["user"] was accumulated and then never looked at -- the one
+    #  column the whole learning loop exists for was silently missing,
+    #  and "You are beating the rule set" could never fire.
+    #
+    #  Fixed by NORMALISING ON READ rather than by renaming the writer
+    #  alone: the log is append-only, so every fc record already written
+    #  says user and has to keep working for ever.  New records say you.
+    if(by=="user") by="you"
     o = sc_nearest(fo, 180)
     if(o==0) continue                       # nothing observed yet
     VN++

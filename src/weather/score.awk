@@ -145,6 +145,16 @@ function sc_verify(logfile,   i, j, by, fo, o, f, p, nf, any, tot, cnt, fields, 
     if(!lg_at(i)) continue
     fo = LG["for"]; by = LG["by"]
     if(fo=="" || by=="") continue
+    #  THE USER'S OWN FORECASTS WERE NEVER SCORED.  do_forecast writes
+    #  by=user; this report's three names are "you rules persist", so
+    #  TOT["user"] was accumulated and then never looked at -- the one
+    #  column the whole learning loop exists for was silently missing,
+    #  and "You are beating the rule set" could never fire.
+    #
+    #  Fixed by NORMALISING ON READ rather than by renaming the writer
+    #  alone: the log is append-only, so every fc record already written
+    #  says user and has to keep working for ever.  New records say you.
+    if(by=="user") by="you"
     o = sc_nearest(fo, 180)
     if(o==0) continue                       # nothing observed yet
     VN++
