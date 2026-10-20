@@ -1,6 +1,6 @@
 # Repository state
 
-Last updated 2026-08-30. Published at
+Last updated 2026-10-20. Published at
 **https://github.com/larrys614/bashnav**.
 
 New here? Start with [`CLAUDE.md`](CLAUDE.md), then
@@ -54,6 +54,70 @@ reference/subordinate structure the heights use — but **US waters only**.
 TICON, which gives the height data worldwide coverage, is heights. Larry's
 call: US-only coverage makes it a no. Worldwide is the point of carrying the
 tool at all.
+
+---
+
+## The browser build: all six tools
+
+*Closed 20 Oct 2026.* `web/` now carries the launcher and all six tools.
+a-Shell proved a dead end for colour and for running a script by path, so the
+iPad gets the browser build and the shell suite is for Mac and Linux.
+
+| | |
+|---|---|
+| `web/celnav/` | camera sight: an altitude from a photograph |
+| `web/colregs/` | lights, shapes, sounds, the rules |
+| `web/tides/` | harmonic prediction, all 8,334 stations |
+| `web/deck-log/` | the boat's records, append-only in IndexedDB |
+| `web/weather/` | read your own barometer |
+
+`deck-log` and `weather` **share one log**: both are served from this origin,
+and IndexedDB is per-origin rather than per-path, so they genuinely share one
+store. A service worker's *scope* is per-path, though, which is why
+`weather/log.js` and `weather/store.js` are byte-identical copies rather than
+loaded from `../deck-log/` — out of scope they would not be cached and the tool
+would not work offline, which is the entire point.
+
+### How the browser builds are verified
+
+`tests/run-tests.sh` stays POSIX `sh` and `awk` so it runs on the boat. The
+browser suites need `node`, `python3` and a headless Chromium, so they live in
+`web/tests/` and are run before a push:
+
+    sh web/tests/run-tides-web.sh [--full]
+    sh web/tests/run-decklog-web.sh
+    sh web/tests/run-weather-web.sh
+
+Nothing in them is checked against a number somebody typed. Every reference
+value is **emitted by running the awk engine**, and the harnesses load the
+**shipped** files under `web/`, so a stale copy cannot pass. The browser
+stages skip themselves with a message when playwright is absent rather than
+failing.
+
+**A module diff proves the physics; only driving the page proves the wiring.**
+The tides engine agreed with the awk over 955,255 values while the page was
+visibly wrong — it predicted the UT day and labelled it in the station's time,
+so at Newport the previous evening's low water sat at the top of the table.
+Both sides of a module diff happily used UT midnight.
+
+### Three faults in the shipped tools, found by those diffs
+
+1. **`deck-log` was completely dead under mawk 1.3.3.** See the loose end
+   below; this is the serious one.
+2. **`weather` never scored the user.** `do_forecast` wrote `by=user` while
+   the score sheet's three names are `you rules persist`, so the one column
+   the learning loop exists for was accumulated and never printed.
+3. **`colregs`' `about` still said twenty vessels** after the WIG craft and
+   the submarine took the tables to 22, and the give-way calls to 73. That one
+   `run-tests.sh` was already reporting.
+
+### And two in the harnesses, the same mistake twice
+
+A generated corpus can throw itself away and still pass, because both readers
+reject the same bad input. The 100,000-record deck-log run reported *22,176
+good, 77,824 bad* and passed; the valid-time check reported 276 round-trip
+failures, which is exactly the number of impossible dates in 2000–2040.
+**Check the counts, not only the agreement.**
 
 ---
 
@@ -145,22 +209,50 @@ claims, and nothing on the boat would say so.
    2026** — `contacts.svg`, `lights.svg`, `lights-mineclear.svg`, `plot.svg`
    and `sky.svg` removed with `git rm`. They were byte-identical duplicates of
    the `colregs-*` and `celnav-*` names and nothing referenced them.
-3. **A Shortcuts recipe for iPad GPS → `tides near`**, so a position can be
+3. ~~**POSIX interval expressions in an awk regex.**~~ **Closed 20 Oct 2026**,
+   and worth reading even though it is closed. `lg_parse` guarded the record
+   type with `/^[a-z][a-z0-9]{0,4}$/`. That is correct POSIX ERE, and **mawk
+   1.3.3 does not implement it** — it reads `{0,4}` as four literal
+   characters, so `eng` did not match and *every record was rejected*.
+   `deck-log` then refused to write an entry and read an existing log as
+   empty: total failure, on the awk that `awk` is on Debian, Ubuntu and
+   a-Shell, which is also the first name `pick_awk()` tries.
+
+   The guard that refuses to write a record it cannot read back did its job —
+   nothing was ever corrupted — but a sailor would have seen a tool that
+   silently declines to keep the log. gawk implements intervals, which is why
+   it reached a release.
+
+   Written out instead, and proved equivalent over 137,257 generated strings:
+
+       ^[a-z]([a-z0-9]([a-z0-9]([a-z0-9][a-z0-9]?)?)?)?$
+
+   `tests/interval-check.awk` now forbids the construct in any awk source and
+   is wired into `run-tests.sh`. It was checked against three bad forms *and*
+   three innocent ones — a check that cannot fail is worth nothing.
+
+4. **`src/decklog/log.awk` is a dead byte-identical duplicate** of
+   `src/common/log.awk`. `build.sh` uses the one in `common/`; nothing uses
+   the other. Both carry the interval fix, but the duplicate is a trap: a
+   future edit to it would silently never reach the build. It should be
+   deleted.
+
+5. **A Shortcuts recipe for iPad GPS → `tides near`**, so a position can be
    handed to the tool without typing it. The Shortcuts groundwork is now in the
    README — a-Shell's **Execute Command** action, set to run **In App** — and
    this one differs only in passing an argument the Shortcut computes. *Not
    tested on hardware.* Larry has the iPad; the recipe is written from a-Shell's
    own documentation and needs one run to confirm.
-4. **The Clipper training app.** Larry has emailed Clipper for permission to
+6. **The Clipper training app.** Larry has emailed Clipper for permission to
    build an interactive trainer from their course PDFs. Nothing is to be built
    from those materials without written permission — their text is
    copyrighted. Facts and methods are not, and can be taught freely in our own
    words.
-5. **Tag a release** and attach `release/bashnav-ipad.sh` and the six binaries,
+7. **Tag a release** and attach `release/bashnav-ipad.sh` and the six binaries,
    so people who only want the tools do not have to clone 2.9 MB of station
    data through git. The README's iPad instructions already point at
    `releases/latest/download/bashnav-ipad.sh`, so this is now load bearing.
-6. **`seamanship` is held**, on the local `seamanship-hold` tag and not in this
+8. **`seamanship` is held**, on the local `seamanship-hold` tag and not in this
    repository, pending Clipper's answer. Larry has a personal binary. See the
    note above: if Clipper objects even to the generic build, it stays on his
    iPad and never enters `bashnav`.
