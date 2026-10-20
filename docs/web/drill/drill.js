@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '8 \u2014 20 Oct 2026';
+var BUILD = '9 \u2014 20 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -569,9 +569,22 @@ function makeChoices(q, pool) {
     carried.push({ t: q.a, ok: true });
     return shuffle(carried);
   }
+  //  NOT FROM THE SAME PARAGRAPH, where one of them is hand-written.
+  //  Two questions about one subsection have overlapping answers by
+  //  construction: you cannot give the REASON for a rule without stating
+  //  the rule, so "why forward first" answers "state Rule 3" as well as
+  //  its own question. Extracted questions are keyed to distinct rows and
+  //  make each other's best distractors, so this is narrowed to the
+  //  hand-written ones, which are the only kind that ask about the same
+  //  material from several angles.
+  var sub = function (x) { return (x && x.where && x.where.sub) || ''; };
+  var sameParagraph = function (o) {
+    if (!sub(o) || sub(o) !== sub(q)) return false;
+    return o.kind === 'hand' || q.kind === 'hand';
+  };
   var usable = function (o) {
     return o.a && !sameAnswer(o.a, q.a) && !(o.ch && o.ch.length) &&
-           !(o.seq && o.seq.length);
+           !(o.seq && o.seq.length) && !sameParagraph(o);
   };
   var same = pool.filter(function (o) { return usable(o) && o.kind === q.kind; });
   var other = pool.filter(function (o) { return usable(o) && o.kind !== q.kind; });

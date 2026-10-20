@@ -225,6 +225,26 @@ window.answerCurrent = function (right) {
   else if (subset.diff || subset.diff2) fail('two genuinely different answers were called the same');
   else console.log('  ok   an answer contained inside another counts as the same answer');
 
+  //  NOT FROM THE SAME PARAGRAPH, where one of them is hand-written. Two
+  //  questions about one subsection overlap by construction: "why forward
+  //  first" states the rule in the course of giving its reason, so it
+  //  answered "state Rule 3" as well as its own question.
+  const para = await page.evaluate(() => {
+    const q = { kind: 'hand', a: 'The order is forward to aft.',
+                where: { sub: 'Rule 3 - Forward sail first' } };
+    const twin = { kind: 'hand', a: 'Because the sail plan works as one force, trim the furthest forward first.',
+                   where: { sub: 'Rule 3 - Forward sail first' } };
+    const elsewhere = { kind: 'hand', a: 'A wholly unrelated answer about the liferaft grab bag.',
+                        where: { sub: 'Abandonment' } };
+    const got = makeChoices(q, [q, twin, elsewhere]).map(o => o.t);
+    return { usedTwin: got.indexOf(twin.a) >= 0, usedOther: got.indexOf(elsewhere.a) >= 0 };
+  });
+  if (para.usedTwin)
+    fail('a hand-written answer from the same subsection was offered as a distractor');
+  else if (!para.usedOther)
+    fail('a hand-written answer from a different subsection was wrongly suppressed');
+  else console.log('  ok   a hand-written answer from the same subsection is not a distractor');
+
   //  A SECTION CAN RUN OUT OF DISTRACTORS, and a question with no wrong
   //  option is an automatic mark -- worse than the duplicate the
   //  filtering was added to prevent.

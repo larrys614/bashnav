@@ -72,6 +72,32 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### A distractor must not come from the same paragraph
+
+*Fixed 20 Oct 2026, the third layer of the same fault.* Neither comparing
+how an option reads nor comparing what words it contains catches this:
+
+    State Rule 3, and the order it gives.
+      B  Change the trim of your forward-most sail first: forward to aft.
+      D  The whole sail plan works as one driving force ... trim the
+         furthest forward first ...
+
+B and D share almost no words and neither contains the other, yet both
+answer the question. D is the *reason* for Rule 3, and the reason cannot be
+given without stating the rule.
+
+Both are **hand-written questions with the same `where.sub`**. That is the
+structural cause: two questions about one subsection have overlapping
+answers by construction. So a pool option is refused when it shares a
+subsection with the question and either of them is hand-written.
+
+Narrowed to hand-written deliberately. Extracted questions are keyed to
+distinct rows, so same-subsection answers are their *best* distractors --
+plausible and genuinely wrong. The hand-written ones are the only kind that
+ask about the same material from several angles, which is exactly what makes
+them useful and what makes them collide. The rule suppresses 210 in-section
+options and leaves the extracted pool untouched.
+
 ### One answer inside another is still one answer
 
 *Fixed 20 Oct 2026, the same fault a layer down.* Normalising the text
