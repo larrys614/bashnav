@@ -127,6 +127,23 @@ function validate(p) {
   //  A CARRIED WRONG OPTION THAT EQUALS THE ANSWER IS A QUESTION WITH TWO
   //  RIGHT OPTIONS, and the mark it gives you is a lie either way. Cheap
   //  to check here, impossible to notice while drilling.
+  //  An ordering question must have an order to be in, and an intruder
+  //  that is not secretly part of it.
+  for (i = 0; i < p.questions.length; i++) {
+    var qs2 = p.questions[i];
+    if (!qs2.seq) continue;
+    if (!Array.isArray(qs2.seq) || qs2.seq.length < 3)
+      return 'question ' + (i + 1) + ' has fewer than three steps to order';
+    for (var a2 = 0; a2 < qs2.seq.length; a2++)
+      if (qs2.seq.indexOf(qs2.seq[a2]) !== a2)
+        return 'question ' + (i + 1) + ' lists the same step twice';
+    var ex = qs2.extra || [];
+    if (!Array.isArray(ex) || !ex.length)
+      return 'question ' + (i + 1) + ' has no step that does not belong';
+    for (var b2 = 0; b2 < ex.length; b2++)
+      if (qs2.seq.indexOf(ex[b2]) >= 0)
+        return 'question ' + (i + 1) + ' offers a real step as the one that does not belong';
+  }
   for (i = 0; i < p.questions.length; i++) {
     var qq = p.questions[i];
     if (!qq.ch || !qq.ch.length) continue;
@@ -484,11 +501,100 @@ function makeChoices(q, pool) {
   return shuffle(out);
 }
 
+/*  ---- ordering questions -------------------------------------------
+ *  A four-option question can test which step belongs. It cannot test
+ *  that you know the ORDER, because naming a position -- "what is number
+ *  four" -- tests the layout of the page rather than the procedure.
+ *
+ *  So: the steps are offered scrambled, with one that belongs to a
+ *  different procedure mixed in, and you tap them into order and leave
+ *  the intruder alone. Marked all or nothing. Partial credit would make
+ *  a near miss on a sequence look like competence, and on a MOB chain a
+ *  near miss is a different outcome entirely.
+ */
+function isOrder(q) { return !!(q && q.seq && q.seq.length); }
+
+function renderOrder(card, q, mark, advLabel, onAdv) {
+  var chosen = [];
+  var pool = shuffle(q.seq.concat(q.extra || []));
+  var hint = el('p', 'note', 'Tap them into the order they happen. One does not ' +
+                            'belong \u2014 leave it out.');
+  card.appendChild(hint);
+
+  var picked = el('ol', 'seq-picked');
+  var rest = el('div', 'seq-pool');
+  card.appendChild(picked);
+  card.appendChild(rest);
+
+  var check = el('button', 'btn wide go', 'Check');
+  check.setAttribute('data-seq-check', '1');
+  check.style.marginTop = '14px';
+  check.disabled = true;
+  var done = false;
+
+  function draw() {
+    picked.textContent = '';
+    rest.textContent = '';
+    chosen.forEach(function (t, i) {
+      var li = el('li', 'seq-row chosen');
+      li.appendChild(el('span', 'seq-n', String(i + 1)));
+      li.appendChild(el('span', null, t));
+      if (!done) li.addEventListener('click', function () {
+        chosen.splice(i, 1); draw();
+      });
+      picked.appendChild(li);
+    });
+    pool.forEach(function (t) {
+      if (chosen.indexOf(t) >= 0) return;
+      var b = el('button', 'seq-row');
+      b.setAttribute('data-seq-item', t);
+      b.appendChild(el('span', null, t));
+      if (!done) b.addEventListener('click', function () { chosen.push(t); draw(); });
+      rest.appendChild(b);
+    });
+    check.disabled = done || !chosen.length;
+  }
+
+  check.addEventListener('click', function () {
+    if (done) return;
+    done = true;
+    var ok = chosen.length === q.seq.length &&
+             chosen.every(function (t, i) { return t === q.seq[i]; });
+    draw();
+    //  Show the order it should have been, every time. The point of the
+    //  question is the sequence, so being told only "wrong" teaches
+    //  nothing.
+    var right = el('ol', 'seq-picked right');
+    q.seq.forEach(function (t, i) {
+      var li = el('li', 'seq-row chosen');
+      li.setAttribute('data-mark', 'right');
+      li.appendChild(el('span', 'seq-n', String(i + 1)));
+      li.appendChild(el('span', null, t));
+      right.appendChild(li);
+    });
+    card.appendChild(el('p', 'qsrc', ok ? 'Correct, in that order.'
+                                        : 'The order is:'));
+    if (!ok) card.appendChild(right);
+    if ((q.extra || []).length) {
+      card.appendChild(el('p', 'note', 'Not part of it: \u201c' +
+        q.extra.join('\u201d, \u201c') + '\u201d.'));
+    }
+    mark(ok, chosen.join(' \u2192 '));
+    var nx = el('button', 'btn wide go', advLabel);
+    nx.setAttribute('data-advance', '1');
+    nx.style.marginTop = '14px';
+    nx.addEventListener('click', onAdv);
+    card.appendChild(nx);
+  });
+  card.appendChild(check);
+  draw();
+}
+
 function startTest(sid) {
   var graded = qsFor(sid, true);
   var len = Math.min(10, graded.length);
   var qs = shuffle(graded).slice(0, len).map(function (q) {
-    return { q: q, choices: makeChoices(q, graded) };
+    return { q: q, choices: isOrder(q) ? null : makeChoices(q, graded) };
   });
   RUN = { mode: 'test', sid: sid, qs: qs, i: 0, right: 0, answers: [] };
   $('drill-title').textContent = PACK.sections[CURSEC].title;
@@ -508,6 +614,16 @@ function stepTest() {
   var card = el('div', 'card');
   card.appendChild(el('div', 'qnum', 'Question ' + (r.i + 1) + ' of ' + r.qs.length));
   card.appendChild(el('p', 'qtext', q.q));
+  if (isOrder(q)) {
+    renderOrder(card, q, function (ok, got) {
+      if (ok) r.right++;
+      r.answers.push({ q: q, got: got, ok: ok });
+      card.appendChild(el('p', 'qsrc', srcLine(q)));
+    }, r.i + 1 >= r.qs.length ? 'See the score' : 'Next',
+       function () { r.i++; stepTest(); });
+    body.appendChild(card);
+    return;
+  }
   var grid = el('div', 'choices');
   var answered = false;
   item.choices.forEach(function (c, n) {
@@ -623,7 +739,7 @@ function startDiagnostic() {
     var graded = qsFor(s.id, true);
     //  An even spread, so one big section cannot dominate the verdict.
     shuffle(graded).slice(0, 4).forEach(function (q) {
-      pick.push({ q: q, choices: makeChoices(q, graded) });
+      pick.push({ q: q, choices: isOrder(q) ? null : makeChoices(q, graded) });
     });
   });
   pick = shuffle(pick);
@@ -659,6 +775,15 @@ function stepDiag() {
   var card = el('div', 'card');
   card.appendChild(el('div', 'qnum', 'Question ' + (r.i + 1) + ' of ' + r.qs.length));
   card.appendChild(el('p', 'qtext', q.q));
+  if (isOrder(q)) {
+    renderOrder(card, q, function (ok) {
+      if (ok) r.right++;
+      r.answers.push({ section: q.section, ok: ok });
+    }, r.i + 1 >= r.qs.length ? 'What should I study?' : 'Next',
+       function () { r.i++; stepDiag(); });
+    body.appendChild(card);
+    return;
+  }
   var grid = el('div', 'choices');
   var answered = false;
   item.choices.forEach(function (c, n) {

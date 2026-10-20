@@ -110,6 +110,9 @@ One JSON file. Version 1:
 - `where` is shown as the source line. All three fields are optional.
 - `ch` is optional: exactly three wrong options that travel with the
   question. See below.
+- `seq` and `extra` make it an **ordering** question instead: `seq` is the
+  steps in their correct order, `extra` holds at least one step that does
+  not belong. See below.
 
 A pack whose questions point at sections it does not contain is
 **refused whole**, rather than loaded with silent holes in it. So is one
@@ -142,6 +145,36 @@ visible while drilling:
   options, and the mark it gives is wrong either way;
 - the same wrong option twice is a question with three options wearing
   four labels.
+
+### `seq` and `extra` — put these in order
+
+A four-option question can test which step **belongs**. It cannot test that
+you know the **order**, because naming a position — "what is number four" —
+asks about the layout of the page rather than the procedure.
+
+An ordering question offers the steps scrambled with at least one step from
+a different procedure mixed in. You tap them into order and leave the
+intruder alone.
+
+```json
+{ "kind":  "sequence",
+  "q":     "In The reef — put these in the order they happen.",
+  "a":     "Lower → Set the LUFF → Set the FOOT",
+  "seq":   ["Lower", "Set the LUFF", "Set the FOOT"],
+  "extra": ["All lines tidied"] }
+```
+
+- `seq` needs at least three steps, all distinct.
+- `extra` needs at least one, and none of them may also be in `seq` — that
+  would mark you wrong for leaving out a step that really does belong.
+- `a` is the order as text, for the score and review screens.
+- Marked **all or nothing**. Partial credit would make a near miss on a
+  sequence look like competence, and on a MOB chain a near miss is a
+  different outcome.
+
+Keep `seq` short. Five steps is about the limit for ordering by thumb, and
+five consecutive steps of a longer procedure still happen in that order, so
+a shortened question is still a true one.
 
 ### A section needs enough graded questions to be fair
 

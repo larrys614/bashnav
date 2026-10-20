@@ -72,6 +72,32 @@ iPad gets the browser build and the shell suite is for Mac and Linux.
 | `docs/web/weather/` | read your own barometer |
 | `docs/web/drill/` | a study machine, shipped with no material in it |
 
+### Ordering questions: put these in order, one does not belong
+
+*Added 20 Oct 2026.* A four-option question can test which step **belongs**.
+It cannot test that you know the **order** without naming a position, and
+"what is number four" asks about the layout of the page rather than the
+procedure -- nobody in the water recalls item four, they recall what to do
+once their head is out of the water.
+
+So a question may instead carry `seq`, the steps in their correct order, and
+`extra`, at least one step from a different procedure. The app offers them
+scrambled; you tap them into order and leave the intruder alone. Marked all
+or nothing: partial credit would make a near miss on a sequence look like
+competence, and on a MOB chain a near miss is a different outcome.
+
+Refused at load, because none of these can be seen while drilling: fewer
+than three steps, the same step listed twice, no intruder at all, or an
+intruder that is also one of the real steps -- which would mark you wrong
+for leaving out a step that genuinely belongs.
+
+`CACHE` is `drill-v3` and `BUILD` is `3`; the harness still asserts they
+agree. The harness also learned to drive an ordering question, which it
+needed: the drive loops click `.choice`, an ordering question has none, and
+without that the suite would have stopped covering the graded test the
+moment a pack contained one -- silently, because the loop would simply find
+nothing to click.
+
 ### A drill question may carry its own wrong options
 
 *Added 20 Oct 2026.* `drill` builds a test's four options from the other

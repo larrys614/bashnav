@@ -427,3 +427,31 @@ details.asterm pre {
 .bars .track i { display: block; height: 100%; background: var(--part); }
 .bars li[data-state="pass"] .track i { background: var(--pass); }
 .bars li[data-state="unseen"] .track i { background: var(--unseen); }
+
+/* ---- ordering questions ---------------------------------------------
+   The steps you have placed, numbered, then the ones still to place.
+   Rows are full width and at least one tap target tall, because the
+   only place this gets used in anger is a wet foredeck. Built from the
+   same tokens as .choice, so night mode carries it without a second
+   rule. */
+.seq-picked { list-style: none; margin: 12px 0 0; padding: 0; }
+.seq-pool { display: grid; gap: 8px; margin-top: 12px; }
+.seq-row {
+  display: flex; gap: 10px; align-items: flex-start; width: 100%;
+  text-align: left; min-height: var(--tap); padding: 11px 12px;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  font: inherit; font-size: 15px; line-height: 1.4; cursor: pointer;
+}
+.seq-picked .seq-row { margin-bottom: 8px; }
+.seq-pool .seq-row:hover { border-color: var(--accent); }
+.seq-row .seq-n {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 5px;
+  background: var(--line); display: grid; place-items: center;
+  font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums;
+}
+.seq-row.chosen { border-color: var(--accent); }
+.seq-row.chosen .seq-n { background: var(--accent); color: var(--ground); }
+.seq-row[data-mark="right"] { border-color: var(--pass); color: var(--pass); }
+.seq-row[data-mark="right"] .seq-n { background: var(--pass); color: var(--ground); }
+.seq-picked.right .seq-row { cursor: default; }

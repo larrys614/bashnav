@@ -39,6 +39,15 @@ function synthPack() {
     questions.push({ section: s.id, kind: 'hand', q: `${s.title} — why does the order matter?`,
       a: 'Because the later thing depends on the earlier one',
       where: { part: s.parts[0], sub: 'Discussion', row: 'hand-written' } });
+    //  One ordering question, so the pass and fail runs below exercise
+    //  the ordering interaction too: 100% is only reachable if the right
+    //  order marks right, and 0% only if the reversed one marks wrong.
+    questions.push({ section: s.id, kind: 'sequence',
+      q: `${s.title} — put these in the order they happen.`,
+      a: 'Invented step one → Invented step two → Invented step three',
+      seq: ['Invented step one', 'Invented step two', 'Invented step three'],
+      extra: ['An invented step from a different procedure'],
+      where: { part: s.parts[0], sub: 'The chain', row: 'order' } });
     //  One question that carries its own wrong options, so the public
     //  test covers that path without needing anybody's real pack.
     questions.push({ section: s.id, kind: 'oddone',
@@ -52,6 +61,32 @@ function synthPack() {
            built: '2026-10-20', pass: 80, sections, questions, back: '<p>Back matter.</p>' };
 }
 
+//  Answer whatever kind of question is on screen. Without this the
+//  drive loops below click `.choice`, an ordering question has none, and
+//  the suite stops covering the graded test the moment a pack contains
+//  one -- silently, because the loop just finds nothing to click.
+const ANSWER_FN = `
+window.answerCurrent = function (right) {
+  const q = RUN.qs[RUN.i].q || RUN.qs[RUN.i];
+  if (q.seq && q.seq.length) {
+    const order = right ? q.seq : q.seq.slice().reverse();
+    order.forEach(t => {
+      const b = document.querySelector('#drill-body [data-seq-item="' +
+        t.replace(/"/g, '\\"') + '"]');
+      if (b) b.click();
+    });
+    if (!right) {
+      const x = document.querySelector('#drill-body [data-seq-item]');
+      if (x) x.click();
+    }
+    document.querySelector('#drill-body [data-seq-check]').click();
+    return;
+  }
+  const cs = RUN.qs[RUN.i].choices;
+  const n = right ? cs.findIndex(c => c.ok) : cs.findIndex(c => !c.ok);
+  document.querySelectorAll('#drill-body .choice')[n < 0 ? 0 : n].click();
+};`;
+
 (async () => {
   const packPath = process.argv[2] || path.join(TMP, 'synth.drillpack.json');
   if (!process.argv[2]) fs.writeFileSync(packPath, JSON.stringify(synthPack()));
@@ -64,11 +99,16 @@ function synthPack() {
   const errs = [];
   page.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
   page.on('pageerror', e => errs.push('pageerror: ' + e.message));
+  //  On EVERY document, not just the first: the progress-survives-reload
+  //  check navigates, and a helper injected once is gone after it.
+  await page.addInitScript(ANSWER_FN);
   await page.goto(BASE, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => typeof window.PACK !== 'undefined', { timeout: 15000 });
   let bad = 0;
   const fail = m => { bad++; console.log('  FAIL ' + m); };
   console.log('build ' + await page.evaluate(() => window.BUILD));
+  //  define answerCurrent() inside the page, for the drive loops below
+  await page.evaluate(src => { window.eval(src); }, ANSWER_FN);
 
   // ---- A CHANGED APP MUST BUMP THE SERVICE WORKER CACHE --------------
   //  The worker is cache-first, so an installed copy keeps serving the
@@ -155,6 +195,27 @@ function synthPack() {
     fail('a pack offering an answer as its own wrong option was not refused: ' + selfRefuse);
   else console.log('  ok   a pack offering an answer as its own wrong option is refused');
 
+  //  an ordering question must have an order, and an intruder that is not
+  //  secretly one of its own steps -- a question that marks you wrong for
+  //  leaving out a step that really does belong
+  const seqRefuse = await page.evaluate(() => [
+    validate({ format: 'bashnav-drill-pack/1', sections: [{ id: 'a', title: 'A' }],
+      questions: [{ section: 'a', q: 'x', a: 'y', seq: ['one', 'two', 'three'],
+                    extra: ['two'] }] }),
+    validate({ format: 'bashnav-drill-pack/1', sections: [{ id: 'a', title: 'A' }],
+      questions: [{ section: 'a', q: 'x', a: 'y', seq: ['one', 'two', 'three'] }] }),
+    validate({ format: 'bashnav-drill-pack/1', sections: [{ id: 'a', title: 'A' }],
+      questions: [{ section: 'a', q: 'x', a: 'y', seq: ['one', 'one', 'three'],
+                    extra: ['z'] }] }),
+  ]);
+  if (!/does not belong/.test(seqRefuse[0] || ''))
+    fail('a real step offered as the intruder was not refused: ' + seqRefuse[0]);
+  else if (!/does not belong/.test(seqRefuse[1] || ''))
+    fail('an ordering question with no intruder was not refused: ' + seqRefuse[1]);
+  else if (!/same step twice/.test(seqRefuse[2] || ''))
+    fail('a sequence listing the same step twice was not refused: ' + seqRefuse[2]);
+  else console.log('  ok   a malformed ordering question is refused at load');
+
   //  and the pack actually loaded must satisfy the same rules
   const chBad = await page.evaluate(() => {
     const out = { n: 0, bad: [] };
@@ -169,6 +230,23 @@ function synthPack() {
   });
   if (chBad.bad.length) fail(chBad.bad.length + ' four-option questions are malformed: ' + chBad.bad[0]);
   else console.log('  ok   all ' + chBad.n + ' four-option questions in this pack are well formed');
+
+  const seqStats = await page.evaluate(() => {
+    const out = { n: 0, bad: [] };
+    PACK.questions.forEach(function (q) {
+      if (!q.seq || !q.seq.length) return;
+      out.n++;
+      if (q.seq.length < 3) out.bad.push(q.q + ' :: fewer than three steps');
+      if (new Set(q.seq).size !== q.seq.length) out.bad.push(q.q + ' :: a repeated step');
+      if (!q.extra || !q.extra.length) out.bad.push(q.q + ' :: no intruder');
+      (q.extra || []).forEach(function (x) {
+        if (q.seq.indexOf(x) >= 0) out.bad.push(q.q + ' :: intruder is a real step');
+      });
+    });
+    return out;
+  });
+  if (seqStats.bad.length) fail(seqStats.bad.length + ' ordering questions are malformed: ' + seqStats.bad[0]);
+  else console.log('  ok   all ' + seqStats.n + ' ordering questions in this pack are well formed');
 
   // ---- the gate -------------------------------------------------------
   const states = await page.$$eval('#seclist .seclink', els =>
@@ -240,9 +318,7 @@ function synthPack() {
     let guard = 0;
     while (RUN.i < RUN.qs.length) {
       if (++guard > 200) throw new Error('the test would not advance');
-      const wrong = Array.from(document.querySelectorAll('#drill-body .choice'))
-        .filter((b, n) => !RUN.qs[RUN.i].choices[n].ok)[0];
-      (wrong || document.querySelector('#drill-body .choice')).click();
+      answerCurrent(false);
       await new Promise(r => setTimeout(r, 10));
       const nx = document.querySelector('#drill-body [data-advance]');
       if (!nx) break;
@@ -265,8 +341,7 @@ function synthPack() {
     let guard = 0;
     while (RUN.i < RUN.qs.length) {
       if (++guard > 200) throw new Error('the test would not advance');
-      const n = RUN.qs[RUN.i].choices.findIndex(c => c.ok);
-      document.querySelectorAll('#drill-body .choice')[n].click();
+      answerCurrent(true);
       await new Promise(r => setTimeout(r, 10));
       const nx = document.querySelector('#drill-body [data-advance]');
       if (!nx) break;
@@ -303,7 +378,7 @@ function synthPack() {
     let guard = 0;
     while (RUN.i < RUN.qs.length) {
       if (++guard > 400) throw new Error('the diagnostic would not advance');
-      document.querySelectorAll('#drill-body .choice')[0].click();
+      answerCurrent(true);
       await new Promise(r => setTimeout(r, 8));
       const nx = document.querySelector('#drill-body [data-advance]');
       if (!nx) break;
