@@ -19,3 +19,12 @@ __pycache__/
 # an archive, or a copy of the working tree.  Nothing from Clipper's
 # materials belongs in this repository at all.
 Claude outputs/
+
+# The drill test harness drives a real browser through playwright, which
+# is a dev dependency installed into the working tree.  19 MB of it, and
+# it was untracked AND unignored in a public repo -- the same shape as the
+# accident the rule above was written for.  package.json and
+# package-lock.json ARE tracked, so the harness is reproducible: the
+# version it was verified against is pinned, not whatever npm resolves on
+# the day.
+node_modules/

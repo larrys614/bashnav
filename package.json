@@ -1,0 +1,8 @@
+{
+  "name": "bashnav-tests",
+  "private": true,
+  "description": "Dev-only: playwright, for the browser test harness in docs/web/tests. Not part of the shipped app, which is plain HTML, CSS and JS with no build step.",
+  "devDependencies": {
+    "playwright": "^1.64.1"
+  }
+}
