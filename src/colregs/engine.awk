@@ -1499,6 +1499,16 @@ function lt_phrase(arc,kind,mine,   s){
   if(kind=="sail")     return s " (no masthead light -- she is under sail)"
   return s " and her masthead light"
 }
+function lt_sector(rel,   r){
+  r = nrm360(rel)
+  if(r <= 5 || r >= 355)   return "right ahead"
+  if(r < 67.5)             return "on your starboard bow"
+  if(r < 112.5)            return "on your starboard beam"
+  if(r < 180)              return "on your starboard quarter"
+  if(r < 247.5)            return "on your port quarter"
+  if(r < 292.5)            return "on your port beam"
+  return "on your port bow"
+}
 function scen_lights(   relus, relher, we, she, bow, v){
   relus  = nrm360(SC_B0 - SC_CO)            # where she is, off our bow
   relher = nrm360(SC_B0 + 180 - SC_CT)      # where we are, off her bow
@@ -1508,7 +1518,12 @@ function scen_lights(   relus, relher, we, she, bow, v){
   print ""
   printf "  %s\n", cw("THE LIGHTS",C_ACC)
   hr()
-  printf "  She bears %03d, %.1f nm -- %s of your bow.\n", SC_B0, SC_R0, ((relus<1.5||relus>358.5) ? "right ahead" : bow)
+  #  THE RELATIVE BEARING IS THE USEFUL ONE.  "Port of your bow" is true
+  #  of anything from one degree to a hundred and seventy-nine, and an
+  #  overtaking at ten degrees off the bow read the same as a crossing at
+  #  a hundred.  The number is what you would take off the plot, and the
+  #  words name the arc it falls in.
+  printf "  She bears %03d T, %03d relative -- %s, %.1f nm.\n", SC_B0, relus, lt_sector(relus), SC_R0
   printf "  You see   %s\n", lt_phrase(we,SC_KIND,0)
   printf "  She sees  %s\n", lt_phrase(she,"power",1)
   hr()
@@ -1592,9 +1607,63 @@ function scen_gen(seed,   i,a,k,lo,hi,rb,d,T,side,beta,alpha,thr,vr,p0e,p0n,vte,
       else if(SC_BAND==2) SC_CPA = 0.85 + xrand()*0.3
       else SC_CPA = 1.85 + xrand()*0.3
     }
+    p0e = SC_R0*sind(SC_B0); p0n = SC_R0*cosd(SC_B0)
+
+    #  ---- COURSE FIRST, for the three classes that ARE a course -------
+    #  Head-on, overtaking and overtaken are defined by her course
+    #  relative to ours.  The construction below picks a CPA and lets her
+    #  course fall out of the geometry -- and it almost never falls within
+    #  25 degrees of reciprocal, so the acceptance test threw those draws
+    #  away and the loop quietly replaced them with another class.
+    #
+    #  Measured before fixing it: across 400 consecutive seeds, "meeting
+    #  head-on" and "you overtaking her" NEVER appeared.  Two of the nine
+    #  declared classes were dead, and they are two of the four the rules
+    #  spend the most time on -- and the two where the light colour
+    #  decides nothing at all.
+    #
+    #  So for these three, choose her course and speed first and DERIVE
+    #  the CPA and the time to it, which is the honest direction: at sea
+    #  you measure the bearings and work out the CPA, you do not choose it.
+    if(SC_KEY=="headon" || SC_KEY=="overtaking" || SC_KEY=="overtaken"){
+      if(SC_KEY=="headon"){
+        SC_CT = nrm360(SC_CO + 180 + (xrand()*20 - 10))
+        SC_ST = 5 + xrand()*13 }
+      else {
+        #  AN OVERTAKING PLOT STARTS CLOSE, and it has to.  The closing
+        #  speed is only the difference between the two speeds -- three
+        #  to six knots -- so from six to ten miles the CPA is an hour
+        #  and a half away, not the sixteen to thirty-eight minutes this
+        #  drill is built around.  Head-on closes at the SUM of the
+        #  speeds and works at any range; overtaking does not, and
+        #  keeping the long range is why these two still did not appear
+        #  after her course was chosen first.  At sea you would not plot
+        #  an overtaking at eight miles either: you would watch it.
+        SC_R0 = 1.2 + xrand()*2.2
+        p0e = SC_R0*sind(SC_B0); p0n = SC_R0*cosd(SC_B0)
+        SC_CT = nrm360(SC_CO + (xrand()*20 - 10))
+        if(SC_KEY=="overtaking") SC_ST = SC_SO - (3 + xrand()*3)
+        else                     SC_ST = SC_SO + (3 + xrand()*3) }
+      if(SC_ST < 3.5 || SC_ST > 26) continue
+      vte = vE(SC_CT,SC_ST) - vE(SC_CO,SC_SO)      # relative velocity
+      vtn = vN(SC_CT,SC_ST) - vN(SC_CO,SC_SO)
+      vr = sqrt(vte*vte + vtn*vtn)
+      if(vr < 1.5) continue                        # no useful relative motion
+      T = -(p0e*vte + p0n*vtn)/(vr*vr)             # hours to CPA
+      if(T <= 0.26 || T > 0.64) continue           # 16 to 38 minutes, as above
+      SC_CPA = sqrt((p0e + vte*T)^2 + (p0n + vtn*T)^2)
+      if(SC_CPA <= 0.45)       SC_BAND = 1
+      else if(SC_CPA <= 1.15)  SC_BAND = 2
+      else if(SC_CPA <= 2.15)  SC_BAND = 3
+      else continue                                # too wide to be the drill
+      thr = brg(vte,vtn)                           # so the tail below holds
+      SC_TCPA = T*60.0
+      ok = 1
+      continue
+    }
+
     T = (16 + xrand()*22)/60.0                    # time to CPA, hours
     side = (xrand()<0.5) ? 1 : -1
-    p0e = SC_R0*sind(SC_B0); p0n = SC_R0*cosd(SC_B0)
     beta = brg(-p0e,-p0n)                          # from her, towards us
     alpha = asind(SC_CPA/SC_R0)
     thr = nrm360(beta + side*alpha)                # relative-motion direction
@@ -1605,9 +1674,6 @@ function scen_gen(seed,   i,a,k,lo,hi,rb,d,T,side,beta,alpha,thr,vr,p0e,p0n,vte,
     SC_CT = brg(vte,vtn)
     SC_TCPA = T*60.0
     if(SC_ST<3.5 || SC_ST>26) continue
-    if(SC_KEY=="headon"   && fabs(nrm180(SC_CT-(SC_CO+180)))>25) continue
-    if(SC_KEY=="overtaking" && (fabs(nrm180(SC_CT-SC_CO))>25 || SC_ST>SC_SO-2)) continue
-    if(SC_KEY=="overtaken"  && (fabs(nrm180(SC_CT-SC_CO))>25 || SC_ST<SC_SO+3)) continue
     if(SC_KEY=="clear" && SC_CPA<3.0) continue
     ok=1
   }

@@ -155,6 +155,15 @@ emit() {   # emit <name> ; program output on stdin
     $AW $E -v cmode=plain -v cmd=scenlights -v seed="$s" </dev/null || true
     s=$((s+1))
   done
+  #  COVERAGE BY CONSTRUCTION, NOT BY LUCK.  "You overtaking her" is the
+  #  rarest of the nine -- about one draw in thirteen -- and sixty
+  #  consecutive seeds happened to contain none of it, which is exactly
+  #  how a class goes dead without anyone noticing.  Seed 18 produces
+  #  one, so it is pinned by name.
+  for s in 18; do
+    echo "=== scenlights $s (you overtaking her) ==="
+    $AW $E -v cmode=plain -v cmd=scenlights -v seed="$s" </dev/null || true
+  done
 } | emit scenlights.txt
 
 {

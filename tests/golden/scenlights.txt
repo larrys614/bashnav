@@ -2,7 +2,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 015, 8.7 nm -- starboard of your bow.
+  She bears 015 T, 003 relative -- right ahead, 8.7 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -20,7 +20,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 063, 7.4 nm -- starboard of your bow.
+  She bears 063 T, 039 relative -- on your starboard bow, 7.4 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -38,8 +38,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 220, 6.1 nm -- port of your bow.
-  You see   both sidelights, bow-on, and her masthead light
+  She bears 220 T, 183 relative -- on your port quarter, 1.6 nm.
+  You see   green starboard light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
   She sees your sternlight. She is overtaking you, so she keeps clear
@@ -55,8 +55,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 042, 8.7 nm -- port of your bow.
-  You see   green starboard light and her masthead light
+  She bears 042 T, 353 relative -- on your port bow, 8.7 nm.
+  You see   both sidelights, bow-on, and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
@@ -73,7 +73,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 015, 7.4 nm -- port of your bow.
+  She bears 015 T, 313 relative -- on your port bow, 7.4 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -92,7 +92,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 035, 6.1 nm -- port of your bow.
+  She bears 035 T, 321 relative -- on your port bow, 6.1 nm.
   You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  red port light
   ----------------------------------------------------------------------
@@ -111,7 +111,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 111, 8.8 nm -- starboard of your bow.
+  She bears 111 T, 024 relative -- on your starboard bow, 8.8 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -129,7 +129,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 195, 7.5 nm -- starboard of your bow.
+  She bears 195 T, 096 relative -- on your starboard beam, 7.5 nm.
   You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -147,12 +147,13 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 302, 6.2 nm -- port of your bow.
+  She bears 137 T, 003 relative -- right ahead, 9.3 nm.
   You see   green starboard light and her masthead light
-  She sees  white sternlight
+  She sees  green starboard light
   ----------------------------------------------------------------------
-  She sees your sternlight. She is overtaking you, so she keeps clear
-  (Rule 13) and you stand on (Rule 17).
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -164,8 +165,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 120, 8.8 nm -- port of your bow.
-  You see   both sidelights, bow-on, and her masthead light
+  She bears 120 T, 356 relative -- right ahead, 8.8 nm.
+  You see   red port light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
@@ -182,7 +183,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 103, 7.5 nm -- port of your bow.
+  She bears 103 T, 327 relative -- on your port bow, 7.5 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -201,7 +202,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 131, 6.2 nm -- port of your bow.
+  She bears 131 T, 342 relative -- on your port bow, 6.2 nm.
   You see   white sternlight, under red, white, red -- restricted in her ability to manoeuvre
   She sees  red port light
   ----------------------------------------------------------------------
@@ -220,7 +221,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 207, 8.9 nm -- starboard of your bow.
+  She bears 207 T, 046 relative -- on your starboard bow, 8.9 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -238,7 +239,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 288, 8.7 nm -- starboard of your bow.
+  She bears 288 T, 020 relative -- on your starboard bow, 8.7 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -256,13 +257,13 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 303, 9.6 nm -- starboard of your bow.
-  You see   green starboard light and her masthead light
+  She bears 032 T, 048 relative -- on your starboard bow, 7.5 nm.
+  You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
-  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
-  stands on. Both of you alter to starboard. The colour decides nothing
-  here, because you can see them both.
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -274,7 +275,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 198, 9.0 nm -- right ahead of your bow.
+  She bears 198 T, 359 relative -- right ahead, 9.0 nm.
   You see   green starboard light and her masthead light
   She sees  both sidelights, bow-on,
   ----------------------------------------------------------------------
@@ -292,12 +293,14 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 176, 8.1 nm -- port of your bow.
+  She bears 218 T, 325 relative -- on your port bow, 6.3 nm.
   You see   green starboard light and her masthead light
-  She sees  white sternlight
+  She sees  red port light
   ----------------------------------------------------------------------
-  She sees your sternlight. She is overtaking you, so she keeps clear
-  (Rule 13) and you stand on (Rule 17).
+  Her green on your port side: she has you on HER starboard, so she
+  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
+  course and speed, which is an instruction, not permission to stop
+  looking.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -309,13 +312,13 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 182, 8.2 nm -- starboard of your bow.
-  You see   red port light and her masthead light
-  She sees  green starboard light
+  She bears 207 T, 351 relative -- on your port bow, 2.3 nm.
+  You see   white sternlight
+  She sees  red port light
   ----------------------------------------------------------------------
-  The lights read like a crossing, but the bearing is opening and the
-  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
-  the bearing; that, not the colour, is what tells you.
+  Her sternlight -- no colour to read at all. You are the overtaking
+  vessel, so you keep clear until you are past and clear (Rule 13),
+  whatever else you can see.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -327,7 +330,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 183, 9.0 nm -- port of your bow.
+  She bears 183 T, 307 relative -- on your port bow, 9.0 nm.
   You see   green starboard light, under red over white -- engaged in fishing
   She sees  red port light
   ----------------------------------------------------------------------
@@ -345,7 +348,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 098, 7.7 nm -- port of your bow.
+  She bears 098 T, 210 relative -- on your port quarter, 7.7 nm.
   You see   red port light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -363,7 +366,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 065, 6.4 nm -- starboard of your bow.
+  She bears 065 T, 164 relative -- on your starboard quarter, 2.1 nm.
   You see   red port light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -380,8 +383,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 275, 9.1 nm -- starboard of your bow.
-  You see   red port light and her masthead light
+  She bears 275 T, 002 relative -- right ahead, 9.1 nm.
+  You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
@@ -398,7 +401,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 204, 7.7 nm -- port of your bow.
+  She bears 204 T, 278 relative -- on your port beam, 7.7 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -417,7 +420,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 323, 6.4 nm -- starboard of your bow.
+  She bears 323 T, 025 relative -- on your starboard bow, 6.4 nm.
   You see   red port light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -436,7 +439,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 048, 9.1 nm -- starboard of your bow.
+  She bears 048 T, 097 relative -- on your starboard beam, 9.1 nm.
   You see   red port light (no masthead light -- she is under sail)
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -455,7 +458,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 230, 7.8 nm -- port of your bow.
+  She bears 230 T, 267 relative -- on your port beam, 7.8 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -473,14 +476,13 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 140, 8.0 nm -- port of your bow.
-  You see   both sidelights, bow-on, (no masthead light -- she is under sail)
-  She sees  white sternlight
+  She bears 330 T, 354 relative -- on your port bow, 3.0 nm.
+  You see   white sternlight
+  She sees  red port light
   ----------------------------------------------------------------------
-  The colour tells you nothing here. She is under sail and you are
-  under power, so you keep out of her way (Rule 18) -- and between two
-  sailing vessels it is Rule 12, decided by tack and by windward or
-  leeward, not by which light you happen to see.
+  Her sternlight -- no colour to read at all. You are the overtaking
+  vessel, so you keep clear until you are past and clear (Rule 13),
+  whatever else you can see.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -492,7 +494,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 353, 9.2 nm -- starboard of your bow.
+  She bears 353 T, 005 relative -- on your starboard bow, 9.2 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -510,7 +512,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 047, 7.9 nm -- starboard of your bow.
+  She bears 047 T, 047 relative -- on your starboard bow, 7.9 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -528,7 +530,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 059, 6.5 nm -- starboard of your bow.
+  She bears 059 T, 046 relative -- on your starboard bow, 6.5 nm.
   You see   red port light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -547,7 +549,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 166, 9.3 nm -- port of your bow.
+  She bears 166 T, 300 relative -- on your port bow, 9.3 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -566,7 +568,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 002, 7.9 nm -- port of your bow.
+  She bears 002 T, 324 relative -- on your port bow, 7.9 nm.
   You see   red port light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -584,13 +586,13 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 112, 7.6 nm -- port of your bow.
-  You see   green starboard light and her masthead light
-  She sees  red port light
+  She bears 049 T, 359 relative -- right ahead, 1.7 nm.
+  You see   white sternlight
+  She sees  both sidelights, bow-on,
   ----------------------------------------------------------------------
-  The lights read like a crossing, but the bearing is opening and the
-  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
-  the bearing; that, not the colour, is what tells you.
+  Her sternlight -- no colour to read at all. You are the overtaking
+  vessel, so you keep clear until you are past and clear (Rule 13),
+  whatever else you can see.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -602,8 +604,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 055, 9.3 nm -- port of your bow.
-  You see   green starboard light and her masthead light
+  She bears 055 T, 352 relative -- on your port bow, 9.3 nm.
+  You see   red port light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
@@ -620,7 +622,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 135, 8.0 nm -- starboard of your bow.
+  She bears 135 T, 060 relative -- on your starboard bow, 8.0 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -638,7 +640,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 036, 6.6 nm -- port of your bow.
+  She bears 036 T, 308 relative -- on your port bow, 6.6 nm.
   You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  red port light
   ----------------------------------------------------------------------
@@ -657,14 +659,13 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 333, 6.9 nm -- port of your bow.
-  You see   green starboard light (no masthead light -- she is under sail)
+  She bears 279 T, 354 relative -- on your port bow, 2.1 nm.
+  You see   white sternlight
   She sees  red port light
   ----------------------------------------------------------------------
-  The colour tells you nothing here. She is under sail and you are
-  under power, so you keep out of her way (Rule 18) -- and between two
-  sailing vessels it is Rule 12, decided by tack and by windward or
-  leeward, not by which light you happen to see.
+  Her sternlight -- no colour to read at all. You are the overtaking
+  vessel, so you keep clear until you are past and clear (Rule 13),
+  whatever else you can see.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -676,7 +677,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 173, 8.0 nm -- starboard of your bow.
+  She bears 173 T, 061 relative -- on your starboard bow, 8.0 nm.
   You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -694,13 +695,14 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 289, 8.2 nm -- port of your bow.
-  You see   green starboard light, under red over white -- engaged in fishing
-  She sees  red port light
+  She bears 109 T, 006 relative -- on your starboard bow, 8.3 nm.
+  You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  green starboard light
   ----------------------------------------------------------------------
-  The all-round lights outrank the colour. Red over white is the signal
-  that governs: you keep out of the way of a vessel engaged in fishing
-  (Rule 18), even when she is showing you green.
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -712,8 +714,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 132, 9.4 nm -- port of your bow.
-  You see   green starboard light and her masthead light
+  She bears 132 T, 355 relative -- right ahead, 9.4 nm.
+  You see   red port light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
@@ -730,7 +732,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 223, 8.1 nm -- starboard of your bow.
+  She bears 223 T, 073 relative -- on your starboard beam, 8.1 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -748,7 +750,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 131, 6.8 nm -- port of your bow.
+  She bears 131 T, 329 relative -- on your port bow, 6.8 nm.
   You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  red port light
   ----------------------------------------------------------------------
@@ -767,7 +769,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 083, 9.4 nm -- port of your bow.
+  She bears 083 T, 268 relative -- on your port beam, 9.4 nm.
   You see   green starboard light (no masthead light -- she is under sail)
   She sees  red port light
   ----------------------------------------------------------------------
@@ -786,7 +788,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 305, 8.1 nm -- starboard of your bow.
+  She bears 305 T, 118 relative -- on your starboard quarter, 8.1 nm.
   You see   red port light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -804,14 +806,12 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 130, 8.8 nm -- port of your bow.
-  You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
-  She sees  red port light
+  She bears 141 T, 188 relative -- on your port quarter, 2.4 nm.
+  You see   both sidelights, bow-on, and her masthead light
+  She sees  white sternlight
   ----------------------------------------------------------------------
-  The all-round lights outrank the colour. Red, white, red is the
-  signal that governs: you keep out of the way of a vessel restricted
-  in her ability to manoeuvre (Rule 18), even when she is showing you
-  green.
+  She sees your sternlight. She is overtaking you, so she keeps clear
+  (Rule 13) and you stand on (Rule 17).
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -823,8 +823,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 209, 9.5 nm -- port of your bow.
-  You see   red port light and her masthead light
+  She bears 209 T, 357 relative -- right ahead, 9.5 nm.
+  You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
@@ -841,8 +841,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 249, 9.1 nm -- starboard of your bow.
-  You see   red port light and her masthead light
+  She bears 249 T, 004 relative -- right ahead, 9.1 nm.
+  You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
   Both her sidelights: she is bow-on, and this is Rule 14. Nobody
@@ -859,7 +859,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 228, 6.9 nm -- port of your bow.
+  She bears 228 T, 351 relative -- on your port bow, 6.9 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  red port light
   ----------------------------------------------------------------------
@@ -877,7 +877,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 214, 9.5 nm -- port of your bow.
+  She bears 214 T, 325 relative -- on your port bow, 9.5 nm.
   You see   green starboard light (no masthead light -- she is under sail)
   She sees  red port light
   ----------------------------------------------------------------------
@@ -896,8 +896,8 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 213, 9.2 nm -- starboard of your bow.
-  You see   green starboard light and her masthead light
+  She bears 081 T, 179 relative -- on your starboard quarter, 2.0 nm.
+  You see   red port light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
   She sees your sternlight. She is overtaking you, so she keeps clear
@@ -913,13 +913,13 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 044, 9.5 nm -- starboard of your bow.
-  You see   both sidelights, bow-on, and her masthead light
-  She sees  green starboard light
+  She bears 259 T, 345 relative -- on your port bow, 2.1 nm.
+  You see   white sternlight
+  She sees  red port light
   ----------------------------------------------------------------------
-  Her red on your starboard side. "If to starboard red appear, 'tis
-  your duty to keep clear" -- you give way (Rule 15), and Rule 8 wants
-  it early and large enough to be obvious.
+  Her sternlight -- no colour to read at all. You are the overtaking
+  vessel, so you keep clear until you are past and clear (Rule 13),
+  whatever else you can see.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -931,7 +931,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 232, 9.6 nm -- port of your bow.
+  She bears 232 T, 305 relative -- on your port bow, 9.6 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -950,7 +950,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 324, 8.3 nm -- starboard of your bow.
+  She bears 324 T, 025 relative -- on your starboard bow, 8.3 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -968,7 +968,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 000, 7.8 nm -- starboard of your bow.
+  She bears 000 T, 071 relative -- on your starboard beam, 7.8 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -986,7 +986,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 026, 9.7 nm -- starboard of your bow.
+  She bears 026 T, 062 relative -- on your starboard bow, 9.7 nm.
   You see   red port light (no masthead light -- she is under sail)
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -1005,14 +1005,12 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 263, 6.9 nm -- starboard of your bow.
-  You see   red port light, under red, white, red -- restricted in her ability to manoeuvre
-  She sees  green starboard light
+  She bears 162 T, 186 relative -- on your port quarter, 2.8 nm.
+  You see   green starboard light and her masthead light
+  She sees  white sternlight
   ----------------------------------------------------------------------
-  The all-round lights outrank the colour. Red, white, red is the
-  signal that governs: you keep out of the way of a vessel restricted
-  in her ability to manoeuvre (Rule 18), even when she is showing you
-  green.
+  She sees your sternlight. She is overtaking you, so she keeps clear
+  (Rule 13) and you stand on (Rule 17).
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -1024,14 +1022,13 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 127, 6.1 nm -- port of your bow.
-  You see   green starboard light and her masthead light
-  She sees  red port light
+  She bears 184 T, 024 relative -- on your starboard bow, 9.8 nm.
+  You see   red port light, under red over white -- engaged in fishing
+  She sees  green starboard light
   ----------------------------------------------------------------------
-  Her green on your port side: she has you on HER starboard, so she
-  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
-  course and speed, which is an instruction, not permission to stop
-  looking.
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
@@ -1043,7 +1040,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 320, 9.7 nm -- port of your bow.
+  She bears 320 T, 319 relative -- on your port bow, 9.7 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -1062,7 +1059,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 052, 8.4 nm -- starboard of your bow.
+  She bears 052 T, 038 relative -- on your starboard bow, 8.4 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -1080,13 +1077,31 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 059, 7.1 nm -- starboard of your bow.
+  She bears 059 T, 033 relative -- on your starboard bow, 7.1 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
   The all-round lights outrank the colour. Red over white is the signal
   that governs: you keep out of the way of a vessel engaged in fishing
   (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 18 (you overtaking her) ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 207 T, 351 relative -- on your port bow, 2.3 nm.
+  You see   white sternlight
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Her sternlight -- no colour to read at all. You are the overtaking
+  vessel, so you keep clear until you are past and clear (Rule 13),
+  whatever else you can see.
 
   What the colour is worth: it decides a power-driven crossing and
   nothing else. An all-round light above a sidelight outranks it, a
