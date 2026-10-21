@@ -1118,7 +1118,11 @@ function qpick_rule(seed,   i,c){
 function quiz_rule(seed,   i){
   qpick_rule(seed)
   print ""
-  if(QZ_DIR==1) printf "  %s\n", cw("What is " RUL_N[QZ_C] "?",C_ACC)
+  #  "What is Rules 15 and 16?" -- three of the fifteen entries cover more
+  #  than one rule ("Rules 15 and 16", "Rules 20-31", "Rules 32-37"), and
+  #  the singular stem reads wrong on all three.  The label says which it
+  #  is: it starts "Rules" when it is plural.
+  if(QZ_DIR==1) printf "  %s\n", cw((RUL_N[QZ_C] ~ /^Rules/ ? "What are " : "What is ") RUL_N[QZ_C] "?",C_ACC)
   else          printf "  %s\n", cw("Which rule is \"" RUL_T[QZ_C] "\"?",C_ACC)
   print ""
   for(i=1;i<=4;i++)

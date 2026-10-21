@@ -123,7 +123,7 @@
 
 === qrule 23 ===
 
-  What is Rules 32-37?
+  What are Rules 32-37?
 
    a) Action to avoid collision
    b) Action by the stand-on vessel
