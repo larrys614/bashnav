@@ -314,6 +314,29 @@ window.answerCurrent = function (right) {
   if (chBad.bad.length) fail(chBad.bad.length + ' four-option questions are malformed: ' + chBad.bad[0]);
   else console.log('  ok   all ' + chBad.n + ' four-option questions in this pack are well formed');
 
+  //  LARRY, drilling: "there can only be one correct answer to this
+  //  question.  only one of them is a number."  The question was "how many
+  //  calls are there in gybing?", and the three wrong options were prose
+  //  sentences borrowed from the section.  Nobody who knows what a numeral
+  //  looks like can get that wrong, and nobody who gets it right has
+  //  learnt anything.  A bare count must therefore bring its own options,
+  //  all of them counts.  Checked on the pack rather than the generator,
+  //  so a pack built by an older generator cannot slip through.
+  const numBad = await page.evaluate(() => {
+    const bare = /^\s*\d+(\s+\S+){0,2}\s*$/;
+    const bad = [];
+    PACK.questions.forEach(function (q) {
+      if (q.recall || !bare.test(q.a || '')) return;
+      if (!q.ch || q.ch.length !== 3)
+        bad.push(q.q + ' :: ' + q.a + ' -- a bare count with no options of its own');
+      else if (q.ch.some(function (c) { return !bare.test(c); }))
+        bad.push(q.q + ' :: a count offered against prose -- ' + q.ch.join(' / '));
+    });
+    return bad;
+  });
+  if (numBad.length) fail(numBad.length + ' count question(s) give themselves away: ' + numBad[0]);
+  else console.log('  ok   every bare count in this pack is offered against other counts');
+
   const seqStats = await page.evaluate(() => {
     const out = { n: 0, bad: [] };
     PACK.questions.forEach(function (q) {
