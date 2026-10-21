@@ -306,6 +306,64 @@ window.answerCurrent = function (right) {
   if (cut.length) fail(cut.length + ' text(s) in this pack are cut short: ' + cut[0]);
   else console.log('  ok   no answer, option or step in this pack is cut short');
 
+  //  THE RUNNER QUESTION MUST ASK WHICH RUNNER.  Larry: "there can only be
+  //  one right answer....perhaps one of the other answers should revers
+  //  the runner lables, with the actions, which would make people think."
+  //  Before this, a runner question's other options were other stations'
+  //  jobs, so the option that mentioned runners at all was the answer.
+  //  One option is now this answer with the runner labels reversed --
+  //  lazy for working, high side for low side -- which is wrong in the one
+  //  way that matters on a boat whose mast the working runner is holding
+  //  up.  Checked by performing the same swap here: the option has to be
+  //  present and it has to be exactly the reverse, or the question is
+  //  either easy again or wrong in some other way.
+  const runner = await page.evaluate(() => {
+    const pairs = [['low side', 'high side'], ['working', 'lazy']];
+    const alts = [].concat.apply([], pairs).sort(function (a, b) { return b.length - a.length; });
+    const re = new RegExp('\\b(?:' + alts.join('|') + ')\\b', 'gi');
+    const flip = function (t) {
+      return t.replace(re, function (w) {
+        const l = w.toLowerCase();
+        for (var i = 0; i < pairs.length; i++) {
+          var x = pairs[i][0], y = pairs[i][1];
+          var r = l === x ? y : (l === y ? x : null);
+          if (!r) continue;
+          if (w === w.toUpperCase()) return r.toUpperCase();
+          if (w[0] === w[0].toUpperCase()) return r[0].toUpperCase() + r.slice(1);
+          return r;
+        }
+        return w;
+      });
+    };
+    const norm = function (t) { return String(t).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); };
+    const out = { n: 0, bad: [] };
+    PACK.questions.forEach(function (q) {
+      if (q.kind !== 'station' || !/^running backstay/i.test(q.station || '')) return;
+      out.n++;
+      if (!q.ch || q.ch.length !== 3) {
+        out.bad.push(q.q + ' :: no options of its own');
+        return;
+      }
+      const want = norm(flip(q.a));
+      if (want === norm(q.a)) { out.bad.push(q.q + ' :: nothing to reverse'); return; }
+      if (!q.ch.some(function (c) { return norm(c) === want; }))
+        out.bad.push(q.q + ' :: no reversed-label option among ' + q.ch.length);
+      //  and the reverse must not be offered as the ANSWER anywhere
+      PACK.questions.forEach(function (o) {
+        if (o !== q && norm(o.a) === want) out.bad.push(q.q + ' :: its reverse is a real answer in ' + o.q);
+      });
+    });
+    return out;
+  });
+  //  A COUNT OF ZERO PASSES EVERY CHECK ABOVE.  The first run of this test
+  //  reported "all 0 runner questions" and passed, because `station` was
+  //  being dropped on the way into the pack -- so the test agreed with a
+  //  pack that had lost the field it was testing.  A test that cannot
+  //  fail is not a test; this one now needs to find them.
+  if (runner.bad.length) fail(runner.bad.length + ' runner question(s) wrong: ' + runner.bad[0]);
+  else if (runner.n < 1) fail('no runner questions found in this pack -- is the station field being carried?');
+  else console.log('  ok   all ' + runner.n + ' runner questions offer the labels reversed');
+
   //  A SECTION CAN RUN OUT OF DISTRACTORS, and a question with no wrong
   //  option is an automatic mark -- worse than the duplicate the
   //  filtering was added to prevent.
