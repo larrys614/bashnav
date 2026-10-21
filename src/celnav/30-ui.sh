@@ -219,10 +219,10 @@ learn_menu() {
     case "$a" in
       x|X|"") return ;;
       n|N)  nx=""
-            for L in F1 F2 F3 F4 F5 T1 T2 T3 T4 T5 S1 S2 S3 S4 S5 R1 R2 R3 R4 R5; do
+            for L in $(teach -v cmd=t_codes); do
               case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
             done
-            if [ -z "$nx" ]; then echo "  All twenty done. Try the drills."; else do_lesson "$nx"; fi ;;
+            if [ -z "$nx" ]; then echo "  Every lesson done. Try the drills."; else do_lesson "$nx"; fi ;;
       *)    do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
     esac
   done
@@ -294,11 +294,12 @@ train_menu() {
     load_prog
     ndone=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]')
     [ -n "$ndone" ] || ndone=0
+    nles=$(teach -v cmd=t_codes | wc -w | tr -d ' ')
     echo
     echo "  ==============================================================="
-    echo "   LEARN AND PRACTISE          lessons $ndone of 20   drills $dok/$dtry"
+    echo "   LEARN AND PRACTISE          lessons $ndone of $nles   drills $dok/$dtry"
     echo "  ==============================================================="
-    echo "   1  Lessons              twenty of them, from first principles"
+    echo "   1  Lessons              $nles of them, from first principles"
     echo "   2  Walkthrough          one real sight, explained line by line"
     echo "   3  Drills               problems with answers, marked"
     echo "   4  Sandbox              change one thing, watch the triangle move"

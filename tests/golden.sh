@@ -236,6 +236,25 @@ emit() {   # emit <name> ; program output on stdin
      -v drlat="50 09.0 N" -v drlon="005 04.0 W" </dev/null
 } | emit celnav-almanac.txt
 
+# ---- celnav: every lesson, its figure and its answer ------------------
+#  The lesson list comes from the app itself (cmd=t_codes reads the one
+#  syllabus string), so a lesson added without a capture cannot slip
+#  through unnoticed.  The figures are computed, not drawn by hand - the
+#  cocked-hat panels in C1 are three real LOP crossings and print the
+#  size of the hat in miles - so a change to the plotting helpers or to
+#  the spherical trig shows up here as a readable diff and not only in
+#  the almanac numbers.
+{
+  for L in $($AW $CT -v cmode=plain -v cmd=t_codes </dev/null); do
+    echo "=== lesson $L ==="
+    $AW $CT -v cmode=plain -v cmd=t_lesson -v les="$L" </dev/null
+    echo "=== answer $L (given b) ==="
+    $AW $CT -v cmode=plain -v cmd=t_check -v les="$L" -v ans=b </dev/null || true
+  done
+  echo "=== syllabus, part done ==="
+  $AW $CT -v cmode=plain -v cmd=t_syllabus -v done=F1,F2,C1 </dev/null
+} | emit celnav-lessons.txt
+
 # ---- tides: the deterministic screens ---------------------------------
 TD="-f src/tides/tables.awk -f src/tides/engine.awk -v SF=src/tides/stations.dat"
 {

@@ -1,0 +1,1070 @@
+=== lesson F1 ===
+
+  F1  What a sight actually measures
+  ------------------------------------
+
+  A sextant measures one thing: the angle between a body in the sky and
+  your horizon. Nothing else. It does not know where you are, and it does
+  not care.
+
+    1. You bring the body down to the horizon in the mirrors and read the
+       angle off the arc. That reading is Hs, the sextant altitude.
+    2. Straight overhead is 90 degrees. The horizon is 0. So an altitude of
+       40 degrees means the body stands 40 degrees up from the sea.
+    3. The useful quantity is the other half of that: 90 minus the altitude,
+       called the zenith distance. It is how far the body is from being
+       directly overhead.
+
+  That last number is the whole trick, and the next two lessons are about
+  why. Hold on to it: zenith distance = 90 - altitude.
+
+       zenith (straight up)
+           |
+           |      90 - Hs = zenith distance
+           |   .-'
+           | .'        * the body
+           |'      .-'
+           |   .-'   Hs = the angle you measure
+        you o------------------------------  your horizon
+
+
+  ----------------------------------------------------------------------
+  Q. You measure an altitude of 62 degrees. What is the zenith distance?
+       a) 62 degrees      b) 28 degrees      c) 152 degrees
+
+=== answer F1 (given b) ===
+
+  Correct.  90 - 62 = 28 degrees, which is 1680 miles from the GP.
+
+=== lesson F2 ===
+
+  F2  The geographical position
+  -------------------------------
+
+  At any instant, every body in the sky is directly overhead somewhere on
+  the earth. That spot is its geographical position, or GP.
+
+    1. The GP has a latitude and a longitude, like any other place.
+    2. Its latitude is the body's declination - how far north or south of
+       the celestial equator the body lies.
+    3. Its longitude comes from the body's Greenwich Hour Angle, GHA -
+       how far west of Greenwich it has swung.
+    4. The GP moves, and quickly: the earth turns 15 degrees of longitude
+       an hour, so a body's GP travels about 900 nautical miles westward
+       every hour at the equator.
+
+  The almanac exists to answer one question: at this instant of Universal
+  Time, where is this body's GP? Declination gives the latitude, GHA gives
+  the longitude. That is all an almanac is for.
+
+  Nothing here depends on where you are. The GP is the same for every
+  observer on earth at that instant, which is exactly what makes it useful.
+
+
+  ----------------------------------------------------------------------
+  Q. What does a body's declination tell you?
+       a) the latitude of its GP   b) the longitude of its GP   c) its altitude
+
+=== answer F2 (given b) ===
+
+  Not quite - the answer is A.  Declination is the latitude of the GP; GHA gives the longitude.
+
+=== lesson F3 ===
+
+  F3  Your altitude puts you on a circle
+  ----------------------------------------
+
+  Now put the two ideas together.
+
+    1. If a body were exactly overhead, its altitude would be 90 degrees
+       and you would be standing on its GP.
+    2. Measure an altitude of 50 degrees instead, and your zenith distance
+       is 40 degrees. You are 40 degrees away from the GP.
+    3. One degree on the earth is 60 nautical miles, so you are 2400 miles
+       from the GP - but the sextant says nothing about which direction.
+    4. Every point 2400 miles from the GP is a candidate. Those points form
+       a circle drawn on the earth, centred on the GP.
+
+  That circle is your circle of position. One sight, one circle. You are
+  somewhere on it.
+
+  
+                          ...................
+                   .......         N         .......
+               .....                               .....
+            ....                                       ....
+         ....                                             ....
+       ...           youo@ooooooooooooooooo                  ...
+      ..           ooooo                   ooooo               ..
+     ..          ooo                           ooo              ..
+    ..         oo                                oo@             ..
+   ..         oo                                   oo             ..
+   .         o                                      oo             .
+   .         o                                       o             .
+   .--      oo                  * GP                 o           --.
+   ..----    o                                       o        ----..
+    ..  -----oo                                     oo  -------  ..
+     ..       ooo-----------               -------ooo----       ..
+      ..        ooo         ---------------     ooo            ..
+       ...        oooo                       oooo            ...
+         ....        ooooooo           oooo@oo            ....
+            ....            oooooooooooo               ....
+               .....                               .....
+                   .......                   .......
+                          ...................
+  
+
+  Altitude 50 degrees, so the zenith distance is 40 degrees, so you are
+  2400 miles from the GP. Every @ satisfies the sight equally well.
+
+  ----------------------------------------------------------------------
+  Q. A sight gives a zenith distance of 30 degrees. How far are you from the GP?
+       a) 30 miles        b) 300 miles       c) 1800 miles
+
+=== answer F3 (given b) ===
+
+  Not quite - the answer is C.  30 degrees times 60 miles per degree = 1800 nautical miles.
+
+=== lesson F4 ===
+
+  F4  Two circles give a fix
+  ----------------------------
+
+  One circle is not a position. Two are.
+
+    1. Take a second sight of a different body. It gives a second circle,
+       centred on that body's GP.
+    2. Two circles on a sphere cross in two places, and you are at one of
+       them.
+    3. The two crossings are usually hundreds or thousands of miles apart,
+       so your dead reckoning tells you at a glance which one is yours.
+    4. A third sight is the check. If all three circles pass through the
+       same small area, the round was a good one. If they enclose a large
+       triangle, one of the sights is wrong.
+
+  That is celestial navigation entire. Everything after this lesson is
+  about doing it accurately and quickly, on a small chart table, without
+  drawing circles thousands of miles across.
+
+  
+                          ...................
+                   .......         N         .......
+               .....               xxxxxxxxxxx     .....
+            ....              xxxxxx         xxxxxxx   ....
+         ....              xxxx                    xxxx   ....
+       ...           oooooxxooooooooooooo             xxx    ...
+      ..         ooooo   xx              oooo           xx     ..
+     ..        ooo       x                 * 2oo         xx     ..
+    ..       oo          xx                    ooo        x      ..
+   ..       oo            xx                     oo       x       ..
+   .       oo              xx                     oo    xx         .
+   .       o                xxxx                   o  xxx          .
+   .-      o                  *xxxxxx             xxxxx          --.
+   ..----  o                        xxxxxxxxxxxxxxxo          ----..
+    ..  ---oo-                                    oo    -------  ..
+     ..      oo------------                 ----ooo------       ..
+      ..      ooo          -----------------  ooo              ..
+       ...      ooooo                      oooo              ...
+         ....       ooooooo         oooooooo              ....
+            ....          ooooooooooo                  ....
+               .....                               .....
+                   .......                   .......
+                          ...................
+  
+
+  Two bodies, two circles, and they cross in two places. Your dead
+  reckoning tells you which crossing is yours - they are a long way apart.
+
+  ----------------------------------------------------------------------
+  Q. Two circles of position cross in two places. What decides which one is you?
+       a) the brighter body   b) your dead reckoning   c) the higher altitude
+
+=== answer F4 (given b) ===
+
+  Correct.  The crossings are usually hundreds of miles apart, so a rough DR settles it.
+
+=== lesson F5 ===
+
+  F5  Why we never draw the circles
+  -----------------------------------
+
+  A circle of position is typically two or three thousand miles across.
+  You cannot draw one on a chart. You do not need to.
+
+    1. You already know roughly where you are - your dead reckoning.
+    2. Near your DR, a stretch of that vast circle is almost perfectly
+       straight. Over 60 miles it departs from a straight line by a
+       fraction of a mile.
+    3. So instead of the circle, we draw a short straight line: the line
+       of position, or LOP.
+    4. To place it we need two things - how far the circle passes from
+       the DR, and in what direction. Those are the intercept and the
+       azimuth, and computing them is what sight reduction does.
+
+  The picture below is the circle from lesson F3, zoomed in to a 60-mile
+  stretch, with the vertical stretched so that you can see the curve at all.
+
+   the circle of position has a radius of 2400 nm
+   across 60 nm it falls only 0.19 nm away from the straight line
+   (drawn here with the vertical stretched about 33 times, or you
+  owould not see the curve at all)                                  o
+   ooo                                                           ooo
+      ooo                                                     ooo
+         ooo                                               ooo
+            ooo                                         ooo
+               ooooo                               ooooo
+                    ooooooo                 ooooooo
+  -------------------------oooooooo+oooooooo-------------------------
+                                AP
+   o = the true circle of position    - = the straight LOP we draw
+
+  ----------------------------------------------------------------------
+  Q. Why can a line of position be drawn straight?
+       a) the circle really is straight   b) over a few tens of miles the
+          curvature is a fraction of a mile   c) because the earth is flat locally
+
+=== answer F5 (given b) ===
+
+  Correct.  Across 60 miles a typical circle departs from the chord by about 0.2 miles.
+
+=== lesson T1 ===
+
+  T1  Universal Time, and why the clock rules
+  ---------------------------------------------
+
+  Everything in celestial navigation is referred to Universal Time, which
+  for our purposes is the same as GMT. Not ship's time, not local time.
+
+    1. The earth turns 360 degrees in 24 hours: 15 degrees an hour,
+       15 minutes of arc a minute, 15 seconds of arc a second.
+    2. At the equator one minute of arc of longitude is one nautical mile.
+       So one second of clock error is a quarter of a mile of longitude.
+    3. Four seconds is a mile. Forty seconds is ten miles.
+    4. A clock error moves your longitude and leaves your latitude alone,
+       which is a useful thing to recognise: if a fix is wrong east-west
+       but right north-south, suspect the time before anything else.
+
+  The practical rules that follow from this:
+
+    - Set your watch against a known source and write down the error and
+      the date you checked it.
+    - Note the time of a sight to the second, at the instant the body
+      touches the horizon.
+    - If you are shooting alone, call the time out loud as you take it, or
+      take the sight and then read the watch - never the other way round.
+
+
+  ----------------------------------------------------------------------
+  Q. Your watch is 20 seconds fast and you do not allow for it. How wrong is the fix?
+       a) 5 miles of longitude   b) 20 miles of longitude   c) 5 miles of latitude
+
+=== answer T1 (given b) ===
+
+  Not quite - the answer is A.  Four seconds is one mile, so 20 seconds is five - and it is longitude, not latitude.
+
+=== lesson T2 ===
+
+  T2  GHA and declination
+  -------------------------
+
+  These two numbers are the GP, and the almanac's whole job is to produce
+  them for a given instant.
+
+    1. Declination is the latitude of the GP. North is positive, south
+       negative. The sun's declination swings between about 23.4 degrees
+       north in June and 23.4 south in December, and it is what gives us
+       seasons.
+    2. Greenwich Hour Angle is the longitude of the GP, measured westward
+       from Greenwich, and always written 0 to 360 degrees rather than
+       east and west.
+    3. To convert: a GHA of 45 degrees is longitude 45 degrees west. A GHA
+       of 300 degrees is longitude 60 degrees east, because 360 - 300 = 60.
+    4. GHA increases by about 15 degrees an hour for every body, because it
+       is really a measure of the earth's rotation.
+
+  In CELNAV, 'celnav alm' prints GHA and declination for any body at any
+  time. You can check it against a printed Nautical Almanac page and the
+  figures will agree to a fraction of a minute of arc.
+
+
+  ----------------------------------------------------------------------
+  Q. A body has GHA 300 degrees. What longitude is its GP in?
+       a) 300 degrees west   b) 60 degrees east   c) 60 degrees west
+
+=== answer T2 (given b) ===
+
+  Correct.  GHA is measured west, so 300 west is the same place as 60 east.
+
+=== lesson T3 ===
+
+  T3  Aries and SHA: why the stars are different
+  ------------------------------------------------
+
+  The sun, moon and planets each get their own GHA in the almanac. The
+  stars are handled differently, and for a good reason.
+
+    1. The stars are so far away that they do not move relative to one
+       another in any human timescale. The whole star sphere turns as one
+       rigid thing.
+    2. So the almanac gives the hour angle of one imaginary point, the
+       First Point of Aries, and then each star's fixed offset from it.
+    3. That offset is the Sidereal Hour Angle, SHA, measured westward from
+       Aries. Sirius has an SHA of about 259 degrees and will still have
+       it in twenty years.
+    4. So: GHA of a star = GHA Aries + SHA, subtracting 360 if needed.
+
+  One consequence worth knowing: the star sphere gains about four minutes
+  a day on the sun. A star that crosses your meridian at 2000 tonight will
+  do it at 1956 tomorrow, and two hours earlier in a month.
+
+
+  ----------------------------------------------------------------------
+  Q. How do you get the GHA of a star?
+       a) it is tabulated for each star   b) GHA Aries plus the star's SHA
+       c) GHA of the sun plus the star's SHA
+
+=== answer T3 (given b) ===
+
+  Correct.  One hour angle for the whole star sphere, plus each star's fixed offset.
+
+=== lesson T4 ===
+
+  T4  LHA: the angle at the pole
+  --------------------------------
+
+  GHA is measured from Greenwich. What matters to you is the angle measured
+  from your own meridian, and that is the Local Hour Angle.
+
+    1. LHA = GHA + your longitude, counting east longitude as positive and
+       west as negative, then brought back into the range 0 to 360.
+    2. LHA 0 means the body is exactly on your meridian - due north or due
+       south of you, and at its highest for the day. That is the noon sight.
+    3. LHA 90 means the body is a quarter of the way round the sky to the
+       west of you; LHA 270 means a quarter of the way to the east.
+    4. LHA is the angle at the pole in the navigational triangle, which is
+       the shape the whole reduction is built on. You meet it again in R1.
+
+  Worked example. GHA of the sun is 283 degrees 42 minutes; you are in
+  longitude 40 degrees west. LHA = 283 42 - 40 00 = 243 42. The sun is
+  243 degrees west of you round the sky - which is another way of saying
+  116 degrees to the east of you, and therefore still in the morning sky.
+
+  
+                            Greenwich
+                         .......|.......
+                   ......       |       ......  you
+                ....            |            .o..
+              ...               |           ooo ...
+            ...                 |-----    oo===   ...
+           ..                   |    ---ooo   ===   ..
+     GP   ..                    |     oo ---    ==   ..
+         .*******               |  ooo     --    ==   ..
+         .    = ***********     |ooo        --    =    .
+         .    =    -       **** N            -    =    .
+         .    =    --                       --    =    .
+         ..   ==    --                     --    ==   ..
+          ..   ==    ---                 ---    ==   ..
+           ..   ===    -----         -----    ===   ..
+            ...   ===      -----------      ===   ...
+              ...   =====               =====   ...
+                ....    =================    ....
+                   ......               ......
+                         ...............
+  
+  
+
+    |  the Greenwich meridian      o  yours      *  the body's meridian
+    ---  GHA, measured west from Greenwich
+    ===  LHA, measured west from your own meridian
+    Looking down on the north pole. West is clockwise.
+
+  GHA 283 42', longitude 040 00'W, so LHA = 283 42 - 40 00 = 243 42'.
+
+  ----------------------------------------------------------------------
+  Q. GHA is 210 degrees and you are in longitude 30 degrees east. What is LHA?
+       a) 180 degrees     b) 240 degrees     c) 330 degrees
+
+=== answer T4 (given b) ===
+
+  Correct.  LHA = GHA + longitude east = 210 + 30 = 240 degrees.
+
+=== lesson T5 ===
+
+  T5  Using the almanac in CELNAV
+  ---------------------------------
+
+  CELNAV computes the almanac rather than tabulating it, so there is no
+  year to run out and no page to turn.
+
+    1. 'celnav alm "2026-08-29 07:30:00" sun,moon,venus' prints GHA,
+       declination, semi-diameter and horizontal parallax for those bodies.
+    2. Add a star by name - 'celnav alm "..." Dubhe' - and it also prints
+       the SHA, so you can cross-check against a printed almanac.
+    3. 'celnav stars' lists all 57 navigational stars plus Polaris with
+       their SHA and declination for the date.
+    4. GHA Aries is printed at the top of every almanac page, so you can
+       verify the star relation from T3 by hand.
+
+  A good habit while you are learning: work a sight from a paper almanac,
+  then run the same time and body through CELNAV. Where the two disagree
+  by more than a couple of tenths of a minute, one of you has made a
+  mistake - and finding out which is the most useful hour you can spend.
+
+
+  ----------------------------------------------------------------------
+  Q. Why does CELNAV never need an almanac update?
+       a) it stores fifty years of tables   b) it computes the positions
+       c) it downloads them when it can
+
+=== answer T5 (given b) ===
+
+  Correct.  Positions come from orbital theory in the script, so nothing expires.
+
+=== lesson S1 ===
+
+  S1  Taking a sight
+  --------------------
+
+  The instrument work is most of the accuracy. The arithmetic that follows
+  is exact; your sight is not.
+
+    1. Pre-set roughly. For a star, set the sextant to the altitude you
+       expect - CELNAV's planning list gives it - and the star will be near
+       the horizon in the mirror when you look along the bearing.
+    2. Bring the body down to the horizon, then rock the sextant gently
+       side to side. The body swings in an arc; the lowest point of that
+       arc is true vertical. Touch it to the horizon there.
+    3. Sun: bring the lower limb - the bottom edge - to sit on the horizon.
+       Use the shades. Never look at the sun without them.
+    4. Note the time at the instant of contact, then read the arc.
+
+  Three practical points that matter more than they sound:
+
+    - Take three or four sights of the same body in quick succession and
+      keep them all. Their scatter tells you what your sights are worth.
+    - Shoot from as high as you can safely stand, and know that height.
+    - In a seaway, wait for the top of the roll so that you see a true
+      horizon rather than the back of a wave.
+
+
+  ----------------------------------------------------------------------
+  Q. Why do you rock the sextant while taking a sight?
+       a) to steady your hand   b) to find true vertical - the lowest point of the swing
+       c) to clear the mirrors
+
+=== answer S1 (given b) ===
+
+  Correct.  A sextant not held vertical always reads too high. The bottom of the arc is vertical.
+
+=== lesson S2 ===
+
+  S2  Index error and dip
+  -------------------------
+
+  Two corrections come off before anything else. Both are about you and
+  your instrument, not about the sky.
+
+    INDEX ERROR is the sextant reading when it should read zero.
+    1. Set the sextant to zero and look at the horizon. If the two images
+       do not line up, the difference is the index error.
+    2. If the reading is on the arc - a positive reading - the error is
+       subtracted. Off the arc, it is added. Check it every day; it moves.
+
+    DIP is because you are not at sea level.
+    3. From a height, the visible horizon is slightly below true
+       horizontal, so every altitude you measure is slightly too big.
+    4. Dip in minutes of arc is about 1.76 times the square root of your
+       height of eye in metres. From 3 metres that is 3.0 minutes - three
+       miles of error if you forget it.
+
+  Take both off Hs and you have Ha, the apparent altitude.
+
+
+  ----------------------------------------------------------------------
+  Q. Your height of eye is 9 metres. Roughly what is the dip?
+       a) 1.8 minutes     b) 5.3 minutes     c) 9 minutes
+
+=== answer S2 (given b) ===
+
+  Correct.  1.76 times the square root of 9 = 1.76 x 3 = 5.3 minutes, always subtracted.
+
+=== lesson S3 ===
+
+  S3  Refraction
+  ----------------
+
+  The atmosphere bends light downwards as it comes in, so every body
+  appears higher than it really is. Refraction is always subtracted.
+
+    1. It depends almost entirely on altitude. At 45 degrees it is one
+       minute of arc. At 20 degrees, about 2.6. At 10 degrees, 5.3. At the
+       horizon it reaches about 34 minutes - more than the sun's diameter.
+    2. That is why the setting sun you can see is already, geometrically,
+       below the horizon.
+    3. Temperature and pressure change it by a few per cent. CELNAV asks
+       for both; they matter for low sights and are almost irrelevant
+       above 25 degrees.
+    4. Below about 15 degrees, refraction depends on the real temperature
+       profile between you and the horizon, which no formula knows. That is
+       the reason low sights are less trustworthy, not the sextant.
+
+  Practical rule: prefer bodies between 15 and 70 degrees. Above 70 the
+  azimuth changes quickly with position; below 15 the refraction is a guess.
+
+
+  ----------------------------------------------------------------------
+  Q. Which sight is least affected by uncertainty in refraction?
+       a) a body at 8 degrees   b) a body at 25 degrees   c) a body at 60 degrees
+
+=== answer S3 (given b) ===
+
+  Not quite - the answer is C.  Refraction shrinks fast with altitude - about 0.6 minutes at 60 degrees.
+
+=== lesson S4 ===
+
+  S4  Semi-diameter and parallax
+  --------------------------------
+
+  Two more corrections, needed only for the sun and moon.
+
+    SEMI-DIAMETER, because the sun and moon are discs, not points.
+    1. You measured an edge; you want the centre. The sun's semi-diameter
+       is about 16 minutes, the moon's about 15 to 16.
+    2. Lower limb: add it. Upper limb: subtract it. Stars and planets are
+       points, so there is nothing to do.
+
+    PARALLAX, because you are on the surface of the earth, not at its
+    centre, and the almanac gives positions as seen from the centre.
+    3. For the sun this is at most 0.15 minutes - one sixth of a mile, and
+       usually ignorable but free to include.
+    4. For the moon it is enormous: up to about 61 minutes, a full degree.
+       A moon sight worked without parallax is 60 miles wrong. It is
+       largest when the moon is on the horizon and zero when overhead,
+       which is why the correction carries a cosine of the altitude.
+
+
+  ----------------------------------------------------------------------
+  Q. You take an upper-limb sight of the sun. What do you do with semi-diameter?
+       a) add about 16 minutes   b) subtract about 16 minutes   c) ignore it
+
+=== answer S4 (given b) ===
+
+  Correct.  Upper limb subtract, lower limb add - you are correcting to the centre.
+
+=== lesson S5 ===
+
+  S5  The whole chain, and the size of each part
+  ------------------------------------------------
+
+  In order, always: Hs, then index error and dip to get Ha, then refraction,
+  parallax and semi-diameter to get Ho. Ho is what a perfect observer at the
+  centre of the earth would have measured, and it is the number the
+  reduction uses.
+
+  Below is a real sun sight with every correction drawn to scale, so you
+  can see which ones actually matter.
+
+  A sun sight: Hs 34 12.0', lower limb, index error 1.5' on the arc,
+  height of eye 4 m, 15 C, 1013 mb.
+
+    Hs  sextant reading       34 12.0'
+    index error                -1.5'  =
+    dip (height of eye)        -3.5'  ==
+    Ha  apparent altitude     34 07.0'
+    refraction                 -1.4'  =
+    parallax                   +0.1'  
+    semi-diameter             +15.9'  =========
+    Ho  observed altitude     34 21.6'
+
+  Semi-diameter and dip dominate; refraction is small at this altitude;
+  the sun's parallax is almost nothing. For the moon the picture is
+  entirely different - parallax alone can be a whole degree.
+
+  ----------------------------------------------------------------------
+  Q. Which correction is by far the largest for a low moon sight?
+       a) refraction      b) parallax        c) dip
+
+=== answer S5 (given b) ===
+
+  Correct.  The moon's parallax reaches about 61 minutes - over a degree, or 60 miles.
+
+=== lesson R1 ===
+
+  R1  The assumed position and the navigational triangle
+  --------------------------------------------------------
+
+  You cannot compute your position directly. You compute what a sight
+  would have looked like from a position you assume, and then compare.
+
+    1. Take an assumed position - in CELNAV, your DR itself.
+    2. Draw three points on the sky as seen from there: your zenith Z
+       straight overhead, the elevated pole P, and the body itself.
+    3. Those three points make a spherical triangle, and every quantity in
+       sight reduction is one of its parts:
+
+         side Z to P    = 90 - your latitude          (co-latitude)
+         side P to body = 90 - the declination        (polar distance)
+         side Z to body = 90 - the altitude           (zenith distance)
+         angle at P     = LHA
+         angle at Z     = the azimuth of the body
+
+    4. You know the first two sides and the angle between them, so the
+       triangle is fully determined. Solving it gives the third side and
+       the angle at Z - which is to say, the altitude and bearing the body
+       would have had from your assumed position.
+
+                               N
+                        .................
+                  ......                 .......
+              ....                             ....
+           ....                N                  ....
+         ...                    P+                   ...
+       ...                      '++++                  ...
+      ..                        '   ++++                 ..
+     ..                         '      +++90-d            ..
+    .                           '90-L    +++                .
+   ..                           '          ++               ..
+   .                            '           +++              .
+  W.                            Z``````````````+             .E
+   .                                 90-Hc    `*             .
+   ..                                                       ..
+    .                                                       .
+     ..                                                   ..
+      ..                                                 ..
+       ...                                             ...
+         ...                                         ...
+           ....                                   ....
+              ....                             ....
+                  ......                 .......
+                        .................
+                               S
+
+  Latitude 35 N, declination 20 N, LHA 310. Z is your zenith at the
+  centre, P the pole, * the body. The rim is your horizon.
+  Solving it gives Hc 43.7 degrees and Zn 95 degrees true.
+
+  ----------------------------------------------------------------------
+  Q. In the navigational triangle, what is the side from the pole to the body?
+       a) 90 minus latitude   b) 90 minus declination   c) 90 minus altitude
+
+=== answer R1 (given b) ===
+
+  Correct.  Polar distance: 90 minus the declination. The angle at the pole is LHA.
+
+=== lesson R2 ===
+
+  R2  Hc and Zn
+  ---------------
+
+  Solving that triangle gives two numbers, and CELNAV prints both.
+
+    1. Hc, the computed altitude:
+
+           sin Hc = sin(lat) sin(dec) + cos(lat) cos(dec) cos(LHA)
+
+    2. Zn, the true bearing of the body from the assumed position, taken
+       from the same triangle and given as 000 to 360 degrees true.
+    3. Hc is what you would have measured if you really had been at the
+       assumed position. Ho is what you did measure. They differ because
+       you are not there.
+    4. Zn is the direction of the body's GP from you - which is also the
+       direction in which the circle of position runs away from you, and
+       therefore the direction along which the whole comparison is made.
+
+  Two lines of trigonometry replace a book of tables. The tables were only
+  ever a way of doing this arithmetic without a calculator.
+
+
+  ----------------------------------------------------------------------
+  Q. What is Hc?
+       a) the altitude you measured   b) the altitude you would have measured
+          from the assumed position   c) the corrected sextant reading
+
+=== answer R2 (given b) ===
+
+  Correct.  Hc comes entirely from the assumed position and the almanac - your sextant plays no part in it.
+
+=== lesson R3 ===
+
+  R3  The intercept: toward or away
+  -----------------------------------
+
+  Here is where the sight finally tells you something about your position.
+
+    1. The intercept is simply Ho minus Hc, in minutes of arc - which are
+       nautical miles.
+    2. A bigger altitude means you are closer to the GP. So if Ho is
+       greater than Hc, you are nearer the body than the assumed position
+       was: the intercept is TOWARD, in the direction Zn.
+    3. If Ho is less than Hc, you are further away: AWAY, in the opposite
+       direction.
+    4. The old mnemonic is 'computed greater, away' - if Hc is the greater
+       of the two, plot away from the body.
+
+  Example. Ho is 19 degrees 24.8 minutes, Hc is 19 degrees 23.3 minutes.
+  The difference is 1.5 minutes, so 1.5 miles, and Ho is the larger:
+  1.5 miles TOWARD the body along its azimuth.
+
+
+  ----------------------------------------------------------------------
+  Q. Ho is 40 12.0' and Hc is 40 19.0'. What do you plot?
+       a) 7 miles toward the body   b) 7 miles away from the body
+       c) 31 miles toward the body
+
+=== answer R3 (given b) ===
+
+  Correct.  Hc is the greater, so away: computed greater, away. The difference is 7.0 minutes = 7 miles.
+
+=== lesson R4 ===
+
+  R4  Plotting the line of position
+  -----------------------------------
+
+  Three steps, and they are the same whether you use paper or the screen.
+
+    1. Mark the assumed position.
+    2. Draw the azimuth line from it, in the direction Zn.
+    3. Measure the intercept along that line - toward the body or away from
+       it - and mark the point. That point is on your circle of position.
+    4. Through that point draw a line at right angles to the azimuth. That
+       is the line of position. You are somewhere on it.
+
+  Why at right angles: the azimuth points at the GP, and the circle of
+  position is centred on the GP, so the circle - and the straight line we
+  use in its place - must cross the azimuth square on.
+
+  On CELNAV's plot the assumed position is the + at the centre, the dotted
+  line is the azimuth, the letter marks the end of the intercept, and the
+  lettered line through it is the LOP.
+
+
+  ONE SIGHT PLOTTED, AND A SECOND CROSSING IT
+                                  //N :
+                                //    :
+                               //     :
+  ---                        //       :
+    -----                   //        :
+        -----             //          :
+            -----        //           :
+                -----  b/             :
+                    -//-...           :
+                    //  ----..        :
+                  //        ----.     :
+                 //             ----  :
+  W            //                  .---a                                  E
+  ............//......................+.----...............................
+            //                        :     ----
+          ///                         :         ----
+         //                           :            -----
+       //                             :                -----
+      //                              :                    -----
+    //                                :                        -----
+   //                                 :                            -----
+  /                                   :                                ----
+                                      :
+                                      :
+                                      :
+                                      :
+                                    S :                       2 nm per row
+  AP = +    LOP = lettered line    fix = @    1 row = 2 nm, 1 column = 1 nm
+  A near-vertical LOP steps a column part way down: a cell is 1 nm
+  wide, so one degree off vertical is 0.9 nm across this sheet.
+
+  ----------------------------------------------------------------------
+  Q. Which way does the line of position run?
+       a) along the azimuth   b) at right angles to the azimuth   c) east and west
+
+=== answer R4 (given b) ===
+
+  Correct.  The circle is centred on the GP, so it crosses the azimuth square on.
+
+=== lesson R5 ===
+
+  R5  Crossing, running, and knowing when to doubt it
+  -----------------------------------------------------
+
+    CROSSING. Two LOPs from bodies well apart in azimuth cross at your
+    position. Three give you a check: a small triangle means good sights,
+    a large one means at least one is wrong.
+
+    RUNNING. Sights taken minutes or hours apart were taken from different
+    places, because the boat moved. Each earlier LOP is advanced along the
+    course made good by the distance run, and the fix is taken from the
+    advanced lines. Set course and speed and CELNAV does this for you; the
+    classic case is the sun line in the morning advanced to noon.
+
+    DOUBTING. Two things tell you how much to trust a fix:
+    1. The residuals - how far each LOP misses the final answer. This is
+       your observing error, and under a mile is good work from a small
+       boat.
+    2. The geometry - how far one minute of sight error moves the fix.
+       Bodies bunched in one quarter of the sky give a long thin error
+       ellipse and a confident-looking fix that is badly wrong along one
+       axis. CELNAV prints this in miles and warns you when the cut is weak.
+
+    Bodies about 120 degrees apart in azimuth give the tightest fix, which
+    is why the planning list suggests three with the widest spread.
+
+   1 row = 5 nm       |       =    .
+                       |     =     .
+                        ||  ==    .
+                         ||==    .
+                          |@    ..
+                          =||   .
+                         ==  | .
+                         =    |.
+                        =    ..||
+                       =     .  ||
+                      ==    .    ||
+                      =    ..     |>>+
+                     =     .   >>>>>|
+                    ==    .   >      |
+                   ==    .            |
+                   =    ..             ||
+                  =     .               ||
+                 ==    .                 ||
+                ==    ..                  ||
+                =    ..                     |
+               =     .                       |
+              ==    .                         ||
+              =    ..                          ||
+
+    .  the LOP from the first sight, where it fell at the time
+    =  the same LOP advanced along the run
+    |  the LOP from the second sight     >  the run     @  the fix
+
+  ----------------------------------------------------------------------
+  Q. Three stars all bore between 040 and 070 degrees. What is wrong with the fix?
+       a) nothing, three sights is three sights   b) the LOPs are nearly parallel,
+          so the position is poorly fixed along one axis   c) the stars are too bright
+
+=== answer R5 (given b) ===
+
+  Correct.  A narrow spread gives a long thin error ellipse. CELNAV reports this in miles.
+
+=== lesson C1 ===
+
+  C1  Choosing your bodies: the cut matters more than the sights
+  ----------------------------------------------------------------
+
+  A fix is only as good as the angles between its lines. Three careful
+  sights of three bodies in the same quarter of the sky make a worse
+  fix than three rough sights spread right round you.
+
+    1. A line of position runs square across the azimuth of its body.
+       Two lines crossing at a right angle pin a position in both
+       directions at once.
+    2. Two lines crossing at fifteen degrees pin it in one direction
+       and leave it almost free in the other. One minute of sextant
+       error slides the crossing four miles along that weak axis.
+    3. So the number to weigh before you shoot is the azimuth spread,
+       not the magnitude. Want bodies 90 to 120 degrees apart, and
+       three of them rather than two.
+
+  Then the altitude. A body wants to stand between about 15 and 65
+  degrees up.
+
+    4. Below 15 degrees the light has come a long way through the
+       lowest air, and refraction there depends on the real air and
+       sea temperatures, which you do not know. The correction stops
+       being arithmetic and becomes a guess.
+    5. Above about 65 the azimuth swings quickly - the body is on its
+       way to your zenith, where it has no azimuth at all - so a few
+       seconds of timing error moves the line. The circle of position
+       is tightly curved up there as well, and we draw it straight.
+
+  And the window. A star needs a horizon to measure against and a sky
+  dark enough to show it. You get both only between civil and nautical
+  twilight, which is around twenty minutes, twice a day.
+
+  CELNAV does this arithmetic for you before you pick up the sextant.
+
+    celnav plan        the twilight times, every body that is up with
+                       its altitude, azimuth and magnitude, the ones
+                       too low or too high marked as such, the best
+                       three by azimuth spread, and a chart of the sky
+                       with that set numbered on it
+
+  And afterwards it tells you what the cut was worth. 'celnav fix'
+  reports the geometry in miles: what one minute of sight error does
+  to the answer, and along which bearing. When it says WEAK CUT, that
+  is not a style note - it is the error ellipse, computed from your
+  own azimuths. Believe it.
+
+  The order of work is plan, then shoot. Not shoot, then hope.
+
+
+  THE SAME THREE SIGHTS, SPREAD 120 DEGREES APART
+
+              11                  3                    22
+                1111              3                 2222
+                   1111           3             2222
+                       1111       3          2222
+                          1111    3      2222
+                              11113   2222
+                                 1oo22
+                               222o+ 1111
+                            222   3     1111
+                        2222      3         1111
+                     2222         3            1111
+                 2222             3                111
+              2222                3                   1111
+          2222                    3                      1111
+       2222                       3                          1111
+  1 2 3 = the lines of position   o = where a pair crosses   + = the AP
+  one row = 1.5 nm.  The cocked hat is 1.0 nm across.
+
+  Each line is one minute of arc off the true position. They close
+  into a cocked hat about a mile across, and the fix is inside it.
+
+
+  AND THE SAME THREE SIGHTS BUNCHED IN ONE QUADRANT
+
+                     11 2      3
+                      11122    33
+                         122    3
+                           1o2   3
+                             2211 3
+                               21133
+                                221o1
+                                 22+3111
+                                   233 111
+                                    233   11
+                                      o     111
+                                       32     111
+                                       332       111
+                                        3 22       111
+                                         3 22        111
+  1 2 3 = the lines of position   o = where a pair crosses   + = the AP
+  one row = 1.5 nm.  The cocked hat is 13.7 nm across.
+
+  Identical sights, identical errors, azimuths fifteen degrees
+  apart. The crossings have slid miles out along the one weak
+  direction. No amount of care with the sextant would have helped:
+  the geometry did this, and only a fourth body elsewhere in the sky
+  can undo it.
+
+  ----------------------------------------------------------------------
+  Q. A star stands 8 degrees above the horizon and is beautifully placed
+     for the cut. Why is it still a poor sight?
+       a) it is too dim that low   b) refraction down there depends on
+          air and sea temperatures you do not know   c) its azimuth
+          changes too fast to time
+
+=== answer C1 (given b) ===
+
+  Correct.  Below about 15 degrees the refraction correction stops being arithmetic and becomes a guess. Fast azimuth change is the trouble at the other end of the scale, up near the zenith.
+
+=== lesson C2 ===
+
+  C2  Checking the compass against the sky
+  ------------------------------------------
+
+  Every other compass reference can be wrong. A charted bearing
+  assumes you already know where you are. A transit needs two marks in
+  sight. Another vessel's heading is her business. The azimuth of a
+  star is none of those things: it comes from the almanac and the
+  clock, and it is right.
+
+  Three quantities, and it matters which is which:
+
+    1. Variation is the earth's. It is printed on the chart for your
+       area and year, and it changes slowly with place and time. It is
+       the same for every compass aboard.
+    2. Deviation is the ship's. It is the iron in her, and it changes
+       with her heading, because the iron turns when she turns.
+    3. Compass error is the two together: the whole difference between
+       what the card reads and true. A sky check measures the error.
+       Take the charted variation off it and what remains is the
+       deviation of that compass on that heading.
+
+  The method:
+
+    4. Note the time to the second and read the bearing of the body
+       over the compass.
+    5. Give CELNAV the instant, the body, the bearing you read and the
+       chart variation, west negative:
+
+         celnav compass "2026-10-21 19:00:00" Saturn 88 -14
+
+    6. It computes the true azimuth for that instant, subtracts to get
+       the error, and names the deviation that is left.
+
+  Choose a low body, under about 20 degrees. High up the azimuth
+  changes fast, so a few seconds of clock error moves it; and a
+  bearing taken steeply over a compass card is hard to take honestly.
+  A body sitting on the horizon at rising or setting is the classical
+  choice, and its azimuth measured off true east or west has its own
+  name: the amplitude.
+
+  One honest limit. A check on one heading gives you the deviation on
+  that heading and no other. Deviation is a curve around the card, and
+  to know the whole of it you swing the ship and check on several
+  headings in turn.
+
+  A compass swung on eight headings - the same compass, the same
+  ship, the same iron, eight different answers:
+
+       ship's head    deviation      west  <  |  >  east
+       ------------   ---------
+      000  T         2.2 E               |####
+      045  T         4.3 E               |#########
+      090  T         3.9 E               |########
+      135  T         1.2 E               |##
+      180  T         2.3 W          #####|
+      225  T         4.3 W      #########|
+      270  T         3.9 W       ########|
+      315  T         1.2 W             ##|
+
+  One sky check gives you one row of that table. It is the row you
+  are steering on, which is the row that matters now, but it is not
+  the whole character of the compass. Swing her to learn that.
+
+  ----------------------------------------------------------------------
+  Q. A star azimuth check gives a compass error of 6 degrees east, and the
+     chart shows variation 10 degrees west. What is the deviation?
+       a) 4 degrees east   b) 16 degrees east   c) 16 degrees west
+
+=== answer C2 (given b) ===
+
+  Correct.  Error is variation and deviation together. 6 east with 10 west of variation leaves 16 east of deviation - the ship is pulling the card hard the other way.
+
+=== syllabus, part done ===
+
+  LEARN -- the syllabus
+  ----------------------------------------------------------------------
+
+  FOUNDATIONS
+   [x]  F1   What a sight actually measures
+   [x]  F2   The geographical position
+   [ ]  F3   Your altitude puts you on a circle
+   [ ]  F4   Two circles give a fix
+   [ ]  F5   Why we never draw the circles
+
+  TIME AND THE ALMANAC
+   [ ]  T1   Universal Time, and why the clock rules
+   [ ]  T2   GHA and declination
+   [ ]  T3   Aries and SHA: why the stars are different
+   [ ]  T4   LHA: the angle at the pole
+   [ ]  T5   Using the almanac in CELNAV
+
+  SEXTANT AND CORRECTIONS
+   [ ]  S1   Taking a sight
+   [ ]  S2   Index error and dip
+   [ ]  S3   Refraction
+   [ ]  S4   Semi-diameter and parallax
+   [ ]  S5   The whole chain, and the size of each part
+
+  REDUCTION AND THE FIX
+   [ ]  R1   The assumed position and the triangle
+   [ ]  R2   Hc and Zn
+   [ ]  R3   The intercept: toward or away
+   [ ]  R4   Plotting the line of position
+   [ ]  R5   Crossing, running, and knowing when to doubt it
+
+  CHOOSING AND CHECKING
+   [x]  C1   Choosing your bodies: the cut and the band
+   [ ]  C2   Checking the compass against the sky
+  ----------------------------------------------------------------------
+  3 of 22 lessons done.  Type a lesson code (F1, R3 ...) to open it.
+

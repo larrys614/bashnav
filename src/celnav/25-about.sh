@@ -36,6 +36,39 @@ about_why() {
     '  go away.  It is text, you can read every line of it, and' \
     '  "celnav doctor" will check it against an independent reference' \
     '  in front of you.' \
+    '' \
+    '  WHY THE SKILL STILL MATTERS' \
+    '  ---------------------------------------------------------------' \
+    '  Satellite positioning is the first thing an adversary turns' \
+    '  off.  Jamming it is cheap, spoofing it is subtle, and a ship' \
+    '  whose navigators have only ever been handed a position has no' \
+    '  way of telling that either one is happening.' \
+    '' \
+    '  The United States Navy has required a daily celestial' \
+    '  observation at sea since 2015, after years in which the skill' \
+    '  was allowed to lapse.  In 2022 USS Essex (LHD-2) crossed from' \
+    '  Hawaii to California - about 1,800 miles in five days - on' \
+    '  celestial navigation alone, with the electronic aids shut off' \
+    '  on purpose.  Two people who have done it and who teach it make' \
+    '  the case:' \
+    '' \
+    '    Walter O'\''Donnell and Caroline Stanton Chlaupek,' \
+    '    "Ships Must Practice Celestial Navigation",' \
+    '    U.S. Naval Institute Proceedings, January 2025,' \
+    '    Vol. 151/1/1,463.' \
+    '' \
+    '  Their argument is not nostalgia.  It is that a navigator who' \
+    '  can only read an answer off a box cannot work the problem when' \
+    '  the box is wrong; and that the habits a sextant imposes - plan' \
+    '  the sight, wait for it, correct in small deliberate amounts -' \
+    '  are better seamanship than the constant small adjustments that' \
+    '  instant feedback invites.' \
+    '' \
+    '  None of this is an argument against GPS.  Use it.  It is an' \
+    '  argument for being able to cross an ocean without it, which is' \
+    '  a different thing and a perishable one: it is a skill, and' \
+    '  skills decay unpractised.  That is what the lessons and the' \
+    '  drills in this program are for.' \
     ''
 }
 about_sources() {

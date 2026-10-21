@@ -709,6 +709,153 @@ function lha_diagram(gha,lon,   w,h,cx,cy,rx,ry,t,lha,lw,r,rr,cc){
 # ---------------------------------------------------------------------
 #  Diagrams belonging to particular lessons
 # ---------------------------------------------------------------------
+# =====================================================================
+#  Module C -- Choosing and checking
+# =====================================================================
+function les_C1(){
+  thead("C1","Choosing your bodies: the cut matters more than the sights")
+  tb()
+  tp("A fix is only as good as the angles between its lines. Three careful")
+  tp("sights of three bodies in the same quarter of the sky make a worse")
+  tp("fix than three rough sights spread right round you.")
+  tb()
+  tp("  1. A line of position runs square across the azimuth of its body.")
+  tp("     Two lines crossing at a right angle pin a position in both")
+  tp("     directions at once.")
+  tp("  2. Two lines crossing at fifteen degrees pin it in one direction")
+  tp("     and leave it almost free in the other. One minute of sextant")
+  tp("     error slides the crossing four miles along that weak axis.")
+  tp("  3. So the number to weigh before you shoot is the azimuth spread,")
+  tp("     not the magnitude. Want bodies 90 to 120 degrees apart, and")
+  tp("     three of them rather than two.")
+  tb()
+  tp("Then the altitude. A body wants to stand between about 15 and 65")
+  tp("degrees up.")
+  tb()
+  tp("  4. Below 15 degrees the light has come a long way through the")
+  tp("     lowest air, and refraction there depends on the real air and")
+  tp("     sea temperatures, which you do not know. The correction stops")
+  tp("     being arithmetic and becomes a guess.")
+  tp("  5. Above about 65 the azimuth swings quickly - the body is on its")
+  tp("     way to your zenith, where it has no azimuth at all - so a few")
+  tp("     seconds of timing error moves the line. The circle of position")
+  tp("     is tightly curved up there as well, and we draw it straight.")
+  tb()
+  tp("And the window. A star needs a horizon to measure against and a sky")
+  tp("dark enough to show it. You get both only between civil and nautical")
+  tp("twilight, which is around twenty minutes, twice a day.")
+  tb()
+  tp("CELNAV does this arithmetic for you before you pick up the sextant.")
+  tb()
+  tp("  celnav plan        the twilight times, every body that is up with")
+  tp("                     its altitude, azimuth and magnitude, the ones")
+  tp("                     too low or too high marked as such, the best")
+  tp("                     three by azimuth spread, and a chart of the sky")
+  tp("                     with that set numbered on it")
+  tb()
+  tp("And afterwards it tells you what the cut was worth. 'celnav fix'")
+  tp("reports the geometry in miles: what one minute of sight error does")
+  tp("to the answer, and along which bearing. When it says WEAK CUT, that")
+  tp("is not a style note - it is the error ellipse, computed from your")
+  tp("own azimuths. Believe it.")
+  tb()
+  tp("The order of work is plan, then shoot. Not shoot, then hope.")
+  tb()
+}
+function les_C2(){
+  thead("C2","Checking the compass against the sky")
+  tb()
+  tp("Every other compass reference can be wrong. A charted bearing")
+  tp("assumes you already know where you are. A transit needs two marks in")
+  tp("sight. Another vessel's heading is her business. The azimuth of a")
+  tp("star is none of those things: it comes from the almanac and the")
+  tp("clock, and it is right.")
+  tb()
+  tp("Three quantities, and it matters which is which:")
+  tb()
+  tp("  1. Variation is the earth's. It is printed on the chart for your")
+  tp("     area and year, and it changes slowly with place and time. It is")
+  tp("     the same for every compass aboard.")
+  tp("  2. Deviation is the ship's. It is the iron in her, and it changes")
+  tp("     with her heading, because the iron turns when she turns.")
+  tp("  3. Compass error is the two together: the whole difference between")
+  tp("     what the card reads and true. A sky check measures the error.")
+  tp("     Take the charted variation off it and what remains is the")
+  tp("     deviation of that compass on that heading.")
+  tb()
+  tp("The method:")
+  tb()
+  tp("  4. Note the time to the second and read the bearing of the body")
+  tp("     over the compass.")
+  tp("  5. Give CELNAV the instant, the body, the bearing you read and the")
+  tp("     chart variation, west negative:")
+  tb()
+  tp("       celnav compass \"2026-10-21 19:00:00\" Saturn 88 -14")
+  tb()
+  tp("  6. It computes the true azimuth for that instant, subtracts to get")
+  tp("     the error, and names the deviation that is left.")
+  tb()
+  tp("Choose a low body, under about 20 degrees. High up the azimuth")
+  tp("changes fast, so a few seconds of clock error moves it; and a")
+  tp("bearing taken steeply over a compass card is hard to take honestly.")
+  tp("A body sitting on the horizon at rising or setting is the classical")
+  tp("choice, and its azimuth measured off true east or west has its own")
+  tp("name: the amplitude.")
+  tb()
+  tp("One honest limit. A check on one heading gives you the deviation on")
+  tp("that heading and no other. Deviation is a curve around the card, and")
+  tp("to know the whole of it you swing the ship and check on several")
+  tp("headings in turn.")
+  tb()
+}
+# ---------------------------------------------------------------------
+#  Three LOPs, drawn twice: the same sights with a good and a bad cut
+# ---------------------------------------------------------------------
+function cut_cross(cx,cy,xs,ys,za,pa,zb,pb,   dn,de){
+  dn = (pa*sind(zb)-pb*sind(za))/sind(zb-za)
+  de = (pb*cosd(za)-pa*cosd(zb))/sind(zb-za)
+  CX_N=dn; CX_E=de
+  gput(cy-dn/ys, cx+de/xs, "o")
+  return 0
+}
+function cut_fig(z1,z2,z3,p1,p2,p3,title,   w,h,cx,cy,xs,ys,n1,e1,n2,e2,n3,e3,d,m){
+  w=67; h=15; cx=int(w/2); cy=int(h/2)
+  ys=1.5; xs=ys/2.0
+  tb(); tp(title); tb()
+  gclear(w,h)
+  lop_line(cx,cy,xs,ys,z1,p1,"1",w,h)
+  lop_line(cx,cy,xs,ys,z2,p2,"2",w,h)
+  lop_line(cx,cy,xs,ys,z3,p3,"3",w,h)
+  cut_cross(cx,cy,xs,ys,z1,p1,z2,p2); n1=CX_N; e1=CX_E
+  cut_cross(cx,cy,xs,ys,z2,p2,z3,p3); n2=CX_N; e2=CX_E
+  cut_cross(cx,cy,xs,ys,z1,p1,z3,p3); n3=CX_N; e3=CX_E
+  gput(cy,cx,"+")
+  gshow()
+  m=0
+  d=sqrt((n1-n2)^2+(e1-e2)^2); if(d>m) m=d
+  d=sqrt((n2-n3)^2+(e2-e3)^2); if(d>m) m=d
+  d=sqrt((n1-n3)^2+(e1-e3)^2); if(d>m) m=d
+  tp("1 2 3 = the lines of position   o = where a pair crosses   + = the AP")
+  printf "  one row = %g nm.  The cocked hat is %.1f nm across.\n", ys, m
+  return 0
+}
+# ---------------------------------------------------------------------
+#  Deviation is a curve round the card, not one number
+# ---------------------------------------------------------------------
+function dev_card(   i,hd,d,b,s,k){
+  tp("     ship's head    deviation      west  <  |  >  east")
+  tp("     ------------   ---------")
+  for(i=0;i<8;i++){
+    hd = i*45
+    d  = 4.5*sind(hd+30)
+    s  = int(fabs(d)*2+0.5)
+    b  = ""
+    if(d<0){ for(k=0;k<12-s;k++) b=b " "; for(k=0;k<s;k++) b=b "#"; b=b "|" }
+    else   { for(k=0;k<12;k++)   b=b " "; b=b "|"; for(k=0;k<s;k++) b=b "#" }
+    printf "      %03d  T        %4.1f %s   %s\n", hd, fabs(d), (d<-0.05?"W":(d>0.05?"E":" ")), b
+  }
+  return 0
+}
 function les_fig(id,   la,lo,zd,b){
   if(id=="F3"){
     gl_init(67,25, 25, -30); gl_graticule(0); gl_limb()
@@ -768,6 +915,28 @@ function les_fig(id,   la,lo,zd,b){
     tp("  .  the LOP from the first sight, where it fell at the time")
     tp("  =  the same LOP advanced along the run")
     tp("  |  the LOP from the second sight     >  the run     @  the fix")
+  } else if(id=="C1"){
+    cut_fig(30,150,270,1.2,-0.9,0.6,"THE SAME THREE SIGHTS, SPREAD 120 DEGREES APART")
+    tb()
+    tp("Each line is one minute of arc off the true position. They close")
+    tp("into a cocked hat about a mile across, and the fix is inside it.")
+    tb()
+    cut_fig(40,55,70,1.2,-0.9,0.6,"AND THE SAME THREE SIGHTS BUNCHED IN ONE QUADRANT")
+    tb()
+    tp("Identical sights, identical errors, azimuths fifteen degrees")
+    tp("apart. The crossings have slid miles out along the one weak")
+    tp("direction. No amount of care with the sextant would have helped:")
+    tp("the geometry did this, and only a fourth body elsewhere in the sky")
+    tp("can undo it.")
+  } else if(id=="C2"){
+    tp("A compass swung on eight headings - the same compass, the same")
+    tp("ship, the same iron, eight different answers:")
+    tb()
+    dev_card()
+    tb()
+    tp("One sky check gives you one row of that table. It is the row you")
+    tp("are steering on, which is the row that matters now, but it is not")
+    tp("the whole character of the compass. Swing her to learn that.")
   }
   return 0
 }
@@ -843,6 +1012,16 @@ function ques(id,show){
       tp("     a) nothing, three sights is three sights   b) the LOPs are nearly parallel,")
       tp("        so the position is poorly fixed along one axis   c) the stars are too bright") }
     else { Q_ANS="b"; Q_WHY="A narrow spread gives a long thin error ellipse. CELNAV reports this in miles." } }
+  else if(id=="C1"){ if(show){ tp("Q. A star stands 8 degrees above the horizon and is beautifully placed")
+      tp("   for the cut. Why is it still a poor sight?")
+      tp("     a) it is too dim that low   b) refraction down there depends on")
+      tp("        air and sea temperatures you do not know   c) its azimuth")
+      tp("        changes too fast to time") }
+    else { Q_ANS="b"; Q_WHY="Below about 15 degrees the refraction correction stops being arithmetic and becomes a guess. Fast azimuth change is the trouble at the other end of the scale, up near the zenith." } }
+  else if(id=="C2"){ if(show){ tp("Q. A star azimuth check gives a compass error of 6 degrees east, and the")
+      tp("   chart shows variation 10 degrees west. What is the deviation?")
+      tp("     a) 4 degrees east   b) 16 degrees east   c) 16 degrees west") }
+    else { Q_ANS="b"; Q_WHY="Error is variation and deviation together. 6 east with 10 west of variation leaves 16 east of deviation - the ship is pulling the card hard the other way." } }
   else { Q_ANS=""; Q_WHY="" }
   return 0
 }
@@ -871,7 +1050,9 @@ function syl_init(){
         "R2|Reduction and the fix|Hc and Zn;" \
         "R3|Reduction and the fix|The intercept: toward or away;" \
         "R4|Reduction and the fix|Plotting the line of position;" \
-        "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it"
+        "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it;" \
+        "C1|Choosing and checking|Choosing your bodies: the cut and the band;" \
+        "C2|Choosing and checking|Checking the compass against the sky"
   NSYL=split(SYL,SYLROW,";")
   SYL_READY=1
   return 0
@@ -885,7 +1066,15 @@ function lesson(id){
   else if(id=="S4")les_S4(); else if(id=="S5")les_S5()
   else if(id=="R1")les_R1(); else if(id=="R2")les_R2(); else if(id=="R3")les_R3()
   else if(id=="R4")les_R4(); else if(id=="R5")les_R5()
+  else if(id=="C1")les_C1(); else if(id=="C2")les_C2()
   else { print "  no such lesson: " id; return 1 }
+  return 0
+}
+function cmd_t_codes(   i,a,out){
+  syl_init()
+  out=""
+  for(i=1;i<=NSYL;i++){ split(SYLROW[i],a,"|"); out = out (i>1?" ":"") a[1] }
+  print out
   return 0
 }
 function cmd_t_syllabus(   i,a,mod,pm,mark,n,d){
@@ -1324,7 +1513,8 @@ function cmd_t_sandbox(   la,de,lh,hc,zn){
 
 BEGIN{
   col_init()
-  if(cmd=="t_syllabus")       cmd_t_syllabus()
+  if(cmd=="t_codes")          cmd_t_codes()
+  else if(cmd=="t_syllabus")  cmd_t_syllabus()
   else if(cmd=="t_lesson")    cmd_t_lesson()
   else if(cmd=="t_check")     cmd_t_check()
   else if(cmd=="t_walk")      cmd_t_walk()

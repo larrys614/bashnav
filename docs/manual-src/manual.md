@@ -354,7 +354,7 @@ lesson at a time and pick up where you left off.](fig/train.png)
 
 ### 7.1 Lessons
 
-Twenty lessons in four modules of five. Each one is a diagram, a short explanation in
+Twenty-two lessons in five modules: four modules of five, from first principles to the fix, and a fifth on choosing bodies and checking the compass. Each one is a diagram, a short explanation in
 numbered steps, and a question to check that it landed. Answer the question correctly and
 the lesson is ticked off.
 

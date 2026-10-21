@@ -89,6 +89,44 @@ Convention is right and the program is wrong**. Annex I light positioning is
 checked mechanically in `tests/annex1-check.awk`, including Annex I 3(b) — that
 sidelights sit at or abaft the forward masthead light, never in front of it.
 
+## Celestial navigation
+
+`celnav` computes its own almanac and solves its own triangles; nothing is
+tabulated from a published almanac or from a sight reduction table. The sources
+below are read for checking and for further reading, and are cited so a later
+session can go to them rather than trust us.
+
+**Henning Umland, *A Short Guide to Celestial Navigation*** — first published
+1997, revised 1 October 2011, `http://www.celnav.de`. Seventeen chapters
+covering the whole subject, and the one authoritative treatment that is itself
+freely licensed: released under the **GNU Free Documentation License 1.3 or
+any later version, with no Invariant Sections and no Cover Texts**. That
+licence permits copying and modification, but it is copyleft and therefore
+**incompatible with this repository's Apache 2.0 licence** — so the guide is
+used the way every other source here is used: as something to check our
+mathematics against, and to recommend. Useful for cross-checking in
+particular: Ch. 5 (the advancing vessel), Ch. 6 (latitude and longitude by
+direct calculation), Ch. 8 (rise, set and twilight), Ch. 14 (magnetic
+declination) and Ch. 16 (navigational errors). A free copy is published by the
+Marion–Bermuda Race:
+<https://www.marionbermuda.com/images/celestial/celestialUmmland.pdf>
+
+**Walter O'Donnell and Caroline Stanton Chlaupek, "Ships Must Practice
+Celestial Navigation", *U.S. Naval Institute Proceedings*, January 2025,
+Vol. 151/1/1,463.** The case for the skill, from two people who have done it:
+the authors describe USS *Essex* crossing from Hawaii to California in 2022 —
+about 1,800 nautical miles in five days — with no electronic navigation aids,
+and argue that satellite positioning is among the first things an adversary
+will try to deny. *Proceedings* is a membership magazine and reserves its
+rights; the article is cited and never reproduced.
+<https://www.usni.org/magazines/proceedings/2025/january/ships-must-practice-celestial-navigation>
+
+**Ocean Navigator celestial navigation series**, index at
+<https://www.celestialnavigation.info/ocean-navigator-celestial-navigation-series/>
+(Celestaire, Inc.). Used as a topic list and a reading order only — the site's
+notice reserves duplication and adaptation of its content. The lessons that
+follow its topics are written here from first principles.
+
 ## Tides
 
 Validated against **NOAA's own published tide tables**, not against another

@@ -16,7 +16,7 @@ labs=[
  dict(side="R", y=1.0, at=at(menu,1,"lessons 4 of 20   drills 14/18"),
       text="Kept between sessions: how many\nlessons you have finished and how\nthe drills have gone."),
  dict(side="L", y=3.2, at=[at(menu,3,"1  Lessons"),at(menu,4,"2  Walkthrough")],
-      text="The teaching track: twenty lessons\nfrom first principles, and one real\nsight explained line by line."),
+      text="The teaching track: lessons from\nfirst principles, and one real sight\nexplained line by line."),
  dict(side="L", y=6.4, at=[at(menu,5,"3  Drills"),at(menu,6,"4  Sandbox")], color=ACC2,
       text="The practice track: problems built\nfrom the real almanac and marked,\nand a what-if mode."),
 ]
