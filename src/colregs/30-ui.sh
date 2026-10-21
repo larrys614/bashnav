@@ -239,6 +239,7 @@ help_text() {
     '  colregs encounters       who gives way, and what do you do' \
     '  colregs scenario         a developing situation: plot it, decide, watch it run' \
     '  colregs sound            identify sound signals' \
+    '  colregs numbers          which rule is which, both ways round' \
     '  colregs rules            fifteen lessons on the rules' \
     '  colregs lesson L7        one lesson' \
     '  colregs contacts         bearing drift and contact management' \
@@ -279,6 +280,7 @@ menu() {
       '    6  Mixed drill      one of each, at random' \
       '    7  Collision avoidance   a developing situation: plot it, decide, watch it run' \
       '    8  Contacts         bearing drift, the report, and the tracking party' \
+      '    9  Rule numbers     which rule is which, both ways round' \
       '' \
       '    r  Reference tables   c  Colour   s  Report style' \
       '    v  Review the rules   a  About   h  Help   q  Quit'
@@ -292,6 +294,7 @@ menu() {
       6) mixed_drill ;;
       7) run_scen ;;
       8) contacts_menu ;;
+      9) run_quiz qrule qrulem ;;
       r|R) ref_menu ;;
       c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
            case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
@@ -317,6 +320,7 @@ case "$1" in
   sound)    paint; run_quiz qsound qsoundm ;;
   encounters|enc) paint; run_enc ;;
   scenario|scen|avoid) paint; run_scen ;;
+  numbers|number)  paint; run_quiz qrule qrulem ;;
   rules)    paint; rules_menu ;;
   contacts|contact) paint; contacts_menu ;;
   track)    paint; run_track ;;
@@ -346,7 +350,7 @@ case "$1" in
   help|-h|--help) help_text ;;
   *) echo "colregs: there is no command '$1'."
      echo
-     echo "  Drills     lights  shapes  encounters  scenario  sound  rules  lesson"
+     echo "  Drills     lights  shapes  encounters  scenario  sound  numbers  rules  lesson"
      echo "  Contacts   contacts  track  ekelund  card  style"
      echo "  Look up    light <key> [brg]   shape <key>   ref"
      echo "  Setup      colours  day  night  plain  about  review  where  version"

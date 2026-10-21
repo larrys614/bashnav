@@ -28,6 +28,22 @@ emit() {   # emit <name> ; program output on stdin
   cat > "$out/$1"
 }
 
+# ---- colregs: the rule-number drill, both directions ------------------
+#  Anchored at fixed seeds so a change to the fifteen pairs, to the
+#  shuffle, or to either question frame shows up as a diff rather than as
+#  a question nobody notices is wrong.  The reveal is captured too, since
+#  it is where the lesson cross-reference lives.
+{
+  for sd in 1 2 3 5 7 11 13 17 19 23 29 31; do
+    echo "=== qrule $sd ==="
+    $AW $E -v cmode=plain -v cmd=qrule -v seed="$sd" </dev/null
+    echo "=== qrulem $sd a ==="
+    $AW $E -v cmode=plain -v cmd=qrulem -v seed="$sd" -v ans=a </dev/null || true
+  done
+  echo "=== syllabus ==="
+  $AW $E -v cmode=plain -v cmd=syllabus -v done=L1,L3,L10 </dev/null
+} | emit rules.txt
+
 # ---- colregs: every vessel, from every 30 degrees ---------------------
 {
   for k in power50 power50p sail sailrg anchor anchor50 aground nuc nucway \

@@ -1,0 +1,187 @@
+=== qrule 1 ===
+
+  Which rule is "Overtaking"?
+
+   a) Rule 19
+   b) Rules 20-31
+   c) Rule 14
+   d) Rule 13
+
+=== qrulem 1 a ===
+  Not right.
+  D is right -- Rule 13 - Overtaking
+  Lesson L8 covers it: 'colregs lesson L8'.
+
+=== qrule 2 ===
+
+  Which rule is "Look-out"?
+
+   a) Rule 13
+   b) Rule 12
+   c) Rule 19
+   d) Rule 5
+
+=== qrulem 2 a ===
+  Not right.
+  D is right -- Rule 5 - Look-out
+  Lesson L1 covers it: 'colregs lesson L1'.
+
+=== qrule 3 ===
+
+  What is Rule 14?
+
+   a) Overtaking
+   b) Crossing and the give-way vessel
+   c) Look-out
+   d) Head-on
+
+=== qrulem 3 a ===
+  Not right.
+  D is right -- Rule 14 - Head-on
+  Lesson L9 covers it: 'colregs lesson L9'.
+
+=== qrule 5 ===
+
+  What is Rule 14?
+
+   a) Crossing and the give-way vessel
+   b) Traffic separation schemes
+   c) Head-on
+   d) Restricted visibility
+
+=== qrulem 5 a ===
+  Not right.
+  C is right -- Rule 14 - Head-on
+  Lesson L9 covers it: 'colregs lesson L9'.
+
+=== qrule 7 ===
+
+  Which rule is "Crossing and the give-way vessel"?
+
+   a) Rules 15 and 16
+   b) Rule 6
+   c) Rule 14
+   d) Rule 12
+
+=== qrulem 7 a ===
+  A is right -- Rules 15 and 16 - Crossing and the give-way vessel
+  Lesson L10 covers it: 'colregs lesson L10'.
+
+=== qrule 11 ===
+
+  What is Rule 17?
+
+   a) Traffic separation schemes
+   b) Look-out
+   c) Action by the stand-on vessel
+   d) Crossing and the give-way vessel
+
+=== qrulem 11 a ===
+  Not right.
+  C is right -- Rule 17 - Action by the stand-on vessel
+  Lesson L11 covers it: 'colregs lesson L11'.
+
+=== qrule 13 ===
+
+  Which rule is "Responsibilities between vessels"?
+
+   a) Rule 18
+   b) Rule 5
+   c) Rules 15 and 16
+   d) Rule 12
+
+=== qrulem 13 a ===
+  A is right -- Rule 18 - Responsibilities between vessels
+  Lesson L12 covers it: 'colregs lesson L12'.
+
+=== qrule 17 ===
+
+  What is Rule 19?
+
+   a) Sound signals
+   b) Safe speed
+   c) Action by the stand-on vessel
+   d) Restricted visibility
+
+=== qrulem 17 a ===
+  Not right.
+  D is right -- Rule 19 - Restricted visibility
+  Lesson L13 covers it: 'colregs lesson L13'.
+
+=== qrule 19 ===
+
+  Which rule is "Lights and shapes"?
+
+   a) Rules 20-31
+   b) Rule 13
+   c) Rule 17
+   d) Rule 18
+
+=== qrulem 19 a ===
+  A is right -- Rules 20-31 - Lights and shapes
+  Lesson L14 covers it: 'colregs lesson L14'.
+
+=== qrule 23 ===
+
+  What is Rules 32-37?
+
+   a) Action to avoid collision
+   b) Action by the stand-on vessel
+   c) Sound signals
+   d) Responsibilities between vessels
+
+=== qrulem 23 a ===
+  Not right.
+  C is right -- Rules 32-37 - Sound signals
+  Lesson L15 covers it: 'colregs lesson L15'.
+
+=== qrule 29 ===
+
+  What is Rule 5?
+
+   a) Sound signals
+   b) Look-out
+   c) Crossing and the give-way vessel
+   d) Restricted visibility
+
+=== qrulem 29 a ===
+  Not right.
+  B is right -- Rule 5 - Look-out
+  Lesson L1 covers it: 'colregs lesson L1'.
+
+=== qrule 31 ===
+
+  Which rule is "Safe speed"?
+
+   a) Rule 12
+   b) Rule 13
+   c) Rules 32-37
+   d) Rule 6
+
+=== qrulem 31 a ===
+  Not right.
+  D is right -- Rule 6 - Safe speed
+  Lesson L2 covers it: 'colregs lesson L2'.
+
+=== syllabus ===
+
+  THE RULES -- fifteen lessons
+  ----------------------------------------------------------------------
+   [x]  L1   Rule 5 - Look-out
+   [ ]  L2   Rule 6 - Safe speed
+   [x]  L3   Rule 7 - Risk of collision
+   [ ]  L4   Rule 8 - Action to avoid collision
+   [ ]  L5   Rule 9 - Narrow channels
+   [ ]  L6   Rule 10 - Traffic separation schemes
+   [ ]  L7   Rule 12 - Sailing vessels
+   [ ]  L8   Rule 13 - Overtaking
+   [ ]  L9   Rule 14 - Head-on
+   [x]  L10  Rules 15 and 16 - Crossing and the give-way vessel
+   [ ]  L11  Rule 17 - Action by the stand-on vessel
+   [ ]  L12  Rule 18 - Responsibilities between vessels
+   [ ]  L13  Rule 19 - Restricted visibility
+   [ ]  L14  Rules 20-31 - Lights and shapes
+   [ ]  L15  Rules 32-37 - Sound signals
+  ----------------------------------------------------------------------
+  3 of 15 done.  Type a code (L1 ... L15), or n for the next one.
+

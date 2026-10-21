@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003434640
+BASHNAV_BYTES=003441858
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -4475,6 +4475,7 @@ help_text() {
     '  colregs encounters       who gives way, and what do you do' \
     '  colregs scenario         a developing situation: plot it, decide, watch it run' \
     '  colregs sound            identify sound signals' \
+    '  colregs numbers          which rule is which, both ways round' \
     '  colregs rules            fifteen lessons on the rules' \
     '  colregs lesson L7        one lesson' \
     '  colregs contacts         bearing drift and contact management' \
@@ -4515,6 +4516,7 @@ menu() {
       '    6  Mixed drill      one of each, at random' \
       '    7  Collision avoidance   a developing situation: plot it, decide, watch it run' \
       '    8  Contacts         bearing drift, the report, and the tracking party' \
+      '    9  Rule numbers     which rule is which, both ways round' \
       '' \
       '    r  Reference tables   c  Colour   s  Report style' \
       '    v  Review the rules   a  About   h  Help   q  Quit'
@@ -4528,6 +4530,7 @@ menu() {
       6) mixed_drill ;;
       7) run_scen ;;
       8) contacts_menu ;;
+      9) run_quiz qrule qrulem ;;
       r|R) ref_menu ;;
       c|C) printf "  day, night or plain? [%s] " "$cmode"; IFS= read -r v
            case "$v" in day|night|plain) cmode="$v"; save_conf; paint ;; esac ;;
@@ -4553,6 +4556,7 @@ case "$1" in
   sound)    paint; run_quiz qsound qsoundm ;;
   encounters|enc) paint; run_enc ;;
   scenario|scen|avoid) paint; run_scen ;;
+  numbers|number)  paint; run_quiz qrule qrulem ;;
   rules)    paint; rules_menu ;;
   contacts|contact) paint; contacts_menu ;;
   track)    paint; run_track ;;
@@ -4582,7 +4586,7 @@ case "$1" in
   help|-h|--help) help_text ;;
   *) echo "colregs: there is no command '$1'."
      echo
-     echo "  Drills     lights  shapes  encounters  scenario  sound  rules  lesson"
+     echo "  Drills     lights  shapes  encounters  scenario  sound  numbers  rules  lesson"
      echo "  Contacts   contacts  track  ekelund  card  style"
      echo "  Look up    light <key> [brg]   shape <key>   ref"
      echo "  Setup      colours  day  night  plain  about  review  where  version"
@@ -5668,7 +5672,12 @@ function les_q(id,show){
     else { Q_A="b"; Q_W="In restricted visibility (Rule 35) one prolonged every two minutes is a power-driven vessel making way through the water. The same signal in sight of another vessel, at a bend, is Rule 34(e)." } }
   return 0
 }
-function syl_show(done,   i,a,n,ids,ttl,mark){
+#  THE LESSON LIST, ONCE.  It was a literal inside syl_show, and the rule
+#  number drill below needs the same fifteen pairs.  Two copies of a table
+#  is how this repository has lost material before, so there is one, and
+#  both readers take it from here.
+function rul_init(   i,n,ids,a,p){
+  if(NRUL>0) return 0
   n=split("L1|Rule 5 - Look-out;L2|Rule 6 - Safe speed;L3|Rule 7 - Risk of collision;" \
           "L4|Rule 8 - Action to avoid collision;L5|Rule 9 - Narrow channels;" \
           "L6|Rule 10 - Traffic separation schemes;L7|Rule 12 - Sailing vessels;" \
@@ -5678,15 +5687,62 @@ function syl_show(done,   i,a,n,ids,ttl,mark){
           "L12|Rule 18 - Responsibilities between vessels;" \
           "L13|Rule 19 - Restricted visibility;L14|Rules 20-31 - Lights and shapes;" \
           "L15|Rules 32-37 - Sound signals", ids, ";")
+  for(i=1;i<=n;i++){
+    split(ids[i],a,"|")
+    p=index(a[2]," - ")
+    RUL_ID[i]=a[1]
+    RUL_N[i]=substr(a[2],1,p-1)
+    RUL_T[i]=substr(a[2],p+3)
+  }
+  NRUL=n
+  return 0
+}
+
+#  THE NUMBERS, BOTH WAYS.  Memorising rule numbers is the standard and it
+#  is rote, but the numbers are what an examiner asks for and what gets
+#  quoted at you on the water.  The distractors are the other fourteen
+#  rules, which makes them the confusable ones by construction -- 15
+#  against 16 against 17, 12 against 13 against 18 -- and that is the part
+#  that is actually hard.  No new rule content is written here: every
+#  number and title already drove the fifteen lessons.
+function qpick_rule(seed,   i,c){
+  rul_init(); xsrand(seed+0)
+  for(i=0;i<3;i++) xrand()
+  c = 1+int(xrand()*NRUL)
+  QZ_C=c
+  QZ_DIR = (xrand()<0.5 ? 1 : 2)     # 1: number -> title.  2: title -> number
+  pick_opts(NRUL,c,seed+53); QZ_ANS=OPT_ANS
+  return 0
+}
+function quiz_rule(seed,   i){
+  qpick_rule(seed)
+  print ""
+  if(QZ_DIR==1) printf "  %s\n", cw("What is " RUL_N[QZ_C] "?",C_ACC)
+  else          printf "  %s\n", cw("Which rule is \"" RUL_T[QZ_C] "\"?",C_ACC)
+  print ""
+  for(i=1;i<=4;i++)
+    printf "   %s) %s\n", substr("abcd",i,1), (QZ_DIR==1 ? RUL_T[OPT[i]] : RUL_N[OPT[i]])
+  print ""
+  return 0
+}
+function quiz_rule_reveal(){
+  printf "  %s -- %s - %s\n", cw(toupper(QZ_ANS) " is right",C_ACC),
+                               RUL_N[QZ_C], RUL_T[QZ_C]
+  printf "  Lesson %s covers it: 'colregs lesson %s'.\n", RUL_ID[QZ_C], RUL_ID[QZ_C]
+  print ""
+  return 0
+}
+function syl_show(done,   i,a,n,ids,ttl,mark){
+  rul_init()
+  n=NRUL
   print ""
   printf "  %s\n", cw("THE RULES -- fifteen lessons",C_ACC)
   hr()
   ttl=0
   for(i=1;i<=n;i++){
-    split(ids[i],a,"|")
-    mark = (index("," done ",", "," a[1] ",")>0) ? "x" : " "
+    mark = (index("," done ",", "," RUL_ID[i] ",")>0) ? "x" : " "
     if(mark=="x") ttl++
-    printf "   [%s]  %-4s %s\n", mark, a[1], a[2]
+    printf "   [%s]  %-4s %s - %s\n", mark, RUL_ID[i], RUL_N[i], RUL_T[i]
   }
   hr()
   printf "  %d of %d done.  Type a code (L1 ... L15), or n for the next one.\n", ttl, n
@@ -5913,6 +5969,10 @@ BEGIN{
   else if(cmd=="check"){   les_q(les_id,0)
                            if(tolower(ans)==Q_A){ printf "\n  %s  %s\n\n", cw("Correct.",C_ACC), Q_W; exit 0 }
                            printf "\n  Not quite - the answer is %s.  %s\n\n", toupper(Q_A), Q_W; exit 1 }
+  else if(cmd=="qrule"){   quiz_rule(seed+0) }
+  else if(cmd=="qrulem"){  qpick_rule(seed+0)
+                           if(tolower(ans)!=QZ_ANS) printf "  %s\n", cw("Not right.",C_ACC)
+                           quiz_rule_reveal(); exit (tolower(ans)==QZ_ANS?0:1) }
   else if(cmd=="syllabus") syl_show(done)
   else if(cmd=="scen"){    if(!scen_gen(seed+0)){ print "  could not build a scenario"; exit 2 }
                            scen_show() }
@@ -18660,6 +18720,16 @@ do_learn() {
   printf "  %s\n" "$(eng -v cmd=lessonq -v key="$1")"
   echo
   mark_done "$1"
+  #  A SECOND TIER, OFFERED AND NOT IMPOSED. The lesson above is what you
+  #  need on deck; this is why it is true. Asked for by name so the
+  #  shorter lesson stays the default.
+  if eng -v cmd=lessonhasmore -v key="$1" >/dev/null 2>&1; then
+    printf "  there is more on this one - read it? [y/N] "
+    IFS= read -r m || m=""
+    case "$m" in
+      y|Y) echo; eng -v cmd=lessonmore -v key="$1" ;;
+    esac
+  fi
 }
 
 do_chart() {
@@ -19975,6 +20045,88 @@ function lesson_q(k){
   if(k=="seasons")  return "Northern winter is when the earth is CLOSEST to the sun. So why is it cold?|Because the seasons are the 23.5 degree tilt, not the distance. The northern hemisphere is leaning away, so the sun is low, the days are short, and the same energy is spread over more ground. The distance varies by about 3 percent and is swamped by it."
   return ""
 }
+
+# =====================================================================
+#  A SECOND TIER.  Each lesson stays short enough to read on a pitching
+#  boat; the deeper material sits behind a prompt, for the reader who
+#  wants to know why and not only what.  Same rule as the lessons
+#  themselves: it has to change what the app says or what you would do.
+# =====================================================================
+function les_has_more(k){
+  return (k=="coriolis")
+}
+
+function lesson_more(k){
+  if(k=="coriolis"){
+    lph("FROM OUTSIDE, IT IS ANGULAR MOMENTUM")
+    lp("Stand off the planet and watch. In that frame nothing curves and")
+    lp("nothing is pushing. What is conserved is " cw("angular momentum",C_ACC))
+    lp("about the earth's axis.")
+    print ""
+    lp("A point at latitude L sits " cw("a cos L",C_ACC) " from the axis, so the ground")
+    lp("there is already running east at:")
+    print ""
+    lp("  equator        1,674 km/h")
+    lp("  30 degrees     1,450")
+    lp("  45 degrees     1,184")
+    lp("  60 degrees       837")
+    lp("  " cw("pole               0",C_ACC))
+    print ""
+    lp("A shell in flight feels almost no torque about that axis - drag")
+    lp("aside, gravity acts straight at the centre - so its own")
+    lp(cw("u x r",C_ACC) " is fixed. Carry it closer to the axis and it must run")
+    lp("faster east; carry it further out and it must run slower.")
+    print ""
+    lph("TWO SHELLS, BOTH FIRED FROM 45 NORTH")
+    lp("  fired    distance from axis   ground below      the shell")
+    lp("  north    shrinks              east SLOWER       outruns it")
+    lp("  south    grows                east FASTER       lags it")
+    print ""
+    lp("Fired north it lands EAST of the aim. Fired south it lands WEST.")
+    lp("Going north, east is to your right. Going south, west is to your")
+    lp("right. " cw("Both deflect right",C_ACC) " - and in the southern hemisphere")
+    lp("both deflect left. That is Coriolis, with no force anywhere in it.")
+    print ""
+    lp("The size is real and small. A 16 inch shell at full range - 38 km,")
+    lp("about 90 seconds of flight - arrives where the ground runs 7 km/h")
+    lp("slower to the east, which works out at roughly " cw("90 metres",C_ACC) " of")
+    lp("sideways error. That is the hundred yards the gunnery tables have")
+    lp("always carried.")
+    print ""
+    lpd("Not to be confused with DRIFT, which in gunnery means the sideways")
+    lpd("deviation from the shell's own spin on a rifled barrel. Long range")
+    lpd("tables correct for both. They are different things with different")
+    lpd("causes, and only one of them reverses with hemisphere.")
+    print ""
+    lph("AND NOW THE WIND")
+    lp("Pressure pushes air from the high toward the low. The instant it")
+    lp("moves, the same bookkeeping turns it right, so it never runs")
+    lp("straight down the gradient. It ends up going " cw("around",C_ACC) ":")
+    print ""
+    lp("  northern hemisphere   anticlockwise around a low")
+    lp("                        clockwise around a high")
+    lp("  " cw("southern hemisphere   both the other way",C_ACC))
+    print ""
+    lp("Friction is what turns circling into weather. At the surface the")
+    lp("air is slowed, feels less deflection, and pressure wins a little,")
+    lp("so the flow spirals " cw("IN to a low",C_ACC) " and " cw("OUT of a high",C_ACC) ":")
+    print ""
+    lp("  in   ->  convergence  ->  air must rise  ->  cloud, and rain")
+    lp("  out  ->  divergence   ->  air must sink  ->  clearing, and dry")
+    print ""
+    lp("That is why a low is wet and a high is dry. It is the same friction")
+    lp("that puts twist in a sail - see " cw("gradient",C_ACC) " for the numbers.")
+    print ""
+    lpd("Honest boundary: angular momentum about the axis settles the")
+    lpd("north-south case completely, which is why the two shells are the")
+    lpd("demonstration. East-west motion needs a second idea as well - how")
+    lpd("gravity and the centrifugal term balance, which tilts the local")
+    lpd("vertical. Do not expect one principle to cover both directions.")
+    print ""
+    return 1
+  }
+  return 0
+}
 # =====================================================================
 #  weather -- dispatch
 # =====================================================================
@@ -20009,6 +20161,11 @@ BEGIN{
     if(n>=1){ hr(); printf "  %s %s\n", cw("Question:",C_ACC), QA[1]; print "" }
   }
   else if(cmd=="lessonq"){ n=split(lesson_q(key),QA,"|"); if(n>=2) print QA[2] }
+  #  the second tier: the deeper section, and whether one exists at all
+  else if(cmd=="lessonmore"){
+    if(!lesson_more(key)){ printf "  no deeper section for: %s\n", key; exit 2 }
+  }
+  else if(cmd=="lessonhasmore"){ exit (les_has_more(key) ? 0 : 1) }
   else if(cmd=="lessonlist"){ for(i=1;i<=LS_N;i++) print LS_K[i] }
 
   #  the machine forecasts, built only after the user's is committed
