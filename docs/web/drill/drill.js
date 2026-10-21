@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '12 \u2014 20 Oct 2026';
+var BUILD = '13 \u2014 21 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -605,9 +605,28 @@ function makeChoices(q, pool) {
     if (!sub(o) || sub(o) !== sub(q)) return false;
     return o.kind === 'hand' || q.kind === 'hand';
   };
+  //  NOT FROM THE SAME STATION IN THE SAME CHAIN.  Larry, on "You are on
+  //  helming.  The call is "Lee ho"": he answered "called somewhere in the
+  //  middle of your turn.  Keep going." and was marked right, but the
+  //  option "Keep going.  Know which way you are turning (to windward)."
+  //  is just as true -- it is the SAME STATION's answer to a different
+  //  call in the SAME chain.  A station's job is usually continuous: the
+  //  helm keeps turning through most of a tack, and the document says so
+  //  in slightly different words beside each call.  Any two of those are
+  //  both right, and no wording of the question can separate them.
+  //
+  //  The distractors that make this question worth asking are the OTHER
+  //  stations' answers -- they ask whose job it is, which is the thing a
+  //  watch leader has to know, rather than which sentence the book
+  //  happened to print beside which call.
+  var sta = function (x) { return (x && x.where && x.where.station) || ''; };
+  var prt = function (x) { return (x && x.where && x.where.part) || ''; };
+  var sameStation = function (o) {
+    return !!sta(q) && sta(o) === sta(q) && prt(o) === prt(q);
+  };
   var usable = function (o) {
     return o.a && !sameAnswer(o.a, q.a) && !(o.ch && o.ch.length) &&
-           !(o.seq && o.seq.length) && !sameParagraph(o);
+           !(o.seq && o.seq.length) && !sameParagraph(o) && !sameStation(o);
   };
   var same = pool.filter(function (o) { return usable(o) && o.kind === q.kind; });
   var other = pool.filter(function (o) { return usable(o) && o.kind !== q.kind; });

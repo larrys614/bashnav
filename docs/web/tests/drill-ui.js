@@ -245,6 +245,67 @@ window.answerCurrent = function (right) {
     fail('a hand-written answer from a different subsection was wrongly suppressed');
   else console.log('  ok   a hand-written answer from the same subsection is not a distractor');
 
+  //  NOR FROM THE SAME STATION IN THE SAME CHAIN.  Larry got "In tacking --
+  //  you are on helming.  The call is "Lee ho"" right and said the option
+  //  "Keep going.  Know which way you are turning (to windward)." was also
+  //  correct.  It was: that is the helm's answer to a DIFFERENT call in the
+  //  SAME tack, and a helm keeps turning through most of one.  The other
+  //  stations' answers to the same call are the distractors worth having,
+  //  and they must survive, or the rule would empty the pool rather than
+  //  clean it.
+  const station = await page.evaluate(() => {
+    const where = { part: 'Part 1 \u2014 Tacking', sub: 'By station' };
+    const q = { kind: 'station', a: 'Called somewhere in the middle of your turn. Keep going.',
+                where: Object.assign({ station: 'Helming' }, where) };
+    const sameSta = { kind: 'station', a: 'Keep going. Know which way you are turning (to windward).',
+                      where: Object.assign({ station: 'Helming' }, where) };
+    const otherSta = { kind: 'station', a: 'Take up slack on both traveller lines and secure them in the jammers.',
+                       where: Object.assign({ station: 'Mainsheet' }, where) };
+    const otherPart = { kind: 'station', a: 'Keep going straight; get an idea of your new course.',
+                        where: { part: 'Part 2 \u2014 Gybing (white sails)', sub: 'By station',
+                                 station: 'Helming' } };
+    const got = makeChoices(q, [q, sameSta, otherSta, otherPart]).map(o => o.t);
+    return { usedSame: got.indexOf(sameSta.a) >= 0,
+             usedOther: got.indexOf(otherSta.a) >= 0,
+             usedOtherPart: got.indexOf(otherPart.a) >= 0 };
+  });
+  if (station.usedSame)
+    fail('the same station\u2019s answer to another call in the same chain was offered as a distractor');
+  else if (!station.usedOther)
+    fail('another station\u2019s answer to the same call was wrongly suppressed');
+  else if (!station.usedOtherPart)
+    fail('the same station in a DIFFERENT manoeuvre was wrongly suppressed');
+  else console.log('  ok   a station\u2019s own answers elsewhere in its chain are not distractors');
+
+  //  and the stem must name the manoeuvre, not leave it to be inferred
+  //  from the call -- the options are drawn from more than one.
+  const named = await page.evaluate(() => {
+    return PACK.questions.filter(function (q) {
+      return q.kind === 'station' && !/^In .+ \u2014 you are on /.test(q.q);
+    }).map(function (q) { return q.q; });
+  });
+  if (named.length) fail(named.length + ' station question(s) do not name the manoeuvre: ' + named[0]);
+  else console.log('  ok   every station question names its manoeuvre');
+
+  //  AND NOTHING THE READER HAS TO JUDGE IS CUT SHORT.  Larry, on the
+  //  helm's answer to "Helm to weather": "Sould have the whoe answer, not
+  //  ....".  It ended "Once under control\u2026" -- an instruction with its
+  //  end missing, where the missing end was what to do when the main
+  //  fills.  Answers, wrong options and ordering steps all have to be
+  //  readable in full or the reader cannot tell what they are choosing.
+  const cut = await page.evaluate(() => {
+    const bad = [];
+    PACK.questions.forEach(function (q) {
+      [q.a].concat(q.ch || [], q.seq || []).forEach(function (t) {
+        if (typeof t === 'string' && /\u2026\s*$/.test(t))
+          bad.push(q.q + ' :: \u2026' + t.slice(-50));
+      });
+    });
+    return bad;
+  });
+  if (cut.length) fail(cut.length + ' text(s) in this pack are cut short: ' + cut[0]);
+  else console.log('  ok   no answer, option or step in this pack is cut short');
+
   //  A SECTION CAN RUN OUT OF DISTRACTORS, and a question with no wrong
   //  option is an automatic mark -- worse than the duplicate the
   //  filtering was added to prevent.
