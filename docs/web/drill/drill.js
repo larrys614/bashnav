@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '13 \u2014 21 Oct 2026';
+var BUILD = '14 \u2014 21 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -1175,10 +1175,29 @@ function drawAbout() {
       'It is held in this browser on this device only.'
     : 'No pack loaded.';
   if (!('caches' in window)) { $('off-state').textContent = 'This browser will not cache for offline use.'; return; }
-  caches.open('drill-v1').then(function (c) { return c.match('./'); }).then(function (hit) {
-    $('off-state').textContent = hit
-      ? 'The app is cached and runs with no network. Your pack is in storage, not in the cache.'
-      : 'Not cached yet \u2014 open this page once with a connection.';
+  //  FIND THE CACHE, DO NOT NAME IT.  This asked for 'drill-v1' by name,
+  //  and that cache has not existed since build 2 -- so the About page
+  //  has been reporting "Not cached yet" on an app that was fully
+  //  cached, which is a false statement about the one mechanism that
+  //  caused a whole evening's confusion.  The same fault was in the
+  //  weather app and was fixed there the same way.
+  //
+  //  It now also names the cache, because the build in the cache is
+  //  exactly what you want to know when the app looks stale.
+  caches.keys().then(function (ks) {
+    var mine = ks.filter(function (k) { return k.indexOf('drill-') === 0; });
+    if (!mine.length) {
+      $('off-state').textContent = 'Not cached yet \u2014 open this page once with a connection.';
+      return;
+    }
+    return caches.open(mine[0]).then(function (c) { return c.match('./'); })
+      .then(function (hit) {
+        $('off-state').textContent = hit
+          ? 'The app is cached (' + mine[0] + ') and runs with no network. ' +
+            'Your pack is in storage, not in the cache.'
+          : 'Cache ' + mine[0] + ' exists but the page is not in it \u2014 ' +
+            'reload once with a connection.';
+      });
   }).catch(function () { $('off-state').textContent = 'Could not read the cache.'; });
 }
 
@@ -1285,6 +1304,74 @@ window.addEventListener('DOMContentLoaded', function () {
         }
         location.reload();
       });
+
+      //  AND IF THAT DID NOT HAPPEN, SAY SO AND REPAIR IT.
+      //  The whole of 21 Oct was spent on an app that sat on build 12
+      //  while the site served 13.  Everything was working as written:
+      //  the worker updated, it cached the new files, and the DOCUMENT
+      //  went on running the drill.js it had already loaded.  The
+      //  controllerchange reload above is meant to cover that and did
+      //  not fire.  Larry pushed, restarted the browser, reloaded twice
+      //  from the menu, and the status line still said build 12 -- so
+      //  every fix delivered that day read as a fix that had not worked,
+      //  and the only thing that finally moved it was clearing the site's
+      //  data by hand.
+      //
+      //  An app that cannot tell it is stale is a bug in the app, not a
+      //  job for the reader.  So: ask the network what the live build is,
+      //  and if it is not the one running, drop the caches, unregister
+      //  the worker and reload once.  The next load has no worker, comes
+      //  from the network, and registers again.
+      //
+      //  The probe carries a query string because the fetch goes THROUGH
+      //  the worker, which is cache-first and matches on the URL -- so
+      //  `drill.js` would be answered from the very cache being
+      //  suspected, and `drill.js?probe=...` misses it and reaches the
+      //  network.  `cache: 'reload'` is belt and braces on top.
+      var HEAL = 'drill-healed';
+      var healed = function () {
+        try { return !!sessionStorage.getItem(HEAL); } catch (e) { return false; }
+      };
+      var liveBuildOf = function (text) {
+        var m = text.match(/BUILD\s*=\s*'([^']*)'/);
+        //  Read as TEXT, the file's \u2014 is six characters; running, it
+        //  is one em dash.  Compare like with like or every check says
+        //  stale and the app reloads itself for ever.
+        return m ? m[1].replace(/\\u2014/g, '\u2014') : null;
+      };
+      if (!healed()) {
+        fetch('drill.js?probe=' + Date.now(), { cache: 'reload' })
+          .then(function (r) { return r.ok ? r.text() : null; })
+          .then(function (text) {
+            if (!text) return;                 // offline: nothing to say
+            var live = liveBuildOf(text);
+            if (!live || live === BUILD) return;
+            try { sessionStorage.setItem(HEAL, live); } catch (e) {}
+            var note = $('sw-note');
+            if (note) {
+              note.textContent = 'Build ' + live + ' is available. Updating\u2026';
+              note.hidden = false;
+            }
+            var jobs = [];
+            if (window.caches) {
+              jobs.push(caches.keys().then(function (ks) {
+                return Promise.all(ks.filter(function (k) {
+                  return k.indexOf('drill-') === 0;
+                }).map(function (k) { return caches.delete(k); }));
+              }));
+            }
+            jobs.push(navigator.serviceWorker.getRegistrations()
+              .then(function (rs) {
+                return Promise.all(rs.map(function (r) { return r.unregister(); }));
+              }));
+            //  The pack is in IndexedDB and is the reader's own material.
+            //  Nothing here touches it.
+            Promise.all(jobs).catch(function () {}).then(function () {
+              location.reload();
+            });
+          })
+          .catch(function () {});             // offline, or blocked: carry on
+      }
     }
   }
 });

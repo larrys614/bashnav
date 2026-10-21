@@ -766,6 +766,71 @@ window.answerCurrent = function (right) {
   }
   console.log('  ok   no sideways scroll at 744, 390 and 320 px');
 
+  //  ---- the app repairs itself when it is stale --------------------
+  //  The fault this covers cost a whole evening: the site served build 13
+  //  and the app went on running build 12, because a new worker does not
+  //  change the document that installed it.  Everything was working as
+  //  written; nothing said the app was behind.  Build 14 asks the network
+  //  what the live build is and, if it differs, drops the caches,
+  //  unregisters the worker and reloads once.
+  //
+  //  Both directions are tested, and the second matters more: an app that
+  //  reloads itself when it is ALREADY current is an app stuck in a loop,
+  //  which is worse than the staleness it was written to cure.
+  {
+    //  ITS OWN CONTEXT, WITH THE WORKER BLOCKED.  The probe fetch goes
+    //  through the service worker when one is controlling the page, and
+    //  a worker's own requests are not visible to page routing -- so the
+    //  first version of this test intercepted nothing and reported that
+    //  a stale app "did not notice" when the app had never been asked.
+    //  Blocking the worker makes the probe an ordinary page request,
+    //  which is also the case worth covering: a stale copy can come from
+    //  the plain HTTP cache with no worker involved at all.
+    const healCtx = await browser.newContext({ serviceWorkers: 'block' });
+    const heal = await healCtx.newPage();
+    //  stale: the probe comes back claiming a build this app is not
+    await heal.route(u => u.pathname.endsWith('/drill.js') && u.search.includes('probe='),
+                     r => r.fulfill({ status: 200, contentType: 'application/javascript',
+                                      body: "var BUILD = '99 \\u2014 1 Jan 2099';" }));
+    await heal.goto(BASE, { waitUntil: 'networkidle' });
+    let reloaded = false;
+    const t0 = Date.now();
+    while (Date.now() - t0 < 8000) {
+      const flag = await heal.evaluate(() => {
+        try { return sessionStorage.getItem('drill-healed'); } catch (e) { return null; }
+      }).catch(() => null);
+      if (flag) { reloaded = true; break; }
+      await heal.waitForTimeout(200);
+    }
+    if (!reloaded) fail('a stale app did not notice: no self-heal after a probe reporting build 99');
+    else {
+      const after = await heal.evaluate(async () => ({
+        build: window.BUILD,
+        flag: sessionStorage.getItem('drill-healed'),
+        caches: (await caches.keys()).filter(k => k.indexOf('drill-') === 0),
+      }));
+      if (after.flag !== '99 \u2014 1 Jan 2099')
+        fail('the self-heal recorded the wrong live build: ' + after.flag);
+      else console.log('  ok   a stale app drops its caches and reloads itself once');
+    }
+    await heal.close();
+    await healCtx.close();
+
+    //  current: the probe agrees with the running build, so nothing happens
+    const quietCtx = await browser.newContext({ serviceWorkers: 'block' });
+    const quiet = await quietCtx.newPage();
+    await quiet.goto(BASE, { waitUntil: 'networkidle' });
+    await quiet.waitForTimeout(1500);
+    const q = await quiet.evaluate(() => {
+      try { return { flag: sessionStorage.getItem('drill-healed'), build: window.BUILD }; }
+      catch (e) { return { flag: 'storage blocked', build: window.BUILD }; }
+    });
+    if (q.flag) fail('a current app healed itself anyway (would loop): flag=' + q.flag);
+    else console.log('  ok   and a current app leaves itself alone (no reload loop)');
+    await quiet.close();
+    await quietCtx.close();
+  }
+
   await page.setViewportSize({ width: 744, height: 1133 });
   await page.evaluate(() => go('home'));
   await page.waitForTimeout(250);
