@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '14 \u2014 21 Oct 2026';
+var BUILD = '15 \u2014 21 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -557,6 +557,23 @@ function contentWords(x) {
 //  floor would catch those and empty the pool at the same time -- "lower"
 //  alone is inside half the mainsail procedures. The floor is the price
 //  of the rule, not an oversight.
+//  THE FIRST TWO CONTENT WORDS -- what an answer is ABOUT.  The rows of
+//  this document are written the same way throughout, the thing acted on
+//  first, so two answers opening on the same thing are about the same
+//  thing whatever follows.
+//
+//  This mirrors lead_phrase() in the generator's textsim.py, and the two
+//  are kept in step by hand because one is Python and one is not.  The
+//  word lists are identical; contentWords() here additionally drops
+//  tokens of one or two letters, which the Python does not, and that
+//  difference has never changed an outcome.
+function leadPhrase(x) {
+  var skip = ['the', 'a', 'an', 'is', 'are', 'all'];
+  var ws = String(x || '').toLowerCase().match(/[a-z0-9]+/g) || [];
+  var w = ws.filter(function (t) { return skip.indexOf(t) < 0; });
+  return w.slice(0, 2).join(' ');
+}
+
 function sameAnswer(a, b) {
   var f = function (x) {
     return String(x || '').toLowerCase()
@@ -565,17 +582,39 @@ function sameAnswer(a, b) {
       .trim();
   };
   if (f(a) === f(b)) return true;
+  //  SAME OPENING, SAME SUBJECT.  Larry, drilling: "This question I got
+  //  wrong, chose D you think A" -- asked what tacking's "Ready about?"
+  //  means, he was offered gybing's wording for "Ready to gybe?" as a
+  //  wrong option.  Same call, one manoeuvre over, and the gybe's wording
+  //  is the fuller of the two, so D was at least as true as A.  Both open
+  //  "Crew confirm if they are ready, or not", word for word.
+  //
+  //  The section pool holds tacking AND gybing, so the pool was right to
+  //  offer it and the test was wrong to allow it.  These questions carry
+  //  no options of their own, and cannot: their answers are two-source
+  //  merges, and a merged answer among three plain ones is marked by its
+  //  shape.  So the filtering has to happen here.
+  var la = leadPhrase(a), lb = leadPhrase(b);
+  if (la && la === lb) return true;
   var wa = contentWords(a), wb = contentWords(b);
   var small = wa.__n <= wb.__n ? wa : wb, big = small === wa ? wb : wa;
   //  Three words is the floor. Below it almost anything is a subset of
   //  something -- "Lower" sits inside half the mainsail procedures -- and
   //  suppressing those would empty the pool rather than clean it.
   if (small.__n < 3) return false;
+  //  FOUR FIFTHS, NOT ALL.  This asked for every word of the shorter
+  //  answer to appear in the longer, which is a higher bar than the
+  //  generator's about_same() and is the second reason that pair got
+  //  through: "the answer is a shouted YES" against "put your arm in the
+  //  air" shares about three quarters of its words, not all of them.
+  //  The threshold now matches the generator's, and the pool cannot run
+  //  dry because of it -- the whole-pack last resort below still applies.
+  var shared = 0;
   for (var k in small) {
     if (k === '__n' || !small.hasOwnProperty(k)) continue;
-    if (!big[k]) return false;
+    if (big[k]) shared++;
   }
-  return true;
+  return shared / small.__n >= 0.8;
 }
 
 function makeChoices(q, pool) {
