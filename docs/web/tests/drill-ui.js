@@ -277,6 +277,47 @@ window.answerCurrent = function (right) {
     fail('the same station in a DIFFERENT manoeuvre was wrongly suppressed');
   else console.log('  ok   a station\u2019s own answers elsewhere in its chain are not distractors');
 
+  //  NOR ANOTHER MOMENT OF THE SAME EVOLUTION.  Larry, on the reef: "both
+  //  B and C are correct".  The stem named one stage of a three-stage
+  //  procedure -- "for Lower, what happens?" -- and three of the four
+  //  options were rows of that same procedure.  You haul the luff cringle
+  //  down WHILE the sail is coming down, so more than one row is true of
+  //  the moment the stem names.
+  //
+  //  Both directions are checked, and the second matters as much: a table
+  //  that is NOT a sequence -- the luff, foot and leech against their
+  //  controls -- must keep its own rows, because there the other rows are
+  //  genuinely different things and are the best distractors there are.
+  const evo = await page.evaluate(() => {
+    const reef = (row) => ({ part: 'Part 3 \u2014 The mainsail',
+                             sub: 'Reefing the Main', row: String(row), tbl: 1 });
+    const q = { kind: 'fact', seqtbl: 1, where: reef(1),
+                a: 'Ease the main halyard; the mastperson pulls the sail down.' };
+    const sameTbl = { kind: 'fact', seqtbl: 1, where: reef(2),
+                      a: 'Handy billy attached to the luff cringle and tightened.' };
+    const otherCard = { kind: 'fact', seqtbl: 1,
+                        where: { part: 'Part 3 \u2014 The mainsail',
+                                 sub: 'Shaking it out', row: '2', tbl: 1 },
+                        a: 'Disconnect the handy billy.' };
+    const notSeq = { kind: 'fact',
+                     where: { part: 'Part 3 \u2014 The mainsail',
+                              sub: 'Luff, foot and leech', row: '3', tbl: 1 },
+                     a: 'The leech controls how much the sail twists.' };
+    const pool = [q, sameTbl, otherCard, notSeq];
+    const plain = { kind: 'fact', where: reef(1), a: q.a };   // same row, not marked
+    return { got: makeChoices(q, pool).map(o => o.t),
+             gotPlain: makeChoices(plain, [plain, sameTbl, otherCard, notSeq]).map(o => o.t),
+             sameTbl: sameTbl.a, otherCard: otherCard.a };
+  });
+  if (evo.got.indexOf(evo.sameTbl) >= 0)
+    fail('another row of the same procedure was offered as a wrong answer: ' + evo.got.join(' | '));
+  else if (evo.got.indexOf(evo.otherCard) < 0)
+    fail('a row from a different card should still be a distractor: ' + evo.got.join(' | '));
+  else if (evo.gotPlain.indexOf(evo.sameTbl) < 0)
+    fail('a table that is not a sequence lost its own rows as distractors: ' + evo.gotPlain.join(' | '));
+  else console.log('  ok   another moment of the same evolution is not a distractor, ' +
+                   'and an unordered table keeps its rows');
+
   //  and the stem must name the manoeuvre, not leave it to be inferred
   //  from the call -- the options are drawn from more than one.
   const named = await page.evaluate(() => {

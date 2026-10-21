@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '16 \u2014 21 Oct 2026';
+var BUILD = '17 \u2014 21 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -704,9 +704,28 @@ function makeChoices(q, pool) {
   var sameStation = function (o) {
     return !!sta(q) && sta(o) === sta(q) && prt(o) === prt(q);
   };
+  //  NOT ANOTHER MOMENT OF THE SAME EVOLUTION.  Larry, on the reef:
+  //  "both B and C are correct". The stem named one stage of a
+  //  three-stage procedure -- "for Lower, what happens?" -- and three of
+  //  the four options were rows of that same procedure: Lower, Set the
+  //  LUFF, Set the FOOT. You haul the luff cringle down WHILE the sail is
+  //  coming down, so more than one row is a true answer to the moment the
+  //  stem names, and no wording of the question separates them. Same
+  //  cause as a station's continuous job above, one level out again.
+  //
+  //  Only where the generator marked the question as coming from an
+  //  ORDERED table (seqtbl). On a table that is not a sequence -- the
+  //  luff, foot and leech against their controls, the depowering ladder
+  //  against its effects -- the other rows are genuinely different things
+  //  and are the best distractors there are, so they stay.
+  var tbl = function (x) { return (x && x.where && x.where.tbl) || ''; };
+  var sameEvolution = function (o) {
+    return !!q.seqtbl && sub(o) === sub(q) && prt(o) === prt(q) && tbl(o) === tbl(q);
+  };
   var usable = function (o) {
     return o.a && !sameAnswer(o.a, q.a) && !(o.ch && o.ch.length) &&
-           !(o.seq && o.seq.length) && !sameParagraph(o) && !sameStation(o);
+           !(o.seq && o.seq.length) && !sameParagraph(o) && !sameStation(o) &&
+           !sameEvolution(o);
   };
   var same = pool.filter(function (o) { return usable(o) && o.kind === q.kind; });
   var other = pool.filter(function (o) { return usable(o) && o.kind !== q.kind; });
