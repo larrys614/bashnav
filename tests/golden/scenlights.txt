@@ -2,7 +2,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 015 T, 003 relative -- right ahead, 8.7 nm.
+  She bears 015 T, 003 relative -- fine on the starboard bow, 8.7 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -20,7 +20,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 063 T, 039 relative -- on your starboard bow, 7.4 nm.
+  She bears 063 T, 039 relative -- broad on the starboard bow, 7.4 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -38,7 +38,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 220 T, 183 relative -- on your port quarter, 1.6 nm.
+  She bears 220 T, 183 relative -- fine on the port quarter, 1.6 nm.
   You see   green starboard light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -55,7 +55,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 042 T, 353 relative -- on your port bow, 8.7 nm.
+  She bears 042 T, 353 relative -- fine on the port bow, 8.7 nm.
   You see   both sidelights, bow-on, and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -73,7 +73,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 015 T, 313 relative -- on your port bow, 7.4 nm.
+  She bears 015 T, 313 relative -- broad on the port bow, 7.4 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -92,7 +92,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 035 T, 321 relative -- on your port bow, 6.1 nm.
+  She bears 035 T, 321 relative -- broad on the port bow, 6.1 nm.
   You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  red port light
   ----------------------------------------------------------------------
@@ -111,7 +111,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 111 T, 024 relative -- on your starboard bow, 8.8 nm.
+  She bears 111 T, 024 relative -- broad on the starboard bow, 8.8 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -129,7 +129,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 195 T, 096 relative -- on your starboard beam, 7.5 nm.
+  She bears 195 T, 096 relative -- abaft the starboard beam, 7.5 nm.
   You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -147,7 +147,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 137 T, 003 relative -- right ahead, 9.3 nm.
+  She bears 137 T, 003 relative -- fine on the starboard bow, 9.3 nm.
   You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -165,7 +165,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 120 T, 356 relative -- right ahead, 8.8 nm.
+  She bears 120 T, 356 relative -- fine on the port bow, 8.8 nm.
   You see   red port light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -183,7 +183,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 103 T, 327 relative -- on your port bow, 7.5 nm.
+  She bears 103 T, 327 relative -- broad on the port bow, 7.5 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -202,7 +202,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 131 T, 342 relative -- on your port bow, 6.2 nm.
+  She bears 131 T, 342 relative -- fine on the port bow, 6.2 nm.
   You see   white sternlight, under red, white, red -- restricted in her ability to manoeuvre
   She sees  red port light
   ----------------------------------------------------------------------
@@ -221,7 +221,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 207 T, 046 relative -- on your starboard bow, 8.9 nm.
+  She bears 207 T, 046 relative -- broad on the starboard bow, 8.9 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -239,7 +239,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 288 T, 020 relative -- on your starboard bow, 8.7 nm.
+  She bears 288 T, 020 relative -- fine on the starboard bow, 8.7 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -257,7 +257,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 032 T, 048 relative -- on your starboard bow, 7.5 nm.
+  She bears 032 T, 048 relative -- broad on the starboard bow, 7.5 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -293,7 +293,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 218 T, 325 relative -- on your port bow, 6.3 nm.
+  She bears 218 T, 325 relative -- broad on the port bow, 6.3 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -312,7 +312,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 207 T, 351 relative -- on your port bow, 2.3 nm.
+  She bears 207 T, 351 relative -- fine on the port bow, 2.3 nm.
   You see   white sternlight
   She sees  red port light
   ----------------------------------------------------------------------
@@ -330,7 +330,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 183 T, 307 relative -- on your port bow, 9.0 nm.
+  She bears 183 T, 307 relative -- broad on the port bow, 9.0 nm.
   You see   green starboard light, under red over white -- engaged in fishing
   She sees  red port light
   ----------------------------------------------------------------------
@@ -348,7 +348,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 098 T, 210 relative -- on your port quarter, 7.7 nm.
+  She bears 098 T, 210 relative -- broad on the port quarter, 7.7 nm.
   You see   red port light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -366,7 +366,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 065 T, 164 relative -- on your starboard quarter, 2.1 nm.
+  She bears 065 T, 164 relative -- fine on the starboard quarter, 2.1 nm.
   You see   red port light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -383,7 +383,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 275 T, 002 relative -- right ahead, 9.1 nm.
+  She bears 275 T, 002 relative -- fine on the starboard bow, 9.1 nm.
   You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -401,7 +401,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 204 T, 278 relative -- on your port beam, 7.7 nm.
+  She bears 204 T, 278 relative -- forward of the port beam, 7.7 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -420,7 +420,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 323 T, 025 relative -- on your starboard bow, 6.4 nm.
+  She bears 323 T, 025 relative -- broad on the starboard bow, 6.4 nm.
   You see   red port light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -439,7 +439,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 048 T, 097 relative -- on your starboard beam, 9.1 nm.
+  She bears 048 T, 097 relative -- abaft the starboard beam, 9.1 nm.
   You see   red port light (no masthead light -- she is under sail)
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -458,7 +458,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 230 T, 267 relative -- on your port beam, 7.8 nm.
+  She bears 230 T, 267 relative -- abaft the port beam, 7.8 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -476,7 +476,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 330 T, 354 relative -- on your port bow, 3.0 nm.
+  She bears 330 T, 354 relative -- fine on the port bow, 3.0 nm.
   You see   white sternlight
   She sees  red port light
   ----------------------------------------------------------------------
@@ -494,7 +494,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 353 T, 005 relative -- on your starboard bow, 9.2 nm.
+  She bears 353 T, 005 relative -- fine on the starboard bow, 9.2 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -512,7 +512,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 047 T, 047 relative -- on your starboard bow, 7.9 nm.
+  She bears 047 T, 047 relative -- broad on the starboard bow, 7.9 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -530,7 +530,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 059 T, 046 relative -- on your starboard bow, 6.5 nm.
+  She bears 059 T, 046 relative -- broad on the starboard bow, 6.5 nm.
   You see   red port light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -549,7 +549,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 166 T, 300 relative -- on your port bow, 9.3 nm.
+  She bears 166 T, 300 relative -- broad on the port bow, 9.3 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -568,7 +568,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 002 T, 324 relative -- on your port bow, 7.9 nm.
+  She bears 002 T, 324 relative -- broad on the port bow, 7.9 nm.
   You see   red port light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -604,7 +604,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 055 T, 352 relative -- on your port bow, 9.3 nm.
+  She bears 055 T, 352 relative -- fine on the port bow, 9.3 nm.
   You see   red port light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -622,7 +622,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 135 T, 060 relative -- on your starboard bow, 8.0 nm.
+  She bears 135 T, 060 relative -- broad on the starboard bow, 8.0 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -640,7 +640,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 036 T, 308 relative -- on your port bow, 6.6 nm.
+  She bears 036 T, 308 relative -- broad on the port bow, 6.6 nm.
   You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  red port light
   ----------------------------------------------------------------------
@@ -659,7 +659,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 279 T, 354 relative -- on your port bow, 2.1 nm.
+  She bears 279 T, 354 relative -- fine on the port bow, 2.1 nm.
   You see   white sternlight
   She sees  red port light
   ----------------------------------------------------------------------
@@ -677,7 +677,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 173 T, 061 relative -- on your starboard bow, 8.0 nm.
+  She bears 173 T, 061 relative -- broad on the starboard bow, 8.0 nm.
   You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -695,7 +695,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 109 T, 006 relative -- on your starboard bow, 8.3 nm.
+  She bears 109 T, 006 relative -- fine on the starboard bow, 8.3 nm.
   You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -714,7 +714,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 132 T, 355 relative -- right ahead, 9.4 nm.
+  She bears 132 T, 355 relative -- fine on the port bow, 9.4 nm.
   You see   red port light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -732,7 +732,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 223 T, 073 relative -- on your starboard beam, 8.1 nm.
+  She bears 223 T, 073 relative -- forward of the starboard beam, 8.1 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -750,7 +750,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 131 T, 329 relative -- on your port bow, 6.8 nm.
+  She bears 131 T, 329 relative -- broad on the port bow, 6.8 nm.
   You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
   She sees  red port light
   ----------------------------------------------------------------------
@@ -769,7 +769,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 083 T, 268 relative -- on your port beam, 9.4 nm.
+  She bears 083 T, 268 relative -- on the port beam, 9.4 nm.
   You see   green starboard light (no masthead light -- she is under sail)
   She sees  red port light
   ----------------------------------------------------------------------
@@ -788,7 +788,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 305 T, 118 relative -- on your starboard quarter, 8.1 nm.
+  She bears 305 T, 118 relative -- broad on the starboard quarter, 8.1 nm.
   You see   red port light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -806,7 +806,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 141 T, 188 relative -- on your port quarter, 2.4 nm.
+  She bears 141 T, 188 relative -- fine on the port quarter, 2.4 nm.
   You see   both sidelights, bow-on, and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -823,7 +823,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 209 T, 357 relative -- right ahead, 9.5 nm.
+  She bears 209 T, 357 relative -- fine on the port bow, 9.5 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -841,7 +841,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 249 T, 004 relative -- right ahead, 9.1 nm.
+  She bears 249 T, 004 relative -- fine on the starboard bow, 9.1 nm.
   You see   green starboard light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -859,7 +859,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 228 T, 351 relative -- on your port bow, 6.9 nm.
+  She bears 228 T, 351 relative -- fine on the port bow, 6.9 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  red port light
   ----------------------------------------------------------------------
@@ -877,7 +877,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 214 T, 325 relative -- on your port bow, 9.5 nm.
+  She bears 214 T, 325 relative -- broad on the port bow, 9.5 nm.
   You see   green starboard light (no masthead light -- she is under sail)
   She sees  red port light
   ----------------------------------------------------------------------
@@ -896,7 +896,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 081 T, 179 relative -- on your starboard quarter, 2.0 nm.
+  She bears 081 T, 179 relative -- right astern, 2.0 nm.
   You see   red port light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -913,7 +913,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 259 T, 345 relative -- on your port bow, 2.1 nm.
+  She bears 259 T, 345 relative -- fine on the port bow, 2.1 nm.
   You see   white sternlight
   She sees  red port light
   ----------------------------------------------------------------------
@@ -931,7 +931,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 232 T, 305 relative -- on your port bow, 9.6 nm.
+  She bears 232 T, 305 relative -- broad on the port bow, 9.6 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -950,7 +950,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 324 T, 025 relative -- on your starboard bow, 8.3 nm.
+  She bears 324 T, 025 relative -- broad on the starboard bow, 8.3 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -968,7 +968,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 000 T, 071 relative -- on your starboard beam, 7.8 nm.
+  She bears 000 T, 071 relative -- forward of the starboard beam, 7.8 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -986,7 +986,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 026 T, 062 relative -- on your starboard bow, 9.7 nm.
+  She bears 026 T, 062 relative -- broad on the starboard bow, 9.7 nm.
   You see   red port light (no masthead light -- she is under sail)
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -1005,7 +1005,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 162 T, 186 relative -- on your port quarter, 2.8 nm.
+  She bears 162 T, 186 relative -- fine on the port quarter, 2.8 nm.
   You see   green starboard light and her masthead light
   She sees  white sternlight
   ----------------------------------------------------------------------
@@ -1022,7 +1022,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 184 T, 024 relative -- on your starboard bow, 9.8 nm.
+  She bears 184 T, 024 relative -- broad on the starboard bow, 9.8 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -1040,7 +1040,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 320 T, 319 relative -- on your port bow, 9.7 nm.
+  She bears 320 T, 319 relative -- broad on the port bow, 9.7 nm.
   You see   green starboard light and her masthead light
   She sees  red port light
   ----------------------------------------------------------------------
@@ -1059,7 +1059,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 052 T, 038 relative -- on your starboard bow, 8.4 nm.
+  She bears 052 T, 038 relative -- broad on the starboard bow, 8.4 nm.
   You see   red port light and her masthead light
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -1077,7 +1077,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 059 T, 033 relative -- on your starboard bow, 7.1 nm.
+  She bears 059 T, 033 relative -- broad on the starboard bow, 7.1 nm.
   You see   red port light, under red over white -- engaged in fishing
   She sees  green starboard light
   ----------------------------------------------------------------------
@@ -1095,7 +1095,7 @@
 
   THE LIGHTS
   ----------------------------------------------------------------------
-  She bears 207 T, 351 relative -- on your port bow, 2.3 nm.
+  She bears 207 T, 351 relative -- fine on the port bow, 2.3 nm.
   You see   white sternlight
   She sees  red port light
   ----------------------------------------------------------------------

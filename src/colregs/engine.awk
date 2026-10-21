@@ -1499,15 +1499,41 @@ function lt_phrase(arc,kind,mine,   s){
   if(kind=="sail")     return s " (no masthead light -- she is under sail)"
   return s " and her masthead light"
 }
-function lt_sector(rel,   r){
+#  ---- relative bearing, by name -------------------------------------
+#  Larry: "for releative bearings by name, we should have fine on bow,
+#  broad on bow, on beam, fwd of beam, aft of beam, on quarter, etc.  We
+#  can look up angles to refine meaning."
+#
+#  Looked up.  The named positions are not approximations -- they are the
+#  four-point marks, and a point is 11.25 degrees:
+#
+#      broad on the bow   four points ahead of the beam   045
+#      on the beam        eight points                    090
+#      on the quarter     the fourth point aft of the beam 135
+#
+#  "Fine" is a point or two off the fore-and-aft line.  So the sectors
+#  are centred on those names with their boundaries at the TWO-point
+#  marks: 22.5, 67.5, 112.5, 157.5.
+#
+#  Which lands somewhere worth noticing in this app of all places: 112.5
+#  is both where "broad on the quarter" begins AND the outer edge of the
+#  sidelight arc -- 22.5 degrees abaft the beam, Rule 21.  The lights are
+#  cut at the same marks the bearing names are cut at, so "her green has
+#  just gone out" and "she has come broad on my quarter" are the same
+#  observation.
+function lt_sector(rel,   r, side){
   r = nrm360(rel)
-  if(r <= 5 || r >= 355)   return "right ahead"
-  if(r < 67.5)             return "on your starboard bow"
-  if(r < 112.5)            return "on your starboard beam"
-  if(r < 180)              return "on your starboard quarter"
-  if(r < 247.5)            return "on your port quarter"
-  if(r < 292.5)            return "on your port beam"
-  return "on your port bow"
+  if(r <= 2 || r >= 358)    return "right ahead"
+  if(r >= 178 && r <= 182)  return "right astern"
+  side = (r < 180) ? "starboard" : "port"
+  if(r >= 180) r = 360 - r                 # fold onto one side
+  if(r < 22.5)   return "fine on the " side " bow"
+  if(r < 67.5)   return "broad on the " side " bow"
+  if(r < 88)     return "forward of the " side " beam"
+  if(r <= 92)    return "on the " side " beam"
+  if(r < 112.5)  return "abaft the " side " beam"
+  if(r < 157.5)  return "broad on the " side " quarter"
+  return "fine on the " side " quarter"
 }
 function scen_lights(   relus, relher, we, she, bow, v){
   relus  = nrm360(SC_B0 - SC_CO)            # where she is, off our bow
