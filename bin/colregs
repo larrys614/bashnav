@@ -725,6 +725,12 @@ run_scen() {
       sok=$((sok+1))
     fi
     save_prog
+    #  AFTER the marking, deliberately.  The panel names the governing
+    #  rule, which is most of the answer to Q3 -- offered before you
+    #  answer it would be a hint, and the point is to check your reading
+    #  of the lights against the rule once you have committed.
+    printf "  Show the lights each boat sees? [y/N] "; IFS= read -r L
+    case "$L" in y|Y|l|L) eng -v cmd=scenlights -v seed="$sd" ;; esac
     printf "  Watch it run? [Y/n] "; IFS= read -r w
     case "$w" in
       n|N) ;;
@@ -916,6 +922,7 @@ help_text() {
     '  colregs scenario         a developing situation: plot it, decide, watch it run' \
     '  colregs sound            identify sound signals' \
     '  colregs numbers          which rule is which, both ways round' \
+    '  (in a scenario, y at the lights prompt shows what each boat sees)' \
     '  colregs rules            fifteen lessons on the rules' \
     '  colregs lesson L7        one lesson' \
     '  colregs contacts         bearing drift and contact management' \
@@ -2418,6 +2425,8 @@ BEGIN{
                            if(tolower(ans)!=QZ_ANS) printf "  %s\n", cw("Not right.",C_ACC)
                            quiz_rule_reveal(); exit (tolower(ans)==QZ_ANS?0:1) }
   else if(cmd=="syllabus") syl_show(done)
+  else if(cmd=="scenlights"){ if(!scen_gen(seed+0)){ print "  no scenario"; exit 2 }
+                           scen_lights() }
   else if(cmd=="scen"){    if(!scen_gen(seed+0)){ print "  could not build a scenario"; exit 2 }
                            scen_show() }
   else if(cmd=="scenm"){   if(!scen_gen(seed+0)){ print "  could not build a scenario"; exit 2 }
@@ -2477,6 +2486,125 @@ function atan2d(y,x){ return 57.2957795130823209*atan2(y,x) }
 function acosd(x){ if(x>=1) return 0; if(x<=-1) return 180
   return atan2d(sqrt(1-x*x),x) }
 
+#  ---- what each vessel sees of the other, and what decides it -------
+#  Larry's idea, and his worked example: a boat on the port bow shows us
+#  her green, she sees our red, so she has us on her starboard side and
+#  she keeps clear.  Right -- for a power-driven crossing.
+#
+#  The finding that shaped this: of the nine situations the generator
+#  builds, the colour decides TWO of them.  In three it is actively
+#  misleading, because a sailing vessel, a vessel fishing and a vessel
+#  restricted in her ability to manoeuvre can all show you GREEN and
+#  still be the vessel you keep clear of.  "Green means go" is the exact
+#  wrong reflex there.  So the panel shows the lights, and then says what
+#  actually governs -- which is the colour sometimes, and Rule 13, 14 or
+#  18 the rest of the time.
+#
+#  The arcs, from Rule 21: sidelights 112.5 degrees each, from right
+#  ahead to 22.5 abaft the beam; sternlight 135 degrees; masthead 225.
+function tpw(str,   w,n,a,i,line,vis,plain){
+  #  WRAP ON VISIBLE WIDTH, not on string length: the verdict lines carry
+  #  colour escapes, and counting those as characters wraps at the wrong
+  #  place and ragged.  The escapes are stripped for measuring only.
+  w = 68
+  n = split(str, a, " ")
+  line = ""
+  for(i=1;i<=n;i++){
+    plain = line " " a[i]
+    gsub(/\033\[[0-9;]*m/, "", plain)
+    if(line=="") line = a[i]
+    else if(length(plain) <= w + 1) line = line " " a[i]
+    else { print "  " line; line = a[i] }
+  }
+  if(line!="") print "  " line
+  return 0
+}
+function lt_arc(rel,   r){
+  #  `rel` is the viewer's bearing FROM the subject, relative to the
+  #  subject's bow.  What the viewer can see follows from that alone.
+  r = nrm360(rel)
+  if(r <= 1.5 || r >= 358.5) return "both"
+  if(r < 112.5)              return "green"
+  if(r > 247.5)              return "red"
+  return "stern"
+}
+function lt_phrase(arc,kind,mine,   s){
+  if(arc=="green")     s = cw("green",K_G) " starboard light"
+  else if(arc=="red")  s = cw("red",K_R) " port light"
+  else if(arc=="both") s = cw("both",K_W) " sidelights, bow-on,"
+  else                 s = cw("white",K_W) " sternlight"
+  if(mine) return s
+  #  AN ALL-ROUND LIGHT IS VISIBLE FROM EVERY DIRECTION, including from
+  #  astern -- that is what "all-round" means, and it is the whole reason
+  #  those lights outrank the colour.  Skipping them in the stern arc
+  #  would have shown a trawler overtaken from astern as nothing but a
+  #  white sternlight.
+  if(kind=="fishing")  return s ", under " cw("red over white",K_R) " -- engaged in fishing"
+  if(kind=="ram")      return s ", under " cw("red, white, red",K_R) " -- restricted in her ability to manoeuvre"
+  if(arc=="stern")     return s
+  if(kind=="sail")     return s " (no masthead light -- she is under sail)"
+  return s " and her masthead light"
+}
+function scen_lights(   relus, relher, we, she, bow, v){
+  relus  = nrm360(SC_B0 - SC_CO)            # where she is, off our bow
+  relher = nrm360(SC_B0 + 180 - SC_CT)      # where we are, off her bow
+  we  = lt_arc(relher)                      # so this is what WE see of HER
+  she = lt_arc(relus)                       # and this is what SHE sees of US
+  bow = (relus < 180) ? "starboard" : "port"
+  print ""
+  printf "  %s\n", cw("THE LIGHTS",C_ACC)
+  hr()
+  printf "  She bears %03d, %.1f nm -- %s of your bow.\n", SC_B0, SC_R0, ((relus<1.5||relus>358.5) ? "right ahead" : bow)
+  printf "  You see   %s\n", lt_phrase(we,SC_KIND,0)
+  printf "  She sees  %s\n", lt_phrase(she,"power",1)
+  hr()
+  v = ""
+  if(SC_KEY=="cross_stbd"){
+    v = "Her " cw("red",K_R) " on your starboard side. \"If to starboard red appear,"
+    v = v " 'tis your duty to keep clear\" -- you give way (Rule 15), and Rule 8"
+    v = v " wants it early and large enough to be obvious." }
+  else if(SC_KEY=="cross_port"){
+    v = "Her " cw("green",K_G) " on your port side: she has you on HER starboard,"
+    v = v " so she keeps clear (Rule 15). You stand on -- and Rule 17 means hold"
+    v = v " your course and speed, which is an instruction, not permission to stop looking." }
+  else if(SC_KEY=="headon"){
+    v = "Both her sidelights: she is bow-on, and this is Rule 14. "
+    v = v cw("Nobody stands on.",C_ACC) " Both of you alter to starboard. The colour"
+    v = v " decides nothing here, because you can see them both." }
+  else if(SC_KEY=="overtaking"){
+    v = "Her " cw("sternlight",K_W) " -- no colour to read at all. You are the"
+    v = v " overtaking vessel, so you keep clear until you are past and clear"
+    v = v " (Rule 13), whatever else you can see." }
+  else if(SC_KEY=="overtaken"){
+    v = "She sees your " cw("sternlight",K_W) ". She is overtaking you, so she keeps"
+    v = v " clear (Rule 13) and you stand on (Rule 17)." }
+  else if(SC_KEY=="sail"){
+    v = cw("The colour tells you nothing here.",C_ACC) " She is under sail and you"
+    v = v " are under power, so you keep out of her way (Rule 18) -- and between two"
+    v = v " sailing vessels it is Rule 12, decided by tack and by windward or leeward,"
+    v = v " not by which light you happen to see." }
+  else if(SC_KEY=="fishing"){
+    v = cw("The all-round lights outrank the colour.",C_ACC) " Red over white is the"
+    v = v " signal that governs: you keep out of the way of a vessel engaged in"
+    v = v " fishing (Rule 18), even when she is showing you green." }
+  else if(SC_KEY=="ram"){
+    v = cw("The all-round lights outrank the colour.",C_ACC) " Red, white, red is the"
+    v = v " signal that governs: you keep out of the way of a vessel restricted in"
+    v = v " her ability to manoeuvre (Rule 18), even when she is showing you green." }
+  else {
+    v = "The lights read like a crossing, but the bearing is opening and the CPA is"
+    v = v " wide -- no risk of collision exists yet (Rule 7). Keep taking the bearing;"
+    v = v " that, not the colour, is what tells you." }
+  tpw(v)
+  tb()
+  v = cw("What the colour is worth:",C_ACC) " it decides a power-driven crossing and"
+  v = v " nothing else. An all-round light above a sidelight outranks it, a sailing"
+  v = v " vessel's right of way is decided by tack rather than by aspect, and head-on"
+  v = v " or overtaking are settled before you look at the colour at all."
+  tpw(v)
+  tb()
+  return 0
+}
 function scen_class(k){
   # key | description | rel-bearing lo | hi | cpa band | target kind
   if(k==1) return "cross_stbd|crossing from starboard|20|95|near|power"

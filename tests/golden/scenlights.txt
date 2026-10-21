@@ -1,0 +1,1096 @@
+=== scenlights 1 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 015, 8.7 nm -- starboard of your bow.
+  You see   red port light, under red over white -- engaged in fishing
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 2 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 063, 7.4 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 3 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 220, 6.1 nm -- port of your bow.
+  You see   both sidelights, bow-on, and her masthead light
+  She sees  white sternlight
+  ----------------------------------------------------------------------
+  She sees your sternlight. She is overtaking you, so she keeps clear
+  (Rule 13) and you stand on (Rule 17).
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 4 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 042, 8.7 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 5 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 015, 7.4 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Her green on your port side: she has you on HER starboard, so she
+  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
+  course and speed, which is an instruction, not permission to stop
+  looking.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 6 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 035, 6.1 nm -- port of your bow.
+  You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 7 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 111, 8.8 nm -- starboard of your bow.
+  You see   red port light, under red over white -- engaged in fishing
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 8 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 195, 7.5 nm -- starboard of your bow.
+  You see   green starboard light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 9 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 302, 6.2 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  white sternlight
+  ----------------------------------------------------------------------
+  She sees your sternlight. She is overtaking you, so she keeps clear
+  (Rule 13) and you stand on (Rule 17).
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 10 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 120, 8.8 nm -- port of your bow.
+  You see   both sidelights, bow-on, and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 11 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 103, 7.5 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Her green on your port side: she has you on HER starboard, so she
+  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
+  course and speed, which is an instruction, not permission to stop
+  looking.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 12 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 131, 6.2 nm -- port of your bow.
+  You see   white sternlight, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 13 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 207, 8.9 nm -- starboard of your bow.
+  You see   red port light, under red over white -- engaged in fishing
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 14 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 288, 8.7 nm -- starboard of your bow.
+  You see   red port light, under red over white -- engaged in fishing
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 15 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 303, 9.6 nm -- starboard of your bow.
+  You see   green starboard light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 16 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 198, 9.0 nm -- right ahead of your bow.
+  You see   green starboard light and her masthead light
+  She sees  both sidelights, bow-on,
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 17 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 176, 8.1 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  white sternlight
+  ----------------------------------------------------------------------
+  She sees your sternlight. She is overtaking you, so she keeps clear
+  (Rule 13) and you stand on (Rule 17).
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 18 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 182, 8.2 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 19 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 183, 9.0 nm -- port of your bow.
+  You see   green starboard light, under red over white -- engaged in fishing
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 20 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 098, 7.7 nm -- port of your bow.
+  You see   red port light and her masthead light
+  She sees  white sternlight
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 21 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 065, 6.4 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  white sternlight
+  ----------------------------------------------------------------------
+  She sees your sternlight. She is overtaking you, so she keeps clear
+  (Rule 13) and you stand on (Rule 17).
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 22 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 275, 9.1 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 23 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 204, 7.7 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Her green on your port side: she has you on HER starboard, so she
+  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
+  course and speed, which is an instruction, not permission to stop
+  looking.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 24 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 323, 6.4 nm -- starboard of your bow.
+  You see   red port light, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 25 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 048, 9.1 nm -- starboard of your bow.
+  You see   red port light (no masthead light -- she is under sail)
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The colour tells you nothing here. She is under sail and you are
+  under power, so you keep out of her way (Rule 18) -- and between two
+  sailing vessels it is Rule 12, decided by tack and by windward or
+  leeward, not by which light you happen to see.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 26 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 230, 7.8 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 27 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 140, 8.0 nm -- port of your bow.
+  You see   both sidelights, bow-on, (no masthead light -- she is under sail)
+  She sees  white sternlight
+  ----------------------------------------------------------------------
+  The colour tells you nothing here. She is under sail and you are
+  under power, so you keep out of her way (Rule 18) -- and between two
+  sailing vessels it is Rule 12, decided by tack and by windward or
+  leeward, not by which light you happen to see.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 28 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 353, 9.2 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 29 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 047, 7.9 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Her red on your starboard side. "If to starboard red appear, 'tis
+  your duty to keep clear" -- you give way (Rule 15), and Rule 8 wants
+  it early and large enough to be obvious.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 30 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 059, 6.5 nm -- starboard of your bow.
+  You see   red port light, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 31 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 166, 9.3 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Her green on your port side: she has you on HER starboard, so she
+  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
+  course and speed, which is an instruction, not permission to stop
+  looking.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 32 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 002, 7.9 nm -- port of your bow.
+  You see   red port light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 33 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 112, 7.6 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 34 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 055, 9.3 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 35 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 135, 8.0 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Her red on your starboard side. "If to starboard red appear, 'tis
+  your duty to keep clear" -- you give way (Rule 15), and Rule 8 wants
+  it early and large enough to be obvious.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 36 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 036, 6.6 nm -- port of your bow.
+  You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 37 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 333, 6.9 nm -- port of your bow.
+  You see   green starboard light (no masthead light -- she is under sail)
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The colour tells you nothing here. She is under sail and you are
+  under power, so you keep out of her way (Rule 18) -- and between two
+  sailing vessels it is Rule 12, decided by tack and by windward or
+  leeward, not by which light you happen to see.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 38 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 173, 8.0 nm -- starboard of your bow.
+  You see   green starboard light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 39 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 289, 8.2 nm -- port of your bow.
+  You see   green starboard light, under red over white -- engaged in fishing
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 40 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 132, 9.4 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 41 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 223, 8.1 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Her red on your starboard side. "If to starboard red appear, 'tis
+  your duty to keep clear" -- you give way (Rule 15), and Rule 8 wants
+  it early and large enough to be obvious.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 42 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 131, 6.8 nm -- port of your bow.
+  You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 43 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 083, 9.4 nm -- port of your bow.
+  You see   green starboard light (no masthead light -- she is under sail)
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The colour tells you nothing here. She is under sail and you are
+  under power, so you keep out of her way (Rule 18) -- and between two
+  sailing vessels it is Rule 12, decided by tack and by windward or
+  leeward, not by which light you happen to see.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 44 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 305, 8.1 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  white sternlight
+  ----------------------------------------------------------------------
+  The lights read like a crossing, but the bearing is opening and the
+  CPA is wide -- no risk of collision exists yet (Rule 7). Keep taking
+  the bearing; that, not the colour, is what tells you.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 45 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 130, 8.8 nm -- port of your bow.
+  You see   green starboard light, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 46 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 209, 9.5 nm -- port of your bow.
+  You see   red port light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 47 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 249, 9.1 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Both her sidelights: she is bow-on, and this is Rule 14. Nobody
+  stands on. Both of you alter to starboard. The colour decides nothing
+  here, because you can see them both.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 48 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 228, 6.9 nm -- port of your bow.
+  You see   red port light, under red over white -- engaged in fishing
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 49 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 214, 9.5 nm -- port of your bow.
+  You see   green starboard light (no masthead light -- she is under sail)
+  She sees  red port light
+  ----------------------------------------------------------------------
+  The colour tells you nothing here. She is under sail and you are
+  under power, so you keep out of her way (Rule 18) -- and between two
+  sailing vessels it is Rule 12, decided by tack and by windward or
+  leeward, not by which light you happen to see.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 50 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 213, 9.2 nm -- starboard of your bow.
+  You see   green starboard light and her masthead light
+  She sees  white sternlight
+  ----------------------------------------------------------------------
+  She sees your sternlight. She is overtaking you, so she keeps clear
+  (Rule 13) and you stand on (Rule 17).
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 51 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 044, 9.5 nm -- starboard of your bow.
+  You see   both sidelights, bow-on, and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Her red on your starboard side. "If to starboard red appear, 'tis
+  your duty to keep clear" -- you give way (Rule 15), and Rule 8 wants
+  it early and large enough to be obvious.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 52 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 232, 9.6 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Her green on your port side: she has you on HER starboard, so she
+  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
+  course and speed, which is an instruction, not permission to stop
+  looking.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 53 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 324, 8.3 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Her red on your starboard side. "If to starboard red appear, 'tis
+  your duty to keep clear" -- you give way (Rule 15), and Rule 8 wants
+  it early and large enough to be obvious.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 54 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 000, 7.8 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Her red on your starboard side. "If to starboard red appear, 'tis
+  your duty to keep clear" -- you give way (Rule 15), and Rule 8 wants
+  it early and large enough to be obvious.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 55 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 026, 9.7 nm -- starboard of your bow.
+  You see   red port light (no masthead light -- she is under sail)
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The colour tells you nothing here. She is under sail and you are
+  under power, so you keep out of her way (Rule 18) -- and between two
+  sailing vessels it is Rule 12, decided by tack and by windward or
+  leeward, not by which light you happen to see.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 56 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 263, 6.9 nm -- starboard of your bow.
+  You see   red port light, under red, white, red -- restricted in her ability to manoeuvre
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red, white, red is the
+  signal that governs: you keep out of the way of a vessel restricted
+  in her ability to manoeuvre (Rule 18), even when she is showing you
+  green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 57 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 127, 6.1 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Her green on your port side: she has you on HER starboard, so she
+  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
+  course and speed, which is an instruction, not permission to stop
+  looking.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 58 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 320, 9.7 nm -- port of your bow.
+  You see   green starboard light and her masthead light
+  She sees  red port light
+  ----------------------------------------------------------------------
+  Her green on your port side: she has you on HER starboard, so she
+  keeps clear (Rule 15). You stand on -- and Rule 17 means hold your
+  course and speed, which is an instruction, not permission to stop
+  looking.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 59 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 052, 8.4 nm -- starboard of your bow.
+  You see   red port light and her masthead light
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  Her red on your starboard side. "If to starboard red appear, 'tis
+  your duty to keep clear" -- you give way (Rule 15), and Rule 8 wants
+  it early and large enough to be obvious.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+
+=== scenlights 60 ===
+
+  THE LIGHTS
+  ----------------------------------------------------------------------
+  She bears 059, 7.1 nm -- starboard of your bow.
+  You see   red port light, under red over white -- engaged in fishing
+  She sees  green starboard light
+  ----------------------------------------------------------------------
+  The all-round lights outrank the colour. Red over white is the signal
+  that governs: you keep out of the way of a vessel engaged in fishing
+  (Rule 18), even when she is showing you green.
+
+  What the colour is worth: it decides a power-driven crossing and
+  nothing else. An all-round light above a sidelight outranks it, a
+  sailing vessel's right of way is decided by tack rather than by
+  aspect, and head-on or overtaking are settled before you look at the
+  colour at all.
+

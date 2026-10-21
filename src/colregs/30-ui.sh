@@ -49,6 +49,12 @@ run_scen() {
       sok=$((sok+1))
     fi
     save_prog
+    #  AFTER the marking, deliberately.  The panel names the governing
+    #  rule, which is most of the answer to Q3 -- offered before you
+    #  answer it would be a hint, and the point is to check your reading
+    #  of the lights against the rule once you have committed.
+    printf "  Show the lights each boat sees? [y/N] "; IFS= read -r L
+    case "$L" in y|Y|l|L) eng -v cmd=scenlights -v seed="$sd" ;; esac
     printf "  Watch it run? [Y/n] "; IFS= read -r w
     case "$w" in
       n|N) ;;
@@ -240,6 +246,7 @@ help_text() {
     '  colregs scenario         a developing situation: plot it, decide, watch it run' \
     '  colregs sound            identify sound signals' \
     '  colregs numbers          which rule is which, both ways round' \
+    '  (in a scenario, y at the lights prompt shows what each boat sees)' \
     '  colregs rules            fifteen lessons on the rules' \
     '  colregs lesson L7        one lesson' \
     '  colregs contacts         bearing drift and contact management' \

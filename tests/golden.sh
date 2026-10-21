@@ -141,6 +141,22 @@ emit() {   # emit <name> ; program output on stdin
   done
 } | emit scenarios.txt
 
+# ---- colregs: the lights each boat sees, and what governs -------------
+#  Pinned across a spread of seeds wide enough to hit all nine scenario
+#  classes.  The panel is pure geometry plus a verdict, and the geometry
+#  is the part that would break silently: an arc boundary off by a degree,
+#  or our aspect and hers transposed, reads perfectly plausibly and is
+#  wrong.  Larry's own finding is in here too -- a vessel fishing or
+#  restricted showing GREEN while still being the one you keep clear of.
+{
+  s=1
+  while [ "$s" -le 60 ]; do
+    echo "=== scenlights $s ==="
+    $AW $E -v cmode=plain -v cmd=scenlights -v seed="$s" </dev/null || true
+    s=$((s+1))
+  done
+} | emit scenlights.txt
+
 {
   for st in rn usn rel360 words none; do
     s=1
