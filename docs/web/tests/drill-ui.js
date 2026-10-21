@@ -501,6 +501,25 @@ window.answerCurrent = function (right) {
     else if (now.val !== '')
       fail('the file input kept its value, so the next same-named file will not load');
     else console.log('  ok   a second pack of the same filename replaces the first');
+    //  AND AN OLDER ONE IS CALLED OUT.  The app repairs its own staleness
+    //  by asking the network which build is live.  A pack is a file the
+    //  reader chose off their own disk, so there is nothing to ask, and
+    //  the most it can do is remember the newest it has seen and say when
+    //  an older one is loaded.  Larry lost a drilling session to that
+    //  gap: the build on screen was current and true while the pack was
+    //  the day before's, so the questions he reported had already been
+    //  fixed.  This second pack is dated 2026-01-01 on purpose, which
+    //  makes it older than anything the generator produces.
+    const stale = await page.evaluate(() => {
+      const n = document.getElementById('pack-note');
+      const w = n && n.querySelector('.warn');
+      return { warn: w ? w.textContent : '', built: (window.PACK && PACK.built) || '' };
+    });
+    if (!stale.warn)
+      fail('an older pack was loaded and the home screen said nothing about it');
+    else if (stale.warn.indexOf(stale.built) < 0)
+      fail('the notice does not say which pack is loaded: ' + stale.warn);
+    else console.log('  ok   loading an older pack is called out on the home screen');
     //  put the pack under test back
     await page.evaluate(() => { document.getElementById('b-replace').click(); });
     await page.waitForTimeout(80);

@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '15 \u2014 21 Oct 2026';
+var BUILD = '16 \u2014 21 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -173,6 +173,7 @@ function loadPack(file) {
     if (bad) throw new Error(bad);
     return kvPut('pack', p).then(function () {
       PACK = p;
+      rememberPack();
       return kvGet('progress');
     }).then(function (pr) {
       PROG = pr || {};
@@ -230,6 +231,13 @@ function drawHome() {
     (PACK.built ? '   \u00b7   pack ' + PACK.built +
                   (PACK.id ? ' (' + PACK.id + ')' : '') : '') +
     '   \u00b7   app build ' + BUILD;
+  var older = stalePack();
+  if (older) {
+    $('pack-note').appendChild(el('div', 'note warn',
+      'This pack was built ' + PACK.built + '. A newer one has been loaded ' +
+      'on this device: ' + older[0] + (older[1] ? ' (' + older[1] + ')' : '') +
+      '. Load that one unless you mean to drill the older questions.'));
+  }
 
   var done = PACK.sections.filter(function (s) { return passed(s.id); }).length;
   $('prog-n').textContent = done;
@@ -572,6 +580,39 @@ function leadPhrase(x) {
   var ws = String(x || '').toLowerCase().match(/[a-z0-9]+/g) || [];
   var w = ws.filter(function (t) { return skip.indexOf(t) < 0; });
   return w.slice(0, 2).join(' ');
+}
+
+//  THE PACK HAS NO SELF-HEAL, AND CANNOT HAVE ONE.  The app repairs its
+//  own staleness by asking the network what build is live; a pack is a
+//  file the reader chose and loaded from their own disk, and there is
+//  nothing to ask.  So the next best thing: remember the newest pack this
+//  browser has ever seen, and say so when an older one is loaded.
+//
+//  Larry lost a drilling session to exactly this gap.  The app said build
+//  14, which was true and current, while serving a pack from the day
+//  before -- so the questions he reported had already been fixed, and the
+//  screen gave him no reason to doubt it.  His own account: "perhaps my
+//  bad, I swa a broweser open with build 14, thought it must be good".
+//  It was a fair inference from what was shown.  The build and the pack
+//  are two independent things and the app was only honest about one.
+function rememberPack() {
+  if (!PACK || !PACK.built) return;
+  var seen = lsGet('newest-pack', '');
+  if (!seen || String(PACK.built) > seen.split('|')[0])
+    lsSet('newest-pack', PACK.built + '|' + (PACK.id || ''));
+}
+
+//  ONLY ON A STRICTLY OLDER DATE.  Two packs built on the same day -- which
+//  is every day the generator runs twice -- cannot be ordered by the date
+//  they carry, and ranking them by id would be a guess wearing the clothes
+//  of a warning.  Saying nothing is the honest answer there, and the id is
+//  already on screen for the reader who knows which one they want.
+function stalePack() {
+  if (!PACK || !PACK.built) return null;
+  var seen = lsGet('newest-pack', '');
+  if (!seen) return null;
+  var bits = seen.split('|');
+  return String(PACK.built) < bits[0] ? bits : null;
 }
 
 function sameAnswer(a, b) {
@@ -1306,6 +1347,10 @@ window.addEventListener('DOMContentLoaded', function () {
   Promise.all([kvGet('pack'), kvGet('progress')]).then(function (r) {
     PACK = r[0] || null;
     PROG = r[1] || {};
+    //  Also on startup, so the pack already in storage from before this
+    //  build existed becomes the baseline rather than the app pretending
+    //  it has never seen one.
+    rememberPack();
     go(PACK ? 'home' : 'empty');
   }).catch(function (e) {
     go('empty');
