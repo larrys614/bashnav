@@ -1,0 +1,10 @@
+  ===============================================================
+   LEARN AND PRACTISE          lessons 4 of 20   drills 14/18
+  ===============================================================
+   1  Lessons              twenty of them, from first principles
+   2  Walkthrough          one real sight, explained line by line
+   3  Drills               problems with answers, marked
+   4  Sandbox              change one thing, watch the triangle move
+
+   x  back to the navigation menu
+  > 1

@@ -1,29 +1,52 @@
-import sys, re
-sys.path.insert(0,'/home/claude/celnav/doc')
+#  Figures are drawn from the panel fixtures in cap/ - one file per figure,
+#  holding the exact screen text that picture shows.  For a while the figures
+#  could not be redrawn at all, because the captures they came from lived in
+#  /tmp and were never committed; extract_panel.py recovered them from the
+#  figures' own SVGs.  Two of them track the app rather than a saved session
+#  and are rebuilt by capture.sh.
+import io, os, sys
+#  this file's own directory, so figgen is importable however the script is
+#  invoked -- python3 -I drops the working directory, which is what the old
+#  hard-coded path here was standing in for.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from figgen import make, ACCENT, ACC2
 
-def grab(path, start, end=None, n=None):
-    L=[l.rstrip('\n') for l in open(path)]
-    i=next(k for k,l in enumerate(L) if start in l)
-    if n: return L[i:i+n]
-    j=next(k for k,l in enumerate(L) if k>i and end in l)
-    return L[i:j+1]
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+#  CAPIN points the fixtures somewhere else, so a rebuilt set can be run
+#  through the generators and compared before it replaces the committed
+#  one -- the same role FIGOUT plays for the output.
+CAPIN = os.environ.get("CAPIN") or os.path.join(HERE, "cap")
+
+def cap(name):
+    p = os.path.join(CAPIN, name + ".txt")
+    if not os.path.exists(p):
+        raise SystemExit("missing fixture %s - run extract_panel.py" % p)
+    return [l.rstrip("\n").rstrip() for l in io.open(p, encoding="utf-8")]
 
 def at(lines, row, sub, span=None):
-    c=lines[row].index(sub)
+    c = lines[row].index(sub)
     return (row, c, span or len(sub))
 
+def _only(lines, sub):
+    hit = [k for k, l in enumerate(lines) if sub in l]
+    if len(hit) != 1:
+        raise SystemExit("anchor %r matched %d lines, expected 1" % (sub, len(hit)))
+    return hit[0]
+
+def fat(lines, sub, span=None):
+    #  Anchor on a unique string wherever it has moved to, so adding a
+    #  lesson does not silently point a callout at the wrong line.
+    return at(lines, _only(lines, sub), sub, span)
+
+def to_end(lines, sub):
+    #  Anchor from a string to the end of its line - for figures that show
+    #  a count or a progress figure that is expected to change.
+    r = _only(lines, sub); c = lines[r].index(sub)
+    return (r, c, len(lines[r]) - c)
+
 # ---------------------------------------------------------------- FIG 1 menu
-m=[l.rstrip('\n') for l in open('/tmp/fig_menu.txt')]
-m=[l for l in m if l.strip()!='' or True][1:14]
-m=[l for l in m]
-# trim to the banner block
-i=next(k for k,l in enumerate(m) if l.startswith('  ==='))
-menu=m[i:i+13]
-menu=[l.rstrip() for l in menu]
-while menu and menu[-1].strip() in ('','>'): menu=menu[:-1]
-menu.append('  > 2')
-for k,l in enumerate(menu): print(k, repr(l))
+menu = cap("menu")
 
 labs=[
  dict(side="L", y=1.0, at=at(menu,3,"DR 35 00 N  040 00 W"),
@@ -49,11 +72,7 @@ W,H = make("fig/menu", menu, labs)
 print("menu", W, H)
 
 # ---------------------------------------------------------------- FIG 2 plot
-L=[l.rstrip('\n') for l in open('/tmp/fig_fix.txt')]
-i=next(k for k,l in enumerate(L) if 'INTERCEPT PLOT' in l)
-j=next(k for k,l in enumerate(L) if k>i and '1 column' in l)
-plot=[l.rstrip() for l in L[i:j+1]]
-plot=[l for l in plot]
+plot = cap("plot")
 
 labs2=[
  dict(side="L", y=5.0, at=(5,2,4),
@@ -77,9 +96,7 @@ make("fig/plot", plot, labs2)
 print("plot done")
 
 # ---------------------------------------------------------------- FIG 3 sky
-i=next(k for k,l in enumerate(L) if 'SKY VIEW' in l)
-j=next(k for k,l in enumerate(L) if k>i and 'inner rings' in l)
-sky=[l.rstrip() for l in L[i:j+1]]
+sky = cap("sky")
 
 labs3=[
  dict(side="L", y=4.6, at=at(sky,2,"*****************"),
@@ -103,8 +120,7 @@ make("fig/sky", sky, labs3)
 print("sky done")
 
 # ------------------------------------------------------------ FIG 4 working
-i=next(k for k,l in enumerate(L) if 'Sight a: Dubhe' in l)
-wk=[l.rstrip() for l in L[i:i+7]]
+wk = cap("working")
 
 labs4=[
  dict(side="L", y=1.0, at=at(wk,1,"Hs     19 32.1'"),

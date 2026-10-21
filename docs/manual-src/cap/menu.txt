@@ -1,0 +1,13 @@
+  ===============================================================
+   CELNAV 1.0   celestial navigation, no internet needed
+  ===============================================================
+   DR 35 00 N  040 00 W      course 000 T   speed 0 kn
+   eye 2.5 m   index error 0.0'   10 C  1010 mb   sights logged: 3
+  ---------------------------------------------------------------
+    1  Enter a sight              5  Compass check
+    2  Reduce sights -> FIX       6  Set DR, course and speed
+    3  Sight planning / stars     7  Sight log
+    4  Almanac for a time         8  Sextant and weather settings
+
+    s  Star list   t  Self test   d  Check setup   h  Help   q  Quit
+  > 2

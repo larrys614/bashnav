@@ -1,7 +1,23 @@
 # -*- coding: utf-8 -*-
 """Render celnav screen output as an annotated figure: a monospace panel with
 callout labels outside it and arrows pointing at the thing each label names."""
-import math, html, cairosvg
+import io, math, html, os
+
+#  cairosvg renders the PNG the PDFs embed, and is not always installed.
+#  The SVG is the real output and is written either way, so a machine
+#  without cairosvg can still regenerate and diff the figures; only the
+#  PNG step is skipped, and loudly.
+try:
+    import cairosvg
+except ImportError:
+    cairosvg = None
+
+#  Where figures are written.  Defaults to fig/ beside this file; set FIGOUT
+#  to a scratch directory to regenerate and compare without touching the
+#  committed figures.
+HERE   = os.path.dirname(os.path.abspath(__file__))
+FIGOUT = os.environ.get("FIGOUT") or os.path.join(HERE, "fig")
+NOPNG  = []
 
 FS      = 13.0                 # panel monospace size
 CW      = 0.60245 * FS         # DejaVu Sans Mono advance width
@@ -133,6 +149,14 @@ def make(path, lines, labels, fs=FS, lfs=LFS, gap=21.0, panel_bg="#f7fafb"):
                      f'stroke-width="1.15" fill="none" marker-end="url(#{mk})" opacity="0.9"/>')
     o.append('</svg>')
     svg = "\n".join(o)
-    open(path+".svg","w").write(svg)
-    cairosvg.svg2png(bytestring=svg.encode(), write_to=path+".png", scale=2.6)
+    #  "fig/name" from an older call site still works; a bare name is
+    #  resolved against FIGOUT.
+    name = os.path.basename(path)
+    os.path.isdir(FIGOUT) or os.makedirs(FIGOUT)
+    dest = os.path.join(FIGOUT, name)
+    io.open(dest+".svg", "w", encoding="utf-8").write(svg)
+    if cairosvg is None:
+        NOPNG.append(name)
+    else:
+        cairosvg.svg2png(bytestring=svg.encode(), write_to=dest+".png", scale=2.6)
     return W, H
