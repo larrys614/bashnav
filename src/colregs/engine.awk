@@ -508,14 +508,18 @@ function draw_plan(bg,rng,thdg,tlab,wnd,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,c
   #  Drawn from the upwind edge pointing downwind, which is the way a
   #  wind arrow is read on a chart.
   if(wnd!=""){
-    wr = cy - ry*0.86*cosd(wnd+0)
-    wc = cx + rx*0.86*sind(wnd+0)
+    #  IN A CORNER, NOT ON THE RIM.  Drawn at the upwind edge it lands on
+    #  top of the contact in every windward scenario -- she IS upwind, so
+    #  the two markers are the same place. A chart draws wind as an arrow
+    #  of fixed length and position pointing downwind: the direction is
+    #  the information, the position is not.
+    wr = 3; wc = 7
     dr = -cosd(wnd+180); dc = sind(wnd+180)
     m = fabs(dr); if(fabs(dc)>m) m=fabs(dc)
     dr=dr/m; dc=dc/m
-    for(i=0;i<=3;i++) gputwc(wr + dr*i, wc + dc*i, "=", C_DIM)
-    gputc(wr + dr*4, wc + dc*4, arrowchar(nrm360(wnd+180)), C_DIM)
-    gputsc(wr - dr*1.6 - (wr<cy?1:-1), wc - dc*1.6 - 2, "WIND", C_DIM)
+    for(i=-2;i<=1;i++) gputwc(wr + dr*i, wc + dc*i*2, "=", C_DIM)
+    gputc(wr + dr*2, wc + dc*4, arrowchar(nrm360(wnd+180)), C_DIM)
+    gputsc(wr+4, wc-2, "WIND", C_DIM)
   }
   gputsc(0,cx-6,"HEAD  UP",C_DIM)
   return 0

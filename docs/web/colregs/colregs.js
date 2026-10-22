@@ -702,15 +702,21 @@ function drawEncounter(e, brg, rng, thdg) {
       dumped into data.js.  Drawn from the upwind edge pointing downwind,
       the way a wind arrow is read on a chart.  */
   if (e.wind !== undefined) {
-    var wx = cx + sind(e.wind) * R * 0.92, wy = cy - cosd(e.wind) * R * 0.92;
-    var dwn = nrm360(e.wind + 180);
-    var ex = wx + sind(dwn) * 54, ey = wy - cosd(dwn) * 54;
-    el('line', { x1: wx, y1: wy, x2: ex, y2: ey, stroke: cssvar('--dim'),
-                 'stroke-width': 2, 'stroke-dasharray': '6 4' }, s);
-    el('path', { d: arrowPath(ex, ey, dwn, 13), fill: cssvar('--dim') }, s);
-    var wl = el('text', { x: wx - sind(dwn) * 16, y: wy + cosd(dwn) * 16 + 4,
-                          fill: cssvar('--dim'), 'text-anchor': 'middle',
-                          'font-size': 12, 'letter-spacing': '0.15em' }, s);
+    /*  IN A CORNER, NOT ON THE RIM.  Drawn at the upwind edge it lands on
+        top of the contact in every windward scenario -- she IS upwind, so
+        the wind marker and her marker are the same place, and the first
+        render had WIND written through HER. A chart draws wind as an
+        arrow of fixed length and position pointing downwind, and so does
+        this: the direction is the information, the position is not.  */
+    var wox = 56, woy = 54, dwn = nrm360(e.wind + 180);
+    var bx = wox - sind(dwn) * 22, by = woy + cosd(dwn) * 22;
+    var ex2 = wox + sind(dwn) * 22, ey2 = woy - cosd(dwn) * 22;
+    el('line', { x1: bx, y1: by, x2: ex2, y2: ey2, stroke: cssvar('--dim'),
+                 'stroke-width': 2, 'stroke-dasharray': '5 3' }, s);
+    el('path', { d: arrowPath(ex2, ey2, dwn, 12), fill: cssvar('--dim') }, s);
+    var wl = el('text', { x: wox, y: woy + 44, fill: cssvar('--dim'),
+                          'text-anchor': 'middle', 'font-size': 11,
+                          'letter-spacing': '0.15em' }, s);
     wl.textContent = 'WIND';
   }
   stage.appendChild(s);
