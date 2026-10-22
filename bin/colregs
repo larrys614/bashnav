@@ -1837,14 +1837,20 @@ function enc_lights(i,   a,relher,we){
   #  WHAT THE PICTURE DOES NOT TELL YOU, which is the half the rule turns
   #  on in two of these scenarios.
   we = lt_note(a[11], relher)
-  if(we=="sail"){
-    print "  Her sidelights say she is there and which way she is pointing. They"
-    print "  say nothing about which tack she is on, and Rule 12 turns on that."
-  } else if(we=="stern")
-    print "  A sternlight and no colour: you are overtaking (Rule 13), whatever else\n  is true of her."
-  else if(we=="bow")
-    print "  Both sidelights and a masthead light: an ordinary power-driven vessel\n  end on. Rule 14, and nobody stands on."
-  hr(); print ""
+  #  and no empty band where there is nothing to say: most vessels now
+  #  get no note, and two rules with nothing between them read as a
+  #  missing paragraph.
+  if(we!=""){
+    if(we=="sail"){
+      print "  Her sidelights say she is there and which way she is pointing. They"
+      print "  say nothing about which tack she is on, and Rule 12 turns on that."
+    } else if(we=="stern")
+      print "  A sternlight and no colour: you are overtaking (Rule 13), whatever else\n  is true of her."
+    else
+      print "  Both sidelights and a masthead light: an ordinary power-driven vessel\n  end on. Rule 14, and nobody stands on."
+    hr()
+  }
+  print ""
   return 0
 }
 #  A SCENARIO NUMBER THAT DOES NOT EXIST IS AN ERROR, not a scenario.
