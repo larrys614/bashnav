@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003556518
+BASHNAV_BYTES=003556883
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -7226,7 +7226,12 @@ function enc_lights(i,   a,relher,we,she,mine){
   relher = nrm360(ENC_BG + 180 - ENC_THDG)   # where WE are, off HER bow
   we  = lt_arc(relher)                        # so this is what we see of her
   she = lt_arc(ENC_BG)                        # and this is what she sees of us
-  printf "  She is %s, %s.\n", a[11]=="sail"?"under sail":"power-driven",
+  #  PARENTHESISE A TERNARY IN AN ARGUMENT.  The one-true-awk that macOS
+  #  ships will not parse a bare conditional as a printf argument -- "awk:
+  #  syntax error ... a[11]== <<< "sail"?..." -- and every other ternary in
+  #  this file is already bracketed for exactly that reason. Larry's
+  #  machine found it; gawk and mawk both took it without a word.
+  printf "  She is %s, %s.\n", (a[11]=="sail" ? "under sail" : "power-driven"),
          rel_phrase(ENC_BG,"your")
   printf "  You see   %s\n", lt_phrase(we,a[11],0)
   printf "  She sees  %s\n", lt_phrase(she,mine,1)

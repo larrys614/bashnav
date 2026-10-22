@@ -14,7 +14,14 @@ if [ -z "${SHELLS:-}" ]; then
 fi
 if [ -z "${AWKS:-}" ]; then
   AWKS=""
-  for _a in awk gawk mawk; do command -v "$_a" >/dev/null 2>&1 && AWKS="$AWKS $_a"; done
+  #  original-awk is the one-true-awk, which is what macOS ships AS awk and
+  #  what a-Shell is closest to. On a Mac it is already covered, because
+  #  `awk` IS it; in a Linux container `awk` is usually gawk and nothing in
+  #  the matrix is the strict one. That gap let a bare ternary in a printf
+  #  argument through -- gawk and mawk both accept it, the one-true-awk
+  #  does not, and Larry's laptop found it. Probed here so the container
+  #  covers it too, where the package is installed.
+  for _a in awk gawk mawk original-awk; do command -v "$_a" >/dev/null 2>&1 && AWKS="$AWKS $_a"; done
   [ -n "$AWKS" ] || AWKS=awk
 fi
 #  Checks that exercise only the SHELL do not need repeating for every
