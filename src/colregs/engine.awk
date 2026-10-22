@@ -611,20 +611,33 @@ function enc_init(){
   ENC_READY=1
   return 0
 }
-function enc_pick(i,   a){
+#  ONE DEFINITION OF THE GEOMETRY, used by the question, by the answer
+#  and by the test.  The bearing and heading are drawn from the seed, and
+#  they were being derived in enc_show only -- so the answer could not
+#  quote the bearing it had just asked about, and the wind test had to
+#  reproduce the draw itself, which is two more places for it to drift.
+function enc_geom(i,seed,   a,hi){
+  split(EC[i],a,"|")
+  xsrand(seed+0); xrand()
+  ENC_BG = a[3]+0; hi = a[4]+0
+  if(hi < ENC_BG) hi += 360
+  ENC_BG   = nrm360(ENC_BG + xrand()*(hi-ENC_BG))
+  ENC_RNG  = 0.55 + xrand()*0.35
+  ENC_THDG = nrm360(a[5]+0 + (xrand()*30-15))
+  ENC_WND  = (10 in a ? a[10] : "")
+  return 0
+}
+function enc_pick(i,seed,   a){
   enc_init(); split(EC[i],a,"|")
   ENC_ANS=a[6]; ENC_WHY=a[8]; ENC_RULE=a[9]
+  if(seed!="") { enc_geom(i,seed+0); ENC_BRG=ENC_BG }
   return 0
 }
 function enc_show(i,seed,   a,o,bg,rng,thdg,n,wnd){
   enc_init()
   split(EC[i],a,"|")
-  xsrand(seed+0); xrand()
-  bg = a[3]+0; n = a[4]+0
-  if(n < bg) n += 360
-  bg = nrm360(bg + xrand()*(n-bg))
-  rng = 0.55 + xrand()*0.35
-  thdg = nrm360(a[5]+0 + (xrand()*30-15))
+  enc_geom(i,seed+0)
+  bg=ENC_BG; rng=ENC_RNG; thdg=ENC_THDG; wnd=ENC_WND
   #  RESOLVE THE WIND TO A SCALAR BEFORE PASSING IT.  Most scenarios have
   #  no tenth field, and handing the unset element a[10] straight to a
   #  function argument aborted gawk 5.2 on exit -- "free(): double free
@@ -632,7 +645,6 @@ function enc_show(i,seed,   a,o,bg,rng,thdg,n,wnd){
   #  27 of the 30 scenarios, which is every power-driven one, and the
   #  three sailing ones were fine because theirs is set.  Referencing
   #  a[10] also creates it, so `10 in a` asks without writing.
-  wnd = (10 in a ? a[10] : "")
   draw_plan(bg,rng,thdg,"HER",wnd)
   print ""
   printf "  %s\n", cw("WHAT DO YOU DO?",C_ACC)
@@ -640,21 +652,38 @@ function enc_show(i,seed,   a,o,bg,rng,thdg,n,wnd){
   gshow()
   hr()
   printf "  %s\n", a[1]
-  printf "  You see %s, bearing %03d relative, heading as drawn.\n", a[2], bg
+  #  A BEARING BY NAME, NOT BY NUMBER.  Larry: "names instead of degrees
+  #  for bearing to contact: she is fine on your port bow as opposed to
+  #  331 degrees."  He is right, and the app already had the vocabulary --
+  #  rel_phrase is what the lookout-report styles are built on, and the
+  #  encounter stem was the one place left printing a raw number.
+  #
+  #  A lookout reports the arc, not the angle, and the arc is what you act
+  #  on: "fine on your port bow" is a situation, "331 relative" is a
+  #  figure to look up. The exact bearing is printed with the ANSWER
+  #  instead, where it is a check on your plot rather than the thing being
+  #  tested.
+  printf "  You see %s, %s, heading as drawn.\n", a[2], rel_phrase(bg,"your")
   #  In words as well as in the drawing: the figure can be read wrongly,
   #  and on a phone the dim characters are easy to miss.
-  if(a[10]!="")
-    printf "  The wind is from %03d relative, as drawn.\n", nrm360(a[10]+0)
+  if(wnd!="")
+    printf "  The wind is from %03d relative, as drawn.\n", nrm360(wnd+0)
   hr()
   n=split(a[7],o,";")
   printf "   a) %s\n   b) %s\n   c) %s\n   d) %s\n", o[1],o[2],o[3],o[4]
   print ""
-  ENC_ANS=a[6]; ENC_WHY=a[8]; ENC_RULE=a[9]
+  ENC_ANS=a[6]; ENC_WHY=a[8]; ENC_RULE=a[9]; ENC_BRG=bg
   return 0
 }
 function enc_reveal(){
   printf "  %s -- %s\n", cw(toupper(ENC_ANS) " is right",C_ACC), ENC_RULE
   printf "  %s\n", ENC_WHY
+  #  The number, now that it can give nothing away: it is the check
+  #  against your own plot.
+  #  rounded once, not twice: %03d truncates and rel_style rounds, so the
+  #  same angle printed both ways read "006 relative -- Green 7".
+  if(ENC_BRG!="") printf "  (she bore %03d relative -- %s)\n",
+     int(nrm360(ENC_BRG)+0.5)%360, rel_style(ENC_BRG)
   print ""
   return 0
 }
@@ -1394,7 +1423,7 @@ BEGIN{
                            ENCN = (which!="" ? which+0 : 1+int(xrand()*NENC)); enc_show(ENCN,seed+0) }
   else if(cmd=="encm"){    enc_init(); xsrand(seed+0); xrand()
                            ENCN = (which!="" ? which+0 : 1+int(xrand()*NENC))
-                           enc_pick(ENCN)
+                           enc_pick(ENCN,seed+0)
                            if(tolower(ans)!=ENC_ANS) printf "  %s\n", cw("Not right.",C_ACC)
                            enc_reveal(); exit (tolower(ans)==ENC_ANS?0:1) }
   else if(cmd=="lesson"){  les(les_id); les_q(les_id,1); print "" }

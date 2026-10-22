@@ -29,12 +29,10 @@ BEGIN{
     if(a[10]==""){ printf "  FAIL scenario %d carries no wind field\n", k; bad++; continue }
     w=a[10]+0
     for(sd=1;sd<=300;sd++){
-      xsrand(sd); xrand()
-      bg=a[3]+0; hi=a[4]+0
-      if(hi<bg) hi+=360
-      bg=nrm360(bg + xrand()*(hi-bg))
-      rng=0.55+xrand()*0.35
-      thdg=nrm360(a[5]+0 + (xrand()*30-15))
+      #  the app's own geometry, not a copy of it: enc_geom is what the
+      #  question, the answer and this test all read from.
+      enc_geom(k,sd)
+      bg=ENC_BG; thdg=ENC_THDG
       n++
       mine = tack(w)
       hers = tack(nrm360(w-thdg))
