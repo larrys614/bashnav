@@ -807,6 +807,20 @@ function les_C2(){
   tp("to know the whole of it you swing the ship and check on several")
   tp("headings in turn.")
   tb()
+  tp("That is what devcard does. Turn the ship onto each heading, take a")
+  tp("bearing of the body, and note the TIME of each one separately:")
+  tb()
+  tp("  celnav devcard \"2026-10-22\" sun -2 \\")
+  tp("     \"000,10:00:00,147.0; 045,10:05:00,146.9; 090,10:10:00,148.4\"")
+  tb()
+  tp("Each bearing keeps its own time because a swing takes twenty minutes")
+  tp("and the sun moves about five degrees of azimuth in that time. Share")
+  tp("one time across the whole swing and that nine degrees of the sun's")
+  tp("own motion lands in the card, looking exactly like deviation.")
+  tb()
+  tp("It prints the card above, computed from your own swing, and says")
+  tp("which parts of the compass you did not cover.")
+  tb()
 }
 # ---------------------------------------------------------------------
 #  Three LOPs, drawn twice: the same sights with a good and a bad cut

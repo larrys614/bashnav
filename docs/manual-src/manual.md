@@ -190,6 +190,7 @@ single answer without navigating menus.
 | `celnav noon [ "YYYY-MM-DD" ] [ Hs ] [ limb ]` | local apparent noon, and latitude from a meridian altitude |
 | `celnav polaris [ "UT" ] [ Hs ]` | latitude from Polaris, any time the horizon shows |
 | `celnav compass "UT" body <bearing> [variation]` | compass error and deviation |
+| `celnav devcard "DATE" body <variation> "hdg,time,brg; ..."` | a swing, as a deviation card |
 | `celnav stars ["UT"]` | the 57 navigational stars plus Polaris, SHA and Dec |
 | `celnav dr <lat> <lon> [course] [speed]` | set the DR |
 | `celnav log` / `celnav clear` | list or empty the sight log |

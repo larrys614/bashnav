@@ -50,6 +50,36 @@ do_compass() {
   engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
          -v body="$2" -v cbrg="$3" -v variation="$4"
 }
+do_devcard() {
+  engine -v cmd=devcard -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
+         -v body="$2" -v variation="$3" -v swing="$4"
+}
+devcard_mode() {
+  #  A SWING IS TAKEN ONE HEADING AT A TIME, so it is collected one
+  #  heading at a time.  Each observation keeps its own time: a swing
+  #  takes twenty minutes and the sun moves about five degrees of azimuth
+  #  in that time, which would otherwise land in the card looking exactly
+  #  like deviation.
+  ask "Date of the swing, UT" "$(utctoday)"; dcd="$ANS"
+  ask "Body" "sun"; dcb="$ANS"
+  ask "Variation from the chart (E +, W -)" ""; dcv="$ANS"
+  echo "  Enter each observation. A blank ship's head ends the swing."
+  dcs=""
+  while : ; do
+    ask "Ship's head (blank = done)" ""; dch="$ANS"
+    [ -z "$dch" ] && break
+    ask "  Time UT (hh:mm:ss)" ""; dct="$ANS"
+    ask "  Compass bearing of $dcb" ""; dcr="$ANS"
+    if [ -z "$dct" ] || [ -z "$dcr" ]; then
+      echo "  skipped -- that heading needs a time and a bearing"
+      continue
+    fi
+    dcs="${dcs}${dcs:+; }${dch},${dct},${dcr}"
+  done
+  if [ -n "$dcs" ]; then do_devcard "$dcd 00:00:00" "$dcb" "$dcv" "$dcs"
+  else echo "  nothing swung"; fi
+  pause
+}
 do_stars() { engine -v cmd=stars -v utc="$1"; }
 do_selftest() { engine -v cmd=selftest; }
 
@@ -149,6 +179,8 @@ help_text() {
     '      celnav noon  [ "YYYY-MM-DD" ] [ Hs ] [ limb ]  latitude at LAN' \
     '      celnav polaris [ "UT" ] [ Hs ]           latitude from Polaris' \
     '      celnav compass "UT" body <bearing> [variation]' \
+    '      celnav devcard "DATE" body <variation> "hdg,time,brg; ..."' \
+    '                                               a swing, as a deviation card' \
     '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
     '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
     '      celnav log | clear                       list or empty the sight log' \
@@ -210,12 +242,17 @@ menu() {
          if [ -n "$u" ]; then case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac; fi
          printf "  Bodies (blank = sun,moon,planets): "; IFS= read -r b
          do_almanac "$u" "$b" ;;
-      5) printf "  UT (blank = now): "; IFS= read -r u; [ -z "$u" ] && u=$(utcnow)
-         case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac
-         printf "  Body: "; IFS= read -r b
-         printf "  Compass bearing observed: "; IFS= read -r cb
-         printf "  Variation from chart (E +, W -): "; IFS= read -r vr
-         do_compass "$u" "$b" "$cb" "$vr" ;;
+      5) printf "  1 single check, 2 swing the ship for a deviation card [1]: "
+         IFS= read -r m
+         if [ "$m" = "2" ]; then devcard_mode
+         else
+           printf "  UT (blank = now): "; IFS= read -r u; [ -z "$u" ] && u=$(utcnow)
+           case "$u" in *-*) ;; *) u="$(utctoday) $(fixtimefmt "$u")" ;; esac
+           printf "  Body: "; IFS= read -r b
+           printf "  Compass bearing observed: "; IFS= read -r cb
+           printf "  Variation from chart (E +, W -): "; IFS= read -r vr
+           do_compass "$u" "$b" "$cb" "$vr"
+         fi ;;
       6) set_dr ;;
       7) log_menu ;;
       8) set_opts ;;
@@ -404,6 +441,9 @@ case "$1" in
   noon)    shift; do_noon "$1" "$2" "$3" ;;
   polaris) shift; do_polaris "$1" "$2" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
+  devcard) shift
+           [ $# -lt 4 ] && { echo 'usage: celnav devcard "YYYY-MM-DD" body <variation> "hdg,hh:mm:ss,brg; ..."'; exit 2; }
+           do_devcard "$1 00:00:00" "$2" "$3" "$4" ;;
   stars)   shift; do_stars "$1" ;;
   dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
            save_conf; echo "DR set: $drlat $drlon  course $course  speed $speed" ;;
@@ -418,7 +458,7 @@ case "$1" in
   version|--version) echo "celnav $CELNAV_VERSION" ;;
   *) echo "celnav: there is no command '$1'."
      echo
-     echo "  Working    plan  alm  sight  fix  compass  stars  dr  log  clear"
+     echo "  Working    plan  alm  sight  fix  compass  devcard  stars  dr  log  clear"
      echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
      echo "  Setup      day  night  plain  about  doctor  where  version"
      echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"

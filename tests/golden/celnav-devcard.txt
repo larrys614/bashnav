@@ -1,0 +1,97 @@
+=== devcard: eight headings, a known 3 deg sine ===
+
+  DEVIATION CARD  by azimuth of sun
+  Position 50 09.0'N  005 04.0'W   2026-10-22
+  Variation 2.0 WEST (chart)
+  ----------------------------------------------------------------------
+  ship head time UT    bearing C  true Zn   error     deviation
+  000  T    10:00:00     147.0 C   146.5 T    0.5 W    1.5 E
+  045  T    10:05:00     146.9 C   147.8 T    0.9 E    2.9 E
+  090  T    10:10:00     148.4 C   149.0 T    0.6 E    2.6 E
+  135  T    10:15:00     151.5 C   150.3 T    1.2 W    0.8 E
+  180  T    10:20:00     155.1 C   151.6 T    3.5 W    1.5 W
+  225  T    10:25:00     157.8 C   152.9 T    4.9 W    2.9 W
+  270  T    10:30:00     158.7 C   154.1 T    4.6 W    2.6 W
+  315  T    10:35:00     158.3 C   155.5 T    2.8 W    0.8 W
+  ----------------------------------------------------------------------
+     ship's head    deviation      west  <  |  >  east
+     ------------   ---------
+      000  T         1.5 E               |###
+      045  T         2.9 E               |######
+      090  T         2.6 E               |#####
+      135  T         0.8 E               |##
+      180  T         1.5 W            ###|
+      225  T         2.9 W         ######|
+      270  T         2.6 W          #####|
+      315  T         0.8 W             ##|
+  ----------------------------------------------------------------------
+  Largest deviation 2.9 deg on 225 T
+  NOTE: 2 of 8 bearings were taken with Sun above 25 deg, where the
+        azimuth changes fast and a bearing over the compass is hard to take.
+
+  Deviation is the ship's own error and changes with her head, so it
+  belongs to the heading rather than to the compass. East is best:
+  a deviation EAST is added to the compass heading to get magnetic.
+  ----------------------------------------------------------------------
+
+=== devcard: no variation, so no card ===
+  a deviation card needs the chart variation: -v variation=<deg E/W>
+  (without it a swing gives compass ERROR, which is variation and
+   deviation together, and cannot be put on a card)
+=== devcard: three headings in one quadrant ===
+
+  DEVIATION CARD  by azimuth of sun
+  Position 50 09.0'N  005 04.0'W   2026-10-22
+  Variation 2.0 WEST (chart)
+  ----------------------------------------------------------------------
+  ship head time UT    bearing C  true Zn   error     deviation
+  000  T    10:00:00     147.0 C   146.5 T    0.5 W    1.5 E
+  030  T    10:05:00     146.9 C   147.8 T    0.9 E    2.9 E
+  060  T    10:10:00     148.4 C   149.0 T    0.6 E    2.6 E
+  ----------------------------------------------------------------------
+     ship's head    deviation      west  <  |  >  east
+     ------------   ---------
+      000  T         1.5 E               |###
+      030  T         2.9 E               |######
+      060  T         2.6 E               |#####
+  ----------------------------------------------------------------------
+  Largest deviation 2.9 deg on 030 T
+  NOTE: fewer than four headings. A card wants eight, 45 deg apart.
+  NOTE: part of the compass lies up to 150 deg from any heading you
+        swung. The card is interpolated there, not measured.
+
+  Deviation is the ship's own error and changes with her head, so it
+  belongs to the heading rather than to the compass. East is best:
+  a deviation EAST is added to the compass heading to get magnetic.
+  ----------------------------------------------------------------------
+
+=== devcard: the body high, where the bearing is the hard part ===
+
+  DEVIATION CARD  by azimuth of sun
+  Position 00 30.0'N  000 00.0'E   2026-06-21
+  Variation 0.0 EAST (chart)
+  ----------------------------------------------------------------------
+  ship head time UT    bearing C  true Zn   error     deviation
+  000  T    11:50:00     180.0 C     6.9 T  173.1 W  173.1 W
+  090  T    11:55:00     182.0 C     4.0 T  178.0 W  178.0 W
+  180  T    12:00:00     184.0 C     1.1 T  177.1 E  177.1 E
+  270  T    12:05:00     186.0 C   358.1 T  172.1 E  172.1 E
+  ----------------------------------------------------------------------
+     ship's head    deviation      west  <  |  >  east
+     ------------   ---------
+      000  T        173.1 W    ###########|
+      090  T        178.0 W    ###########|
+      180  T        177.1 E               |###########
+      270  T        172.1 E               |###########
+  ----------------------------------------------------------------------
+  Largest deviation 178.0 deg on 090 T
+  NOTE: part of the compass lies up to 45 deg from any heading you
+        swung. The card is interpolated there, not measured.
+  NOTE: 4 of 4 bearings were taken with Sun above 25 deg, where the
+        azimuth changes fast and a bearing over the compass is hard to take.
+
+  Deviation is the ship's own error and changes with her head, so it
+  belongs to the heading rather than to the compass. East is best:
+  a deviation EAST is added to the compass heading to get magnetic.
+  ----------------------------------------------------------------------
+

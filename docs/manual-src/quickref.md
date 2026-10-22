@@ -11,6 +11,7 @@
 | `celnav noon "2026-10-21" "28 51.4"` | latitude from the sun at its highest |
 | `celnav polaris "UT" "50 18.5"` | latitude from Polaris, all night long |
 | `celnav compass "UT" sun 112.5 6.0` | compass error and deviation |
+| `celnav devcard "DATE" sun -2 "000,10:00:00,147.0; ..."` | swing → deviation card |
 | `celnav log` / `celnav clear` | list / empty the sight log |
 | `celnav doctor` | environment check and self test |
 | `celnav learn` | lessons, walkthrough, drills, sandbox |

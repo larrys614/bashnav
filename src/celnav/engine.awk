@@ -1260,6 +1260,100 @@ function cmd_compass(   jd,lat,lon,zn,ce,dev,amp){
   hr(); print ""
 }
 
+# ---------------- deviation card -------------------------------------
+# A SWING IS SEVERAL AZIMUTH CHECKS, AND THE CARD IS THE POINT OF THEM.
+# cmd_compass resolves one heading, and lesson C2 ends by saying that one
+# check is one row of a table.  This is the table: the ship is turned onto
+# several headings, the body's true azimuth is computed for the moment of
+# each bearing, and the deviation that falls out is plotted against the
+# ship's head.
+#
+# Each observation carries its OWN time, because a swing takes twenty
+# minutes and the sun moves about five degrees of azimuth in that time.
+# Sharing one time across the whole swing would put that error straight
+# into the card, where it would look exactly like deviation.
+#
+# swing = "heading,hh:mm:ss,bearing; heading,hh:mm:ss,bearing; ..."
+# with the date taken from utc.
+function cmd_devcard(   n,i,a,f,jd,lat,lon,zn,ce,dev,hd,brg,date,
+                        s,b,k,nd,maxd,maxh,hiv,gap,span,
+                        H,D){
+  if(swing==""){ print "  no swing given -- see: celnav help"; return }
+  if(variation==""){
+    print "  a deviation card needs the chart variation: -v variation=<deg E/W>"
+    print "  (without it a swing gives compass ERROR, which is variation and"
+    print "   deviation together, and cannot be put on a card)"
+    return
+  }
+  lat=parse_ang(drlat); lon=parse_ang(drlon)
+  date=utc; sub(/ .*/,"",date)
+  n=split(swing,a,";")
+  printf "\n  DEVIATION CARD  by azimuth of %s\n", body
+  printf "  Position %s  %s   %s\n", fmt_lat(lat), fmt_lon(lon), date
+  printf "  Variation %.1f %s (chart)\n", fabs(parse_ang(variation)),
+         (parse_ang(variation)>=0?"EAST":"WEST")
+  hr()
+  printf "  %-9s %-10s %-10s %-9s %-9s %s\n",
+         "ship head","time UT","bearing C","true Zn","error","deviation"
+  nd=0; maxd=0; hiv=0; maxh=0
+  for(i=1;i<=n;i++){
+    if(split(a[i],f,",")<3) continue
+    gsub(/^[ \t]+|[ \t]+$/,"",f[1]); gsub(/^[ \t]+|[ \t]+$/,"",f[2])
+    gsub(/^[ \t]+|[ \t]+$/,"",f[3])
+    if(f[1]==""||f[2]==""||f[3]=="") continue
+    jd=parse_utc(date " " f[2])
+    if(body_at(body,jd)=="ERR"){ print "  unknown body"; return }
+    reduce_sight(lat,lon,B_GHA,B_DEC)
+    zn=R_ZN
+    hd=parse_ang(f[1]); brg=parse_ang(f[3])
+    ce=nrm180(zn-brg)
+    dev=nrm180(ce-parse_ang(variation))
+    nd++; H[nd]=nrm360(hd); D[nd]=dev
+    if(fabs(dev)>maxd){ maxd=fabs(dev); maxh=nrm360(hd) }
+    if(R_HC>25) hiv++
+    printf "  %03d  T    %-10s %7.1f C  %6.1f T  %5.1f %s  %5.1f %s\n",
+           nrm360(hd), f[2], brg, zn, fabs(ce), (ce>=0?"E":"W"),
+           fabs(dev), (dev<-0.05?"W":(dev>0.05?"E":" "))
+  }
+  if(nd==0){ print "  no usable observations in the swing"; return }
+  hr()
+  print "     ship's head    deviation      west  <  |  >  east"
+  print "     ------------   ---------"
+  for(i=1;i<=nd;i++){
+    s=int(fabs(D[i])*2+0.5); if(s>11) s=11
+    b=""
+    if(D[i]<0){ for(k=0;k<12-s;k++) b=b " "; for(k=0;k<s;k++) b=b "#"; b=b "|" }
+    else      { for(k=0;k<12;k++)   b=b " "; b=b "|"; for(k=0;k<s;k++) b=b "#" }
+    printf "      %03d  T        %4.1f %s   %s\n", H[i], fabs(D[i]),
+           (D[i]<-0.05?"W":(D[i]>0.05?"E":" ")), b
+  }
+  hr()
+  printf "  Largest deviation %.1f deg on %03d T\n", maxd, maxh
+  # WHAT THE SWING DOES NOT COVER IS WORTH SAYING OUT LOUD.  A card drawn
+  # from four headings in one quadrant is four points and a guess about
+  # the rest of the compass.
+  if(nd<4) print "  NOTE: fewer than four headings. A card wants eight, 45 deg apart."
+  span=0
+  for(hd=0;hd<360;hd+=1){
+    gap=999
+    for(i=1;i<=nd;i++){ k=fabs(nrm180(H[i]-hd)); if(k<gap) gap=k }
+    if(gap>span) span=gap
+  }
+  if(span>30){
+    printf "  NOTE: part of the compass lies up to %.0f deg from any heading you\n", span
+    print  "        swung. The card is interpolated there, not measured."
+  }
+  if(hiv>0){
+    printf "  NOTE: %d of %d bearings were taken with %s above 25 deg, where the\n", hiv, nd, B_NAME
+    print  "        azimuth changes fast and a bearing over the compass is hard to take."
+  }
+  print ""
+  print "  Deviation is the ship's own error and changes with her head, so it"
+  print "  belongs to the heading rather than to the compass. East is best:"
+  print "  a deviation EAST is added to the compass heading to get magnetic."
+  hr(); print ""
+}
+
 # ---------------- self test ------------------------------------------
 # Reference values are independent geocentric apparent positions
 # (JPL-grade ephemeris), embedded so the test works with no network.
@@ -1316,6 +1410,7 @@ BEGIN{
   else if(cmd=="polaris") cmd_polaris()
   else if(cmd=="plan")    cmd_plan()
   else if(cmd=="compass") cmd_compass()
+  else if(cmd=="devcard") cmd_devcard()
   else if(cmd=="selftest") cmd_selftest()
   else if(cmd=="stars")   cmd_stars()
   else if(cmd!="" && substr(cmd,1,2)!="t_"){ print "engine: unknown cmd \"" cmd "\"" ; exit 2 }

@@ -285,6 +285,41 @@ emit() {   # emit <name> ; program output on stdin
      -v temp=10 -v press=1010 </dev/null
 } | emit celnav-polaris.txt
 
+# ---- celnav: the deviation card ---------------------------------------
+#  A swing is several checks, so the cases that differ in KIND are about
+#  the swing and not about the arithmetic of one bearing, which
+#  celnav-compass already pins.
+#
+#  The first swing is built backwards from a deviation of 3 sin(head+30),
+#  so the card has a known answer: the eight rows must come back 1.5E,
+#  2.9E, 2.6E, 0.8E and the mirror of that.  A change anywhere in the
+#  azimuth chain moves those numbers and the diff says so in degrees of
+#  deviation rather than in minutes of arc.
+#
+#  The other three are the refusals and the warnings, which are the part
+#  of this command that is judgement rather than trigonometry: a swing
+#  with no variation cannot make a card at all; three headings in one
+#  quadrant is not a card; and a bearing taken with the body high is hard
+#  to take over a compass whatever the arithmetic says.
+{
+  echo "=== devcard: eight headings, a known 3 deg sine ==="
+  $AW $CE -v cmode=plain -v cmd=devcard -v utc="2026-10-22" \
+     -v drlat="50 09.0 N" -v drlon="005 04.0 W" -v body=sun -v variation="-2" \
+     -v swing="000,10:00:00,147.0; 045,10:05:00,146.9; 090,10:10:00,148.4; 135,10:15:00,151.5; 180,10:20:00,155.1; 225,10:25:00,157.8; 270,10:30:00,158.7; 315,10:35:00,158.3" </dev/null
+  echo "=== devcard: no variation, so no card ==="
+  $AW $CE -v cmode=plain -v cmd=devcard -v utc="2026-10-22" \
+     -v drlat="50 09.0 N" -v drlon="005 04.0 W" -v body=sun \
+     -v swing="000,10:00:00,147.0" </dev/null
+  echo "=== devcard: three headings in one quadrant ==="
+  $AW $CE -v cmode=plain -v cmd=devcard -v utc="2026-10-22" \
+     -v drlat="50 09.0 N" -v drlon="005 04.0 W" -v body=sun -v variation="-2" \
+     -v swing="000,10:00:00,147.0; 030,10:05:00,146.9; 060,10:10:00,148.4" </dev/null
+  echo "=== devcard: the body high, where the bearing is the hard part ==="
+  $AW $CE -v cmode=plain -v cmd=devcard -v utc="2026-06-21" \
+     -v drlat="00 30.0 N" -v drlon="000 00.0 E" -v body=sun -v variation="0" \
+     -v swing="000,11:50:00,180.0; 090,11:55:00,182.0; 180,12:00:00,184.0; 270,12:05:00,186.0" </dev/null
+} | emit celnav-devcard.txt
+
 # ---- celnav: every lesson, its figure and its answer ------------------
 #  The lesson list comes from the app itself (cmd=t_codes reads the one
 #  syllabus string), so a lesson added without a capture cannot slip
