@@ -481,7 +481,7 @@ function arrowchar(hdg,   h){
   if(h<292.5) return "<"
   return "\\"
 }
-function draw_plan(bg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
+function draw_plan(bg,rng,thdg,tlab,wnd,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch,wr,wc){
   w=63; h=25; cx=int(w/2); cy=int(h/2); rx=cx-2; ry=cy-1
   gclear(w,h)
   for(t=0;t<360;t+=1.0){
@@ -502,6 +502,21 @@ function draw_plan(bg,rng,thdg,tlab,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,ch){
   for(i=1;i<=4;i++) gputw(tr - dr*i, tc - dc*i, ":")
   gput(tr,tc,ch)
   gputs(tr + (tr<cy?-1:1), tc+2, tlab)
+  #  THE WIND, WHERE THE SCENARIO HAS ONE.  Rule 12 is decided by which
+  #  side the wind is on, so a sailing scenario that names windward and
+  #  leeward has to draw the wind or the reader cannot check the premise.
+  #  Drawn from the upwind edge pointing downwind, which is the way a
+  #  wind arrow is read on a chart.
+  if(wnd!=""){
+    wr = cy - ry*0.86*cosd(wnd+0)
+    wc = cx + rx*0.86*sind(wnd+0)
+    dr = -cosd(wnd+180); dc = sind(wnd+180)
+    m = fabs(dr); if(fabs(dc)>m) m=fabs(dc)
+    dr=dr/m; dc=dc/m
+    for(i=0;i<=3;i++) gputwc(wr + dr*i, wc + dc*i, "=", C_DIM)
+    gputc(wr + dr*4, wc + dc*4, arrowchar(nrm360(wnd+180)), C_DIM)
+    gputsc(wr - dr*1.6 - (wr<cy?1:-1), wc - dc*1.6 - 2, "WIND", C_DIM)
+  }
   gputsc(0,cx-6,"HEAD  UP",C_DIM)
   return 0
 }
@@ -540,10 +555,10 @@ function enc_init(){
 "Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.|Rule 18(d)"
   EC[11]="You are a sailing vessel on the port tack.|a sailing vessel on the starboard tack, on your starboard bow|020|070|300|b|"\
 "Stand on: you were there first.;Give way: keep out of her way.;Give way only if she is to windward.;Tack immediately.|"\
-"When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.|Rule 12"
+"When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.|Rule 12|330"
   EC[12]="You are a sailing vessel to windward.|a sailing vessel to leeward, both of you on the same tack|100|150|020|b|"\
 "Stand on: windward has right of way.;Give way: the windward vessel keeps clear of the leeward vessel.;Give way only in a narrow channel.;Both alter to starboard.|"\
-"With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.|Rule 12"
+"With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.|Rule 12|320"
   EC[13]="You are a power-driven vessel under way.|a vessel showing two all-round red lights and no sidelights|280|080|000|b|"\
 "Stand on: she is not moving.;Give way: keep well out of her way - she is not under command.;Sound five short blasts and hold on.;Pass close ahead - she cannot move.|"\
 "Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.|Rule 18"
@@ -567,7 +582,7 @@ function enc_init(){
 "Being under sail does not put you at the top of the order. Rule 18(b): a sailing vessel keeps out of the way of a vessel not under command, of one restricted in her ability to manoeuvre, and of one engaged in fishing.|Rule 18(b)"
   EC[20]="You are a sailing vessel, and the vessel to windward is on the same tack.|another sailing vessel to windward, converging|020|080|300|a|"\
 "Stand on: the windward vessel keeps clear of the leeward vessel.;Give way: you are the leeward vessel and must bear away.;Give way: tack immediately.;Both alter to starboard.|"\
-"Rule 12(a)(ii): when two sailing vessels have the wind on the same side, the vessel which is to windward keeps out of the way of the vessel to leeward. You are to leeward, so you stand on.|Rule 12"
+"Rule 12(a)(ii): when two sailing vessels have the wind on the same side, the vessel which is to windward keeps out of the way of the vessel to leeward. You are to leeward, so you stand on.|Rule 12|050"
   EC[21]="You are a power-driven vessel in a deep-water route.|a loaded tanker showing three all-round red lights in a vertical line|300|060|170|b|"\
 "Stand on: she has no special status under Rule 18.;Avoid impeding her safe passage - she may have very little water under her keel.;Overtake her briskly on her starboard side.;Cross close ahead of her to clear the route.|"\
 "Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.|Rule 18(d)"
@@ -601,7 +616,7 @@ function enc_pick(i,   a){
   ENC_ANS=a[6]; ENC_WHY=a[8]; ENC_RULE=a[9]
   return 0
 }
-function enc_show(i,seed,   a,o,bg,rng,thdg,n){
+function enc_show(i,seed,   a,o,bg,rng,thdg,n,wnd){
   enc_init()
   split(EC[i],a,"|")
   xsrand(seed+0); xrand()
@@ -610,7 +625,15 @@ function enc_show(i,seed,   a,o,bg,rng,thdg,n){
   bg = nrm360(bg + xrand()*(n-bg))
   rng = 0.55 + xrand()*0.35
   thdg = nrm360(a[5]+0 + (xrand()*30-15))
-  draw_plan(bg,rng,thdg,"HER")
+  #  RESOLVE THE WIND TO A SCALAR BEFORE PASSING IT.  Most scenarios have
+  #  no tenth field, and handing the unset element a[10] straight to a
+  #  function argument aborted gawk 5.2 on exit -- "free(): double free
+  #  detected in tcache" -- AFTER printing the whole scenario correctly.
+  #  27 of the 30 scenarios, which is every power-driven one, and the
+  #  three sailing ones were fine because theirs is set.  Referencing
+  #  a[10] also creates it, so `10 in a` asks without writing.
+  wnd = (10 in a ? a[10] : "")
+  draw_plan(bg,rng,thdg,"HER",wnd)
   print ""
   printf "  %s\n", cw("WHAT DO YOU DO?",C_ACC)
   hr()
@@ -618,6 +641,10 @@ function enc_show(i,seed,   a,o,bg,rng,thdg,n){
   hr()
   printf "  %s\n", a[1]
   printf "  You see %s, bearing %03d relative, heading as drawn.\n", a[2], bg
+  #  In words as well as in the drawing: the figure can be read wrongly,
+  #  and on a phone the dim characters are easy to miss.
+  if(a[10]!="")
+    printf "  The wind is from %03d relative, as drawn.\n", nrm360(a[10]+0)
   hr()
   n=split(a[7],o,";")
   printf "   a) %s\n   b) %s\n   c) %s\n   d) %s\n", o[1],o[2],o[3],o[4]

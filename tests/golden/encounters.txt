@@ -533,14 +533,14 @@
   WHAT DO YOU DO?
   ----------------------------------------------------------------------
                            HEAD  UP
-                         .................
+                  WIND   .................
                   .......                 .......
                ....                             ....
-            ...                                     ...
-          ..                                           ..
-        ...                                             ...
-       ..                .................                ..
-      ..              ...                 ...        HER   ..
+            ...      =                              ...
+          ..         =                                 ..
+        ...           =                                 ...
+       ..             =  .................                ..
+      ..              .\.                 ...        HER   ..
      .              ...                     ...    \         .
     ..             ..                         ..    ::       ..
     .              .             ^             .      ::      .
@@ -560,6 +560,7 @@
   ----------------------------------------------------------------------
   You are a sailing vessel on the port tack.
   You see a sailing vessel on the starboard tack, on your starboard bow, bearing 066 relative, heading as drawn.
+  The wind is from 330 relative, as drawn.
   ----------------------------------------------------------------------
    a) Stand on: you were there first.
    b) Give way: keep out of her way.
@@ -587,14 +588,14 @@
   ----------------------------------------------------------------------
                            HEAD  UP
                          .................
-                  .......                 .......
+              WIND.......                 .......
                ....                             ....
             ...                                     ...
-          ..                                           ..
-        ...                                             ...
-       ..                .................                ..
-      ..              ...                 ...              ..
-     .              ...                     ...              .
+          ..     =                                     ..
+        ...       =                                     ...
+       ..          =     .................                ..
+      ..           =  ...                 ...              ..
+     .              \..                     ...              .
     ..             ..                         ..             ..
     .              .             ^             .              .
     .              .             |             ..             .
@@ -613,6 +614,7 @@
   ----------------------------------------------------------------------
   You are a sailing vessel to windward.
   You see a sailing vessel to leeward, both of you on the same tack, bearing 146 relative, heading as drawn.
+  The wind is from 320 relative, as drawn.
   ----------------------------------------------------------------------
    a) Stand on: windward has right of way.
    b) Give way: the windward vessel keeps clear of the leeward vessel.
@@ -1013,12 +1015,12 @@
                          .................
                   .......                 .......
                ....                             ....
-            ...                                     ...
+            ...                                     WIND
           ..                                           ..
-        ...                                             ...
-       ..                .................                ..
-      ..              ...                 ...              ..
-     .              ...                     ...       HER    .
+        ...                                         =   ...
+       ..                .................         =      ..
+      ..              ...                 ...    ==        ..
+     .              ...                     ... /     HER    .
     ..             ..                         ..    \        ..
     .              .             ^             .     ::       .
     .              .             |             ..      :      .
@@ -1037,6 +1039,7 @@
   ----------------------------------------------------------------------
   You are a sailing vessel, and the vessel to windward is on the same tack.
   You see another sailing vessel to windward, converging, bearing 076 relative, heading as drawn.
+  The wind is from 050 relative, as drawn.
   ----------------------------------------------------------------------
    a) Stand on: the windward vessel keeps clear of the leeward vessel.
    b) Give way: you are the leeward vessel and must bear away.

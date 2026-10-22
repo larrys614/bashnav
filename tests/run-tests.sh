@@ -625,7 +625,8 @@ WXLOG
         src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk \
         src/tides/engine.awk src/tides/tables.awk docs/ansi2svg.awk \
         tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
-        tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk)
+        tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk \
+        tests/colregs-wind.awk)
   n=$(echo "$r" | tail -1 | $AW '{print $2}')
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
@@ -853,6 +854,37 @@ WXLOG
   n=$(echo "$r" | tail -1)
   if [ "$n" = 0 ]; then ok "light tables satisfy Annex I where it is checkable"
   else bad "$n Annex I violations"; echo "$r" | grep '^FAIL' | head -8; fi
+
+  # ---- every scenario must also EXIT cleanly -----------------------
+  #  Found the hard way: handing the unset array element a[10] straight to
+  #  a function argument aborted gawk on exit -- "free(): double free
+  #  detected in tcache" -- AFTER printing the whole scenario correctly.
+  #  27 of 30 scenarios, every power-driven one. Nothing that looks at
+  #  OUTPUT could see it; only the exit status could.
+  nbad=0; nscen=0
+  for i in $(seq 1 40); do
+    o=$($AW $CSRC -v cmode=plain -v cmd=enc -v which=$i -v seed=3 </dev/null 2>/dev/null)
+    rc=$?
+    [ -z "$o" ] && continue
+    nscen=$((nscen+1))
+    [ "$rc" -ne 0 ] && { nbad=$((nbad+1)); echo "    scenario $i exited $rc"; }
+  done
+  if [ "$nbad" = 0 ]; then ok "all $nscen scenarios exit cleanly, not only print correctly"
+  else bad "$nbad scenario(s) printed correctly and then died"; fi
+
+  # ---- the sailing scenarios' wind --------------------------------
+  #  Larry, drilling scenario 12: "wind dir not shown". Rule 12 is decided
+  #  by which side the wind is on, so a scenario naming windward and
+  #  leeward has to draw it. The bearing and heading are randomised per
+  #  seed, so one wind value has to hold across the whole range -- and a
+  #  value that looks right in the first case can contradict the words in
+  #  the last. Confirmed to fail on a wind put on the wrong side and on
+  #  the field removed.
+  if r=$($AW $CSRC -f tests/colregs-wind.awk -v cmode=plain </dev/null); then
+    echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+  else
+    bad "a sailing scenario contradicts its own wind"; echo "$r" | grep FAIL | head -4
+  fi
 
   # ---- the reporting style -----------------------------------------
   CT="$CSRC"      # the tool loads all three; so must every test
