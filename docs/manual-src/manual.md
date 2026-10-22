@@ -356,7 +356,7 @@ lesson at a time and pick up where you left off.](fig/train.png)
 
 ### 7.1 Lessons
 
-Twenty-four lessons in six modules: four modules of five, from first principles to the fix, then choosing bodies and checking the compass, and latitude taken directly — at noon from the sun, and all night from Polaris. Each one is a diagram, a short explanation in
+Twenty-six lessons in seven modules: four modules of five, from first principles to the fix, then choosing bodies and checking the compass, latitude taken directly — at noon from the sun and all night from Polaris — and the bodies that are not the sun or a star: the moon, where the corrections stop being bookkeeping, and the planets, where they almost vanish. Each one is a diagram, a short explanation in
 numbered steps, and a question to check that it landed. Answer the question correctly and
 the lesson is ticked off.
 

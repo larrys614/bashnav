@@ -400,7 +400,27 @@ function planet_pos(body,jdtt,   gx,gy,gz,d,tau,i,ra,dec){
   precess_nutate(ra,dec,jdtt)
   P_DIST=d
   P_SD=0
-  P_HP=0.14657/d*0            # planetary parallax is below plotting noise
+  #  PLANETARY PARALLAX IS NOT ALWAYS BELOW THE NOISE.  This read
+  #  "0.14657/d*0  # planetary parallax is below plotting noise" -- the
+  #  term computed and then multiplied away.  Measured over the next
+  #  thirteen months, at each planet's closest approach:
+  #
+  #      Venus    0.273 au    HP 0.536'    up to 0.53' near the horizon
+  #      Mars     0.678 au    HP 0.216'    up to 0.21'
+  #      Jupiter  4.362 au    HP 0.034'    0.03'
+  #      Saturn   8.326 au    HP 0.018'    0.02'
+  #
+  #  So the claim held for Jupiter and Saturn and not for Venus: half a
+  #  minute is half a mile, and larger than the 0.42' worst-case almanac
+  #  error this program already accepts for Venus.  The Nautical Almanac
+  #  prints an extra correction for Venus and Mars for the same reason.
+  #
+  #  Applied to all four rather than to the two that need it, because the
+  #  geometry is one formula and it scales itself: Jupiter and Saturn
+  #  contribute three hundredths of a minute, which is harmless, and a
+  #  conditional here would be a special case to keep in step with the
+  #  almanac's table rather than with the sky.
+  P_HP=0.14656667/d           # 8.794" at 1 au, as for the sun
   return 0
 }
 # ---- navigational star catalogue (J2000, from Hipparcos/Yale via libastro) ----

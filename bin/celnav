@@ -1446,7 +1446,27 @@ function planet_pos(body,jdtt,   gx,gy,gz,d,tau,i,ra,dec){
   precess_nutate(ra,dec,jdtt)
   P_DIST=d
   P_SD=0
-  P_HP=0.14657/d*0            # planetary parallax is below plotting noise
+  #  PLANETARY PARALLAX IS NOT ALWAYS BELOW THE NOISE.  This read
+  #  "0.14657/d*0  # planetary parallax is below plotting noise" -- the
+  #  term computed and then multiplied away.  Measured over the next
+  #  thirteen months, at each planet's closest approach:
+  #
+  #      Venus    0.273 au    HP 0.536'    up to 0.53' near the horizon
+  #      Mars     0.678 au    HP 0.216'    up to 0.21'
+  #      Jupiter  4.362 au    HP 0.034'    0.03'
+  #      Saturn   8.326 au    HP 0.018'    0.02'
+  #
+  #  So the claim held for Jupiter and Saturn and not for Venus: half a
+  #  minute is half a mile, and larger than the 0.42' worst-case almanac
+  #  error this program already accepts for Venus.  The Nautical Almanac
+  #  prints an extra correction for Venus and Mars for the same reason.
+  #
+  #  Applied to all four rather than to the two that need it, because the
+  #  geometry is one formula and it scales itself: Jupiter and Saturn
+  #  contribute three hundredths of a minute, which is harmless, and a
+  #  conditional here would be a special case to keep in step with the
+  #  almanac's table rather than with the sky.
+  P_HP=0.14656667/d           # 8.794" at 1 au, as for the sun
   return 0
 }
 # ---- navigational star catalogue (J2000, from Hipparcos/Yale via libastro) ----
@@ -3418,6 +3438,160 @@ function pol_fig(   jd,lha,p,lat,ho){
   printf "    so the correction to Ho is %+.1f'\n", -p*cosd(lha)
   tb()
 }
+# =====================================================================
+#  Module B -- The other bodies
+# =====================================================================
+function les_B1(){
+  thead("B1","The moon: where the corrections stop being bookkeeping")
+  tb()
+  tp("Module S walked the correction chain on a sun sight, and every term")
+  tp("in it was small: a couple of minutes of dip, two of refraction,")
+  tp("sixteen of semi-diameter, and a parallax of a sixth of a minute you")
+  tp("could have ignored and never noticed.")
+  tb()
+  tp("The moon is the body that makes the chain matter.")
+  tb()
+  tp("  1. PARALLAX. The corrections you apply are all about turning what")
+  tp("     YOU saw into what an observer at the centre of the earth would")
+  tp("     have seen, because that is where the almanac stands. For the")
+  tp("     sun, 93 million miles away, the earth's radius is nothing. The")
+  tp("     moon is a quarter of a million miles away, so the earth's")
+  tp("     radius is a real fraction of that, and the correction reaches")
+  tp("     about 61 minutes - a whole degree, sixty miles of position.")
+  tp("     It is not a refinement. It is the biggest number in the sum.")
+  tp("  2. SEMI-DIAMETER, and it GROWS as the moon rises. You measure to")
+  tp("     a limb, so you add or subtract the moon's half-width - but when")
+  tp("     the moon is overhead you are one earth radius nearer to it than")
+  tp("     when it is on your horizon, so it looks very slightly bigger.")
+  tp("     That is augmentation, and it is about 0.3' at the zenith.")
+  tp("     CELNAV applies it; most tables fold it into the main")
+  tp("     correction.")
+  tp("  3. WHICH LIMB. Half the month the lower limb is the lit one and")
+  tp("     half the month it is not, so a moon sight is the one sight")
+  tp("     where you routinely shoot the upper limb - and the")
+  tp("     semi-diameter changes sign when you do. Get that wrong and you")
+  tp("     are out by twice the semi-diameter, about half a degree, thirty")
+  tp("     miles.")
+  tb()
+  tp("Then the thing that catches people out, which is not a correction at")
+  tp("all:")
+  tb()
+  tp("  4. The moon moves about its own diameter in an hour. Half a degree")
+  tp("     an hour is half a minute of arc a minute of time, so four")
+  tp("     seconds of clock error is a tenth of a mile and a minute of it")
+  tp("     is half a mile. Every sight wants the time to the second; this")
+  tp("     one punishes you for less.")
+  tb()
+  tp("And the reason to bother with all of it:")
+  tb()
+  tp("  5. The moon is the only body besides the sun that is regularly up")
+  tp("     in DAYLIGHT. A sun line crossed with a moon line is the one")
+  tp("     two-body fix available at midday, when there is no twilight to")
+  tp("     wait for and a running fix would mean two hours of hoping your")
+  tp("     course and speed were honest. 'celnav plan' lists the moon")
+  tp("     with its phase, and will say so when it is up with the sun.")
+  tb()
+}
+# ---------------------------------------------------------------------
+#  The same chain, twice: a sun sight and a moon sight, to scale
+# ---------------------------------------------------------------------
+function moon_fig(   jd,hs,hm){
+  jd=jdate(2026,10,22)+21.0/24.0
+  tp("A sun sight first - the same one module S5 works through:")
+  tb()
+  B_NAME="Sun"; B_SD=15.9; B_HP=0.15
+  corr_bars(34.2,1.5,4.0,15,1013,"L")
+  tb()
+  tp("And a moon sight at the same height of eye, with the moon's own")
+  tp("figures for tonight out of the almanac:")
+  tb()
+  body_at("Moon", jd)
+  printf "    (semi-diameter %.1f', horizontal parallax %.1f')\n", B_SD, B_HP
+  tb()
+  corr_bars(34.2,1.5,4.0,15,1013,"L")
+  tb()
+  tp("Same sextant reading, same horizon, same air. The sun's corrections")
+  tp("very nearly cancel; the moon's do not come close. Read the bars")
+  tp("rather than the numbers: that one long row is why a moon sight")
+  tp("reduced with the sun's habits is wrong by tens of miles.")
+  tb()
+}
+function les_B2(){
+  thead("B2","The planets: a point of light that moves")
+  tb()
+  tp("After the moon, the planets are a relief. There are four a navigator")
+  tp("uses - Venus, Mars, Jupiter, Saturn - and in the sextant they behave")
+  tp("almost exactly like stars.")
+  tb()
+  tp("  1. NO SEMI-DIAMETER. A planet shows a disc only in a telescope; in")
+  tp("     a sextant it is a point, so you bring the point itself to the")
+  tp("     horizon and there is no limb to choose and no half-width to add.")
+  tp("     That alone removes the two corrections that cause most mistakes")
+  tp("     on the sun and the moon.")
+  tp("  2. ALMOST NO PARALLAX - but not quite none, and this program used")
+  tp("     to call it none. Venus comes within 0.27 of the earth's own")
+  tp("     distance from the sun, and at that range its parallax reaches")
+  tp("     0.5 minutes of arc near the horizon: half a mile. Mars reaches")
+  tp("     0.2'. Jupiter and Saturn, four and eight times further out,")
+  tp("     give three hundredths of a minute and can be forgotten. The")
+  tp("     almanac prints an extra correction for Venus and Mars for")
+  tp("     exactly this reason; CELNAV computes it for all four.")
+  tb()
+  tp("What a planet does have, and a star does not, is motion of its own.")
+  tp("That is where the almanac's two odd little columns come from:")
+  tb()
+  tp("  3. The almanac tabulates GHA and declination for each whole hour,")
+  tp("     and you interpolate for the minutes and seconds. For a star")
+  tp("     that works perfectly, because a star's GHA advances at the same")
+  tp("     rate every hour for ever - the rate the earth turns.")
+  tp("  4. A planet is also moving around the sun while you watch, so its")
+  tp("     GHA does NOT advance at quite that rate, and the rate itself")
+  tp("     changes through the year. The 'v' correction is the difference,")
+  tp("     and 'd' is the same idea for the declination.")
+  tp("  5. So v and d are not physics. They are the repair work that")
+  tp("     tabulating by the hour makes necessary. CELNAV has no need of")
+  tp("     either: it computes the position for the second you ask about,")
+  tp("     from the orbit, so there is nothing to interpolate and nothing")
+  tp("     to correct for having interpolated.")
+  tb()
+  tp("And the practical reason to care about any of this:")
+  tb()
+  tp("  6. The planets are BRIGHT. Venus at magnitude -4 and Jupiter at")
+  tp("     -2 are far brighter than any star, so they show while the")
+  tp("     horizon is still crisp - before the stars come out in the")
+  tp("     evening and after they have faded in the morning. That widens")
+  tp("     the twilight window at both ends, which is the scarcest thing")
+  tp("     in celestial navigation.")
+  tp("  7. Venus can be found in broad daylight if you know where to")
+  tp("     look, which is the one thing 'celnav plan' is for: it lists")
+  tp("     every planet that is up with its altitude, azimuth and")
+  tp("     magnitude, so you can point the sextant at empty-looking sky")
+  tp("     and find it there.")
+  tb()
+}
+# ---------------------------------------------------------------------
+#  A planet and a star, the same reading, side by side
+# ---------------------------------------------------------------------
+function planet_fig(   jd){
+  jd=jdate(2026,10,22)+20.0/24.0
+  tp("Vega, at a sextant reading of 20 degrees:")
+  tb()
+  body_at("Vega", jd)
+  corr_bars(20.0,1.5,4.0,15,1013,"C")
+  tb()
+  tp("And Venus, same reading, same horizon:")
+  tb()
+  body_at("Venus", jd)
+  printf "    (a point source, so no semi-diameter; horizontal parallax %.2f')\n", B_HP
+  tb()
+  corr_bars(20.0,1.5,4.0,15,1013,"C")
+  tb()
+  tp("One row of difference, and it is a small one - which is the point.")
+  tp("A planet is a star you can shoot earlier in the evening. The work")
+  tp("that makes planets awkward is all in the almanac, and none of it is")
+  tp("in the sextant.")
+  tb()
+}
 function les_fig(id,   la,lo,zd,b){
   if(id=="F3"){
     gl_init(67,25, 25, -30); gl_graticule(0); gl_limb()
@@ -3494,6 +3668,10 @@ function les_fig(id,   la,lo,zd,b){
     noon_fig()
   } else if(id=="L2"){
     pol_fig()
+  } else if(id=="B1"){
+    moon_fig()
+  } else if(id=="B2"){
+    planet_fig()
   } else if(id=="C2"){
     tp("A compass swung on eight headings - the same compass, the same")
     tp("ship, the same iron, eight different answers:")
@@ -3578,6 +3756,16 @@ function ques(id,show){
       tp("     a) nothing, three sights is three sights   b) the LOPs are nearly parallel,")
       tp("        so the position is poorly fixed along one axis   c) the stars are too bright") }
     else { Q_ANS="b"; Q_WHY="A narrow spread gives a long thin error ellipse. CELNAV reports this in miles." } }
+  else if(id=="B2"){ if(show){ tp("Q. The almanac prints a “v” correction for the planets and none for the")
+      tp("   stars. What is it for?")
+      tp("     a) the planet's semi-diameter   b) the planet's own motion, which")
+      tp("        makes its GHA advance at a slightly different rate each hour")
+      tp("     c) its parallax") }
+    else { Q_ANS="b"; Q_WHY="A star's GHA advances at the rate the earth turns, every hour, for ever. A planet is moving in its own orbit as well, so the hourly rate differs and changes through the year. v is the repair that tabulating by the hour makes necessary - CELNAV computes the position for the second and needs neither v nor d." } }
+  else if(id=="B1"){ if(show){ tp("Q. You shoot the moon's UPPER limb but reduce it as a lower-limb sight.")
+      tp("   Its semi-diameter is 16'. How far out is your altitude?")
+      tp("     a) 16' too high   b) 32' too high   c) 16' too low") }
+    else { Q_ANS="b"; Q_WHY="The semi-diameter changes SIGN with the limb, so getting it wrong moves the answer by twice it: 32 minutes of arc, which is 32 miles of position." } }
   else if(id=="L2"){ if(show){ tp("Q. You take Polaris at its lower transit - directly below the pole -")
       tp("   and its polar distance is 37.5'. How does your latitude compare with")
       tp("   the altitude you measured?")
@@ -3628,6 +3816,8 @@ function syl_init(){
         "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it;" \
         "L1|Latitude the direct way|The noon sight: latitude without a reduction;" \
         "L2|Latitude the direct way|Polaris: latitude from one star, all night long;" \
+        "B1|The other bodies|The moon: where the corrections stop being bookkeeping;" \
+        "B2|The other bodies|The planets: a point of light that moves;" \
         "C1|Choosing and checking|Choosing your bodies: the cut and the band;" \
         "C2|Choosing and checking|Checking the compass against the sky"
   NSYL=split(SYL,SYLROW,";")
@@ -3644,6 +3834,7 @@ function lesson(id){
   else if(id=="R1")les_R1(); else if(id=="R2")les_R2(); else if(id=="R3")les_R3()
   else if(id=="R4")les_R4(); else if(id=="R5")les_R5()
   else if(id=="L1")les_L1(); else if(id=="L2")les_L2()
+  else if(id=="B1")les_B1(); else if(id=="B2")les_B2()
   else if(id=="C1")les_C1(); else if(id=="C2")les_C2()
   else { print "  no such lesson: " id; return 1 }
   return 0

@@ -291,7 +291,7 @@ Celestial navigation, offline.
 - **Sight planning**: twilight times in UT and local, what is above the horizon,
   and the best three bodies to shoot.
 - **Fix geometry** reported in miles, so a weak cut is named as weak.
-- **Training mode**: twenty-four lessons in six modules, an annotated walkthrough of one real sight,
+- **Training mode**: twenty-six lessons in seven modules, an annotated walkthrough of one real sight,
   six kinds of marked drill, and a sandbox for the navigational triangle.
 
 ```

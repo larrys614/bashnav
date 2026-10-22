@@ -1038,6 +1038,190 @@
 
   Not quite - the answer is A.  Below the pole, the pole stands higher than the star - and the pole's altitude is your latitude. So latitude is Ho plus the polar distance. Above the pole it is Ho minus it.
 
+=== lesson B1 ===
+
+  B1  The moon: where the corrections stop being bookkeeping
+  ------------------------------------------------------------
+
+  Module S walked the correction chain on a sun sight, and every term
+  in it was small: a couple of minutes of dip, two of refraction,
+  sixteen of semi-diameter, and a parallax of a sixth of a minute you
+  could have ignored and never noticed.
+
+  The moon is the body that makes the chain matter.
+
+    1. PARALLAX. The corrections you apply are all about turning what
+       YOU saw into what an observer at the centre of the earth would
+       have seen, because that is where the almanac stands. For the
+       sun, 93 million miles away, the earth's radius is nothing. The
+       moon is a quarter of a million miles away, so the earth's
+       radius is a real fraction of that, and the correction reaches
+       about 61 minutes - a whole degree, sixty miles of position.
+       It is not a refinement. It is the biggest number in the sum.
+    2. SEMI-DIAMETER, and it GROWS as the moon rises. You measure to
+       a limb, so you add or subtract the moon's half-width - but when
+       the moon is overhead you are one earth radius nearer to it than
+       when it is on your horizon, so it looks very slightly bigger.
+       That is augmentation, and it is about 0.3' at the zenith.
+       CELNAV applies it; most tables fold it into the main
+       correction.
+    3. WHICH LIMB. Half the month the lower limb is the lit one and
+       half the month it is not, so a moon sight is the one sight
+       where you routinely shoot the upper limb - and the
+       semi-diameter changes sign when you do. Get that wrong and you
+       are out by twice the semi-diameter, about half a degree, thirty
+       miles.
+
+  Then the thing that catches people out, which is not a correction at
+  all:
+
+    4. The moon moves about its own diameter in an hour. Half a degree
+       an hour is half a minute of arc a minute of time, so four
+       seconds of clock error is a tenth of a mile and a minute of it
+       is half a mile. Every sight wants the time to the second; this
+       one punishes you for less.
+
+  And the reason to bother with all of it:
+
+    5. The moon is the only body besides the sun that is regularly up
+       in DAYLIGHT. A sun line crossed with a moon line is the one
+       two-body fix available at midday, when there is no twilight to
+       wait for and a running fix would mean two hours of hoping your
+       course and speed were honest. 'celnav plan' lists the moon
+       with its phase, and will say so when it is up with the sun.
+
+  A sun sight first - the same one module S5 works through:
+
+    Hs  sextant reading       34 12.0'
+    index error                -1.5'  =
+    dip (height of eye)        -3.5'  ==
+    Ha  apparent altitude     34 07.0'
+    refraction                 -1.4'  =
+    parallax                   +0.1'  
+    semi-diameter             +15.9'  =========
+    Ho  observed altitude     34 21.6'
+
+  And a moon sight at the same height of eye, with the moon's own
+  figures for tonight out of the almanac:
+
+    (semi-diameter 15.5', horizontal parallax 57.0')
+
+    Hs  sextant reading       34 12.0'
+    index error                -1.5'  =
+    dip (height of eye)        -3.5'  ==
+    Ha  apparent altitude     34 07.0'
+    refraction                 -1.4'  =
+    parallax                  +47.2'  ==========================
+    semi-diameter             +15.7'  =========
+    Ho  observed altitude     35 08.4'
+
+  Same sextant reading, same horizon, same air. The sun's corrections
+  very nearly cancel; the moon's do not come close. Read the bars
+  rather than the numbers: that one long row is why a moon sight
+  reduced with the sun's habits is wrong by tens of miles.
+
+
+  ----------------------------------------------------------------------
+  Q. You shoot the moon's UPPER limb but reduce it as a lower-limb sight.
+     Its semi-diameter is 16'. How far out is your altitude?
+       a) 16' too high   b) 32' too high   c) 16' too low
+
+=== answer B1 (given b) ===
+
+  Correct.  The semi-diameter changes SIGN with the limb, so getting it wrong moves the answer by twice it: 32 minutes of arc, which is 32 miles of position.
+
+=== lesson B2 ===
+
+  B2  The planets: a point of light that moves
+  ----------------------------------------------
+
+  After the moon, the planets are a relief. There are four a navigator
+  uses - Venus, Mars, Jupiter, Saturn - and in the sextant they behave
+  almost exactly like stars.
+
+    1. NO SEMI-DIAMETER. A planet shows a disc only in a telescope; in
+       a sextant it is a point, so you bring the point itself to the
+       horizon and there is no limb to choose and no half-width to add.
+       That alone removes the two corrections that cause most mistakes
+       on the sun and the moon.
+    2. ALMOST NO PARALLAX - but not quite none, and this program used
+       to call it none. Venus comes within 0.27 of the earth's own
+       distance from the sun, and at that range its parallax reaches
+       0.5 minutes of arc near the horizon: half a mile. Mars reaches
+       0.2'. Jupiter and Saturn, four and eight times further out,
+       give three hundredths of a minute and can be forgotten. The
+       almanac prints an extra correction for Venus and Mars for
+       exactly this reason; CELNAV computes it for all four.
+
+  What a planet does have, and a star does not, is motion of its own.
+  That is where the almanac's two odd little columns come from:
+
+    3. The almanac tabulates GHA and declination for each whole hour,
+       and you interpolate for the minutes and seconds. For a star
+       that works perfectly, because a star's GHA advances at the same
+       rate every hour for ever - the rate the earth turns.
+    4. A planet is also moving around the sun while you watch, so its
+       GHA does NOT advance at quite that rate, and the rate itself
+       changes through the year. The 'v' correction is the difference,
+       and 'd' is the same idea for the declination.
+    5. So v and d are not physics. They are the repair work that
+       tabulating by the hour makes necessary. CELNAV has no need of
+       either: it computes the position for the second you ask about,
+       from the orbit, so there is nothing to interpolate and nothing
+       to correct for having interpolated.
+
+  And the practical reason to care about any of this:
+
+    6. The planets are BRIGHT. Venus at magnitude -4 and Jupiter at
+       -2 are far brighter than any star, so they show while the
+       horizon is still crisp - before the stars come out in the
+       evening and after they have faded in the morning. That widens
+       the twilight window at both ends, which is the scarcest thing
+       in celestial navigation.
+    7. Venus can be found in broad daylight if you know where to
+       look, which is the one thing 'celnav plan' is for: it lists
+       every planet that is up with its altitude, azimuth and
+       magnitude, so you can point the sextant at empty-looking sky
+       and find it there.
+
+  Vega, at a sextant reading of 20 degrees:
+
+    Hs  sextant reading       20 00.0'
+    index error                -1.5'  =
+    dip (height of eye)        -3.5'  ==
+    Ha  apparent altitude     19 55.0'
+    refraction                 -2.7'  =
+    Ho  observed altitude     19 52.3'
+
+  And Venus, same reading, same horizon:
+
+    (a point source, so no semi-diameter; horizontal parallax 0.54')
+
+    Hs  sextant reading       20 00.0'
+    index error                -1.5'  =
+    dip (height of eye)        -3.5'  ==
+    Ha  apparent altitude     19 55.0'
+    refraction                 -2.7'  =
+    parallax                   +0.5'  
+    Ho  observed altitude     19 52.8'
+
+  One row of difference, and it is a small one - which is the point.
+  A planet is a star you can shoot earlier in the evening. The work
+  that makes planets awkward is all in the almanac, and none of it is
+  in the sextant.
+
+
+  ----------------------------------------------------------------------
+  Q. The almanac prints a “v” correction for the planets and none for the
+     stars. What is it for?
+       a) the planet's semi-diameter   b) the planet's own motion, which
+          makes its GHA advance at a slightly different rate each hour
+       c) its parallax
+
+=== answer B2 (given b) ===
+
+  Correct.  A star's GHA advances at the rate the earth turns, every hour, for ever. A planet is moving in its own orbit as well, so the hourly rate differs and changes through the year. v is the repair that tabulating by the hour makes necessary - CELNAV computes the position for the second and needs neither v nor d.
+
 === lesson C1 ===
 
   C1  Choosing your bodies: the cut matters more than the sights
@@ -1262,9 +1446,13 @@
    [ ]  L1   The noon sight: latitude without a reduction
    [ ]  L2   Polaris: latitude from one star, all night long
 
+  THE OTHER BODIES
+   [ ]  B1   The moon: where the corrections stop being bookkeeping
+   [ ]  B2   The planets: a point of light that moves
+
   CHOOSING AND CHECKING
    [x]  C1   Choosing your bodies: the cut and the band
    [ ]  C2   Checking the compass against the sky
   ----------------------------------------------------------------------
-  3 of 24 lessons done.  Type a lesson code (F1, R3 ...) to open it.
+  3 of 26 lessons done.  Type a lesson code (F1, R3 ...) to open it.
 
