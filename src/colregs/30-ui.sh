@@ -32,6 +32,12 @@ run_enc() {
     stry=$((stry+1))
     if eng -v cmd=encm -v seed="$sd" -v ans="$ANS"; then sok=$((sok+1)); fi
     save_prog
+    #  The lights, after the answer. Larry expected this here: it existed
+    #  in the developing-collision flow and not in this one. After the
+    #  answer rather than before it, because for more than half the
+    #  scenarios the lights ARE the question.
+    printf "  See her lights? [y/N] "; IFS= read -r L
+    case "$L" in y|Y|l|L) eng -v cmd=enclights -v seed="$sd" ;; esac
     printf "  another? [Y/n] "; IFS= read -r a
     case "$a" in n|N|q|Q|x|X) return 0 ;; esac
   done

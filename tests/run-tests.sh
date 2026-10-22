@@ -868,6 +868,12 @@ WXLOG
     [ -z "$o" ] && continue
     nscen=$((nscen+1))
     [ "$rc" -ne 0 ] && { nbad=$((nbad+1)); echo "    scenario $i exited $rc"; }
+    #  and the lights view for the same scenario, which is reached from
+    #  the encounter flow and has its own unset-field paths
+    o=$($AW $CSRC -v cmode=plain -v cmd=enclights -v which=$i -v seed=3 </dev/null 2>/dev/null)
+    rc=$?
+    [ "$rc" -ne 0 ] && { nbad=$((nbad+1)); echo "    scenario $i lights exited $rc"; }
+    [ -z "$o" ] && { nbad=$((nbad+1)); echo "    scenario $i lights printed nothing"; }
   done
   if [ "$nbad" = 0 ]; then ok "all $nscen scenarios exit cleanly, not only print correctly"
   else bad "$nbad scenario(s) printed correctly and then died"; fi
