@@ -631,6 +631,23 @@ do_almanac() {
   b="$2"; [ -z "$b" ] && b="sun,moon,venus,mars,jupiter,saturn"
   engine -v cmd=almanac -v utc="$u" -v bodies="$b"
 }
+do_noon() {
+  u="$1"; [ -z "$u" ] && u=$(utctoday)
+  engine -v cmd=noon -v utc="$u" -v drlat="$drlat" -v drlon="$drlon" \
+         -v hs="$2" -v limb="$3" -v ie="$ie" -v heye="$heye" \
+         -v temp="$temp" -v press="$press"
+}
+noon_mode() {
+  ask "Date, YYYY-MM-DD (blank = today)" ""; nd="$ANS"
+  [ -z "$nd" ] && nd=$(utctoday)
+  do_noon "$nd" "" ""
+  ask "Hs at the maximum (blank = just the prediction)" ""; nh="$ANS"
+  if [ -n "$nh" ]; then
+    ask "Limb, L or U" "L"; nl="$ANS"
+    do_noon "$nd" "$nh" "$nl"
+  fi
+  pause
+}
 do_compass() {
   engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
          -v body="$2" -v cbrg="$3" -v variation="$4"
@@ -731,6 +748,7 @@ help_text() {
     '      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP' \
     '      celnav sight "UT" body limb Hs [ie] [heye]    record one sight' \
     '      celnav fix   [ "UT of fix" ]             reduce the log and plot' \
+    '      celnav noon  [ "YYYY-MM-DD" ] [ Hs ] [ limb ]  latitude at LAN' \
     '      celnav compass "UT" body <bearing> [variation]' \
     '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
     '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
@@ -770,6 +788,8 @@ menu() {
       '    3  Sight planning / stars     7  Sight log' \
       '    4  Almanac for a time         8  Sextant and weather settings' \
       '' \
+      '    n  Noon sight                 latitude from the sun at its highest' \
+      '' \
       '    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox' \
       '' \
       '    s  Star list   t  Self test   d  Check setup   c  Colour' \
@@ -800,6 +820,7 @@ menu() {
       7) log_menu ;;
       8) set_opts ;;
       9) train_menu ;;
+      n|N) noon_mode ;;
       s|S) do_stars ;;
       t|T) do_selftest ;;
       d|D) doctor ;;
@@ -979,6 +1000,7 @@ case "$1" in
            add_sight "$1" "$2" "$3" "$4" "${5:-$ie}" "${6:-$heye}" "$temp" "$press" ""
            echo "sight recorded (${1})" ;;
   fix)     shift; do_fix "$1" ;;
+  noon)    shift; do_noon "$1" "$2" "$3" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
   stars)   shift; do_stars "$1" ;;
   dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
@@ -1914,6 +1936,117 @@ function fix_geometry(ns,   tr,dd,mu1,mu2,amaj,amin,brg,sig){
   else if(amaj>1.6) print "  Fair cut. A body more nearly at right angles would tighten it."
 }
 
+# ---------------- noon: local apparent noon, and latitude -----------
+#  The oldest useful sight in the book, and the only one that needs no
+#  assumed position, no tables and no intercept.  At local apparent noon
+#  the sun stands on your meridian: the LHA is zero, so the azimuth has
+#  no east-west component at all and the navigational triangle collapses
+#  into a single subtraction.  What falls out is a parallel of latitude,
+#  not a line lying at some angle across one.
+#
+#      lat = declination  +/-  (90 - Ho)
+#
+#  and the sign is only which side of you the sun stood.  Everything
+#  below is finding the moment and doing that arithmetic honestly.
+function lan_jd(lon,jd0,   jd,i,tgt,d){
+  #  LAN is the instant the sun's GHA equals your longitude measured west
+  #  of Greenwich.  Solved by iteration rather than from a formula,
+  #  because the sun's GHA is not linear in time -- that non-linearity is
+  #  precisely the equation of time -- and five passes settle it to far
+  #  under a second.
+  tgt = nrm360(-lon)
+  jd  = jd0 + (12.0 - lon/15.0)/24.0
+  for(i=0;i<5;i++){
+    body_at("Sun", jd)
+    d  = nrm180(tgt - B_GHA)
+    jd = jd + d/360.9856
+  }
+  return jd
+}
+function cmd_noon(   lat,lon,jd0,jd,ut,lmt,eot,dec,mer,sth,zd,ho,la,h1,h2,lim,fall){
+  lat=parse_ang(drlat); lon=parse_ang(drlon)
+  jd0=parse_utc(utc); jd0=int(jd0+0.5)-0.5
+  jd=lan_jd(lon,jd0)
+  body_at("Sun",jd); dec=B_DEC
+  reduce_sight(lat,lon,B_GHA,B_DEC); h1=R_HC
+  jd2cal(jd); ut=CAL_FRAC*24.0
+  lmt=ut+lon/15.0; if(lmt<0) lmt=lmt+24; if(lmt>=24) lmt=lmt-24
+  eot=nrm180(B_GHA-(15.0*ut-180.0))*4.0
+  mer=90.0-fabs(lat-dec)
+  sth=(lat>dec)
+
+  printf "\n  LOCAL APPARENT NOON  %04d-%02d-%02d\n", CAL_Y, CAL_M, CAL_D
+  printf "  Position %s  %s\n", fmt_lat(lat), fmt_lon(lon)
+  hr()
+  printf "  Sun on your meridian at       %s UT   (%s local mean time)\n", fmt_hms(ut), fmt_hms(lmt)
+  printf "  Equation of time              %+.1f min   (the sundial is %s the clock)\n", eot, (eot>=0?"ahead of":"behind")
+  printf "  Sun's declination then        %s\n", fmt_dm(fabs(dec)) (dec>=0?" N":" S")
+  printf "  Meridian altitude to expect   %.1f deg, bearing %s\n", mer, (sth?"SOUTH (180)":"NORTH (000)")
+  #  AND SAY SO WHEN THE SUN PASSES OVERHEAD.  Within a degree of the
+  #  zenith the azimuth swings through 180 degrees as the sun crosses,
+  #  so "bearing south" above is a statement the DR cannot support and
+  #  the sign of the latitude below turns on it.
+  if(fabs(lat-dec)<1.0){
+    print cw("  NOTE: the sun passes within a degree of your zenith today, so which", C_ACC)
+    print cw("  side of you it stands is not decidable from the DR, and its azimuth", C_ACC)
+    print cw("  swings through 180 degrees as it crosses. Note which way it bore.", C_ACC)
+  }
+
+  #  WHY THE CLOCK BARELY MATTERS HERE, and it is worth a number rather
+  #  than a reassurance: the altitude is at a stationary point, so it
+  #  changes as the SQUARE of the time either side of it.
+  body_at("Sun", jd+120.0/86400.0)
+  reduce_sight(lat,lon,B_GHA,B_DEC); h2=R_HC
+  fall=(h1-h2)*60.0
+  #  THE CLAIM IS CONDITIONAL, SO STATE IT CONDITIONALLY.  The altitude
+  #  sits at a stationary point and changes as the square of the time
+  #  either side -- which makes the clock almost irrelevant at a
+  #  workaday altitude and quite relevant near the zenith, where the
+  #  golden file caught this saying 22.4' of fall and "the clock is not
+  #  the point" in the same breath.
+  if(fall<=1.0){
+    printf "  Two minutes either side of it the altitude is only %.1f' lower,\n", fall
+    print  "  so catch the maximum by watching it -- the clock is not the point."
+  } else {
+    printf "  Two minutes either side of it the altitude is %.1f' lower: the sun\n", fall
+    print  "  passes close to your zenith and crosses fast, so the maximum is"
+    print  "  sharp and a careless moment here costs real altitude."
+  }
+  hr()
+
+  if(hs==""){
+    print "  Follow the sun up, catch the highest reading, and give it back:"
+    print "    celnav noon \"" substr(utc,1,10) "\" <Hs>        [limb L or U, default L]"
+    print ""
+    return
+  }
+
+  lim=(limb==""?"L":toupper(substr(limb,1,1)))
+  ho=corrections(parse_ang(hs), (ie==""?0:ie+0), (heye==""?0:heye+0),
+                 (temp==""?10:temp+0), (press==""?1010:press+0), lim)
+  zd=90.0-ho
+  la=(sth? dec+zd : dec-zd)
+  printf "  Hs  (sextant, %s limb)        %s\n", (lim=="U"?"upper":"lower"), fmt_dm(parse_ang(hs))
+  printf "    index error                 %+6.1f'\n", ((ie==""||ie+0==0)?0:-(ie+0))
+  printf "    dip                         %6.1f'\n", -C_DIP
+  printf "    refraction                  %6.1f'\n", -C_REF
+  printf "    semi-diameter               %+6.1f'\n", C_LIMB
+  printf "    parallax                    %+6.1f'\n", C_PAR
+  printf "  Ho  (observed altitude)       %s\n", fmt_dm(ho)
+  printf "  Zenith distance  90 - Ho      %s\n", fmt_dm(zd)
+  printf "  Declination                   %s\n", fmt_dm(fabs(dec)) (dec>=0?" N":" S")
+  printf "  LATITUDE   dec %s ZD          %s\n", (sth?"+":"-"), fmt_lat(la)
+  hr()
+  printf "  The sun was taken as bearing %s of you, from the DR.\n", (sth?"south":"north")
+  if(fabs(lat-dec)<1.0){
+    print cw("  CAREFUL: the sun passes within a degree of your zenith, so which", C_ACC)
+    print cw("  side it stood is not obvious from the DR. Your own note of whether", C_ACC)
+    print cw("  it bore north or south is what decides the sign here.", C_ACC)
+  }
+  printf "  One line only: a parallel of latitude. It needs no crossing to be\n"
+  printf "  true, and tells you nothing at all about your longitude.\n"
+  hr(); print ""
+}
 # ---------------- plan: what can I shoot, and when ------------------
 function sun_alt(jd,lat,lon){
   body_at("sun",jd); reduce_sight(lat,lon,B_GHA,B_DEC); return R_HC
@@ -2106,6 +2239,7 @@ BEGIN{
   col_init()
   if(cmd=="almanac")      cmd_almanac()
   else if(cmd=="reduce")  cmd_reduce()
+  else if(cmd=="noon")    cmd_noon()
   else if(cmd=="plan")    cmd_plan()
   else if(cmd=="compass") cmd_compass()
   else if(cmd=="selftest") cmd_selftest()
@@ -2985,6 +3119,102 @@ function dev_card(   i,hd,d,b,s,k){
   }
   return 0
 }
+# =====================================================================
+#  Module L -- Latitude the direct way
+# =====================================================================
+function les_L1(){
+  thead("L1","The noon sight: latitude without a reduction")
+  tb()
+  tp("Everything in modules R and S was about a sight taken at any old")
+  tp("moment, from a position you only guessed. There is one moment in the")
+  tp("day when none of that is needed.")
+  tb()
+  tp("At local apparent noon the sun crosses your meridian. Its LHA is")
+  tp("zero. Look at what that does to the navigational triangle:")
+  tb()
+  tp("  1. The angle at the pole IS the LHA, and it has gone to zero. A")
+  tp("     triangle with no angle at one corner is not a triangle: the")
+  tp("     three points lie on one great circle, your own meridian.")
+  tp("  2. So the azimuth has no east-west component at all. The sun bears")
+  tp("     due south of you, or due north, and nothing in between.")
+  tp("  3. A line of position runs square across the azimuth. Square across")
+  tp("     due south is due east and west - a parallel of latitude.")
+  tb()
+  tp("That is why this sight needs no assumed position and no intercept.")
+  tp("You are not comparing what you measured with what you would have")
+  tp("measured from somewhere else. You are measuring your latitude.")
+  tb()
+  tp("The whole method:")
+  tb()
+  tp("     zenith distance  =  90 - Ho")
+  tp("     latitude         =  declination  +/-  zenith distance")
+  tb()
+  tp("and the sign is only which side of you the sun stood: PLUS the")
+  tp("zenith distance if it bore south of you, MINUS if it bore north.")
+  tb()
+  tp("Three things to know about the moment itself.")
+  tb()
+  tp("  4. It is not noon by your watch, and it is not noon by local mean")
+  tp("     time either. Two corrections stand between: your longitude")
+  tp("     (four minutes of time per degree) and the equation of time,")
+  tp("     which runs from about 14 minutes behind the clock in February")
+  tp("     to 16 minutes ahead of it in November.")
+  tp("  5. You do not need to know it in advance. The altitude is at a")
+  tp("     maximum, so it is momentarily standing still - it changes as")
+  tp("     the SQUARE of the time either side. Follow the sun up, catch")
+  tp("     the highest reading it gives you, and watch it start to fall.")
+  tp("     The reading is what you want; the clock is not the point.")
+  tp("  6. That is the opposite of every other sight you have taken. Four")
+  tp("     seconds of clock error moves a star sight a mile. Here it moves")
+  tp("     almost nothing, which is why this sight was the backbone of")
+  tp("     navigation for two centuries.")
+  tb()
+  tp("And the honest limit. One sight, one line, and that line is a")
+  tp("parallel of latitude: it is true on its own and needs no crossing,")
+  tp("but it tells you NOTHING about your longitude. For that you need a")
+  tp("second body, or a second sight after a run, or the old trick of")
+  tp("equal altitudes either side of noon.")
+  tb()
+  tp("  celnav noon                      the moment, and what to expect")
+  tp("  celnav noon \"2026-10-21\" <Hs>    the latitude from your reading")
+  tb()
+}
+# ---------------------------------------------------------------------
+#  The meridian, and a real local apparent noon computed on the spot
+# ---------------------------------------------------------------------
+function noon_fig(   jd,d,mer,lat,lon,ut){
+  tp("          Z    your zenith - and its height above the equator")
+  tp("          |    IS your latitude, which is what you want")
+  tp("          |")
+  tp("          |    90 - Ho, the zenith distance: how far the sun")
+  tp("          |    stands from straight overhead")
+  tp("          |")
+  tp("          *    the sun, on your meridian, bearing due south")
+  tp("          |")
+  tp("          |    its declination, straight out of the almanac")
+  tp("   - - - -+- - - -   the celestial equator")
+  tb()
+  tp("Read it off the diagram: from the equator up to your zenith is your")
+  tp("latitude, and that same span is the declination plus the zenith")
+  tp("distance. There is nothing else in it.")
+  tb()
+  #  Computed here rather than written down, so the lesson cannot drift
+  #  away from what the program would actually tell you.
+  lat=50.15; lon=-5.0667
+  jd=lan_jd(lon, jdate(2026,10,21))
+  body_at("Sun", jd); d=B_DEC
+  jd2cal(jd); ut=CAL_FRAC*24.0
+  mer=90.0-fabs(lat-d)
+  tp("A worked one. Falmouth, 50 09'N 005 04'W, on 21 October 2026:")
+  tb()
+  printf "    the sun crosses your meridian at   %s UT\n", fmt_hms(ut)
+  printf "    its declination then is            %s S\n", fmt_dm(fabs(d))
+  printf "    so expect a meridian altitude of   %.1f degrees, bearing south\n", mer
+  printf "    measure that, and 90 - Ho = %s of zenith distance,\n", fmt_dm(90.0-mer)
+  printf "    which minus %s of southerly declination puts you\n", fmt_dm(fabs(d))
+  printf "    back on %s.\n", fmt_dm(lat)
+  tb()
+}
 function les_fig(id,   la,lo,zd,b){
   if(id=="F3"){
     gl_init(67,25, 25, -30); gl_graticule(0); gl_limb()
@@ -3057,6 +3287,8 @@ function les_fig(id,   la,lo,zd,b){
     tp("direction. No amount of care with the sextant would have helped:")
     tp("the geometry did this, and only a fourth body elsewhere in the sky")
     tp("can undo it.")
+  } else if(id=="L1"){
+    noon_fig()
   } else if(id=="C2"){
     tp("A compass swung on eight headings - the same compass, the same")
     tp("ship, the same iron, eight different answers:")
@@ -3141,6 +3373,10 @@ function ques(id,show){
       tp("     a) nothing, three sights is three sights   b) the LOPs are nearly parallel,")
       tp("        so the position is poorly fixed along one axis   c) the stars are too bright") }
     else { Q_ANS="b"; Q_WHY="A narrow spread gives a long thin error ellipse. CELNAV reports this in miles." } }
+  else if(id=="L1"){ if(show){ tp("Q. At local apparent noon your zenith distance is 60 57.0', the sun's")
+      tp("   declination is 10 48.1' S, and the sun bore due south of you. Where are you?")
+      tp("     a) 50 08.9' N      b) 71 45.1' N      c) 50 08.9' S") }
+    else { Q_ANS="a"; Q_WHY="Latitude is the declination plus the zenith distance, and the declination is southerly: 60 57.0 - 10 48.1 = 50 08.9 N. Adding the two instead gives (b), which is the commonest mistake of all." } }
   else if(id=="C1"){ if(show){ tp("Q. A star stands 8 degrees above the horizon and is beautifully placed")
       tp("   for the cut. Why is it still a poor sight?")
       tp("     a) it is too dim that low   b) refraction down there depends on")
@@ -3180,6 +3416,7 @@ function syl_init(){
         "R3|Reduction and the fix|The intercept: toward or away;" \
         "R4|Reduction and the fix|Plotting the line of position;" \
         "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it;" \
+        "L1|Latitude the direct way|The noon sight: latitude without a reduction;" \
         "C1|Choosing and checking|Choosing your bodies: the cut and the band;" \
         "C2|Choosing and checking|Checking the compass against the sky"
   NSYL=split(SYL,SYLROW,";")
@@ -3195,6 +3432,7 @@ function lesson(id){
   else if(id=="S4")les_S4(); else if(id=="S5")les_S5()
   else if(id=="R1")les_R1(); else if(id=="R2")les_R2(); else if(id=="R3")les_R3()
   else if(id=="R4")les_R4(); else if(id=="R5")les_R5()
+  else if(id=="L1")les_L1()
   else if(id=="C1")les_C1(); else if(id=="C2")les_C2()
   else { print "  no such lesson: " id; return 1 }
   return 0

@@ -907,6 +907,117 @@ function fix_geometry(ns,   tr,dd,mu1,mu2,amaj,amin,brg,sig){
   else if(amaj>1.6) print "  Fair cut. A body more nearly at right angles would tighten it."
 }
 
+# ---------------- noon: local apparent noon, and latitude -----------
+#  The oldest useful sight in the book, and the only one that needs no
+#  assumed position, no tables and no intercept.  At local apparent noon
+#  the sun stands on your meridian: the LHA is zero, so the azimuth has
+#  no east-west component at all and the navigational triangle collapses
+#  into a single subtraction.  What falls out is a parallel of latitude,
+#  not a line lying at some angle across one.
+#
+#      lat = declination  +/-  (90 - Ho)
+#
+#  and the sign is only which side of you the sun stood.  Everything
+#  below is finding the moment and doing that arithmetic honestly.
+function lan_jd(lon,jd0,   jd,i,tgt,d){
+  #  LAN is the instant the sun's GHA equals your longitude measured west
+  #  of Greenwich.  Solved by iteration rather than from a formula,
+  #  because the sun's GHA is not linear in time -- that non-linearity is
+  #  precisely the equation of time -- and five passes settle it to far
+  #  under a second.
+  tgt = nrm360(-lon)
+  jd  = jd0 + (12.0 - lon/15.0)/24.0
+  for(i=0;i<5;i++){
+    body_at("Sun", jd)
+    d  = nrm180(tgt - B_GHA)
+    jd = jd + d/360.9856
+  }
+  return jd
+}
+function cmd_noon(   lat,lon,jd0,jd,ut,lmt,eot,dec,mer,sth,zd,ho,la,h1,h2,lim,fall){
+  lat=parse_ang(drlat); lon=parse_ang(drlon)
+  jd0=parse_utc(utc); jd0=int(jd0+0.5)-0.5
+  jd=lan_jd(lon,jd0)
+  body_at("Sun",jd); dec=B_DEC
+  reduce_sight(lat,lon,B_GHA,B_DEC); h1=R_HC
+  jd2cal(jd); ut=CAL_FRAC*24.0
+  lmt=ut+lon/15.0; if(lmt<0) lmt=lmt+24; if(lmt>=24) lmt=lmt-24
+  eot=nrm180(B_GHA-(15.0*ut-180.0))*4.0
+  mer=90.0-fabs(lat-dec)
+  sth=(lat>dec)
+
+  printf "\n  LOCAL APPARENT NOON  %04d-%02d-%02d\n", CAL_Y, CAL_M, CAL_D
+  printf "  Position %s  %s\n", fmt_lat(lat), fmt_lon(lon)
+  hr()
+  printf "  Sun on your meridian at       %s UT   (%s local mean time)\n", fmt_hms(ut), fmt_hms(lmt)
+  printf "  Equation of time              %+.1f min   (the sundial is %s the clock)\n", eot, (eot>=0?"ahead of":"behind")
+  printf "  Sun's declination then        %s\n", fmt_dm(fabs(dec)) (dec>=0?" N":" S")
+  printf "  Meridian altitude to expect   %.1f deg, bearing %s\n", mer, (sth?"SOUTH (180)":"NORTH (000)")
+  #  AND SAY SO WHEN THE SUN PASSES OVERHEAD.  Within a degree of the
+  #  zenith the azimuth swings through 180 degrees as the sun crosses,
+  #  so "bearing south" above is a statement the DR cannot support and
+  #  the sign of the latitude below turns on it.
+  if(fabs(lat-dec)<1.0){
+    print cw("  NOTE: the sun passes within a degree of your zenith today, so which", C_ACC)
+    print cw("  side of you it stands is not decidable from the DR, and its azimuth", C_ACC)
+    print cw("  swings through 180 degrees as it crosses. Note which way it bore.", C_ACC)
+  }
+
+  #  WHY THE CLOCK BARELY MATTERS HERE, and it is worth a number rather
+  #  than a reassurance: the altitude is at a stationary point, so it
+  #  changes as the SQUARE of the time either side of it.
+  body_at("Sun", jd+120.0/86400.0)
+  reduce_sight(lat,lon,B_GHA,B_DEC); h2=R_HC
+  fall=(h1-h2)*60.0
+  #  THE CLAIM IS CONDITIONAL, SO STATE IT CONDITIONALLY.  The altitude
+  #  sits at a stationary point and changes as the square of the time
+  #  either side -- which makes the clock almost irrelevant at a
+  #  workaday altitude and quite relevant near the zenith, where the
+  #  golden file caught this saying 22.4' of fall and "the clock is not
+  #  the point" in the same breath.
+  if(fall<=1.0){
+    printf "  Two minutes either side of it the altitude is only %.1f' lower,\n", fall
+    print  "  so catch the maximum by watching it -- the clock is not the point."
+  } else {
+    printf "  Two minutes either side of it the altitude is %.1f' lower: the sun\n", fall
+    print  "  passes close to your zenith and crosses fast, so the maximum is"
+    print  "  sharp and a careless moment here costs real altitude."
+  }
+  hr()
+
+  if(hs==""){
+    print "  Follow the sun up, catch the highest reading, and give it back:"
+    print "    celnav noon \"" substr(utc,1,10) "\" <Hs>        [limb L or U, default L]"
+    print ""
+    return
+  }
+
+  lim=(limb==""?"L":toupper(substr(limb,1,1)))
+  ho=corrections(parse_ang(hs), (ie==""?0:ie+0), (heye==""?0:heye+0),
+                 (temp==""?10:temp+0), (press==""?1010:press+0), lim)
+  zd=90.0-ho
+  la=(sth? dec+zd : dec-zd)
+  printf "  Hs  (sextant, %s limb)        %s\n", (lim=="U"?"upper":"lower"), fmt_dm(parse_ang(hs))
+  printf "    index error                 %+6.1f'\n", ((ie==""||ie+0==0)?0:-(ie+0))
+  printf "    dip                         %6.1f'\n", -C_DIP
+  printf "    refraction                  %6.1f'\n", -C_REF
+  printf "    semi-diameter               %+6.1f'\n", C_LIMB
+  printf "    parallax                    %+6.1f'\n", C_PAR
+  printf "  Ho  (observed altitude)       %s\n", fmt_dm(ho)
+  printf "  Zenith distance  90 - Ho      %s\n", fmt_dm(zd)
+  printf "  Declination                   %s\n", fmt_dm(fabs(dec)) (dec>=0?" N":" S")
+  printf "  LATITUDE   dec %s ZD          %s\n", (sth?"+":"-"), fmt_lat(la)
+  hr()
+  printf "  The sun was taken as bearing %s of you, from the DR.\n", (sth?"south":"north")
+  if(fabs(lat-dec)<1.0){
+    print cw("  CAREFUL: the sun passes within a degree of your zenith, so which", C_ACC)
+    print cw("  side it stood is not obvious from the DR. Your own note of whether", C_ACC)
+    print cw("  it bore north or south is what decides the sign here.", C_ACC)
+  }
+  printf "  One line only: a parallel of latitude. It needs no crossing to be\n"
+  printf "  true, and tells you nothing at all about your longitude.\n"
+  hr(); print ""
+}
 # ---------------- plan: what can I shoot, and when ------------------
 function sun_alt(jd,lat,lon){
   body_at("sun",jd); reduce_sight(lat,lon,B_GHA,B_DEC); return R_HC
@@ -1099,6 +1210,7 @@ BEGIN{
   col_init()
   if(cmd=="almanac")      cmd_almanac()
   else if(cmd=="reduce")  cmd_reduce()
+  else if(cmd=="noon")    cmd_noon()
   else if(cmd=="plan")    cmd_plan()
   else if(cmd=="compass") cmd_compass()
   else if(cmd=="selftest") cmd_selftest()

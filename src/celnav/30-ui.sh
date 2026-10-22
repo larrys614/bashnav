@@ -16,6 +16,23 @@ do_almanac() {
   b="$2"; [ -z "$b" ] && b="sun,moon,venus,mars,jupiter,saturn"
   engine -v cmd=almanac -v utc="$u" -v bodies="$b"
 }
+do_noon() {
+  u="$1"; [ -z "$u" ] && u=$(utctoday)
+  engine -v cmd=noon -v utc="$u" -v drlat="$drlat" -v drlon="$drlon" \
+         -v hs="$2" -v limb="$3" -v ie="$ie" -v heye="$heye" \
+         -v temp="$temp" -v press="$press"
+}
+noon_mode() {
+  ask "Date, YYYY-MM-DD (blank = today)" ""; nd="$ANS"
+  [ -z "$nd" ] && nd=$(utctoday)
+  do_noon "$nd" "" ""
+  ask "Hs at the maximum (blank = just the prediction)" ""; nh="$ANS"
+  if [ -n "$nh" ]; then
+    ask "Limb, L or U" "L"; nl="$ANS"
+    do_noon "$nd" "$nh" "$nl"
+  fi
+  pause
+}
 do_compass() {
   engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
          -v body="$2" -v cbrg="$3" -v variation="$4"
@@ -116,6 +133,7 @@ help_text() {
     '      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP' \
     '      celnav sight "UT" body limb Hs [ie] [heye]    record one sight' \
     '      celnav fix   [ "UT of fix" ]             reduce the log and plot' \
+    '      celnav noon  [ "YYYY-MM-DD" ] [ Hs ] [ limb ]  latitude at LAN' \
     '      celnav compass "UT" body <bearing> [variation]' \
     '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
     '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
@@ -155,6 +173,8 @@ menu() {
       '    3  Sight planning / stars     7  Sight log' \
       '    4  Almanac for a time         8  Sextant and weather settings' \
       '' \
+      '    n  Noon sight                 latitude from the sun at its highest' \
+      '' \
       '    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox' \
       '' \
       '    s  Star list   t  Self test   d  Check setup   c  Colour' \
@@ -185,6 +205,7 @@ menu() {
       7) log_menu ;;
       8) set_opts ;;
       9) train_menu ;;
+      n|N) noon_mode ;;
       s|S) do_stars ;;
       t|T) do_selftest ;;
       d|D) doctor ;;
@@ -364,6 +385,7 @@ case "$1" in
            add_sight "$1" "$2" "$3" "$4" "${5:-$ie}" "${6:-$heye}" "$temp" "$press" ""
            echo "sight recorded (${1})" ;;
   fix)     shift; do_fix "$1" ;;
+  noon)    shift; do_noon "$1" "$2" "$3" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
   stars)   shift; do_stars "$1" ;;
   dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"

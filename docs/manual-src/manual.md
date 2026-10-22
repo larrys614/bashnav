@@ -187,6 +187,7 @@ single answer without navigating menus.
 | `celnav alm ["UT"] [bodies]` | GHA, Dec, SD, HP for the bodies you name |
 | `celnav sight "UT" body limb Hs [IE] [eye]` | record one sight |
 | `celnav fix ["UT of fix"]` | reduce the log, compute the fix, draw the plot |
+| `celnav noon [ "YYYY-MM-DD" ] [ Hs ] [ limb ]` | local apparent noon, and latitude from a meridian altitude |
 | `celnav compass "UT" body <bearing> [variation]` | compass error and deviation |
 | `celnav stars ["UT"]` | the 57 navigational stars plus Polaris, SHA and Dec |
 | `celnav dr <lat> <lon> [course] [speed]` | set the DR |
@@ -354,7 +355,7 @@ lesson at a time and pick up where you left off.](fig/train.png)
 
 ### 7.1 Lessons
 
-Twenty-two lessons in five modules: four modules of five, from first principles to the fix, and a fifth on choosing bodies and checking the compass. Each one is a diagram, a short explanation in
+Twenty-three lessons in six modules: four modules of five, from first principles to the fix, then choosing bodies and checking the compass, and latitude taken directly at noon. Each one is a diagram, a short explanation in
 numbered steps, and a question to check that it landed. Answer the question correctly and
 the lesson is ticked off.
 

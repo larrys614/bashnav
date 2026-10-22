@@ -842,6 +842,98 @@
 
   Correct.  A narrow spread gives a long thin error ellipse. CELNAV reports this in miles.
 
+=== lesson L1 ===
+
+  L1  The noon sight: latitude without a reduction
+  --------------------------------------------------
+
+  Everything in modules R and S was about a sight taken at any old
+  moment, from a position you only guessed. There is one moment in the
+  day when none of that is needed.
+
+  At local apparent noon the sun crosses your meridian. Its LHA is
+  zero. Look at what that does to the navigational triangle:
+
+    1. The angle at the pole IS the LHA, and it has gone to zero. A
+       triangle with no angle at one corner is not a triangle: the
+       three points lie on one great circle, your own meridian.
+    2. So the azimuth has no east-west component at all. The sun bears
+       due south of you, or due north, and nothing in between.
+    3. A line of position runs square across the azimuth. Square across
+       due south is due east and west - a parallel of latitude.
+
+  That is why this sight needs no assumed position and no intercept.
+  You are not comparing what you measured with what you would have
+  measured from somewhere else. You are measuring your latitude.
+
+  The whole method:
+
+       zenith distance  =  90 - Ho
+       latitude         =  declination  +/-  zenith distance
+
+  and the sign is only which side of you the sun stood: PLUS the
+  zenith distance if it bore south of you, MINUS if it bore north.
+
+  Three things to know about the moment itself.
+
+    4. It is not noon by your watch, and it is not noon by local mean
+       time either. Two corrections stand between: your longitude
+       (four minutes of time per degree) and the equation of time,
+       which runs from about 14 minutes behind the clock in February
+       to 16 minutes ahead of it in November.
+    5. You do not need to know it in advance. The altitude is at a
+       maximum, so it is momentarily standing still - it changes as
+       the SQUARE of the time either side. Follow the sun up, catch
+       the highest reading it gives you, and watch it start to fall.
+       The reading is what you want; the clock is not the point.
+    6. That is the opposite of every other sight you have taken. Four
+       seconds of clock error moves a star sight a mile. Here it moves
+       almost nothing, which is why this sight was the backbone of
+       navigation for two centuries.
+
+  And the honest limit. One sight, one line, and that line is a
+  parallel of latitude: it is true on its own and needs no crossing,
+  but it tells you NOTHING about your longitude. For that you need a
+  second body, or a second sight after a run, or the old trick of
+  equal altitudes either side of noon.
+
+    celnav noon                      the moment, and what to expect
+    celnav noon "2026-10-21" <Hs>    the latitude from your reading
+
+            Z    your zenith - and its height above the equator
+            |    IS your latitude, which is what you want
+            |
+            |    90 - Ho, the zenith distance: how far the sun
+            |    stands from straight overhead
+            |
+            *    the sun, on your meridian, bearing due south
+            |
+            |    its declination, straight out of the almanac
+     - - - -+- - - -   the celestial equator
+
+  Read it off the diagram: from the equator up to your zenith is your
+  latitude, and that same span is the declination plus the zenith
+  distance. There is nothing else in it.
+
+  A worked one. Falmouth, 50 09'N 005 04'W, on 21 October 2026:
+
+    the sun crosses your meridian at   12:04:54 UT
+    its declination then is            10 48.1' S
+    so expect a meridian altitude of   29.0 degrees, bearing south
+    measure that, and 90 - Ho = 60 57.1' of zenith distance,
+    which minus 10 48.1' of southerly declination puts you
+    back on 50 09.0'.
+
+
+  ----------------------------------------------------------------------
+  Q. At local apparent noon your zenith distance is 60 57.0', the sun's
+     declination is 10 48.1' S, and the sun bore due south of you. Where are you?
+       a) 50 08.9' N      b) 71 45.1' N      c) 50 08.9' S
+
+=== answer L1 (given b) ===
+
+  Not quite - the answer is A.  Latitude is the declination plus the zenith distance, and the declination is southerly: 60 57.0 - 10 48.1 = 50 08.9 N. Adding the two instead gives (b), which is the commonest mistake of all.
+
 === lesson C1 ===
 
   C1  Choosing your bodies: the cut matters more than the sights
@@ -1062,9 +1154,12 @@
    [ ]  R4   Plotting the line of position
    [ ]  R5   Crossing, running, and knowing when to doubt it
 
+  LATITUDE THE DIRECT WAY
+   [ ]  L1   The noon sight: latitude without a reduction
+
   CHOOSING AND CHECKING
    [x]  C1   Choosing your bodies: the cut and the band
    [ ]  C2   Checking the compass against the sky
   ----------------------------------------------------------------------
-  3 of 22 lessons done.  Type a lesson code (F1, R3 ...) to open it.
+  3 of 23 lessons done.  Type a lesson code (F1, R3 ...) to open it.
 

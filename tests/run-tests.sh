@@ -107,8 +107,21 @@ for SH in $SHELLS; do
   fix=$(CELNAV_HOME="$CH" CELNAV_AWK="$AW" $SH ./bin/celnav fix | grep '  FIX' | sed 's/  */ /g')
   check "celnav known fix" " FIX 35 09.9'N 040 20.0'W" "$fix"
 
-  n=$(CELNAV_HOME="$CH" CELNAV_AWK="$AW" $SH ./bin/celnav syllabus | grep -c '\[ \]')
-  check "celnav 20 lessons listed" "20" "$n"
+  #  THE COUNT COMES FROM THE APP, NOT FROM THIS FILE.  This read "want
+  #  20" and went red the moment a lesson was added -- the fifth place a
+  #  lesson count was written down by hand, after four in the shell and
+  #  four in the documentation.  What is worth testing is not how many
+  #  lessons there are but that the syllabus LISTS every lesson it says
+  #  exists: a listing that silently prints fewer rows than the app
+  #  claims is the fault this is here to catch.
+  syl=$(CELNAV_HOME="$CH" CELNAV_AWK="$AW" $SH ./bin/celnav syllabus)
+  n=$(printf '%s\n' "$syl" | grep -c '\[ \]')
+  m=$(printf '%s\n' "$syl" | sed -n 's/.*of \([0-9][0-9]*\) lessons done.*/\1/p')
+  check "the syllabus lists every lesson it declares" "$m" "$n"
+  #  And a floor, because lessons are only ever added: a listing that
+  #  collapsed to a handful would otherwise agree with itself and pass.
+  if [ "${n:-0}" -ge 20 ]; then ok "at least twenty lessons are listed ($n)"
+  else bad "only $n lessons listed; there were twenty when this was written"; fi
   for L in F1 F5 T3 S5 R1 R5; do
     n=$(printf '\n' | CELNAV_HOME="$CH" CELNAV_AWK="$AW" $SH ./bin/celnav lesson $L 2>&1 | grep -c '^  Q\.')
     [ "$n" = 1 ] || bad "celnav lesson $L has no question"

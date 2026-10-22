@@ -1,0 +1,212 @@
+=== noon 2026-01-21  50 09 N 005 04 W ===
+
+  LOCAL APPARENT NOON  2026-01-21
+  Position 50 09.0'N  005 04.0'W
+  ----------------------------------------------------------------------
+  Sun on your meridian at       12:31:34 UT   (12:11:18 local mean time)
+  Equation of time              -11.3 min   (the sundial is behind the clock)
+  Sun's declination then        19 49.8' S
+  Meridian altitude to expect   20.0 deg, bearing SOUTH (180)
+  Two minutes either side of it the altitude is only 0.1' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-01-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-01-21  33 52 S 151 13 E ===
+
+  LOCAL APPARENT NOON  2026-01-21
+  Position 33 52.0'S  151 13.0'E
+  ----------------------------------------------------------------------
+  Sun on your meridian at       02:06:19 UT   (12:11:11 local mean time)
+  Equation of time              -11.2 min   (the sundial is behind the clock)
+  Sun's declination then        19 55.6' S
+  Meridian altitude to expect   76.1 deg, bearing NORTH (000)
+  Two minutes either side of it the altitude is only 0.4' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-01-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-01-21  00 30 N 000 00 E ===
+
+  LOCAL APPARENT NOON  2026-01-21
+  Position 00 30.0'N  000 00.0'E
+  ----------------------------------------------------------------------
+  Sun on your meridian at       12:11:18 UT   (12:11:18 local mean time)
+  Equation of time              -11.3 min   (the sundial is behind the clock)
+  Sun's declination then        19 50.0' S
+  Meridian altitude to expect   69.7 deg, bearing SOUTH (180)
+  Two minutes either side of it the altitude is only 0.3' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-01-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-03-21  50 09 N 005 04 W ===
+
+  LOCAL APPARENT NOON  2026-03-21
+  Position 50 09.0'N  005 04.0'W
+  ----------------------------------------------------------------------
+  Sun on your meridian at       12:27:24 UT   (12:07:08 local mean time)
+  Equation of time              -7.1 min   (the sundial is behind the clock)
+  Sun's declination then        00 21.4' N
+  Meridian altitude to expect   40.2 deg, bearing SOUTH (180)
+  Two minutes either side of it the altitude is only 0.1' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-03-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-03-21  33 52 S 151 13 E ===
+
+  LOCAL APPARENT NOON  2026-03-21
+  Position 33 52.0'S  151 13.0'E
+  ----------------------------------------------------------------------
+  Sun on your meridian at       02:02:24 UT   (12:07:16 local mean time)
+  Equation of time              -7.3 min   (the sundial is behind the clock)
+  Sun's declination then        00 11.2' N
+  Meridian altitude to expect   55.9 deg, bearing NORTH (000)
+  Two minutes either side of it the altitude is only 0.2' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-03-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-03-21  00 30 N 000 00 E ===
+
+  LOCAL APPARENT NOON  2026-03-21
+  Position 00 30.0'N  000 00.0'E
+  ----------------------------------------------------------------------
+  Sun on your meridian at       12:07:09 UT   (12:07:09 local mean time)
+  Equation of time              -7.1 min   (the sundial is behind the clock)
+  Sun's declination then        00 21.1' N
+  Meridian altitude to expect   89.9 deg, bearing SOUTH (180)
+  NOTE: the sun passes within a degree of your zenith today, so which
+  side of you it stands is not decidable from the DR, and its azimuth
+  swings through 180 degrees as it crosses. Note which way it bore.
+  Two minutes either side of it the altitude is 22.4' lower: the sun
+  passes close to your zenith and crosses fast, so the maximum is
+  sharp and a careless moment here costs real altitude.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-03-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-06-21  50 09 N 005 04 W ===
+
+  LOCAL APPARENT NOON  2026-06-21
+  Position 50 09.0'N  005 04.0'W
+  ----------------------------------------------------------------------
+  Sun on your meridian at       12:22:05 UT   (12:01:49 local mean time)
+  Equation of time              -1.8 min   (the sundial is behind the clock)
+  Sun's declination then        23 26.3' N
+  Meridian altitude to expect   63.3 deg, bearing SOUTH (180)
+  Two minutes either side of it the altitude is only 0.2' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-06-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-06-21  33 52 S 151 13 E ===
+
+  LOCAL APPARENT NOON  2026-06-21
+  Position 33 52.0'S  151 13.0'E
+  ----------------------------------------------------------------------
+  Sun on your meridian at       01:56:51 UT   (12:01:43 local mean time)
+  Equation of time              -1.7 min   (the sundial is behind the clock)
+  Sun's declination then        23 26.2' N
+  Meridian altitude to expect   32.7 deg, bearing NORTH (000)
+  Two minutes either side of it the altitude is only 0.1' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-06-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-06-21  00 30 N 000 00 E ===
+
+  LOCAL APPARENT NOON  2026-06-21
+  Position 00 30.0'N  000 00.0'E
+  ----------------------------------------------------------------------
+  Sun on your meridian at       12:01:49 UT   (12:01:49 local mean time)
+  Equation of time              -1.8 min   (the sundial is behind the clock)
+  Sun's declination then        23 26.3' N
+  Meridian altitude to expect   67.1 deg, bearing NORTH (000)
+  Two minutes either side of it the altitude is only 0.3' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-06-21" <Hs>        [limb L or U, default L]
+
+=== noon 2026-11-03  50 09 N 005 04 W ===
+
+  LOCAL APPARENT NOON  2026-11-03
+  Position 50 09.0'N  005 04.0'W
+  ----------------------------------------------------------------------
+  Sun on your meridian at       12:03:49 UT   (11:43:33 local mean time)
+  Equation of time              +16.4 min   (the sundial is ahead of the clock)
+  Sun's declination then        15 09.1' S
+  Meridian altitude to expect   24.7 deg, bearing SOUTH (180)
+  Two minutes either side of it the altitude is only 0.1' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-11-03" <Hs>        [limb L or U, default L]
+
+=== noon 2026-11-03  33 52 S 151 13 E ===
+
+  LOCAL APPARENT NOON  2026-11-03
+  Position 33 52.0'S  151 13.0'E
+  ----------------------------------------------------------------------
+  Sun on your meridian at       01:38:42 UT   (11:43:34 local mean time)
+  Equation of time              +16.4 min   (the sundial is ahead of the clock)
+  Sun's declination then        15 01.0' S
+  Meridian altitude to expect   71.2 deg, bearing NORTH (000)
+  Two minutes either side of it the altitude is only 0.3' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-11-03" <Hs>        [limb L or U, default L]
+
+=== noon 2026-11-03  00 30 N 000 00 E ===
+
+  LOCAL APPARENT NOON  2026-11-03
+  Position 00 30.0'N  000 00.0'E
+  ----------------------------------------------------------------------
+  Sun on your meridian at       11:43:33 UT   (11:43:33 local mean time)
+  Equation of time              +16.4 min   (the sundial is ahead of the clock)
+  Sun's declination then        15 08.9' S
+  Meridian altitude to expect   74.4 deg, bearing SOUTH (180)
+  Two minutes either side of it the altitude is only 0.5' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Follow the sun up, catch the highest reading, and give it back:
+    celnav noon "2026-11-03" <Hs>        [limb L or U, default L]
+
+=== noon reduced from a real reading ===
+
+  LOCAL APPARENT NOON  2026-10-21
+  Position 50 09.0'N  005 04.0'W
+  ----------------------------------------------------------------------
+  Sun on your meridian at       12:04:54 UT   (11:44:38 local mean time)
+  Equation of time              +15.4 min   (the sundial is ahead of the clock)
+  Sun's declination then        10 48.1' S
+  Meridian altitude to expect   29.0 deg, bearing SOUTH (180)
+  Two minutes either side of it the altitude is only 0.1' lower,
+  so catch the maximum by watching it -- the clock is not the point.
+  ----------------------------------------------------------------------
+  Hs  (sextant, lower limb)        28 51.4'
+    index error                   +0.0'
+    dip                           -2.8'
+    refraction                    -1.8'
+    semi-diameter                +16.1'
+    parallax                      +0.1'
+  Ho  (observed altitude)       29 03.0'
+  Zenith distance  90 - Ho      60 57.0'
+  Declination                   10 48.1' S
+  LATITUDE   dec + ZD          50 08.8'N
+  ----------------------------------------------------------------------
+  The sun was taken as bearing south of you, from the DR.
+  One line only: a parallel of latitude. It needs no crossing to be
+  true, and tells you nothing at all about your longitude.
+  ----------------------------------------------------------------------
+

@@ -856,6 +856,102 @@ function dev_card(   i,hd,d,b,s,k){
   }
   return 0
 }
+# =====================================================================
+#  Module L -- Latitude the direct way
+# =====================================================================
+function les_L1(){
+  thead("L1","The noon sight: latitude without a reduction")
+  tb()
+  tp("Everything in modules R and S was about a sight taken at any old")
+  tp("moment, from a position you only guessed. There is one moment in the")
+  tp("day when none of that is needed.")
+  tb()
+  tp("At local apparent noon the sun crosses your meridian. Its LHA is")
+  tp("zero. Look at what that does to the navigational triangle:")
+  tb()
+  tp("  1. The angle at the pole IS the LHA, and it has gone to zero. A")
+  tp("     triangle with no angle at one corner is not a triangle: the")
+  tp("     three points lie on one great circle, your own meridian.")
+  tp("  2. So the azimuth has no east-west component at all. The sun bears")
+  tp("     due south of you, or due north, and nothing in between.")
+  tp("  3. A line of position runs square across the azimuth. Square across")
+  tp("     due south is due east and west - a parallel of latitude.")
+  tb()
+  tp("That is why this sight needs no assumed position and no intercept.")
+  tp("You are not comparing what you measured with what you would have")
+  tp("measured from somewhere else. You are measuring your latitude.")
+  tb()
+  tp("The whole method:")
+  tb()
+  tp("     zenith distance  =  90 - Ho")
+  tp("     latitude         =  declination  +/-  zenith distance")
+  tb()
+  tp("and the sign is only which side of you the sun stood: PLUS the")
+  tp("zenith distance if it bore south of you, MINUS if it bore north.")
+  tb()
+  tp("Three things to know about the moment itself.")
+  tb()
+  tp("  4. It is not noon by your watch, and it is not noon by local mean")
+  tp("     time either. Two corrections stand between: your longitude")
+  tp("     (four minutes of time per degree) and the equation of time,")
+  tp("     which runs from about 14 minutes behind the clock in February")
+  tp("     to 16 minutes ahead of it in November.")
+  tp("  5. You do not need to know it in advance. The altitude is at a")
+  tp("     maximum, so it is momentarily standing still - it changes as")
+  tp("     the SQUARE of the time either side. Follow the sun up, catch")
+  tp("     the highest reading it gives you, and watch it start to fall.")
+  tp("     The reading is what you want; the clock is not the point.")
+  tp("  6. That is the opposite of every other sight you have taken. Four")
+  tp("     seconds of clock error moves a star sight a mile. Here it moves")
+  tp("     almost nothing, which is why this sight was the backbone of")
+  tp("     navigation for two centuries.")
+  tb()
+  tp("And the honest limit. One sight, one line, and that line is a")
+  tp("parallel of latitude: it is true on its own and needs no crossing,")
+  tp("but it tells you NOTHING about your longitude. For that you need a")
+  tp("second body, or a second sight after a run, or the old trick of")
+  tp("equal altitudes either side of noon.")
+  tb()
+  tp("  celnav noon                      the moment, and what to expect")
+  tp("  celnav noon \"2026-10-21\" <Hs>    the latitude from your reading")
+  tb()
+}
+# ---------------------------------------------------------------------
+#  The meridian, and a real local apparent noon computed on the spot
+# ---------------------------------------------------------------------
+function noon_fig(   jd,d,mer,lat,lon,ut){
+  tp("          Z    your zenith - and its height above the equator")
+  tp("          |    IS your latitude, which is what you want")
+  tp("          |")
+  tp("          |    90 - Ho, the zenith distance: how far the sun")
+  tp("          |    stands from straight overhead")
+  tp("          |")
+  tp("          *    the sun, on your meridian, bearing due south")
+  tp("          |")
+  tp("          |    its declination, straight out of the almanac")
+  tp("   - - - -+- - - -   the celestial equator")
+  tb()
+  tp("Read it off the diagram: from the equator up to your zenith is your")
+  tp("latitude, and that same span is the declination plus the zenith")
+  tp("distance. There is nothing else in it.")
+  tb()
+  #  Computed here rather than written down, so the lesson cannot drift
+  #  away from what the program would actually tell you.
+  lat=50.15; lon=-5.0667
+  jd=lan_jd(lon, jdate(2026,10,21))
+  body_at("Sun", jd); d=B_DEC
+  jd2cal(jd); ut=CAL_FRAC*24.0
+  mer=90.0-fabs(lat-d)
+  tp("A worked one. Falmouth, 50 09'N 005 04'W, on 21 October 2026:")
+  tb()
+  printf "    the sun crosses your meridian at   %s UT\n", fmt_hms(ut)
+  printf "    its declination then is            %s S\n", fmt_dm(fabs(d))
+  printf "    so expect a meridian altitude of   %.1f degrees, bearing south\n", mer
+  printf "    measure that, and 90 - Ho = %s of zenith distance,\n", fmt_dm(90.0-mer)
+  printf "    which minus %s of southerly declination puts you\n", fmt_dm(fabs(d))
+  printf "    back on %s.\n", fmt_dm(lat)
+  tb()
+}
 function les_fig(id,   la,lo,zd,b){
   if(id=="F3"){
     gl_init(67,25, 25, -30); gl_graticule(0); gl_limb()
@@ -928,6 +1024,8 @@ function les_fig(id,   la,lo,zd,b){
     tp("direction. No amount of care with the sextant would have helped:")
     tp("the geometry did this, and only a fourth body elsewhere in the sky")
     tp("can undo it.")
+  } else if(id=="L1"){
+    noon_fig()
   } else if(id=="C2"){
     tp("A compass swung on eight headings - the same compass, the same")
     tp("ship, the same iron, eight different answers:")
@@ -1012,6 +1110,10 @@ function ques(id,show){
       tp("     a) nothing, three sights is three sights   b) the LOPs are nearly parallel,")
       tp("        so the position is poorly fixed along one axis   c) the stars are too bright") }
     else { Q_ANS="b"; Q_WHY="A narrow spread gives a long thin error ellipse. CELNAV reports this in miles." } }
+  else if(id=="L1"){ if(show){ tp("Q. At local apparent noon your zenith distance is 60 57.0', the sun's")
+      tp("   declination is 10 48.1' S, and the sun bore due south of you. Where are you?")
+      tp("     a) 50 08.9' N      b) 71 45.1' N      c) 50 08.9' S") }
+    else { Q_ANS="a"; Q_WHY="Latitude is the declination plus the zenith distance, and the declination is southerly: 60 57.0 - 10 48.1 = 50 08.9 N. Adding the two instead gives (b), which is the commonest mistake of all." } }
   else if(id=="C1"){ if(show){ tp("Q. A star stands 8 degrees above the horizon and is beautifully placed")
       tp("   for the cut. Why is it still a poor sight?")
       tp("     a) it is too dim that low   b) refraction down there depends on")
@@ -1051,6 +1153,7 @@ function syl_init(){
         "R3|Reduction and the fix|The intercept: toward or away;" \
         "R4|Reduction and the fix|Plotting the line of position;" \
         "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it;" \
+        "L1|Latitude the direct way|The noon sight: latitude without a reduction;" \
         "C1|Choosing and checking|Choosing your bodies: the cut and the band;" \
         "C2|Choosing and checking|Checking the compass against the sky"
   NSYL=split(SYL,SYLROW,";")
@@ -1066,6 +1169,7 @@ function lesson(id){
   else if(id=="S4")les_S4(); else if(id=="S5")les_S5()
   else if(id=="R1")les_R1(); else if(id=="R2")les_R2(); else if(id=="R3")les_R3()
   else if(id=="R4")les_R4(); else if(id=="R5")les_R5()
+  else if(id=="L1")les_L1()
   else if(id=="C1")les_C1(); else if(id=="C2")les_C2()
   else { print "  no such lesson: " id; return 1 }
   return 0

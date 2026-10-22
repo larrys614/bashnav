@@ -236,6 +236,33 @@ emit() {   # emit <name> ; program output on stdin
      -v drlat="50 09.0 N" -v drlon="005 04.0 W" </dev/null
 } | emit celnav-almanac.txt
 
+# ---- celnav: local apparent noon -------------------------------------
+#  The noon sight is the one reduction with no assumed position in it, so
+#  the numbers come straight from the almanac and the geometry: a change
+#  to either shows up here.  Four dates spread through the year catch the
+#  equation of time at both its extremes, and the three positions catch
+#  the three cases that differ in KIND, not degree -- the sun bearing
+#  south of a northern observer, bearing north of a southern one, and
+#  passing so close to the zenith that which side it stood is not
+#  decidable from the DR, where the app has to say so rather than guess.
+{
+  for d in "2026-01-21" "2026-03-21" "2026-06-21" "2026-11-03"; do
+    echo "=== noon $d  50 09 N 005 04 W ==="
+    $AW $CE -v cmode=plain -v cmd=noon -v utc="$d" \
+       -v drlat="50 09.0 N" -v drlon="005 04.0 W" </dev/null
+    echo "=== noon $d  33 52 S 151 13 E ==="
+    $AW $CE -v cmode=plain -v cmd=noon -v utc="$d" \
+       -v drlat="33 52.0 S" -v drlon="151 13.0 E" </dev/null
+    echo "=== noon $d  00 30 N 000 00 E ==="
+    $AW $CE -v cmode=plain -v cmd=noon -v utc="$d" \
+       -v drlat="00 30.0 N" -v drlon="000 00.0 E" </dev/null
+  done
+  echo "=== noon reduced from a real reading ==="
+  $AW $CE -v cmode=plain -v cmd=noon -v utc="2026-10-21" \
+     -v drlat="50 09.0 N" -v drlon="005 04.0 W" \
+     -v hs="28 51.4" -v limb=L -v ie=0 -v heye=2.5 -v temp=10 -v press=1010 </dev/null
+} | emit celnav-noon.txt
+
 # ---- celnav: every lesson, its figure and its answer ------------------
 #  The lesson list comes from the app itself (cmd=t_codes reads the one
 #  syllabus string), so a lesson added without a capture cannot slip
