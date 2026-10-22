@@ -166,11 +166,35 @@ Probably not - that is very close to the daily atmospheric tide, which is about 
     at 45 degrees    about 0.7 of it
     at the equator   ZERO
 
+  Where the sine comes from, because it is not arbitrary:
+
+  The earth's spin points along its axis. What can deflect something
+  moving HORIZONTALLY is only the part of that axis pointing straight
+  UP where you are standing - and that part is sin(latitude) of it.
+
+    at the pole      the axis IS straight up, so all of it counts
+    at the equator   the axis lies flat along your horizon, so none
+
+  Nothing about the shape of the earth comes into this. It would be
+  exactly the same on a perfect sphere.
+
+  The same answer from the other side, which is the one that makes it
+  feel inevitable: what matters to a moving parcel is how far it is
+  from the AXIS, and that goes as cos(latitude). At the equator cos is
+  at its maximum, so it is flat there - move a few degrees north or
+  south and your distance from the axis barely changes, so your spin
+  barely changes, so there is nothing to turn you.
+
+  And read that ZERO honestly. At 5 degrees the factor is sin 5, which
+  is 0.09 - under a tenth of polar strength. Small, not absent. The
+  five degree rule below is a threshold for getting a storm started,
+  not a line where the physics switches off.
+
   Two things it buys you.
 
   First: no tropical cyclone forms within about 5 degrees of the
-  equator, because there is nothing there to spin it up. All that heat
-  and moisture and no rotation.
+  equator, because there is too little there to spin it up. All that
+  heat and moisture, and not enough rotation to organise it.
 
   Second: it is half of Buys Ballot, which is the most useful rule this
   app has. Stand with your back to the wind and the low is on your left

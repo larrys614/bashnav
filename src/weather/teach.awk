@@ -130,11 +130,41 @@ function lesson_body(k){
     lp("  at 45 degrees    about 0.7 of it")
     lp("  " cw("at the equator   ZERO",C_ACC))
     print ""
+    #  WHERE THE SINE COMES FROM.  The lesson asserted sin(latitude) and
+    #  stopped, which is the one question a thoughtful reader asks of it --
+    #  Larry did, and arrived at the earth's oblateness, which is not the
+    #  reason and would not matter on a perfectly round planet.  Both
+    #  derivations are given because the second is the one that makes the
+    #  result feel inevitable rather than remembered.
+    lp(cw("Where the sine comes from",C_ACC) ", because it is not arbitrary:")
+    print ""
+    lp("The earth's spin points along its axis. What can deflect something")
+    lp("moving HORIZONTALLY is only the part of that axis pointing straight")
+    lp("UP where you are standing - and that part is sin(latitude) of it.")
+    print ""
+    lp("  at the pole      the axis IS straight up, so all of it counts")
+    lp("  at the equator   the axis lies flat along your horizon, so none")
+    print ""
+    lp("Nothing about the shape of the earth comes into this. It would be")
+    lp("exactly the same on a perfect sphere.")
+    print ""
+    lp("The same answer from the other side, which is the one that makes it")
+    lp("feel inevitable: what matters to a moving parcel is how far it is")
+    lp("from the AXIS, and that goes as cos(latitude). At the equator cos is")
+    lp("at its maximum, so it is " cw("flat",C_ACC) " there - move a few degrees north or")
+    lp("south and your distance from the axis barely changes, so your spin")
+    lp("barely changes, so there is nothing to turn you.")
+    print ""
+    lp("And read that ZERO honestly. At 5 degrees the factor is sin 5, which")
+    lp("is 0.09 - under a tenth of polar strength. " cw("Small, not absent",C_ACC) ". The")
+    lp("five degree rule below is a threshold for getting a storm started,")
+    lp("not a line where the physics switches off.")
+    print ""
     lp(cw("Two things it buys you.",C_ACC))
     print ""
     lp("First: " cw("no tropical cyclone forms within about 5 degrees of the",C_ACC))
-    lp(cw("equator",C_ACC) ", because there is nothing there to spin it up. All that heat")
-    lp("and moisture and no rotation.")
+    lp(cw("equator",C_ACC) ", because there is too little there to spin it up. All that")
+    lp("heat and moisture, and not enough rotation to organise it.")
     print ""
     lp("Second: it is half of Buys Ballot, which is the most useful rule this")
     lp("app has. Stand with your back to the wind and the low is on your left")
