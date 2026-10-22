@@ -11,6 +11,17 @@
 (function () {
 'use strict';
 
+/*  THE BUILD, MATCHED TO THE SERVICE WORKER'S CACHE.  The worker is
+    cache-first, so an installed copy keeps serving the files it already
+    has: shipping a change without moving the cache ships nothing to
+    anyone who has opened the page before, and to them it looks like the
+    change did not work. Larry shift-reloaded this app several times
+    against a cache that was never going to give it up -- CACHE had sat
+    at colregs-v1 since the app was written. tests/run-tests.sh now
+    refuses a build and a cache that disagree, which is the same check
+    the drill app got for the same reason.  */
+var BUILD = 2;
+
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
 
@@ -46,14 +57,38 @@ function arc_vis(arc, th) {
   return false;
 }
 
-function aspect_words(th) {
-  var t = nrm180(th), s = t < 0 ? 'port' : 'starboard';
+/*  Ported function-for-function from the awk engine's rel_phrase, same
+    name, same arcs, same wording -- a lookout reports the arc, not the
+    angle.  tests/colregs-web-diff.sh runs both over all 360 bearings and
+    requires the strings to be identical, because "ported" is a claim and
+    a diff is a fact.  */
+function rel_phrase(rel, poss, ahead) {
+  if (ahead === undefined || ahead === '') ahead = 5;
+  var t = nrm180(rel), s = t < 0 ? 'port' : 'starboard';
   t = fabs(t);
-  if (t < 8) return 'You are right ahead of her: you are looking at her bow.';
-  if (t < 75) return 'You are on her ' + s + ' bow.';
-  if (t < 105) return 'You are on her ' + s + ' beam: you see her whole ' + s + ' side.';
-  if (t < 172) return 'You are on her ' + s + ' quarter.';
-  return 'You are right astern of her: you are looking at her stern.';
+  if (t <= ahead) return 'right ahead';
+  if (t >= 180 - ahead) return 'right astern';
+  if (t < 35) return 'fine on ' + poss + ' ' + s + ' bow';
+  if (t < 65) return 'broad on ' + poss + ' ' + s + ' bow';
+  if (t < 115) return 'on ' + poss + ' ' + s + ' beam';
+  if (t < 145) return 'broad on ' + poss + ' ' + s + ' quarter';
+  return 'fine on ' + poss + ' ' + s + ' quarter';
+}
+
+/*  PORTED, THIS TIME.  This had its own arc boundaries -- 8, 75, 105,
+    172 -- where the awk delegates to rel_phrase with ahead=2.5, so the
+    two implementations disagreed on 580 of the 361 aspects and said
+    different things to the reader about the same geometry. The README
+    claimed they could not drift; nothing checked it. Now
+    tests/colregs-web-diff.sh does, and this is the awk's version
+    line-for-line.  */
+function aspect_words(th) {
+  var t = nrm180(th), p = rel_phrase(th, 'her', 2.5);
+  if (p === 'right ahead') return 'You are right ahead of her: you are looking at her bow.';
+  if (p === 'right astern') return 'You are right astern of her: you are looking at her stern.';
+  if (p.indexOf('beam') >= 0)
+    return 'You are ' + p + ': you see her whole ' + (t < 0 ? 'port' : 'starboard') + ' side.';
+  return 'You are ' + p + '.';
 }
 
 /* ---------- svg helpers --------------------------------------------- */
@@ -614,7 +649,7 @@ function drill(pfx, list, idx, sigOf, nameOf, reveal, tell) {
 /* =====================================================================
    ENCOUNTERS
    ===================================================================== */
-var encIdx = 0, encAnswered = false;
+var encIdx = 0, encAnswered = false, encBrg = 0, encThdg = 0;
 
 function arrowPath(cx, cy, hdg, len) {
   var dx = sind(hdg), dy = -cosd(hdg);
@@ -659,6 +694,25 @@ function drawEncounter(e, brg, rng, thdg) {
   var hl = el('text', { x: tx + 14, y: ty - 10, fill: cssvar('--text'), 'font-size': 12,
                         'font-weight': 700 }, s);
   hl.textContent = 'HER';
+
+  /*  THE WIND, where the scenario has one.  Rule 12 is decided by which
+      side the wind is on, so a sailing scenario that names windward and
+      leeward has to draw it -- the shell build gained this on 22 October
+      and the browser could not see it, because the field had never been
+      dumped into data.js.  Drawn from the upwind edge pointing downwind,
+      the way a wind arrow is read on a chart.  */
+  if (e.wind !== undefined) {
+    var wx = cx + sind(e.wind) * R * 0.92, wy = cy - cosd(e.wind) * R * 0.92;
+    var dwn = nrm360(e.wind + 180);
+    var ex = wx + sind(dwn) * 54, ey = wy - cosd(dwn) * 54;
+    el('line', { x1: wx, y1: wy, x2: ex, y2: ey, stroke: cssvar('--dim'),
+                 'stroke-width': 2, 'stroke-dasharray': '6 4' }, s);
+    el('path', { d: arrowPath(ex, ey, dwn, 13), fill: cssvar('--dim') }, s);
+    var wl = el('text', { x: wx - sind(dwn) * 16, y: wy + cosd(dwn) * 16 + 4,
+                          fill: cssvar('--dim'), 'text-anchor': 'middle',
+                          'font-size': 12, 'letter-spacing': '0.15em' }, s);
+    wl.textContent = 'WIND';
+  }
   stage.appendChild(s);
 }
 
@@ -671,8 +725,12 @@ function encShow(i) {
   var thdg = nrm360(e.thdg + (Math.random() * 30 - 15));
   drawEncounter(e, brg, rng, thdg);
   $('enc-own').textContent = e.own;
-  $('enc-target').textContent = 'You see ' + e.target + ', bearing ' +
-    ('00' + Math.round(brg)).slice(-3) + ' relative, heading as drawn.';
+  $('enc-target').textContent = 'You see ' + e.target + ', ' +
+    rel_phrase(brg, 'your') + ', heading as drawn.' +
+    (e.wind === undefined ? '' :
+      ' The wind is from ' + ('00' + nrm360(e.wind)).slice(-3) +
+      ' relative, as drawn.');
+  encBrg = brg; encThdg = thdg;
   var box = $('enc-opts');
   box.textContent = '';
   e.options.forEach(function (text, n) {
@@ -687,6 +745,30 @@ function encShow(i) {
   });
   $('enc-answer').hidden = true;
 }
+/*  WHAT YOU WOULD ACTUALLY SEE, for the scenarios described by type
+    rather than by their lights.  The arcs come from the same rule as the
+    shell's lt_arc: the viewer's bearing from the subject, relative to the
+    subject's bow.  Sixteen of the twenty-eight scenarios describe her
+    lights in the question itself, and those carry no `kind`, so nothing
+    is said about them here either.  */
+function lt_arc_web(rel) {
+  var r = nrm360(rel);
+  if (r <= 1.5 || r >= 358.5) return 'both';
+  if (r < 112.5) return 'green';
+  if (r > 247.5) return 'red';
+  return 'stern';
+}
+function lt_phrase_web(e, brg) {
+  var relher = nrm360(brg + 180 - encThdg);
+  var arc = lt_arc_web(relher);
+  if (arc === 'both') return 'both her sidelights, bow-on';
+  if (arc === 'stern') return 'her white sternlight and no colour at all';
+  var side = arc === 'green' ? 'green starboard' : 'red port';
+  return 'her ' + side + ' light' +
+         (e.kind === 'sail' ? ' and no masthead light, because she is under sail'
+                            : ' and her masthead light');
+}
+
 function encAnswer(ltr) {
   if (encAnswered) return;
   encAnswered = true;
@@ -701,7 +783,15 @@ function encAnswer(ltr) {
   $('enc-verdict').textContent = (ltr === e.answer ? 'Right' : 'Not right') +
     ' — the answer is ' + e.answer.toUpperCase() + '.';
   $('enc-rule').textContent = e.rule + '.';
-  $('enc-why').textContent = e.why;
+  /*  The exact bearing, now that it can give nothing away -- it is the
+      check against your own reading of the plan, which is where a number
+      belongs. Same split as the shell build: the arc asks, the number
+      confirms.  */
+  $('enc-why').textContent = e.why + '  (she bore ' +
+    ('00' + Math.round(nrm360(encBrg))).slice(-3) + ' relative.)' +
+    (e.kind === undefined ? '' :
+      '  She is ' + (e.kind === 'sail' ? 'under sail' : 'power-driven') +
+      ', so you would see ' + lt_phrase_web(e, encBrg) + '.');
   $('enc-answer').hidden = false;
 }
 function encNext() { encShow(Math.floor(Math.random() * D.encounters.length)); }
@@ -896,5 +986,18 @@ document.addEventListener('DOMContentLoaded', function () {
                        'everything is already in the file.';
   }
 });
+
+/*  A SEAM FOR THE DIFF, not an API.  The page never sees this: `module`
+    is undefined in a browser.  tests/colregs-web-diff.sh loads this file
+    in node and runs these against the awk originals over their whole
+    input range, which is how "ported function-for-function" stops being
+    a claim in a README and becomes a check that fails.  */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    nrm180: nrm180, nrm360: nrm360, fabs: fabs,
+    arc_vis: arc_vis, rel_phrase: rel_phrase,
+    aspect_words: aspect_words, lt_arc_web: lt_arc_web
+  };
+}
 
 })();

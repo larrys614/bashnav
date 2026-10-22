@@ -862,6 +862,55 @@ WXLOG
   if [ "$n" = 0 ]; then ok "light tables satisfy Annex I where it is checkable"
   else bad "$n Annex I violations"; echo "$r" | grep '^FAIL' | head -8; fi
 
+  # ---- the web build is the same build ------------------------------
+  #  Larry, drilling the browser app after the shell fixes were pushed:
+  #  "Souldint it be the same? No more half measures please."
+  #
+  #  Three things have to hold for that to be true rather than claimed,
+  #  and none of them was checked before 22 October 2026.
+  #
+  #  1. THE CONTENT COMES FROM ONE PLACE. data.js says "regenerate ... so
+  #     the two cannot drift" and the generator was not in the repository.
+  #     It is now, and this regenerates and compares: a change to the
+  #     engine's tables that has not been dumped fails here.
+  r=$(sh docs/web/colregs/gen/make-colregs-web.sh 2>&1 >/dev/null || echo FAILED)
+  case "$r" in *FAILED*) bad "the colregs web generator does not run"; echo "    $r" ;; *)
+    #  the comparison is against what is COMMITTED, so it needs a checkout;
+    #  outside one the generator having run at all is all that can be said
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+      say "  --    data.js regenerates, but comparing it needs a git checkout"
+    elif git diff --quiet -- docs/web/colregs/data.js 2>/dev/null; then
+      ok "docs/web/colregs/data.js is what the engine's tables dump to"
+    else
+      bad "data.js is not what the engine dumps -- run docs/web/colregs/gen/make-colregs-web.sh"
+      git diff --stat -- docs/web/colregs/data.js | head -2
+    fi ;;
+  esac
+
+  #  2. THE SHARED FUNCTIONS AGREE, over their whole input range and not
+  #     at a sample. This is the check the web README has always described
+  #     and never contained.
+  if r=$(sh tests/colregs-web-diff.sh 2>&1); then
+    case "$r" in
+      *SKIPPED*) say "  --    the web/shell diff needs node, skipped" ;;
+      *) ok "$(echo "$r" | sed -n 's/^  ok  *//p')" ;;
+    esac
+  else
+    bad "the web and shell colregs disagree"; echo "$r" | head -6
+  fi
+
+  #  3. A CHANGED WEB APP MOVES ITS CACHE. The worker is cache-first, so a
+  #     build shipped without bumping the cache reaches nobody who has
+  #     opened the page before -- which is exactly what happened: Larry
+  #     reloaded repeatedly against colregs-v1, which had never moved.
+  cb=$(sed -n 's/.*var BUILD = \([0-9][0-9]*\).*/\1/p' docs/web/colregs/colregs.js | head -1)
+  cc=$(sed -n "s/.*CACHE = 'colregs-v\([0-9][0-9]*\)'.*/\1/p" docs/web/colregs/sw.js | head -1)
+  if [ -n "$cb" ] && [ "$cb" = "$cc" ]; then
+    ok "colregs web build $cb and cache colregs-v$cc agree"
+  else
+    bad "colregs web build '$cb' and cache 'colregs-v$cc' disagree -- an installed copy would keep the old app"
+  fi
+
   # ---- every scenario must also EXIT cleanly -----------------------
   #  Found the hard way: handing the unset array element a[10] straight to
   #  a function argument aborted gawk on exit -- "free(): double free

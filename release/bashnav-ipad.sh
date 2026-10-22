@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003556883
+BASHNAV_BYTES=003557237
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -8001,6 +8001,11 @@ BEGIN{
                            ENCN = (which!="" ? which+0 : 1+int(xrand()*NENC))
                            enc_geom(ENCN,seed+0); enc_lights(ENCN) }
   else if(cmd=="lesson"){  les(les_id); les_q(les_id,1); print "" }
+  #  FOR THE GENERATOR, not for a reader: the question's answer and its
+  #  explanation, machine-readably, so docs/web/colregs/gen does not have
+  #  to parse "Not quite - the answer is C." out of prose written for a
+  #  person.  One line here against a brittle regex there.
+  else if(cmd=="lessonmeta"){ les_q(les_id,0); printf "%s\t%s\n", Q_A, Q_W }
   else if(cmd=="check"){   les_q(les_id,0)
                            if(tolower(ans)==Q_A){ printf "\n  %s  %s\n\n", cw("Correct.",C_ACC), Q_W; exit 0 }
                            printf "\n  Not quite - the answer is %s.  %s\n\n", toupper(Q_A), Q_W; exit 1 }
