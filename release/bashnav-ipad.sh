@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003477182
+BASHNAV_BYTES=003487706
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -768,6 +768,19 @@ noon_mode() {
   fi
   pause
 }
+do_polaris() {
+  u="$1"; [ -z "$u" ] && u=$(utcnow)
+  engine -v cmd=polaris -v utc="$u" -v drlon="$drlon" \
+         -v hs="$2" -v ie="$ie" -v heye="$heye" -v temp="$temp" -v press="$press"
+}
+polaris_mode() {
+  ask "UT, YYYY-MM-DD HH:MM:SS (blank = now)" ""; pu="$ANS"
+  [ -z "$pu" ] && pu=$(utcnow)
+  do_polaris "$pu" ""
+  ask "Hs of Polaris (blank = just the correction)" ""; ph="$ANS"
+  [ -n "$ph" ] && do_polaris "$pu" "$ph"
+  pause
+}
 do_compass() {
   engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
          -v body="$2" -v cbrg="$3" -v variation="$4"
@@ -869,6 +882,7 @@ help_text() {
     '      celnav sight "UT" body limb Hs [ie] [heye]    record one sight' \
     '      celnav fix   [ "UT of fix" ]             reduce the log and plot' \
     '      celnav noon  [ "YYYY-MM-DD" ] [ Hs ] [ limb ]  latitude at LAN' \
+    '      celnav polaris [ "UT" ] [ Hs ]           latitude from Polaris' \
     '      celnav compass "UT" body <bearing> [variation]' \
     '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
     '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
@@ -909,6 +923,7 @@ menu() {
       '    4  Almanac for a time         8  Sextant and weather settings' \
       '' \
       '    n  Noon sight                 latitude from the sun at its highest' \
+      '    p  Polaris                    latitude from one star, any time of night' \
       '' \
       '    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox' \
       '' \
@@ -941,6 +956,7 @@ menu() {
       8) set_opts ;;
       9) train_menu ;;
       n|N) noon_mode ;;
+      p|P) polaris_mode ;;
       s|S) do_stars ;;
       t|T) do_selftest ;;
       d|D) doctor ;;
@@ -1121,6 +1137,7 @@ case "$1" in
            echo "sight recorded (${1})" ;;
   fix)     shift; do_fix "$1" ;;
   noon)    shift; do_noon "$1" "$2" "$3" ;;
+  polaris) shift; do_polaris "$1" "$2" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
   stars)   shift; do_stars "$1" ;;
   dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
@@ -2167,6 +2184,88 @@ function cmd_noon(   lat,lon,jd0,jd,ut,lmt,eot,dec,mer,sth,zd,ho,la,h1,h2,lim,fa
   printf "  true, and tells you nothing at all about your longitude.\n"
   hr(); print ""
 }
+# ---------------- Polaris: latitude from one star --------------------
+#  The other latitude that needs no reduction, and it needs no particular
+#  moment either -- Polaris is up all night in the northern hemisphere,
+#  so this is the one sight you can take whenever the horizon is good.
+#
+#  If Polaris sat exactly on the pole, its altitude WOULD be your
+#  latitude, exactly, with nothing to correct.  It does not: it lies a
+#  little over half a degree off, and circles the pole once a day at that
+#  distance.  So the correction is "where is Polaris on its circle just
+#  now", which is what its LHA says.
+#
+#  The almanac prints that as Ho - 1 degree + a0 + a1 + a2.  Those three
+#  columns are a series: a0 for the LHA of Aries, a1 a small term in
+#  latitude, a2 a smaller one in the month.  CELNAV does not need the
+#  series, because it has Polaris's actual GHA and declination and can
+#  solve the triangle it is standing in:
+#
+#      sin Ho = sin L sin d + cos L cos d cos LHA
+#
+#  which rearranges, with A = sin d and B = cos d cos LHA, to
+#
+#      L = asin( sin Ho / sqrt(A^2 + B^2) ) - atan2(B, A)
+#
+#  exactly, in closed form, for any star near any pole.
+function pol_lat(ho,dec,lha,   a,b,r){
+  a = sind(dec); b = cosd(dec)*cosd(lha)
+  r = sqrt(a*a + b*b)
+  return asind(sind(ho)/r) - atan2d(b,a)
+}
+function cmd_polaris(   lon,jd,ho,lha,p,first,exact,la,c1){
+  lon=parse_ang(drlon)
+  jd=parse_utc(utc)
+  if(body_at("Polaris",jd)=="ERR"){ print "  Polaris is not in the catalogue"; return }
+  lha=nrm360(B_GHA+lon)
+  p=90.0-B_DEC
+
+  printf "\n  POLARIS  %s UT\n", utc
+  printf "  Longitude %s   (latitude is what this sight gives you)\n", fmt_lon(lon)
+  hr()
+  printf "  Polaris GHA                   %s\n", fmt_dm(B_GHA,3)
+  printf "  LHA   GHA + longitude         %s\n", fmt_dm(lha,3)
+  printf "  Declination                   N%s\n", fmt_dm(B_DEC)
+  printf "  Polar distance  90 - dec         %5.1f'\n", p*60.0
+  hr()
+  if(hs==""){
+    printf "  Correction to Ho at this LHA     %+5.1f'   (it swings +/- %.1f' in a day)\n",
+       -p*cosd(lha)*60.0, p*60.0
+    print  "  Take Polaris and give the reading back:"
+    print  "    celnav polaris \"" utc "\" <Hs>"
+    print  ""
+    return
+  }
+  ho=corrections(parse_ang(hs), (ie==""?0:ie+0), (heye==""?0:heye+0),
+                 (temp==""?10:temp+0), (press==""?1010:press+0), "")
+  first=-p*cosd(lha)
+  la=pol_lat(ho,B_DEC,lha)
+  exact=la-ho
+  printf "  Hs  (sextant)                 %s\n", fmt_dm(parse_ang(hs))
+  printf "    index error                 %+6.1f'\n", ((ie==""||ie+0==0)?0:-(ie+0))
+  printf "    dip                         %6.1f'\n", -C_DIP
+  printf "    refraction                  %6.1f'\n", -C_REF
+  printf "  Ho  (observed altitude)       %s\n", fmt_dm(ho)
+  hr()
+  printf "  Correction, first order  -p cos LHA  %+6.2f'\n", first*60.0
+  printf "  Correction, solved exactly           %+6.2f'\n", exact*60.0
+  printf "  LATITUDE                      %s\n", fmt_lat(la)
+  hr()
+  #  The gap between those two lines is the whole reason the almanac needs
+  #  three columns instead of one.  Printing both, every time, is what
+  #  makes that visible rather than asserted.
+  printf "  The two corrections differ by %.2f'. That gap is what the a1 and\n", fabs(exact-first)*60.0
+  print  "  a2 columns of the almanac's Polaris table exist to supply -- they"
+  print  "  are the next terms of a series for the line above them."
+  if(la<0){
+    print cw("  WARNING: that is a southern latitude, which cannot be right:", C_ACC)
+    print cw("  Polaris is not visible from the southern hemisphere at all.", C_ACC)
+  }
+  print  "  One line again, and a parallel of latitude: it says nothing about"
+  print  "  your longitude. But it is available all night, not for the few"
+  print  "  minutes either side of noon."
+  hr(); print ""
+}
 # ---------------- plan: what can I shoot, and when ------------------
 function sun_alt(jd,lat,lon){
   body_at("sun",jd); reduce_sight(lat,lon,B_GHA,B_DEC); return R_HC
@@ -2360,6 +2459,7 @@ BEGIN{
   if(cmd=="almanac")      cmd_almanac()
   else if(cmd=="reduce")  cmd_reduce()
   else if(cmd=="noon")    cmd_noon()
+  else if(cmd=="polaris") cmd_polaris()
   else if(cmd=="plan")    cmd_plan()
   else if(cmd=="compass") cmd_compass()
   else if(cmd=="selftest") cmd_selftest()
@@ -3335,6 +3435,109 @@ function noon_fig(   jd,d,mer,lat,lon,ut){
   printf "    back on %s.\n", fmt_dm(lat)
   tb()
 }
+function les_L2(){
+  thead("L2","Polaris: latitude from one star, all night long")
+  tb()
+  tp("The noon sight gives you latitude at one moment of the day. There is")
+  tp("another that gives it to you any time the horizon is visible, and it")
+  tp("needs even less arithmetic.")
+  tb()
+  tp("The pole of the sky has no star on it. But one lies close: Polaris,")
+  tp("a little over half a degree off. Here is why that matters.")
+  tb()
+  tp("  1. The altitude of the celestial pole above your horizon IS your")
+  tp("     latitude. Exactly, always, by the geometry of the thing - stand")
+  tp("     on the equator and the pole is on your horizon; stand at the")
+  tp("     pole and it is overhead.")
+  tp("  2. So if Polaris sat ON the pole, you would measure your latitude")
+  tp("     directly off the sextant, with nothing to correct and no")
+  tp("     almanac to open.")
+  tp("  3. It does not. It circles the pole once a day at that half a")
+  tp("     degree and a bit, so it stands sometimes above the pole and")
+  tp("     sometimes below it and mostly to one side.")
+  tb()
+  tp("The whole correction is therefore one question: where on that little")
+  tp("circle is Polaris right now? And its LHA answers it.")
+  tb()
+  tp("     at upper transit, above the pole:   latitude = Ho - p")
+  tp("     at lower transit, below the pole:   latitude = Ho + p")
+  tp("     anywhere between:                   latitude = Ho - p cos LHA")
+  tb()
+  tp("where p is the polar distance, 90 minus the declination.")
+  tb()
+  tp("  4. The almanac prints this as Ho - 1 degree + a0 + a1 + a2. Do not")
+  tp("     let the three columns suggest three ideas: they are one")
+  tp("     correction, written as a series. a0 carries almost all of it")
+  tp("     and depends on the LHA of Aries; a1 is a small term in your")
+  tp("     latitude and a2 a smaller one in the month. The constant degree")
+  tp("     is subtracted only so that all three columns can be printed as")
+  tp("     positive numbers.")
+  tp("  5. CELNAV does not need the series. It has Polaris's own GHA and")
+  tp("     declination, so it solves the triangle the star is standing in")
+  tp("     and gets the answer in closed form. Ask it for a sight and it")
+  tp("     prints both: the first-order correction above, and the exact")
+  tp("     one, so you can see the size of what a1 and a2 are for.")
+  tb()
+  tp("Two honest limits, and the first is not small.")
+  tb()
+  tp("  6. There is no Polaris in the southern hemisphere. Nothing bright")
+  tp("     sits near the south pole - Sigma Octantis is a degree off and")
+  tp("     barely visible - so this method simply does not exist below the")
+  tp("     equator, and a noon sight does the work instead.")
+  tp("  7. It is one line, a parallel of latitude, and tells you nothing")
+  tp("     about your longitude. What it does give you is time: Polaris")
+  tp("     is up all night, so you are not waiting for a particular")
+  tp("     moment the way you are at noon.")
+  tb()
+  tp("And a long slow caveat worth knowing: Polaris has not always been")
+  tp("the pole star and will not stay one. The earth's axis precesses, so")
+  tp("the pole is drifting through the sky - Polaris is closing on it now,")
+  tp("will be at its nearest around 2100, and in two thousand years will")
+  tp("be nowhere near it. That is why the star catalogue in this program")
+  tp("carries proper motion and precession rather than fixed positions.")
+  tb()
+  tp("  celnav polaris                   the correction right now")
+  tp("  celnav polaris \"UT\" <Hs>         the latitude from your reading")
+  tb()
+}
+# ---------------------------------------------------------------------
+#  Polaris on its circle, and the projection that is the correction
+# ---------------------------------------------------------------------
+function pol_fig(   jd,lha,p,lat,ho){
+  tp("            Polaris goes round the pole once a day:")
+  tb()
+  tp("                      upper transit")
+  tp("                           *   latitude = Ho - p")
+  tp("                        .     .")
+  tp("                      .         .")
+  tp("              *       .    + P   .       *")
+  tp("          latitude    .         .     latitude")
+  tp("          = Ho        .         .     = Ho")
+  tp("                        .     .")
+  tp("                           *   latitude = Ho + p")
+  tp("                      lower transit")
+  tb()
+  tp("  P = the celestial pole, whose altitude is your latitude.")
+  tp("  p = Polaris's distance from it, about 37' at present.")
+  tb()
+  tp("Out at the sides, Polaris is level with the pole and its altitude IS")
+  tp("your latitude. Above and below, it is wrong by the whole of p. In")
+  tp("between, by the part of p that lies along your meridian, which is")
+  tp("p cos LHA - and that is the correction, all of it.")
+  tb()
+  #  Computed when the lesson runs, like L1's, so it cannot drift from
+  #  what the program would actually say.
+  jd=jdate(2026,10,22)+20.0/24.0
+  body_at("Polaris", jd)
+  lha=nrm360(B_GHA-5.0667)
+  p=(90.0-B_DEC)*60.0
+  tp("Tonight, for instance, from 005 04'W at 20:00 UT:")
+  tb()
+  printf "    Polaris GHA %s, so its LHA is %s\n", fmt_dm(B_GHA,3), fmt_dm(lha,3)
+  printf "    its polar distance is %.1f'\n", p
+  printf "    so the correction to Ho is %+.1f'\n", -p*cosd(lha)
+  tb()
+}
 function les_fig(id,   la,lo,zd,b){
   if(id=="F3"){
     gl_init(67,25, 25, -30); gl_graticule(0); gl_limb()
@@ -3409,6 +3612,8 @@ function les_fig(id,   la,lo,zd,b){
     tp("can undo it.")
   } else if(id=="L1"){
     noon_fig()
+  } else if(id=="L2"){
+    pol_fig()
   } else if(id=="C2"){
     tp("A compass swung on eight headings - the same compass, the same")
     tp("ship, the same iron, eight different answers:")
@@ -3493,6 +3698,11 @@ function ques(id,show){
       tp("     a) nothing, three sights is three sights   b) the LOPs are nearly parallel,")
       tp("        so the position is poorly fixed along one axis   c) the stars are too bright") }
     else { Q_ANS="b"; Q_WHY="A narrow spread gives a long thin error ellipse. CELNAV reports this in miles." } }
+  else if(id=="L2"){ if(show){ tp("Q. You take Polaris at its lower transit - directly below the pole -")
+      tp("   and its polar distance is 37.5'. How does your latitude compare with")
+      tp("   the altitude you measured?")
+      tp("     a) 37.5' greater than Ho   b) 37.5' less than Ho   c) the same") }
+    else { Q_ANS="a"; Q_WHY="Below the pole, the pole stands higher than the star - and the pole's altitude is your latitude. So latitude is Ho plus the polar distance. Above the pole it is Ho minus it." } }
   else if(id=="L1"){ if(show){ tp("Q. At local apparent noon your zenith distance is 60 57.0', the sun's")
       tp("   declination is 10 48.1' S, and the sun bore due south of you. Where are you?")
       tp("     a) 50 08.9' N      b) 71 45.1' N      c) 50 08.9' S") }
@@ -3537,6 +3747,7 @@ function syl_init(){
         "R4|Reduction and the fix|Plotting the line of position;" \
         "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it;" \
         "L1|Latitude the direct way|The noon sight: latitude without a reduction;" \
+        "L2|Latitude the direct way|Polaris: latitude from one star, all night long;" \
         "C1|Choosing and checking|Choosing your bodies: the cut and the band;" \
         "C2|Choosing and checking|Checking the compass against the sky"
   NSYL=split(SYL,SYLROW,";")
@@ -3552,7 +3763,7 @@ function lesson(id){
   else if(id=="S4")les_S4(); else if(id=="S5")les_S5()
   else if(id=="R1")les_R1(); else if(id=="R2")les_R2(); else if(id=="R3")les_R3()
   else if(id=="R4")les_R4(); else if(id=="R5")les_R5()
-  else if(id=="L1")les_L1()
+  else if(id=="L1")les_L1(); else if(id=="L2")les_L2()
   else if(id=="C1")les_C1(); else if(id=="C2")les_C2()
   else { print "  no such lesson: " id; return 1 }
   return 0

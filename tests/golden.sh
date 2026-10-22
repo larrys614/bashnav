@@ -263,6 +263,28 @@ emit() {   # emit <name> ; program output on stdin
      -v hs="28 51.4" -v limb=L -v ie=0 -v heye=2.5 -v temp=10 -v press=1010 </dev/null
 } | emit celnav-noon.txt
 
+# ---- celnav: Polaris ---------------------------------------------------
+#  The correction is a cosine of the LHA, so it must be swept rather than
+#  sampled: six hours apart walks Polaris right round its circle and
+#  catches both transits, where the correction is the whole polar
+#  distance, and both sides, where it is nothing.  The last case feeds it
+#  an altitude that implies a southern latitude, which is impossible for
+#  this star and which the app has to say rather than return.
+{
+  for t in "2026-10-22 02:00:00" "2026-10-22 08:00:00" \
+           "2026-10-22 14:00:00" "2026-10-22 20:00:00"; do
+    echo "=== polaris $t ==="
+    $AW $CE -v cmode=plain -v cmd=polaris -v utc="$t" -v drlon="005 04.0 W" </dev/null
+    echo "=== polaris $t reduced ==="
+    $AW $CE -v cmode=plain -v cmd=polaris -v utc="$t" -v drlon="005 04.0 W" \
+       -v hs="50 18.5" -v ie=0 -v heye=2.5 -v temp=10 -v press=1010 </dev/null
+  done
+  echo "=== polaris from an impossible altitude ==="
+  $AW $CE -v cmode=plain -v cmd=polaris -v utc="2026-10-22 20:00:00" \
+     -v drlon="005 04.0 W" -v hs="-02 00.0" -v ie=0 -v heye=2.5 \
+     -v temp=10 -v press=1010 </dev/null
+} | emit celnav-polaris.txt
+
 # ---- celnav: every lesson, its figure and its answer ------------------
 #  The lesson list comes from the app itself (cmd=t_codes reads the one
 #  syllabus string), so a lesson added without a capture cannot slip

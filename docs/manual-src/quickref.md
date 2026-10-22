@@ -9,6 +9,7 @@
 | `celnav sight "2026-08-29 07:30:00" Dubhe C "19 32.1" 1.5 3.0` | UT, body, limb, Hs, index error, eye height |
 | `celnav fix` | reduce the log and plot the fix |
 | `celnav noon "2026-10-21" "28 51.4"` | latitude from the sun at its highest |
+| `celnav polaris "UT" "50 18.5"` | latitude from Polaris, all night long |
 | `celnav compass "UT" sun 112.5 6.0` | compass error and deviation |
 | `celnav log` / `celnav clear` | list / empty the sight log |
 | `celnav doctor` | environment check and self test |
@@ -82,7 +83,7 @@ Time       2026-08-29 07:30:00 UT   (or 073000 in the menu, today's date assumed
 
 `celnav learn`, or menu item 9.
 
-- **Lessons** — twenty-three, in six modules, from what a sight measures to choosing the bodies, checking the compass against them, and taking latitude directly at noon. Each ends with a question; answer it and the lesson is ticked off.
+- **Lessons** — twenty-four, in six modules, from what a sight measures to choosing the bodies, checking the compass against them, and taking latitude directly — from the sun at noon and from Polaris at any hour. Each ends with a question; answer it and the lesson is ticked off.
 - **Walkthrough** — one real sight in ten steps, every line explained as it is computed.
 - **Drills** — problems built from the real almanac and marked, with the full working shown afterwards. Types: `corr`, `alm`, `red`, `int`, `full`, `fix`.
 - **Sandbox** — change latitude, declination or LHA and watch the navigational triangle move.

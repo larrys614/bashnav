@@ -1,0 +1,198 @@
+=== polaris 2026-10-22 02:00:00 ===
+
+  POLARIS  2026-10-22 02:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   013 19.6'
+  LHA   GHA + longitude         008 15.6'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Correction to Ho at this LHA     -37.1'   (it swings +/- 37.5' in a day)
+  Take Polaris and give the reading back:
+    celnav polaris "2026-10-22 02:00:00" <Hs>
+
+=== polaris 2026-10-22 02:00:00 reduced ===
+
+  POLARIS  2026-10-22 02:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   013 19.6'
+  LHA   GHA + longitude         008 15.6'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Hs  (sextant)                 50 18.5'
+    index error                   +0.0'
+    dip                           -2.8'
+    refraction                    -0.8'
+  Ho  (observed altitude)       50 14.9'
+  ----------------------------------------------------------------------
+  Correction, first order  -p cos LHA  -37.09'
+  Correction, solved exactly           -37.08'
+  LATITUDE                      49 37.8'N
+  ----------------------------------------------------------------------
+  The two corrections differ by 0.01'. That gap is what the a1 and
+  a2 columns of the almanac's Polaris table exist to supply -- they
+  are the next terms of a series for the line above them.
+  One line again, and a parallel of latitude: it says nothing about
+  your longitude. But it is available all night, not for the few
+  minutes either side of noon.
+  ----------------------------------------------------------------------
+
+=== polaris 2026-10-22 08:00:00 ===
+
+  POLARIS  2026-10-22 08:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   103 34.4'
+  LHA   GHA + longitude         098 30.4'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Correction to Ho at this LHA      +5.5'   (it swings +/- 37.5' in a day)
+  Take Polaris and give the reading back:
+    celnav polaris "2026-10-22 08:00:00" <Hs>
+
+=== polaris 2026-10-22 08:00:00 reduced ===
+
+  POLARIS  2026-10-22 08:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   103 34.4'
+  LHA   GHA + longitude         098 30.4'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Hs  (sextant)                 50 18.5'
+    index error                   +0.0'
+    dip                           -2.8'
+    refraction                    -0.8'
+  Ho  (observed altitude)       50 14.9'
+  ----------------------------------------------------------------------
+  Correction, first order  -p cos LHA   +5.54'
+  Correction, solved exactly            +5.78'
+  LATITUDE                      50 20.7'N
+  ----------------------------------------------------------------------
+  The two corrections differ by 0.24'. That gap is what the a1 and
+  a2 columns of the almanac's Polaris table exist to supply -- they
+  are the next terms of a series for the line above them.
+  One line again, and a parallel of latitude: it says nothing about
+  your longitude. But it is available all night, not for the few
+  minutes either side of noon.
+  ----------------------------------------------------------------------
+
+=== polaris 2026-10-22 14:00:00 ===
+
+  POLARIS  2026-10-22 14:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   193 49.1'
+  LHA   GHA + longitude         188 45.1'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Correction to Ho at this LHA     +37.0'   (it swings +/- 37.5' in a day)
+  Take Polaris and give the reading back:
+    celnav polaris "2026-10-22 14:00:00" <Hs>
+
+=== polaris 2026-10-22 14:00:00 reduced ===
+
+  POLARIS  2026-10-22 14:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   193 49.1'
+  LHA   GHA + longitude         188 45.1'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Hs  (sextant)                 50 18.5'
+    index error                   +0.0'
+    dip                           -2.8'
+    refraction                    -0.8'
+  Ho  (observed altitude)       50 14.9'
+  ----------------------------------------------------------------------
+  Correction, first order  -p cos LHA  +37.04'
+  Correction, solved exactly           +37.04'
+  LATITUDE                      50 51.9'N
+  ----------------------------------------------------------------------
+  The two corrections differ by 0.01'. That gap is what the a1 and
+  a2 columns of the almanac's Polaris table exist to supply -- they
+  are the next terms of a series for the line above them.
+  One line again, and a parallel of latitude: it says nothing about
+  your longitude. But it is available all night, not for the few
+  minutes either side of noon.
+  ----------------------------------------------------------------------
+
+=== polaris 2026-10-22 20:00:00 ===
+
+  POLARIS  2026-10-22 20:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   284 03.8'
+  LHA   GHA + longitude         278 59.8'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Correction to Ho at this LHA      -5.9'   (it swings +/- 37.5' in a day)
+  Take Polaris and give the reading back:
+    celnav polaris "2026-10-22 20:00:00" <Hs>
+
+=== polaris 2026-10-22 20:00:00 reduced ===
+
+  POLARIS  2026-10-22 20:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   284 03.8'
+  LHA   GHA + longitude         278 59.8'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Hs  (sextant)                 50 18.5'
+    index error                   +0.0'
+    dip                           -2.8'
+    refraction                    -0.8'
+  Ho  (observed altitude)       50 14.9'
+  ----------------------------------------------------------------------
+  Correction, first order  -p cos LHA   -5.86'
+  Correction, solved exactly            -5.62'
+  LATITUDE                      50 09.3'N
+  ----------------------------------------------------------------------
+  The two corrections differ by 0.24'. That gap is what the a1 and
+  a2 columns of the almanac's Polaris table exist to supply -- they
+  are the next terms of a series for the line above them.
+  One line again, and a parallel of latitude: it says nothing about
+  your longitude. But it is available all night, not for the few
+  minutes either side of noon.
+  ----------------------------------------------------------------------
+
+=== polaris from an impossible altitude ===
+
+  POLARIS  2026-10-22 20:00:00 UT
+  Longitude 005 04.0'W   (latitude is what this sight gives you)
+  ----------------------------------------------------------------------
+  Polaris GHA                   284 03.8'
+  LHA   GHA + longitude         278 59.8'
+  Declination                   N89 22.5'
+  Polar distance  90 - dec          37.5'
+  ----------------------------------------------------------------------
+  Hs  (sextant)                 -02 00.0'
+    index error                   +0.0'
+    dip                           -2.8'
+    refraction                    -0.0'
+  Ho  (observed altitude)       -02 02.8'
+  ----------------------------------------------------------------------
+  Correction, first order  -p cos LHA   -5.86'
+  Correction, solved exactly            -5.87'
+  LATITUDE                      02 08.6'S
+  ----------------------------------------------------------------------
+  The two corrections differ by 0.01'. That gap is what the a1 and
+  a2 columns of the almanac's Polaris table exist to supply -- they
+  are the next terms of a series for the line above them.
+  WARNING: that is a southern latitude, which cannot be right:
+  Polaris is not visible from the southern hemisphere at all.
+  One line again, and a parallel of latitude: it says nothing about
+  your longitude. But it is available all night, not for the few
+  minutes either side of noon.
+  ----------------------------------------------------------------------
+

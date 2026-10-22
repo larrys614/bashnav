@@ -33,6 +33,19 @@ noon_mode() {
   fi
   pause
 }
+do_polaris() {
+  u="$1"; [ -z "$u" ] && u=$(utcnow)
+  engine -v cmd=polaris -v utc="$u" -v drlon="$drlon" \
+         -v hs="$2" -v ie="$ie" -v heye="$heye" -v temp="$temp" -v press="$press"
+}
+polaris_mode() {
+  ask "UT, YYYY-MM-DD HH:MM:SS (blank = now)" ""; pu="$ANS"
+  [ -z "$pu" ] && pu=$(utcnow)
+  do_polaris "$pu" ""
+  ask "Hs of Polaris (blank = just the correction)" ""; ph="$ANS"
+  [ -n "$ph" ] && do_polaris "$pu" "$ph"
+  pause
+}
 do_compass() {
   engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
          -v body="$2" -v cbrg="$3" -v variation="$4"
@@ -134,6 +147,7 @@ help_text() {
     '      celnav sight "UT" body limb Hs [ie] [heye]    record one sight' \
     '      celnav fix   [ "UT of fix" ]             reduce the log and plot' \
     '      celnav noon  [ "YYYY-MM-DD" ] [ Hs ] [ limb ]  latitude at LAN' \
+    '      celnav polaris [ "UT" ] [ Hs ]           latitude from Polaris' \
     '      celnav compass "UT" body <bearing> [variation]' \
     '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
     '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
@@ -174,6 +188,7 @@ menu() {
       '    4  Almanac for a time         8  Sextant and weather settings' \
       '' \
       '    n  Noon sight                 latitude from the sun at its highest' \
+      '    p  Polaris                    latitude from one star, any time of night' \
       '' \
       '    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox' \
       '' \
@@ -206,6 +221,7 @@ menu() {
       8) set_opts ;;
       9) train_menu ;;
       n|N) noon_mode ;;
+      p|P) polaris_mode ;;
       s|S) do_stars ;;
       t|T) do_selftest ;;
       d|D) doctor ;;
@@ -386,6 +402,7 @@ case "$1" in
            echo "sight recorded (${1})" ;;
   fix)     shift; do_fix "$1" ;;
   noon)    shift; do_noon "$1" "$2" "$3" ;;
+  polaris) shift; do_polaris "$1" "$2" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
   stars)   shift; do_stars "$1" ;;
   dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"

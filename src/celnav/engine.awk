@@ -1018,6 +1018,88 @@ function cmd_noon(   lat,lon,jd0,jd,ut,lmt,eot,dec,mer,sth,zd,ho,la,h1,h2,lim,fa
   printf "  true, and tells you nothing at all about your longitude.\n"
   hr(); print ""
 }
+# ---------------- Polaris: latitude from one star --------------------
+#  The other latitude that needs no reduction, and it needs no particular
+#  moment either -- Polaris is up all night in the northern hemisphere,
+#  so this is the one sight you can take whenever the horizon is good.
+#
+#  If Polaris sat exactly on the pole, its altitude WOULD be your
+#  latitude, exactly, with nothing to correct.  It does not: it lies a
+#  little over half a degree off, and circles the pole once a day at that
+#  distance.  So the correction is "where is Polaris on its circle just
+#  now", which is what its LHA says.
+#
+#  The almanac prints that as Ho - 1 degree + a0 + a1 + a2.  Those three
+#  columns are a series: a0 for the LHA of Aries, a1 a small term in
+#  latitude, a2 a smaller one in the month.  CELNAV does not need the
+#  series, because it has Polaris's actual GHA and declination and can
+#  solve the triangle it is standing in:
+#
+#      sin Ho = sin L sin d + cos L cos d cos LHA
+#
+#  which rearranges, with A = sin d and B = cos d cos LHA, to
+#
+#      L = asin( sin Ho / sqrt(A^2 + B^2) ) - atan2(B, A)
+#
+#  exactly, in closed form, for any star near any pole.
+function pol_lat(ho,dec,lha,   a,b,r){
+  a = sind(dec); b = cosd(dec)*cosd(lha)
+  r = sqrt(a*a + b*b)
+  return asind(sind(ho)/r) - atan2d(b,a)
+}
+function cmd_polaris(   lon,jd,ho,lha,p,first,exact,la,c1){
+  lon=parse_ang(drlon)
+  jd=parse_utc(utc)
+  if(body_at("Polaris",jd)=="ERR"){ print "  Polaris is not in the catalogue"; return }
+  lha=nrm360(B_GHA+lon)
+  p=90.0-B_DEC
+
+  printf "\n  POLARIS  %s UT\n", utc
+  printf "  Longitude %s   (latitude is what this sight gives you)\n", fmt_lon(lon)
+  hr()
+  printf "  Polaris GHA                   %s\n", fmt_dm(B_GHA,3)
+  printf "  LHA   GHA + longitude         %s\n", fmt_dm(lha,3)
+  printf "  Declination                   N%s\n", fmt_dm(B_DEC)
+  printf "  Polar distance  90 - dec         %5.1f'\n", p*60.0
+  hr()
+  if(hs==""){
+    printf "  Correction to Ho at this LHA     %+5.1f'   (it swings +/- %.1f' in a day)\n",
+       -p*cosd(lha)*60.0, p*60.0
+    print  "  Take Polaris and give the reading back:"
+    print  "    celnav polaris \"" utc "\" <Hs>"
+    print  ""
+    return
+  }
+  ho=corrections(parse_ang(hs), (ie==""?0:ie+0), (heye==""?0:heye+0),
+                 (temp==""?10:temp+0), (press==""?1010:press+0), "")
+  first=-p*cosd(lha)
+  la=pol_lat(ho,B_DEC,lha)
+  exact=la-ho
+  printf "  Hs  (sextant)                 %s\n", fmt_dm(parse_ang(hs))
+  printf "    index error                 %+6.1f'\n", ((ie==""||ie+0==0)?0:-(ie+0))
+  printf "    dip                         %6.1f'\n", -C_DIP
+  printf "    refraction                  %6.1f'\n", -C_REF
+  printf "  Ho  (observed altitude)       %s\n", fmt_dm(ho)
+  hr()
+  printf "  Correction, first order  -p cos LHA  %+6.2f'\n", first*60.0
+  printf "  Correction, solved exactly           %+6.2f'\n", exact*60.0
+  printf "  LATITUDE                      %s\n", fmt_lat(la)
+  hr()
+  #  The gap between those two lines is the whole reason the almanac needs
+  #  three columns instead of one.  Printing both, every time, is what
+  #  makes that visible rather than asserted.
+  printf "  The two corrections differ by %.2f'. That gap is what the a1 and\n", fabs(exact-first)*60.0
+  print  "  a2 columns of the almanac's Polaris table exist to supply -- they"
+  print  "  are the next terms of a series for the line above them."
+  if(la<0){
+    print cw("  WARNING: that is a southern latitude, which cannot be right:", C_ACC)
+    print cw("  Polaris is not visible from the southern hemisphere at all.", C_ACC)
+  }
+  print  "  One line again, and a parallel of latitude: it says nothing about"
+  print  "  your longitude. But it is available all night, not for the few"
+  print  "  minutes either side of noon."
+  hr(); print ""
+}
 # ---------------- plan: what can I shoot, and when ------------------
 function sun_alt(jd,lat,lon){
   body_at("sun",jd); reduce_sight(lat,lon,B_GHA,B_DEC); return R_HC
@@ -1211,6 +1293,7 @@ BEGIN{
   if(cmd=="almanac")      cmd_almanac()
   else if(cmd=="reduce")  cmd_reduce()
   else if(cmd=="noon")    cmd_noon()
+  else if(cmd=="polaris") cmd_polaris()
   else if(cmd=="plan")    cmd_plan()
   else if(cmd=="compass") cmd_compass()
   else if(cmd=="selftest") cmd_selftest()

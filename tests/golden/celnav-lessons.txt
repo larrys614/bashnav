@@ -934,6 +934,110 @@
 
   Not quite - the answer is A.  Latitude is the declination plus the zenith distance, and the declination is southerly: 60 57.0 - 10 48.1 = 50 08.9 N. Adding the two instead gives (b), which is the commonest mistake of all.
 
+=== lesson L2 ===
+
+  L2  Polaris: latitude from one star, all night long
+  -----------------------------------------------------
+
+  The noon sight gives you latitude at one moment of the day. There is
+  another that gives it to you any time the horizon is visible, and it
+  needs even less arithmetic.
+
+  The pole of the sky has no star on it. But one lies close: Polaris,
+  a little over half a degree off. Here is why that matters.
+
+    1. The altitude of the celestial pole above your horizon IS your
+       latitude. Exactly, always, by the geometry of the thing - stand
+       on the equator and the pole is on your horizon; stand at the
+       pole and it is overhead.
+    2. So if Polaris sat ON the pole, you would measure your latitude
+       directly off the sextant, with nothing to correct and no
+       almanac to open.
+    3. It does not. It circles the pole once a day at that half a
+       degree and a bit, so it stands sometimes above the pole and
+       sometimes below it and mostly to one side.
+
+  The whole correction is therefore one question: where on that little
+  circle is Polaris right now? And its LHA answers it.
+
+       at upper transit, above the pole:   latitude = Ho - p
+       at lower transit, below the pole:   latitude = Ho + p
+       anywhere between:                   latitude = Ho - p cos LHA
+
+  where p is the polar distance, 90 minus the declination.
+
+    4. The almanac prints this as Ho - 1 degree + a0 + a1 + a2. Do not
+       let the three columns suggest three ideas: they are one
+       correction, written as a series. a0 carries almost all of it
+       and depends on the LHA of Aries; a1 is a small term in your
+       latitude and a2 a smaller one in the month. The constant degree
+       is subtracted only so that all three columns can be printed as
+       positive numbers.
+    5. CELNAV does not need the series. It has Polaris's own GHA and
+       declination, so it solves the triangle the star is standing in
+       and gets the answer in closed form. Ask it for a sight and it
+       prints both: the first-order correction above, and the exact
+       one, so you can see the size of what a1 and a2 are for.
+
+  Two honest limits, and the first is not small.
+
+    6. There is no Polaris in the southern hemisphere. Nothing bright
+       sits near the south pole - Sigma Octantis is a degree off and
+       barely visible - so this method simply does not exist below the
+       equator, and a noon sight does the work instead.
+    7. It is one line, a parallel of latitude, and tells you nothing
+       about your longitude. What it does give you is time: Polaris
+       is up all night, so you are not waiting for a particular
+       moment the way you are at noon.
+
+  And a long slow caveat worth knowing: Polaris has not always been
+  the pole star and will not stay one. The earth's axis precesses, so
+  the pole is drifting through the sky - Polaris is closing on it now,
+  will be at its nearest around 2100, and in two thousand years will
+  be nowhere near it. That is why the star catalogue in this program
+  carries proper motion and precession rather than fixed positions.
+
+    celnav polaris                   the correction right now
+    celnav polaris "UT" <Hs>         the latitude from your reading
+
+              Polaris goes round the pole once a day:
+
+                        upper transit
+                             *   latitude = Ho - p
+                          .     .
+                        .         .
+                *       .    + P   .       *
+            latitude    .         .     latitude
+            = Ho        .         .     = Ho
+                          .     .
+                             *   latitude = Ho + p
+                        lower transit
+
+    P = the celestial pole, whose altitude is your latitude.
+    p = Polaris's distance from it, about 37' at present.
+
+  Out at the sides, Polaris is level with the pole and its altitude IS
+  your latitude. Above and below, it is wrong by the whole of p. In
+  between, by the part of p that lies along your meridian, which is
+  p cos LHA - and that is the correction, all of it.
+
+  Tonight, for instance, from 005 04'W at 20:00 UT:
+
+    Polaris GHA 284 03.8', so its LHA is 278 59.8'
+    its polar distance is 37.5'
+    so the correction to Ho is -5.9'
+
+
+  ----------------------------------------------------------------------
+  Q. You take Polaris at its lower transit - directly below the pole -
+     and its polar distance is 37.5'. How does your latitude compare with
+     the altitude you measured?
+       a) 37.5' greater than Ho   b) 37.5' less than Ho   c) the same
+
+=== answer L2 (given b) ===
+
+  Not quite - the answer is A.  Below the pole, the pole stands higher than the star - and the pole's altitude is your latitude. So latitude is Ho plus the polar distance. Above the pole it is Ho minus it.
+
 === lesson C1 ===
 
   C1  Choosing your bodies: the cut matters more than the sights
@@ -1156,10 +1260,11 @@
 
   LATITUDE THE DIRECT WAY
    [ ]  L1   The noon sight: latitude without a reduction
+   [ ]  L2   Polaris: latitude from one star, all night long
 
   CHOOSING AND CHECKING
    [x]  C1   Choosing your bodies: the cut and the band
    [ ]  C2   Checking the compass against the sky
   ----------------------------------------------------------------------
-  3 of 23 lessons done.  Type a lesson code (F1, R3 ...) to open it.
+  3 of 24 lessons done.  Type a lesson code (F1, R3 ...) to open it.
 
