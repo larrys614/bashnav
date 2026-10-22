@@ -318,6 +318,43 @@ window.answerCurrent = function (right) {
   else console.log('  ok   another moment of the same evolution is not a distractor, ' +
                    'and an unordered table keeps its rows');
 
+  //  AND WITHIN ONE TABLE, ONLY THE SAME COLUMN.  A matrix column answers
+  //  one question and the column beside it answers a different one.  Larry
+  //  was offered "Racing change (4.3)" among four answers to "both sails on
+  //  the foredeck?", and "Yes - new sail hanked on alongside the old" as an
+  //  answer to "what is the first thing that happens?"  Neither is a wrong
+  //  answer; each is an answer to a question nobody asked.
+  //
+  //  The third case is the one that keeps the pool from emptying: the same
+  //  column in a DIFFERENT table is fine, and has to be, because a two-row
+  //  matrix holds one same-column distractor and four options are needed.
+  const colq = await page.evaluate(() => {
+    const m = (c, row) => ({ kind: 'fact', col: c,
+      where: { part: 'Part 4 \u2014 The headsails',
+               sub: '4.4 \u2014 Bare-headed change \u2014 reducing size',
+               row: String(row), tbl: 1 } });
+    const q        = Object.assign(m('both sails on the foredeck', 1),
+                       { a: 'Yes - new sail hanked on alongside the old' });
+    const sameCol  = Object.assign(m('both sails on the foredeck', 2),
+                       { a: 'No - old sail comes off the foredeck first' });
+    const nextCol  = Object.assign(m('method', 2), { a: 'Racing change (4.3)' });
+    const elsewhere = { kind: 'fact', col: 'method',
+      where: { part: 'Part 4 \u2014 The headsails', sub: '4.5 \u2014 something else',
+               row: '1', tbl: 1 },
+      a: 'Bare-headed change, with the forestay clear' };
+    const got = makeChoices(q, [q, sameCol, nextCol, elsewhere]).map(o => o.t);
+    return { got: got, sameCol: sameCol.a, nextCol: nextCol.a, elsewhere: elsewhere.a };
+  });
+  if (colq.got.indexOf(colq.nextCol) >= 0)
+    fail('a cell from the next column was offered as a wrong answer: ' + colq.got.join(' | '));
+  else if (colq.got.indexOf(colq.sameCol) < 0)
+    fail('the same column in the same table should be the best distractor: ' + colq.got.join(' | '));
+  else if (colq.got.indexOf(colq.elsewhere) < 0)
+    fail('a cell from another table should still be usable, or a two-row matrix has no pool: ' +
+         colq.got.join(' | '));
+  else console.log('  ok   within one table only the same column is offered, and other ' +
+                   'tables still supply the pool');
+
   //  and the stem must name the manoeuvre, not leave it to be inferred
   //  from the call -- the options are drawn from more than one.
   const named = await page.evaluate(() => {

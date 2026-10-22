@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '17 \u2014 21 Oct 2026';
+var BUILD = '18 \u2014 22 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -722,10 +722,31 @@ function makeChoices(q, pool) {
   var sameEvolution = function (o) {
     return !!q.seqtbl && sub(o) === sub(q) && prt(o) === prt(q) && tbl(o) === tbl(q);
   };
+  //  WITHIN ONE TABLE, ONLY THE SAME COLUMN.  A matrix column answers
+  //  one question and the column beside it answers a different one, so a
+  //  cell from next door is not a wrong answer - it is an answer to a
+  //  question nobody asked. Larry, on a yes/no column: he was offered
+  //  "Racing change (4.3)" as one of four answers to "both sails on the
+  //  foredeck?", and elsewhere "Yes - new sail hanked on alongside the
+  //  old" as an answer to "what is the first thing that happens?"
+  //
+  //  The generator supplies same-column options where it can. It cannot
+  //  when the table has two rows, because one column then holds a single
+  //  distractor and three are needed - which is exactly the table that
+  //  produced the complaint. So the rule has to hold here as well.
+  //
+  //  Only WITHIN a table. Across tables a cell is ordinary prose from the
+  //  right part of the document and makes a perfectly good distractor,
+  //  and refusing those would empty the pool for a two-row matrix.
+  var col = function (x) { return (x && x.col) || ''; };
+  var crossColumn = function (o) {
+    return !!col(q) && sub(o) === sub(q) && prt(o) === prt(q) &&
+           tbl(o) === tbl(q) && col(o) !== col(q);
+  };
   var usable = function (o) {
     return o.a && !sameAnswer(o.a, q.a) && !(o.ch && o.ch.length) &&
            !(o.seq && o.seq.length) && !sameParagraph(o) && !sameStation(o) &&
-           !sameEvolution(o);
+           !sameEvolution(o) && !crossColumn(o);
   };
   var same = pool.filter(function (o) { return usable(o) && o.kind === q.kind; });
   var other = pool.filter(function (o) { return usable(o) && o.kind !== q.kind; });
