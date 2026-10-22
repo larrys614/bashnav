@@ -35,9 +35,22 @@ if [ -n "$p" ] && [ -n "$q" ] && [ "$q" -lt "$p" ]; then
 fi
 #  and the user's record must be in the log before the rules record
 o=$($AW -F'|' '/\|fc\|/{ for(i=3;i<=NF;i++) if($i ~ /^by=/) printf "%s ", substr($i,4) }' "$d/log")
-case "$o" in
-  "user rules persist "*|"user rules persist") ;;
-  *) echo "  FAIL the forecasts were written in the order [$o]; the user's must be first"; bad=1 ;;
+#  THE FIRST RECORD IS THE USER'S, WHATEVER IT IS CALLED.  do_forecast
+#  used to write by=user and now writes by=you.  The log is append-only,
+#  so score.awk normalises on read and BOTH spellings have to keep
+#  working for ever -- its own comment says so.  This test accepted only
+#  "user", so it went red on the very commit that made the change, and
+#  the message it printed blamed the ORDER, which was never wrong.  The
+#  two properties are now checked and reported separately.
+first=${o%% *}
+rest=${o#* }
+case "$first" in
+  you|user) ;;
+  *) echo "  FAIL the first forecast written was [$first]; the user's must be first"; bad=1 ;;
+esac
+case "$rest" in
+  "rules persist"*) ;;
+  *) echo "  FAIL after the user's came [$rest]; expected the rules then persistence"; bad=1 ;;
 esac
 [ "$bad" = 0 ] && echo "ORDER OK (asked at line $p, answered at line $q)"
 exit $bad
