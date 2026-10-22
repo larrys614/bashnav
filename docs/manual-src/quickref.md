@@ -12,6 +12,9 @@
 | `celnav polaris "UT" "50 18.5"` | latitude from Polaris, all night long |
 | `celnav compass "UT" sun 112.5 6.0` | compass error and deviation |
 | `celnav devcard "DATE" sun -2 "000,10:00:00,147.0; ..."` | swing → deviation card |
+| `celnav current "50 00 N" "005 00 W" "50 03 N" "004 56 W" 4` | set and drift |
+| `celnav ep "50 00 N" "005 00 W" 090 6 4 180 1` | DR run, and the EP |
+| `celnav table 50 -11 329` | a Pub. 249 page |
 | `celnav log` / `celnav clear` | list / empty the sight log |
 | `celnav doctor` | environment check and self test |
 | `celnav learn` | lessons, walkthrough, drills, sandbox |
@@ -84,7 +87,7 @@ Time       2026-08-29 07:30:00 UT   (or 073000 in the menu, today's date assumed
 
 `celnav learn`, or menu item 9.
 
-- **Lessons** — twenty-nine, in eight modules, from dead reckoning and set and drift (a preliminary module you can test out of) through what a sight measures to choosing the bodies, checking the compass against them, taking latitude directly from the sun at noon and Polaris at any hour, and handling the moon and the planets. Each ends with a question; answer it and the lesson is ticked off.
+- **Lessons** — thirty-three, in nine modules, from dead reckoning and set and drift (a preliminary module you can test out of) through what a sight measures to choosing the bodies, checking the compass against them, taking latitude directly from the sun at noon and Polaris at any hour, handling the moon and the planets, and working a sight by Pub. 249 with the exact answer beside it. Each ends with a question; answer it and the lesson is ticked off.
 - **Walkthrough** — one real sight in ten steps, every line explained as it is computed.
 - **Drills** — problems built from the real almanac and marked, with the full working shown afterwards. Types: `corr`, `alm`, `red`, `int`, `full`, `fix`.
 - **Sandbox** — change latitude, declination or LHA and watch the navigational triangle move.

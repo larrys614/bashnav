@@ -191,6 +191,9 @@ single answer without navigating menus.
 | `celnav polaris [ "UT" ] [ Hs ]` | latitude from Polaris, any time the horizon shows |
 | `celnav compass "UT" body <bearing> [variation]` | compass error and deviation |
 | `celnav devcard "DATE" body <variation> "hdg,time,brg; ..."` | a swing, as a deviation card |
+| `celnav current "DRlat" "DRlon" "FIXlat" "FIXlon" <hours>` | set and drift |
+| `celnav ep "lat" "lon" <crs> <spd> <hrs> [set] [drift]` | the DR run, and the EP |
+| `celnav table <lat> <dec> [LHA]` | a Pub. 249 page, generated |
 | `celnav stars ["UT"]` | the 57 navigational stars plus Polaris, SHA and Dec |
 | `celnav dr <lat> <lon> [course] [speed]` | set the DR |
 | `celnav log` / `celnav clear` | list or empty the sight log |
@@ -357,7 +360,7 @@ lesson at a time and pick up where you left off.](fig/train.png)
 
 ### 7.1 Lessons
 
-Twenty-nine lessons in eight modules: a preliminary module on dead reckoning, the three kinds of position and set and drift — offered with a three-question gate, so anyone who already works that way can skip it — then four modules of five, from first principles to the fix, then choosing bodies and checking the compass, latitude taken directly — at noon from the sun and all night from Polaris — and the bodies that are not the sun or a star: the moon, where the corrections stop being bookkeeping, and the planets, where they almost vanish. Each one is a diagram, a short explanation in
+Thirty-three lessons in nine modules: a preliminary module on dead reckoning, the three kinds of position and set and drift — offered with a three-question gate, so anyone who already works that way can skip it — then four modules of five, from first principles to the fix, then choosing bodies and checking the compass, latitude taken directly — at noon from the sun and all night from Polaris — and the bodies that are not the sun or a star: the moon, where the corrections stop being bookkeeping, and the planets, where they almost vanish — and last the tables themselves: what Pub. 249 is, why Volume 1 needs no interpolation, how the d column works, and an honest comparison with the calculator, with a tables mode that works a sight alongside you and names which of the four classic mistakes you made. Each one is a diagram, a short explanation in
 numbered steps, and a question to check that it landed. Answer the question correctly and
 the lesson is ticked off.
 

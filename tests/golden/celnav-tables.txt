@@ -1,0 +1,205 @@
+=== table lat 50 dec -11 LHA 329 ===
+
+  PUB. 249  --  LAT 50N   DECLINATION 11S   CONTRARY NAME
+  generated from the same spherical triangle the app reduces with
+  ----------------------------------------------------------------------
+    LHA            Hc       d      Z
+    326     22 08.6'   -55.3    144
+    327     22 31.2'   -55.6    145
+    328     22 53.3'   -55.8    146
+    329     23 14.8'   -56.0    147   <-- your LHA
+    330     23 35.7'   -56.2    148
+    331     23 56.1'   -56.4    149
+    332     24 15.9'   -56.6    150
+  ----------------------------------------------------------------------
+  N. Lat.   LHA greater than 180 ....  Zn = Z
+            LHA less than 180 .......  Zn = 360 - Z
+  ----------------------------------------------------------------------
+  Hc is the altitude at the WHOLE degree of declination above.
+  d is how much it changes per whole degree of declination, so the
+  minutes of declination are interpolated with it: Hc + d x (mins/60).
+  ----------------------------------------------------------------------
+
+=== table lat 50 dec 11 LHA 45 ===
+
+  PUB. 249  --  LAT 50N   DECLINATION 11N   SAME NAME
+  generated from the same spherical triangle the app reduces with
+  ----------------------------------------------------------------------
+    LHA            Hc       d      Z
+     42     37 57.4'   +50.2    124
+     43     37 25.1'   +49.9    123
+     44     36 52.4'   +49.7    122
+     45     36 19.4'   +49.4    121   <-- your LHA
+     46     35 46.0'   +49.2    120
+     47     35 12.3'   +49.0    119
+     48     34 38.2'   +48.7    118
+  ----------------------------------------------------------------------
+  N. Lat.   LHA greater than 180 ....  Zn = Z
+            LHA less than 180 .......  Zn = 360 - Z
+  ----------------------------------------------------------------------
+  Hc is the altitude at the WHOLE degree of declination above.
+  d is how much it changes per whole degree of declination, so the
+  minutes of declination are interpolated with it: Hc + d x (mins/60).
+  ----------------------------------------------------------------------
+
+=== table lat -35 dec -20 LHA 150 ===
+
+  PUB. 249  --  LAT 35S   DECLINATION 20S   SAME NAME
+  generated from the same spherical triangle the app reduces with
+  ----------------------------------------------------------------------
+    LHA            Hc       d      Z
+    147    -26 -42.3'   +52.0     35
+    148    -27 -10.1'   +52.4     34
+    149    -27 -37.3'   +52.8     33
+    150    -28 -3.8'   +53.2     32   <-- your LHA
+    151    -28 -29.6'   +53.6     31
+    152    -28 -54.8'   +54.0     30
+    153    -29 -19.2'   +54.3     29
+  ----------------------------------------------------------------------
+  S. Lat.   LHA greater than 180 ....  Zn = 180 - Z
+            LHA less than 180 .......  Zn = 180 + Z
+  ----------------------------------------------------------------------
+  Hc is the altitude at the WHOLE degree of declination above.
+  d is how much it changes per whole degree of declination, so the
+  minutes of declination are interpolated with it: Hc + d x (mins/60).
+  ----------------------------------------------------------------------
+
+=== table lat -35 dec 15 LHA 300 ===
+
+  PUB. 249  --  LAT 35S   DECLINATION 15N   CONTRARY NAME
+  generated from the same spherical triangle the app reduces with
+  ----------------------------------------------------------------------
+    LHA            Hc       d      Z
+    297     12 10.0'   -40.0    118
+    298     12 53.2'   -40.3    119
+    299     13 36.0'   -40.6    120
+    300     14 18.6'   -40.9    120   <-- your LHA
+    301     15 00.9'   -41.3    121
+    302     15 42.9'   -41.6    122
+    303     16 24.5'   -42.0    122
+  ----------------------------------------------------------------------
+  S. Lat.   LHA greater than 180 ....  Zn = 180 - Z
+            LHA less than 180 .......  Zn = 180 + Z
+  ----------------------------------------------------------------------
+  Hc is the altitude at the WHOLE degree of declination above.
+  d is how much it changes per whole degree of declination, so the
+  minutes of declination are interpolated with it: Hc + d x (mins/60).
+  ----------------------------------------------------------------------
+
+=== tutor: entering arguments ===
+
+  ENTERING ARGUMENTS FOR PUB. 249
+  ----------------------------------------------------------------------
+  Sun at 2026-10-22 10:00:00 UT
+  GHA  333 52.6'      Dec  11 07.5'S
+  ----------------------------------------------------------------------
+  DR            50 09.0'N  005 04.0'W
+  Assumed LAT   50N        the whole degree nearest the DR
+  Assumed LON   004 52.6'W   chosen to make the LHA whole
+  LHA           329
+  Declination   11S 07.5'   the table is entered at 11S, and the
+                              7.5 minutes are interpolated with d
+  Ho            29 03.0'     from Hs 28 51.4
+  ----------------------------------------------------------------------
+
+=== tutor: the page for those arguments ===
+
+  PUB. 249  --  LAT 50N   DECLINATION 11S   CONTRARY NAME
+  generated from the same spherical triangle the app reduces with
+  ----------------------------------------------------------------------
+    LHA            Hc       d      Z
+    326     22 08.6'   -55.3    144
+    327     22 31.2'   -55.6    145
+    328     22 53.3'   -55.8    146
+    329     23 14.8'   -56.0    147   <-- your LHA
+    330     23 35.7'   -56.2    148
+    331     23 56.1'   -56.4    149
+    332     24 15.9'   -56.6    150
+  ----------------------------------------------------------------------
+  N. Lat.   LHA greater than 180 ....  Zn = Z
+            LHA less than 180 .......  Zn = 360 - Z
+  ----------------------------------------------------------------------
+  Hc is the altitude at the WHOLE degree of declination above.
+  d is how much it changes per whole degree of declination, so the
+  minutes of declination are interpolated with it: Hc + d x (mins/60).
+  ----------------------------------------------------------------------
+
+=== tutor: right ===
+
+  YOUR WORKING AGAINST THE EXACT SOLUTION
+  ----------------------------------------------------------------------
+  From the page   Hc 23 14.8'   d -56.0   Z 147
+  Interpolated    Hc 23 07.7'   = Hc + d x 7.5/60
+  ----------------------------------------------------------------------
+  Your Hc         23 07.8'
+  Exact Hc        23 07.7'
+  Difference      +0.1'
+  rounding in the table and in the interpolation, which is expected and is why the tables are worked to a tenth
+  ----------------------------------------------------------------------
+  Your Z          147
+  Z from the page 147   ->  Zn 146.7 by the rule at the foot
+  Z agrees.
+  ----------------------------------------------------------------------
+  ----------------------------------------------------------------------
+
+=== tutor: interpolation backwards ===
+
+  YOUR WORKING AGAINST THE EXACT SOLUTION
+  ----------------------------------------------------------------------
+  From the page   Hc 23 14.8'   d -56.0   Z 147
+  Interpolated    Hc 23 07.7'   = Hc + d x 7.5/60
+  ----------------------------------------------------------------------
+  Your Hc         23 21.8'
+  Exact Hc        23 07.7'
+  Difference      +14.1'
+  the interpolation was applied the WRONG WAY: d is negative, so it is subtracted as declination increases
+  ----------------------------------------------------------------------
+  ----------------------------------------------------------------------
+
+=== tutor: declination one degree off ===
+
+  YOUR WORKING AGAINST THE EXACT SOLUTION
+  ----------------------------------------------------------------------
+  From the page   Hc 23 14.8'   d -56.0   Z 147
+  Interpolated    Hc 23 07.7'   = Hc + d x 7.5/60
+  ----------------------------------------------------------------------
+  Your Hc         22 11.8'
+  Exact Hc        23 07.7'
+  Difference      -55.9'
+  that is the entry for a declination one whole degree off
+  ----------------------------------------------------------------------
+  ----------------------------------------------------------------------
+
+=== tutor: LHA one degree off ===
+
+  YOUR WORKING AGAINST THE EXACT SOLUTION
+  ----------------------------------------------------------------------
+  From the page   Hc 23 14.8'   d -56.0   Z 147
+  Interpolated    Hc 23 07.7'   = Hc + d x 7.5/60
+  ----------------------------------------------------------------------
+  Your Hc         23 28.7'
+  Exact Hc        23 07.7'
+  Difference      +21.0'
+  that is the entry for an LHA one degree off -- the commonest arithmetic slip in the whole method
+  ----------------------------------------------------------------------
+  ----------------------------------------------------------------------
+
+=== tutor: Zn read where the page prints Z ===
+
+  YOUR WORKING AGAINST THE EXACT SOLUTION
+  ----------------------------------------------------------------------
+  From the page   Hc 23 56.1'   d -56.4   Z 149
+  Interpolated    Hc 23 45.7'   = Hc + d x 11.1/60
+  ----------------------------------------------------------------------
+  Your Hc         22 00.0'
+  Exact Hc        23 45.7'
+  Difference      -105.7'
+  larger than rounding and not one of the usual slips. Check the arguments above against your own working, one line at a time
+  ----------------------------------------------------------------------
+  Your Z          211
+  Z from the page 149   ->  Zn 211.3 by the rule at the foot
+  That is Zn, not Z. The table prints the azimuth ANGLE and the rule
+  at the foot of the page converts it -- which is the step to practise.
+  ----------------------------------------------------------------------
+  ----------------------------------------------------------------------
+

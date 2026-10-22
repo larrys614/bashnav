@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003526486
+BASHNAV_BYTES=003550808
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -915,6 +915,7 @@ help_text() {
     '      celnav polaris [ "UT" ] [ Hs ]           latitude from Polaris' \
     '      celnav compass "UT" body <bearing> [variation]' \
     '      celnav devcard "DATE" body <variation> "hdg,time,brg; ..."' \
+    '      celnav table <lat> <dec> [LHA]           a Pub. 249 page, generated' \
     '      celnav current "DRlat" "DRlon" "FIXlat" "FIXlon" <hours>' \
     '                                               set and drift' \
     '      celnav ep "lat" "lon" <crs> <spd> <hrs> [set] [drift]' \
@@ -1111,6 +1112,47 @@ sandbox_mode() {
 #  Two of three offers the skip and names what was missed. Fewer opens
 #  the module. Either way P1, P2 and P3 stay reachable by code from the
 #  lesson list, because a gate that LOCKS a lesson is worse than no gate.
+#  TABLES MODE.  Larry's spec, verbatim: "teach via HO 249 is an option
+#  to select and will work the user step by step through -- but will also
+#  in parallel calc w/o the books, and compare the input result from the
+#  user to the internal."
+#
+#  So the engine reduces the same sight exactly while the reader works it
+#  by the page, and the comparison at the end attributes the difference
+#  rather than only reporting it: table rounding, the interpolation
+#  applied backwards, a declination one degree off, an LHA one degree
+#  off, or Zn read where the page prints Z.  Each has a size of its own.
+tables_mode() {
+  echo
+  echo "  ==============================================================="
+  echo "   PUB. 249 -- work a sight by the tables, with the answer beside it"
+  echo "  ==============================================================="
+  echo "  The pages are generated, not shipped: every entry is this app's"
+  echo "  own triangle solved for whole degrees. Nothing is looked up."
+  ask "UT of the sight (YYYY-MM-DD hh:mm:ss)" "$(utctoday) 10:00:00"; tm_u="$ANS"
+  ask "Body" "sun"; tm_b="$ANS"
+  ask "Hs (blank = just the arguments and the page)" ""; tm_hs="$ANS"
+  tm_limb=L
+  case "$tm_b" in sun|Sun|SUN|moon|Moon|MOON)
+    ask "Limb, L or U" "L"; tm_limb="$ANS" ;; esac
+  engine -v cmd=tabargs -v utc="$tm_u" -v body="$tm_b" \
+         -v drlat="$drlat" -v drlon="$drlon" -v hs="$tm_hs" -v limb="$tm_limb" \
+         -v ie="$ie" -v heye="$heye" -v temp="$temp" -v press="$press"
+  pause
+  engine -v cmd=tabpage -v utc="$tm_u" -v body="$tm_b" \
+         -v drlat="$drlat" -v drlon="$drlon"
+  echo "  Read Hc, d and Z off the row marked, interpolate Hc for the"
+  echo "  minutes of declination, and enter what you get."
+  ask "Your interpolated Hc (e.g. 23 07.8)" ""; tm_hc="$ANS"
+  ask "Your Z, the angle off the page (blank to skip)" ""; tm_z="$ANS"
+  if [ -n "$tm_hc" ] || [ -n "$tm_z" ]; then
+    engine -v cmd=tabcheck -v utc="$tm_u" -v body="$tm_b" \
+           -v drlat="$drlat" -v drlon="$drlon" -v hs="$tm_hs" -v limb="$tm_limb" \
+           -v ie="$ie" -v heye="$heye" -v temp="$temp" -v press="$press" \
+           -v uhc="$tm_hc" -v uz="$tm_z"
+  fi
+  pause
+}
 prelim_gate() {
   echo
   echo "  ==============================================================="
@@ -1165,12 +1207,14 @@ train_menu() {
     echo "   4  Sandbox              change one thing, watch the triangle move"
     echo
     echo "   p  Before the sights     DR, EP, set and drift -- skip it if you know it"
+    echo "   t  Tables (Pub. 249)     work a sight by the book, answer alongside"
     echo
     echo "   x  back to the navigation menu"
     printf "  > "; IFS= read -r a
     case "$a" in
       1) learn_menu ;; 2) walk_mode ;; 3) drill_menu ;; 4) sandbox_mode ;;
       p|P) prelim_gate ;;
+      t|T) tables_mode ;;
       x|X|"") return ;;
     esac
   done
@@ -1230,6 +1274,9 @@ case "$1" in
   noon)    shift; do_noon "$1" "$2" "$3" ;;
   polaris) shift; do_polaris "$1" "$2" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
+  table)   shift
+           [ $# -lt 2 ] && { echo 'usage: celnav table <lat> <dec> [LHA]   (whole degrees)'; exit 2; }
+           engine -v cmd=table -v tlat="$1" -v tdec="$2" -v tlha="$3" ;;
   current) shift
            [ $# -lt 5 ] && { echo 'usage: celnav current "DRlat" "DRlon" "FIXlat" "FIXlon" <hours>'; exit 2; }
            engine -v cmd=current -v drlat="$1" -v drlon="$2" \
@@ -1255,7 +1302,7 @@ case "$1" in
   version|--version) echo "celnav $CELNAV_VERSION" ;;
   *) echo "celnav: there is no command '$1'."
      echo
-     echo "  Working    plan  alm  sight  fix  compass  devcard  current  ep  stars  dr  log  clear"
+     echo "  Working    plan  alm  sight  fix  compass  devcard  current  ep  table  stars  dr  log  clear"
      echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
      echo "  Setup      day  night  plain  about  doctor  where  version"
      echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"
@@ -2528,6 +2575,216 @@ function cmd_compass(   jd,lat,lon,zn,ce,dev,amp){
   hr(); print ""
 }
 
+# ---------------- Pub. 249: the tables, generated ---------------------
+# THE TABLES DO NOT NEED TO BE SHIPPED, BECAUSE THEY CAN BE GENERATED.
+# Every entry in Pub. 249 is the navigational triangle solved for whole
+# degrees of latitude, declination and LHA -- which is exactly what
+# reduce_sight already does for arbitrary arguments.  Restrict the
+# arguments to integers and the engine IS the table.
+#
+# Which means: no data files of any size, ever; no copyright question
+# (Pub. 249 is a United States government work and so not in copyright,
+# but generating the entries sidesteps the question rather than relying
+# on the answer); and the tutor can print the exact page a sight needs
+# instead of the handful of pages a shipped extract would cover.
+#
+# Z IS NOT Zn.  The tables print the azimuth ANGLE, measured from the
+# elevated pole, 0 to 180, and leave the reader to apply the rule at the
+# foot of the page.  That rule is part of what the tutor has to teach, so
+# the table prints Z and the rule, not Zn.
+function tab_Z(zn,lha,lat){
+  if(lat>=0) return (nrm360(lha)>180) ? zn : nrm360(360-zn)
+  return (nrm360(lha)>180) ? nrm360(180-zn) : nrm360(zn-180)
+}
+function tab_entry(lat,dec,lha,   hc1,hc2){
+  #  reduce_sight computes lha = gha + lon, so with lon 0 the GHA
+  #  argument IS the LHA.  Negating it put the whole table a quadrant
+  #  away -- a body east of the meridian instead of west.
+  reduce_sight(lat,0,nrm360(lha),dec)
+  hc1=R_HC; TB_Z=tab_Z(R_ZN,lha,lat)
+  reduce_sight(lat,0,nrm360(lha),dec+(dec>=0?1:-1))
+  hc2=R_HC
+  TB_HC=hc1
+  TB_D=(hc2-hc1)*60
+  return 0
+}
+function tab_page(la,de,lh,   i,lo,hi,same){
+  same=((la>=0&&de>=0)||(la<0&&de<0))
+  print ""
+  printf "  PUB. 249  --  LAT %d%s   DECLINATION %d%s   %s NAME\n",
+         fabs(la), (la>=0?"N":"S"), fabs(de), (de>=0?"N":"S"),
+         (same?"SAME":"CONTRARY")
+  print "  generated from the same spherical triangle the app reduces with"
+  hr()
+  printf "  %5s   %11s %7s %6s\n", "LHA", "Hc", "d", "Z"
+  lo=lh-3; hi=lh+3
+  for(i=lo;i<=hi;i++){
+    tab_entry(la,de,i)
+    printf "  %5d   %4d %04.1f'  %+6.1f %6.0f%s\n",
+           nrm360(i), int(TB_HC), (TB_HC-int(TB_HC))*60, TB_D, TB_Z,
+           (i==lh?"   <-- your LHA":"")
+  }
+  hr()
+  if(la>=0){
+    print "  N. Lat.   LHA greater than 180 ....  Zn = Z"
+    print "            LHA less than 180 .......  Zn = 360 - Z"
+  } else {
+    print "  S. Lat.   LHA greater than 180 ....  Zn = 180 - Z"
+    print "            LHA less than 180 .......  Zn = 180 + Z"
+  }
+  hr()
+  print "  Hc is the altitude at the WHOLE degree of declination above."
+  print "  d is how much it changes per whole degree of declination, so the"
+  print "  minutes of declination are interpolated with it: Hc + d x (mins/60)."
+  hr(); print ""
+  return 0
+}
+function cmd_table(   la,de,lh){
+  if(tlat==""||tdec==""){
+    print "  needs an assumed latitude and a declination:"
+    print "    -v tlat=<whole degrees> -v tdec=<whole degrees> [-v tlha=<whole degrees>]"
+    return
+  }
+  la=int(parse_ang(tlat)); de=int(parse_ang(tdec))
+  lh=(tlha==""?0:int(parse_ang(tlha)))
+  tab_page(la,de,lh)
+}
+#  THE TUTOR'S PAGE IS THE PAGE FOR THE ARGUMENTS IT JUST DERIVED, so it
+#  derives them and prints it in one call rather than making the shell do
+#  arithmetic it has no business doing.
+function cmd_tabpage(){
+  if(!tab_args()){ print "  unknown body"; return }
+  tab_page(TA_ALAT,TA_DECD,TA_LHA)
+}
+
+# ---------------- Pub. 249: the tutor --------------------------------
+# GETTING THE ENTERING ARGUMENTS WRONG IS THE MISTAKE THE TABLES ACTUALLY
+# PRODUCE, so the tutor checks them before it prints a page.  Two of the
+# three are not free choices at all:
+#
+#   * the assumed LATITUDE is the whole degree nearest the DR, because the
+#     table has no other rows;
+#   * the assumed LONGITUDE is whatever makes the LHA come out whole, for
+#     the same reason -- which is why an AP is not the DR, and why two
+#     navigators working the same sight from the same DR use the same AP.
+#
+# It prints them rather than asking the reader to trust them, because a
+# wrong argument gives a confident wrong answer and nothing on the page
+# says so.
+function tab_args(   jd,la,lo,gha,dec){
+  jd=parse_utc(utc)
+  if(body_at(body,jd)=="ERR") return 0
+  gha=B_GHA; dec=B_DEC
+  TA_GHA=gha; TA_DEC=dec
+  la=parse_ang(drlat); lo=parse_ang(drlon)
+  TA_ALAT = int(la + (la>=0?0.5:-0.5))
+  #  the assumed longitude: the one nearest the DR that makes GHA + lon
+  #  a whole number of degrees
+  TA_ALON = int(gha+lo+ (gha+lo>=0?0.5:-0.5)) - gha
+  if(TA_ALON-lo >  0.5) TA_ALON -= 1
+  if(TA_ALON-lo < -0.5) TA_ALON += 1
+  TA_LHA  = nrm360(gha + TA_ALON)
+  TA_LHA  = int(TA_LHA + 0.5); if(TA_LHA==360) TA_LHA=0
+  TA_DECD = int(dec + (dec>=0?0:-0)); if(dec<0) TA_DECD = -int(-dec)
+  TA_DECM = (fabs(dec) - fabs(TA_DECD))*60
+  return 1
+}
+function cmd_tabargs(   ho){
+  if(utc==""||body==""){ print "  needs -v utc= and -v body="; return }
+  if(!tab_args()){ print "  unknown body"; return }
+  print ""
+  print "  ENTERING ARGUMENTS FOR PUB. 249"
+  hr()
+  printf "  %s at %s UT\n", B_NAME, utc
+  printf "  GHA %10s      Dec %10s\n", fmt_dm(fabs(TA_GHA),3), fmt_lat(TA_DEC)
+  hr()
+  printf "  DR            %s  %s\n", fmt_lat(parse_ang(drlat)), fmt_lon(parse_ang(drlon))
+  printf "  Assumed LAT   %d%s        the whole degree nearest the DR\n",
+         fabs(TA_ALAT), (TA_ALAT>=0?"N":"S")
+  printf "  Assumed LON   %s   chosen to make the LHA whole\n", fmt_lon(TA_ALON)
+  printf "  LHA           %d\n", TA_LHA
+  printf "  Declination   %d%s %04.1f'   the table is entered at %d%s, and the\n",
+         fabs(TA_DECD), (TA_DEC>=0?"N":"S"), TA_DECM, fabs(TA_DECD), (TA_DEC>=0?"N":"S")
+  printf "                              %.1f minutes are interpolated with d\n", TA_DECM
+  if(hs!=""){
+    ho=corrections(parse_ang(hs),ie+0,heye+0,temp+0,press+0,limb)
+    printf "  Ho            %s     from Hs %s\n", fmt_dm(ho,2), hs
+  }
+  hr(); print ""
+}
+# THE COMPARISON, AND WHAT IT BLAMES.  The engine has reduced the same
+# sight from the same assumed position exactly, so a difference is the
+# reader's or the table's, and the two are distinguishable: the table's
+# own rounding is small and bounded, while every common mistake has a
+# size of its own -- the interpolation applied backwards is twice the
+# interpolation, a declination off by one is d, an LHA off by one is the
+# difference between two rows.
+function cmd_tabcheck(   ho,ex,d,sgn,back,d1,d2,z,zn,hcT,note){
+  if(!tab_args()){ print "  unknown body"; return }
+  tab_entry(TA_ALAT,TA_DECD,TA_LHA)
+  hcT=TB_HC
+  ex = reduce_sight(TA_ALAT,TA_ALON,TA_GHA,TA_DEC)
+  z  = tab_Z(R_ZN,TA_LHA,TA_ALAT)
+  zn = R_ZN
+  print ""
+  print "  YOUR WORKING AGAINST THE EXACT SOLUTION"
+  hr()
+  printf "  From the page   Hc %s   d %+.1f   Z %.0f\n", fmt_dm(hcT,2), TB_D, z
+  printf "  Interpolated    Hc %s   = Hc + d x %.1f/60\n",
+         fmt_dm(hcT + TB_D*(TA_DECM/60)/60, 2), TA_DECM
+  hr()
+  if(uhc!=""){
+    d = (parse_ang(uhc) - ex)*60
+    printf "  Your Hc         %s\n", fmt_dm(parse_ang(uhc),2)
+    printf "  Exact Hc        %s\n", fmt_dm(ex,2)
+    printf "  Difference      %+.1f'\n", d
+    back = hcT - TB_D*(TA_DECM/60)/60
+    d1 = reduce_sight(TA_ALAT,TA_ALON,TA_GHA,TA_DEC+(TA_DEC>=0?1:-1))
+    d2 = reduce_sight(TA_ALAT,TA_ALON,TA_GHA+1,TA_DEC)
+    note=""
+    if(fabs(d)<=0.6) note="rounding in the table and in the interpolation, which is expected and is why the tables are worked to a tenth"
+    else if(fabs(parse_ang(uhc)-back)*60 < 0.6)
+      note="the interpolation was applied the WRONG WAY: d is " (TB_D>=0?"positive, so it is added":"negative, so it is subtracted") " as declination increases"
+    else if(fabs(parse_ang(uhc)-d1)*60 < 2.0)
+      note="that is the entry for a declination one whole degree off"
+    else if(fabs(parse_ang(uhc)-d2)*60 < 2.0)
+      note="that is the entry for an LHA one degree off -- the commonest arithmetic slip in the whole method"
+    else note="larger than rounding and not one of the usual slips. Check the arguments above against your own working, one line at a time"
+    printf "  %s\n", note
+  }
+  if(uz!=""){
+    hr()
+    printf "  Your Z          %.0f\n", parse_ang(uz)
+    printf "  Z from the page %.0f   ->  Zn %.1f by the rule at the foot\n", z, zn
+    if(fabs(nrm180(parse_ang(uz)-z))<1.0) print "  Z agrees."
+    else if(fabs(nrm180(parse_ang(uz)-zn))<1.0){
+      print "  That is Zn, not Z. The table prints the azimuth ANGLE and the rule"
+      print "  at the foot of the page converts it -- which is the step to practise."
+    }
+    else print "  Z disagrees by more than a degree. Check which pole you measured from."
+  }
+  if(uhc!=""){
+    hr()
+    ho = (hs!="" ? corrections(parse_ang(hs),ie+0,heye+0,temp+0,press+0,limb) : 0)
+    if(hs!=""){
+      printf "  Ho %s  -  Hc %s  =  intercept %.1f' %s\n",
+             fmt_dm(ho,2), fmt_dm(parse_ang(uhc),2),
+             fabs(ho-parse_ang(uhc))*60, ((ho-parse_ang(uhc))>=0?"TOWARD":"AWAY")
+      printf "  and exactly:  %.1f' %s\n",
+             fabs(ho-ex)*60, ((ho-ex)>=0?"TOWARD":"AWAY")
+      #  AN INTERCEPT THIS LONG IS NOT A TABLE PROBLEM.  The assumed
+      #  position is within half a degree of the DR, so the intercept can
+      #  only be a few tens of miles unless something upstream is wrong:
+      #  the wrong body, the wrong hour, or a sight that belongs to a
+      #  different day.  Saying so here saves the reader from hunting for
+      #  an interpolation error that is not there.
+      if(fabs(ho-ex)*60 > 60)
+        print "  NOTE: an intercept of more than 60 miles is not a table error. The\n        AP is within half a degree of the DR, so check the body, the\n        hour and the date of the sight before looking at the working."
+    }
+  }
+  hr(); print ""
+}
+
 # ---------------- DR, set and drift ----------------------------------
 # PLANE SAILING ON THE MEAN LATITUDE, which is the method the rest of the
 # DR work in this program uses and the method a navigator uses on a
@@ -2787,6 +3044,10 @@ BEGIN{
   else if(cmd=="devcard") cmd_devcard()
   else if(cmd=="current") cmd_current()
   else if(cmd=="ep")      cmd_ep()
+  else if(cmd=="table")   cmd_table()
+  else if(cmd=="tabargs") cmd_tabargs()
+  else if(cmd=="tabpage") cmd_tabpage()
+  else if(cmd=="tabcheck") cmd_tabcheck()
   else if(cmd=="selftest") cmd_selftest()
   else if(cmd=="stars")   cmd_stars()
   else if(cmd!="" && substr(cmd,1,2)!="t_"){ print "engine: unknown cmd \"" cmd "\"" ; exit 2 }
@@ -4314,6 +4575,10 @@ function les_fig(id,   la,lo,zd,b){
     moon_fig()
   } else if(id=="B2"){
     planet_fig()
+  } else if(id=="H1"){
+    tab_fig()
+  } else if(id=="H3"){
+    interp_fig()
   } else if(id=="P1"){
     dr_fig()
   } else if(id=="P2"){
@@ -4333,6 +4598,202 @@ function les_fig(id,   la,lo,zd,b){
   return 0
 }
 
+# =====================================================================
+#  Module H -- The tables
+#  Larry's spec: "teach via HO 249 is an option to select and will work
+#  the user step by step through -- but will also in parallel calc w/o
+#  the books, and compare the input result from the user to the internal."
+# =====================================================================
+function les_H1(){
+  thead("H1","What a sight reduction table actually is")
+  tb()
+  tp("Pub. 249 is four volumes of numbers and no explanation, which makes")
+  tp("it look like special knowledge. It is not. Every entry in it is the")
+  tp("same spherical triangle this program solves, worked out in advance")
+  tp("for whole degrees and printed.")
+  tb()
+  tp("  sin Hc = sin L sin d + cos L cos d cos LHA")
+  tb()
+  tp("That is the whole of it. Give that formula a latitude, a")
+  tp("declination and an LHA and it returns an altitude. Pub. 249 is that")
+  tp("formula evaluated for every whole-degree combination a navigator")
+  tp("might need, by someone else, before you sailed.")
+  tb()
+  tp("WHICH IS WHY THIS PROGRAM DOES NOT SHIP THE TABLES. It generates")
+  tp("them. Restrict the arguments to whole degrees and the engine IS the")
+  tp("table, so the tutor can print the exact page your sight needs")
+  tp("instead of the handful of pages an extract would carry.")
+  tb()
+  tp("THE PRICE OF PRECOMPUTING, which is the thing to understand:")
+  tb()
+  tp("  1. The table only holds WHOLE degrees. So the assumed position")
+  tp("     is not your DR -- it is the whole degree of latitude nearest")
+  tp("     it, and whatever longitude makes the LHA come out whole.")
+  tp("  2. Declination will not be a whole degree. That is what the d")
+  tp("     column is for: how much Hc changes per degree of declination,")
+  tp("     so you can interpolate the minutes yourself.")
+  tp("  3. The azimuth is printed as an ANGLE from the elevated pole, 0")
+  tp("     to 180, not as a true bearing. A rule at the foot of the page")
+  tp("     converts it, and which rule depends on your hemisphere and")
+  tp("     whether the LHA is more or less than 180.")
+  tb()
+  tp("None of those three is difficulty. They are the bookkeeping that")
+  tp("buys you a fix with no battery in it.")
+  return 0
+}
+function tab_fig(   la,de,lh,i){
+  la=50; de=-11; lh=329
+  tp("A page, generated by this lesson as you read it:")
+  tb()
+  printf "      LAT %dN   DEC %dS   CONTRARY NAME\n", la, -de
+  tb()
+  printf "        %5s %11s %8s %6s\n", "LHA", "Hc", "d", "Z"
+  for(i=lh-2;i<=lh+2;i++){
+    tab_entry(la,de,i)
+    printf "        %5d  %4d %04.1f' %+8.1f %6.0f\n",
+           i, int(TB_HC), (TB_HC-int(TB_HC))*60, TB_D, TB_Z
+  }
+  tb()
+  tp("Nothing was looked up. Those twenty numbers came out of the same")
+  tp("line of trigonometry at the top of this lesson, which is all the")
+  tp("book ever contained.")
+  return 0
+}
+function les_H2(){
+  thead("H2","Volume 1: the seven selected stars")
+  tb()
+  tp("Volume 1 is the odd one out and the one worth knowing about.")
+  tb()
+  tp("It is entered with two arguments only - LHA Aries and your latitude")
+  tp("- and it gives you Hc and Zn DIRECTLY, for seven stars chosen for")
+  tp("that moment. No declination argument, no interpolation, no azimuth")
+  tp("rule. Read seven lines, shoot them, plot them.")
+  tb()
+  tp("That is possible because the stars do not move relative to Aries")
+  tp("within the life of an edition, so their declinations can be built")
+  tp("into the table instead of being an argument to it.")
+  tb()
+  tp("THE SELECTION IS ITSELF AN ALGORITHM. The seven are chosen bright,")
+  tp("spread in azimuth, and in the honest altitude band - which is")
+  tp("exactly what C1 said makes a good set, and exactly what celnav plan")
+  tp("does when it picks the best three by azimuth spread.")
+  tb()
+  tp("So the app and the book are solving the same problem. They will")
+  tp("sometimes disagree, and the disagreement is informative rather than")
+  tp("a fault: Volume 1 was computed for a whole degree of latitude and a")
+  tp("whole degree of LHA Aries, for an edition that has an epoch, and it")
+  tp("does not know what the weather is doing to your horizon tonight.")
+  tb()
+  tp("Volume 1 also carries the one thing this program cannot: it works")
+  tp("with no power at all, in a wet cockpit, by torchlight.")
+  return 0
+}
+function les_H3(){
+  thead("H3","Volumes 2 and 3, and the interpolation")
+  tb()
+  tp("Volumes 2 and 3 are the general case: any body, any declination")
+  tp("between 0 and 29 degrees, which covers the sun, the moon, the four")
+  tp("planets and the stars near the equator.")
+  tb()
+  tp("Three columns per entry, and each one has a job:")
+  tb()
+  tp("  Hc   the computed altitude at the WHOLE degree of declination")
+  tp("  d    how much Hc changes per whole degree of declination, signed")
+  tp("  Z    the azimuth angle from the elevated pole, 0 to 180")
+  tb()
+  tp("THE INTERPOLATION IS ONE MULTIPLICATION:")
+  tb()
+  tp("       Hc = Hc(table) + d x (minutes of declination / 60)")
+  tb()
+  tp("and the sign of d does the thinking for you, as long as you let it.")
+  tp("A negative d means the altitude FALLS as the declination increases,")
+  tp("so the correction is subtracted. Applying it the wrong way is the")
+  tp("commonest error in the method and it is worth twice the correction,")
+  tp("because you move the wrong way by the amount you should have moved")
+  tp("the right way.")
+  tb()
+  tp("THE OTHER TWO MISTAKES, both of which the tutor will name for you:")
+  tb()
+  tp("  * an LHA one degree out. Silent, plausible, and worth about the")
+  tp("    difference between two rows - twenty minutes of arc at a")
+  tp("    workaday altitude, so twenty miles.")
+  tp("  * reading Zn where the page prints Z. The two agree in one")
+  tp("    quadrant and differ by a reflection everywhere else, which is")
+  tp("    the worst kind of error: right often enough to feel safe.")
+  tb()
+  tp("Work a sight both ways - tables mode in this app does it with you,")
+  tp("and shows you the exact answer alongside - until the three are")
+  tp("habits rather than things to remember.")
+  return 0
+}
+function interp_fig(   la,de,lh,dm,hc,ex){
+  la=50; de=-11; lh=329; dm=7.5
+  tab_entry(la,de,lh)
+  hc = TB_HC + TB_D*(dm/60)/60
+  ex = reduce_sight(la,0,lh,de-dm/60)
+  tp("The interpolation, worked as you read it:")
+  tb()
+  printf "      from the page, LHA %d      Hc %s   d %+.1f\n",
+         lh, fmt_dm(TB_HC,2), TB_D
+  printf "      declination                 %d %04.1f'S\n", -de, dm
+  printf "      correction  %+.1f x %.1f/60    %+.1f'\n", TB_D, dm, TB_D*(dm/60)
+  printf "      interpolated Hc             %s\n", fmt_dm(hc,2)
+  tb()
+  printf "      and solved exactly          %s\n", fmt_dm(ex,2)
+  printf "      the table costs you         %.1f'\n", fabs(hc-ex)*60
+  tb()
+  #  The figure computes the cost, so the sentence under it must not
+  #  assert a different number: at these arguments it comes out at zero
+  #  to the tenth the tables are worked to, and saying "a tenth of a
+  #  minute" underneath a printed 0.0' is the kind of drift this project
+  #  keeps catching in its own prose.
+  tp("Which is to say: the table has cost you nothing you could plot,")
+  tp("from arguments of whole degrees. That is what the d column buys,")
+  tp("and it is why the method survived two hundred years of use at sea.")
+  return 0
+}
+function les_H4(){
+  thead("H4","When the tables beat the calculator, and when they do not")
+  tb()
+  tp("An honest comparison, because the answer is not that one is better.")
+  tb()
+  tp("WHAT THE TABLES HAVE")
+  tb()
+  tp("  They need no power. That is the whole argument and it is enough.")
+  tp("  A book in a dry bag works after the batteries are flat, after the")
+  tp("  lightning strike, and after the water got into the nav station.")
+  tp("  They are also checkable: every number in them is public and the")
+  tp("  same for everyone, so an error in your working is findable by")
+  tp("  someone else looking at the same page.")
+  tb()
+  tp("WHAT THEY COST")
+  tb()
+  tp("  Whole-degree arguments, so an assumed position that is not where")
+  tp("  you are and an intercept that has to be plotted. Interpolation by")
+  tp("  hand, with three known ways to get it wrong. Volumes that have an")
+  tp("  epoch and go slowly out of date. And time: a tabular reduction is")
+  tp("  minutes of careful arithmetic where this program takes none.")
+  tb()
+  tp("WHAT THIS PROGRAM HAS")
+  tb()
+  tp("  The exact triangle for the second you asked about, from the DR")
+  tp("  you actually have, with no interpolation and no assumed position.")
+  tp("  And a battery, which is the whole of the case against it.")
+  tb()
+  tp("THE SENSIBLE POSITION")
+  tb()
+  tp("Be fluent in both. Work sights by the tables often enough that the")
+  tp("method is yours, and use the program when it is there - then the")
+  tp("day the power goes you are not learning the method, you are using")
+  tp("it. That is the same argument the About page makes about celestial")
+  tp("navigation against satellites, one level down.")
+  tb()
+  tp("And one practical note: check the program against the tables, not")
+  tp("the other way round. If they disagree by more than a minute or two,")
+  tp("the arguments are wrong somewhere, and the tutor in tables mode")
+  tp("exists to tell you which one.")
+  return 0
+}
 # =====================================================================
 #  Check questions
 # =====================================================================
@@ -4429,6 +4890,29 @@ function ques(id,show){
       tp("        air and sea temperatures you do not know   c) its azimuth")
       tp("        changes too fast to time") }
     else { Q_ANS="b"; Q_WHY="Below about 15 degrees the refraction correction stops being arithmetic and becomes a guess. Fast azimuth change is the trouble at the other end of the scale, up near the zenith." } }
+  else if(id=="H1"){ if(show){ tp("Q. Why does a sight reduction table use an assumed position rather than")
+      tp("   your DR?")
+      tp("     a) because the DR is not accurate enough to reduce from")
+      tp("     b) because the table only holds whole degrees, and the AP is")
+      tp("        where the whole degrees are")
+      tp("     c) because the intercept has to be short") }
+    else { Q_ANS="b"; Q_WHY="The AP is a bookkeeping choice, not a judgement about your DR: whole-degree latitude and a longitude that makes the LHA whole, because those are the only rows the book has." } }
+  else if(id=="H2"){ if(show){ tp("Q. What makes Volume 1 different from Volumes 2 and 3?")
+      tp("     a) it is more accurate")
+      tp("     b) it gives Hc and Zn directly for seven chosen stars, with no")
+      tp("        declination argument and no interpolation")
+      tp("     c) it covers declinations above 29 degrees") }
+    else { Q_ANS="b"; Q_WHY="The stars' declinations are built into the table instead of being an argument to it, which is why two arguments are enough and nothing needs interpolating." } }
+  else if(id=="H3"){ if(show){ tp("Q. The page gives Hc 23 14.8' and d -56.0. Your declination is 11 07.5'S.")
+      tp("   What is the interpolated Hc?")
+      tp("     a) 23 07.8'      b) 23 21.8'      c) 22 18.8'") }
+    else { Q_ANS="a"; Q_WHY="-56.0 x 7.5/60 = -7.0', so 23 14.8' - 7.0' = 23 07.8'. B added it instead of subtracting, which is worth twice the correction. C used the next whole degree of declination." } }
+  else if(id=="H4"){ if(show){ tp("Q. What is the one argument for the tables that the calculator cannot")
+      tp("   answer?")
+      tp("     a) they are more accurate")
+      tp("     b) they need no power")
+      tp("     c) they are faster") }
+    else { Q_ANS="b"; Q_WHY="They are less accurate and much slower. They work when nothing else does, which is the only argument that matters and is sufficient on its own." } }
   else if(id=="P1"){ if(show){ tp("Q. You steer 050 T at 6.5 knots for 90 minutes. How far north and how")
       tp("   far east are you?")
       tp("     a) 6.3 nm north and 7.5 nm east")
@@ -4487,7 +4971,11 @@ function syl_init(){
         "B1|The other bodies|The moon: where the corrections stop being bookkeeping;" \
         "B2|The other bodies|The planets: a point of light that moves;" \
         "C1|Choosing and checking|Choosing your bodies: the cut and the band;" \
-        "C2|Choosing and checking|Checking the compass against the sky"
+        "C2|Choosing and checking|Checking the compass against the sky;" \
+        "H1|The tables|What a sight reduction table actually is;" \
+        "H2|The tables|Volume 1: the seven selected stars;" \
+        "H3|The tables|Volumes 2 and 3, and the interpolation;" \
+        "H4|The tables|When the tables beat the calculator, and when they do not"
   NSYL=split(SYL,SYLROW,";")
   SYL_READY=1
   return 0
@@ -4505,6 +4993,8 @@ function lesson(id){
   else if(id=="L1")les_L1(); else if(id=="L2")les_L2()
   else if(id=="B1")les_B1(); else if(id=="B2")les_B2()
   else if(id=="C1")les_C1(); else if(id=="C2")les_C2()
+  else if(id=="H1")les_H1(); else if(id=="H2")les_H2()
+  else if(id=="H3")les_H3(); else if(id=="H4")les_H4()
   else { print "  no such lesson: " id; return 1 }
   return 0
 }

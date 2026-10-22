@@ -285,6 +285,47 @@ emit() {   # emit <name> ; program output on stdin
      -v temp=10 -v press=1010 </dev/null
 } | emit celnav-polaris.txt
 
+# ---- celnav: Pub. 249, generated, and the tutor -----------------------
+#  THE TABLE IS GENERATED, so what has to be pinned is not a transcription
+#  but the generator: a page in each hemisphere and for same and contrary
+#  name, which is where the azimuth-angle rule changes.
+#
+#  Z is the part a reader gets wrong and the part a refactor can break
+#  silently, because Hc does not move with it: cos(LHA) is even, so an
+#  LHA of the wrong sign gives the same altitude and a reflected azimuth.
+#  The entering arguments are captured for the same reason -- the assumed
+#  longitude is chosen to make the LHA whole, and if that arithmetic
+#  drifts the page is for the wrong column and says nothing about it.
+#
+#  The five tutor cases are the five verdicts it can reach, each fed the
+#  value a reader would actually produce: the right answer, the
+#  interpolation applied backwards, a declination one degree off, an LHA
+#  one degree off, and Zn read where the page prints Z.
+{
+  for a in "50 -11 329" "50 11 45" "-35 -20 150" "-35 15 300"; do
+    set -- $a
+    echo "=== table lat $1 dec $2 LHA $3 ==="
+    $AW $CE -v cmode=plain -v cmd=table -v tlat="$1" -v tdec="$2" -v tlha="$3" </dev/null
+  done
+  echo "=== tutor: entering arguments ==="
+  $AW $CE -v cmode=plain -v cmd=tabargs -v utc="2026-10-22 10:00:00" -v body=sun \
+     -v drlat="50 09.0 N" -v drlon="005 04.0 W" -v hs="28 51.4" -v limb=L \
+     -v ie=0 -v heye=2.5 -v temp=10 -v press=1010 </dev/null
+  echo "=== tutor: the page for those arguments ==="
+  $AW $CE -v cmode=plain -v cmd=tabpage -v utc="2026-10-22 10:00:00" -v body=sun \
+     -v drlat="50 09.0 N" -v drlon="005 04.0 W" </dev/null
+  for u in "23 07.8|147|right" "23 21.8||interpolation backwards" \
+           "22 11.8||declination one degree off" "23 28.7||LHA one degree off"; do
+    h=${u%%|*}; r=${u##*|}; z=${u#*|}; z=${z%%|*}
+    echo "=== tutor: $r ==="
+    $AW $CE -v cmode=plain -v cmd=tabcheck -v utc="2026-10-22 10:00:00" -v body=sun \
+       -v drlat="50 09.0 N" -v drlon="005 04.0 W" -v uhc="$h" -v uz="$z" </dev/null
+  done
+  echo "=== tutor: Zn read where the page prints Z ==="
+  $AW $CE -v cmode=plain -v cmd=tabcheck -v utc="2026-10-22 14:00:00" -v body=sun \
+     -v drlat="50 09.0 N" -v drlon="005 04.0 W" -v uhc="22 00.0" -v uz="211" </dev/null
+} | emit celnav-tables.txt
+
 # ---- celnav: DR, set and drift ----------------------------------------
 #  These two are plane geometry rather than astronomy, so the cases that
 #  matter are the ones where a sign or a divisor goes astray -- which is

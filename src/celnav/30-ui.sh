@@ -180,6 +180,7 @@ help_text() {
     '      celnav polaris [ "UT" ] [ Hs ]           latitude from Polaris' \
     '      celnav compass "UT" body <bearing> [variation]' \
     '      celnav devcard "DATE" body <variation> "hdg,time,brg; ..."' \
+    '      celnav table <lat> <dec> [LHA]           a Pub. 249 page, generated' \
     '      celnav current "DRlat" "DRlon" "FIXlat" "FIXlon" <hours>' \
     '                                               set and drift' \
     '      celnav ep "lat" "lon" <crs> <spd> <hrs> [set] [drift]' \
@@ -376,6 +377,47 @@ sandbox_mode() {
 #  Two of three offers the skip and names what was missed. Fewer opens
 #  the module. Either way P1, P2 and P3 stay reachable by code from the
 #  lesson list, because a gate that LOCKS a lesson is worse than no gate.
+#  TABLES MODE.  Larry's spec, verbatim: "teach via HO 249 is an option
+#  to select and will work the user step by step through -- but will also
+#  in parallel calc w/o the books, and compare the input result from the
+#  user to the internal."
+#
+#  So the engine reduces the same sight exactly while the reader works it
+#  by the page, and the comparison at the end attributes the difference
+#  rather than only reporting it: table rounding, the interpolation
+#  applied backwards, a declination one degree off, an LHA one degree
+#  off, or Zn read where the page prints Z.  Each has a size of its own.
+tables_mode() {
+  echo
+  echo "  ==============================================================="
+  echo "   PUB. 249 -- work a sight by the tables, with the answer beside it"
+  echo "  ==============================================================="
+  echo "  The pages are generated, not shipped: every entry is this app's"
+  echo "  own triangle solved for whole degrees. Nothing is looked up."
+  ask "UT of the sight (YYYY-MM-DD hh:mm:ss)" "$(utctoday) 10:00:00"; tm_u="$ANS"
+  ask "Body" "sun"; tm_b="$ANS"
+  ask "Hs (blank = just the arguments and the page)" ""; tm_hs="$ANS"
+  tm_limb=L
+  case "$tm_b" in sun|Sun|SUN|moon|Moon|MOON)
+    ask "Limb, L or U" "L"; tm_limb="$ANS" ;; esac
+  engine -v cmd=tabargs -v utc="$tm_u" -v body="$tm_b" \
+         -v drlat="$drlat" -v drlon="$drlon" -v hs="$tm_hs" -v limb="$tm_limb" \
+         -v ie="$ie" -v heye="$heye" -v temp="$temp" -v press="$press"
+  pause
+  engine -v cmd=tabpage -v utc="$tm_u" -v body="$tm_b" \
+         -v drlat="$drlat" -v drlon="$drlon"
+  echo "  Read Hc, d and Z off the row marked, interpolate Hc for the"
+  echo "  minutes of declination, and enter what you get."
+  ask "Your interpolated Hc (e.g. 23 07.8)" ""; tm_hc="$ANS"
+  ask "Your Z, the angle off the page (blank to skip)" ""; tm_z="$ANS"
+  if [ -n "$tm_hc" ] || [ -n "$tm_z" ]; then
+    engine -v cmd=tabcheck -v utc="$tm_u" -v body="$tm_b" \
+           -v drlat="$drlat" -v drlon="$drlon" -v hs="$tm_hs" -v limb="$tm_limb" \
+           -v ie="$ie" -v heye="$heye" -v temp="$temp" -v press="$press" \
+           -v uhc="$tm_hc" -v uz="$tm_z"
+  fi
+  pause
+}
 prelim_gate() {
   echo
   echo "  ==============================================================="
@@ -430,12 +472,14 @@ train_menu() {
     echo "   4  Sandbox              change one thing, watch the triangle move"
     echo
     echo "   p  Before the sights     DR, EP, set and drift -- skip it if you know it"
+    echo "   t  Tables (Pub. 249)     work a sight by the book, answer alongside"
     echo
     echo "   x  back to the navigation menu"
     printf "  > "; IFS= read -r a
     case "$a" in
       1) learn_menu ;; 2) walk_mode ;; 3) drill_menu ;; 4) sandbox_mode ;;
       p|P) prelim_gate ;;
+      t|T) tables_mode ;;
       x|X|"") return ;;
     esac
   done
@@ -495,6 +539,9 @@ case "$1" in
   noon)    shift; do_noon "$1" "$2" "$3" ;;
   polaris) shift; do_polaris "$1" "$2" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
+  table)   shift
+           [ $# -lt 2 ] && { echo 'usage: celnav table <lat> <dec> [LHA]   (whole degrees)'; exit 2; }
+           engine -v cmd=table -v tlat="$1" -v tdec="$2" -v tlha="$3" ;;
   current) shift
            [ $# -lt 5 ] && { echo 'usage: celnav current "DRlat" "DRlon" "FIXlat" "FIXlon" <hours>'; exit 2; }
            engine -v cmd=current -v drlat="$1" -v drlon="$2" \
@@ -520,7 +567,7 @@ case "$1" in
   version|--version) echo "celnav $CELNAV_VERSION" ;;
   *) echo "celnav: there is no command '$1'."
      echo
-     echo "  Working    plan  alm  sight  fix  compass  devcard  current  ep  stars  dr  log  clear"
+     echo "  Working    plan  alm  sight  fix  compass  devcard  current  ep  table  stars  dr  log  clear"
      echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
      echo "  Setup      day  night  plain  about  doctor  where  version"
      echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"

@@ -1260,6 +1260,216 @@ function cmd_compass(   jd,lat,lon,zn,ce,dev,amp){
   hr(); print ""
 }
 
+# ---------------- Pub. 249: the tables, generated ---------------------
+# THE TABLES DO NOT NEED TO BE SHIPPED, BECAUSE THEY CAN BE GENERATED.
+# Every entry in Pub. 249 is the navigational triangle solved for whole
+# degrees of latitude, declination and LHA -- which is exactly what
+# reduce_sight already does for arbitrary arguments.  Restrict the
+# arguments to integers and the engine IS the table.
+#
+# Which means: no data files of any size, ever; no copyright question
+# (Pub. 249 is a United States government work and so not in copyright,
+# but generating the entries sidesteps the question rather than relying
+# on the answer); and the tutor can print the exact page a sight needs
+# instead of the handful of pages a shipped extract would cover.
+#
+# Z IS NOT Zn.  The tables print the azimuth ANGLE, measured from the
+# elevated pole, 0 to 180, and leave the reader to apply the rule at the
+# foot of the page.  That rule is part of what the tutor has to teach, so
+# the table prints Z and the rule, not Zn.
+function tab_Z(zn,lha,lat){
+  if(lat>=0) return (nrm360(lha)>180) ? zn : nrm360(360-zn)
+  return (nrm360(lha)>180) ? nrm360(180-zn) : nrm360(zn-180)
+}
+function tab_entry(lat,dec,lha,   hc1,hc2){
+  #  reduce_sight computes lha = gha + lon, so with lon 0 the GHA
+  #  argument IS the LHA.  Negating it put the whole table a quadrant
+  #  away -- a body east of the meridian instead of west.
+  reduce_sight(lat,0,nrm360(lha),dec)
+  hc1=R_HC; TB_Z=tab_Z(R_ZN,lha,lat)
+  reduce_sight(lat,0,nrm360(lha),dec+(dec>=0?1:-1))
+  hc2=R_HC
+  TB_HC=hc1
+  TB_D=(hc2-hc1)*60
+  return 0
+}
+function tab_page(la,de,lh,   i,lo,hi,same){
+  same=((la>=0&&de>=0)||(la<0&&de<0))
+  print ""
+  printf "  PUB. 249  --  LAT %d%s   DECLINATION %d%s   %s NAME\n",
+         fabs(la), (la>=0?"N":"S"), fabs(de), (de>=0?"N":"S"),
+         (same?"SAME":"CONTRARY")
+  print "  generated from the same spherical triangle the app reduces with"
+  hr()
+  printf "  %5s   %11s %7s %6s\n", "LHA", "Hc", "d", "Z"
+  lo=lh-3; hi=lh+3
+  for(i=lo;i<=hi;i++){
+    tab_entry(la,de,i)
+    printf "  %5d   %4d %04.1f'  %+6.1f %6.0f%s\n",
+           nrm360(i), int(TB_HC), (TB_HC-int(TB_HC))*60, TB_D, TB_Z,
+           (i==lh?"   <-- your LHA":"")
+  }
+  hr()
+  if(la>=0){
+    print "  N. Lat.   LHA greater than 180 ....  Zn = Z"
+    print "            LHA less than 180 .......  Zn = 360 - Z"
+  } else {
+    print "  S. Lat.   LHA greater than 180 ....  Zn = 180 - Z"
+    print "            LHA less than 180 .......  Zn = 180 + Z"
+  }
+  hr()
+  print "  Hc is the altitude at the WHOLE degree of declination above."
+  print "  d is how much it changes per whole degree of declination, so the"
+  print "  minutes of declination are interpolated with it: Hc + d x (mins/60)."
+  hr(); print ""
+  return 0
+}
+function cmd_table(   la,de,lh){
+  if(tlat==""||tdec==""){
+    print "  needs an assumed latitude and a declination:"
+    print "    -v tlat=<whole degrees> -v tdec=<whole degrees> [-v tlha=<whole degrees>]"
+    return
+  }
+  la=int(parse_ang(tlat)); de=int(parse_ang(tdec))
+  lh=(tlha==""?0:int(parse_ang(tlha)))
+  tab_page(la,de,lh)
+}
+#  THE TUTOR'S PAGE IS THE PAGE FOR THE ARGUMENTS IT JUST DERIVED, so it
+#  derives them and prints it in one call rather than making the shell do
+#  arithmetic it has no business doing.
+function cmd_tabpage(){
+  if(!tab_args()){ print "  unknown body"; return }
+  tab_page(TA_ALAT,TA_DECD,TA_LHA)
+}
+
+# ---------------- Pub. 249: the tutor --------------------------------
+# GETTING THE ENTERING ARGUMENTS WRONG IS THE MISTAKE THE TABLES ACTUALLY
+# PRODUCE, so the tutor checks them before it prints a page.  Two of the
+# three are not free choices at all:
+#
+#   * the assumed LATITUDE is the whole degree nearest the DR, because the
+#     table has no other rows;
+#   * the assumed LONGITUDE is whatever makes the LHA come out whole, for
+#     the same reason -- which is why an AP is not the DR, and why two
+#     navigators working the same sight from the same DR use the same AP.
+#
+# It prints them rather than asking the reader to trust them, because a
+# wrong argument gives a confident wrong answer and nothing on the page
+# says so.
+function tab_args(   jd,la,lo,gha,dec){
+  jd=parse_utc(utc)
+  if(body_at(body,jd)=="ERR") return 0
+  gha=B_GHA; dec=B_DEC
+  TA_GHA=gha; TA_DEC=dec
+  la=parse_ang(drlat); lo=parse_ang(drlon)
+  TA_ALAT = int(la + (la>=0?0.5:-0.5))
+  #  the assumed longitude: the one nearest the DR that makes GHA + lon
+  #  a whole number of degrees
+  TA_ALON = int(gha+lo+ (gha+lo>=0?0.5:-0.5)) - gha
+  if(TA_ALON-lo >  0.5) TA_ALON -= 1
+  if(TA_ALON-lo < -0.5) TA_ALON += 1
+  TA_LHA  = nrm360(gha + TA_ALON)
+  TA_LHA  = int(TA_LHA + 0.5); if(TA_LHA==360) TA_LHA=0
+  TA_DECD = int(dec + (dec>=0?0:-0)); if(dec<0) TA_DECD = -int(-dec)
+  TA_DECM = (fabs(dec) - fabs(TA_DECD))*60
+  return 1
+}
+function cmd_tabargs(   ho){
+  if(utc==""||body==""){ print "  needs -v utc= and -v body="; return }
+  if(!tab_args()){ print "  unknown body"; return }
+  print ""
+  print "  ENTERING ARGUMENTS FOR PUB. 249"
+  hr()
+  printf "  %s at %s UT\n", B_NAME, utc
+  printf "  GHA %10s      Dec %10s\n", fmt_dm(fabs(TA_GHA),3), fmt_lat(TA_DEC)
+  hr()
+  printf "  DR            %s  %s\n", fmt_lat(parse_ang(drlat)), fmt_lon(parse_ang(drlon))
+  printf "  Assumed LAT   %d%s        the whole degree nearest the DR\n",
+         fabs(TA_ALAT), (TA_ALAT>=0?"N":"S")
+  printf "  Assumed LON   %s   chosen to make the LHA whole\n", fmt_lon(TA_ALON)
+  printf "  LHA           %d\n", TA_LHA
+  printf "  Declination   %d%s %04.1f'   the table is entered at %d%s, and the\n",
+         fabs(TA_DECD), (TA_DEC>=0?"N":"S"), TA_DECM, fabs(TA_DECD), (TA_DEC>=0?"N":"S")
+  printf "                              %.1f minutes are interpolated with d\n", TA_DECM
+  if(hs!=""){
+    ho=corrections(parse_ang(hs),ie+0,heye+0,temp+0,press+0,limb)
+    printf "  Ho            %s     from Hs %s\n", fmt_dm(ho,2), hs
+  }
+  hr(); print ""
+}
+# THE COMPARISON, AND WHAT IT BLAMES.  The engine has reduced the same
+# sight from the same assumed position exactly, so a difference is the
+# reader's or the table's, and the two are distinguishable: the table's
+# own rounding is small and bounded, while every common mistake has a
+# size of its own -- the interpolation applied backwards is twice the
+# interpolation, a declination off by one is d, an LHA off by one is the
+# difference between two rows.
+function cmd_tabcheck(   ho,ex,d,sgn,back,d1,d2,z,zn,hcT,note){
+  if(!tab_args()){ print "  unknown body"; return }
+  tab_entry(TA_ALAT,TA_DECD,TA_LHA)
+  hcT=TB_HC
+  ex = reduce_sight(TA_ALAT,TA_ALON,TA_GHA,TA_DEC)
+  z  = tab_Z(R_ZN,TA_LHA,TA_ALAT)
+  zn = R_ZN
+  print ""
+  print "  YOUR WORKING AGAINST THE EXACT SOLUTION"
+  hr()
+  printf "  From the page   Hc %s   d %+.1f   Z %.0f\n", fmt_dm(hcT,2), TB_D, z
+  printf "  Interpolated    Hc %s   = Hc + d x %.1f/60\n",
+         fmt_dm(hcT + TB_D*(TA_DECM/60)/60, 2), TA_DECM
+  hr()
+  if(uhc!=""){
+    d = (parse_ang(uhc) - ex)*60
+    printf "  Your Hc         %s\n", fmt_dm(parse_ang(uhc),2)
+    printf "  Exact Hc        %s\n", fmt_dm(ex,2)
+    printf "  Difference      %+.1f'\n", d
+    back = hcT - TB_D*(TA_DECM/60)/60
+    d1 = reduce_sight(TA_ALAT,TA_ALON,TA_GHA,TA_DEC+(TA_DEC>=0?1:-1))
+    d2 = reduce_sight(TA_ALAT,TA_ALON,TA_GHA+1,TA_DEC)
+    note=""
+    if(fabs(d)<=0.6) note="rounding in the table and in the interpolation, which is expected and is why the tables are worked to a tenth"
+    else if(fabs(parse_ang(uhc)-back)*60 < 0.6)
+      note="the interpolation was applied the WRONG WAY: d is " (TB_D>=0?"positive, so it is added":"negative, so it is subtracted") " as declination increases"
+    else if(fabs(parse_ang(uhc)-d1)*60 < 2.0)
+      note="that is the entry for a declination one whole degree off"
+    else if(fabs(parse_ang(uhc)-d2)*60 < 2.0)
+      note="that is the entry for an LHA one degree off -- the commonest arithmetic slip in the whole method"
+    else note="larger than rounding and not one of the usual slips. Check the arguments above against your own working, one line at a time"
+    printf "  %s\n", note
+  }
+  if(uz!=""){
+    hr()
+    printf "  Your Z          %.0f\n", parse_ang(uz)
+    printf "  Z from the page %.0f   ->  Zn %.1f by the rule at the foot\n", z, zn
+    if(fabs(nrm180(parse_ang(uz)-z))<1.0) print "  Z agrees."
+    else if(fabs(nrm180(parse_ang(uz)-zn))<1.0){
+      print "  That is Zn, not Z. The table prints the azimuth ANGLE and the rule"
+      print "  at the foot of the page converts it -- which is the step to practise."
+    }
+    else print "  Z disagrees by more than a degree. Check which pole you measured from."
+  }
+  if(uhc!=""){
+    hr()
+    ho = (hs!="" ? corrections(parse_ang(hs),ie+0,heye+0,temp+0,press+0,limb) : 0)
+    if(hs!=""){
+      printf "  Ho %s  -  Hc %s  =  intercept %.1f' %s\n",
+             fmt_dm(ho,2), fmt_dm(parse_ang(uhc),2),
+             fabs(ho-parse_ang(uhc))*60, ((ho-parse_ang(uhc))>=0?"TOWARD":"AWAY")
+      printf "  and exactly:  %.1f' %s\n",
+             fabs(ho-ex)*60, ((ho-ex)>=0?"TOWARD":"AWAY")
+      #  AN INTERCEPT THIS LONG IS NOT A TABLE PROBLEM.  The assumed
+      #  position is within half a degree of the DR, so the intercept can
+      #  only be a few tens of miles unless something upstream is wrong:
+      #  the wrong body, the wrong hour, or a sight that belongs to a
+      #  different day.  Saying so here saves the reader from hunting for
+      #  an interpolation error that is not there.
+      if(fabs(ho-ex)*60 > 60)
+        print "  NOTE: an intercept of more than 60 miles is not a table error. The\n        AP is within half a degree of the DR, so check the body, the\n        hour and the date of the sight before looking at the working."
+    }
+  }
+  hr(); print ""
+}
+
 # ---------------- DR, set and drift ----------------------------------
 # PLANE SAILING ON THE MEAN LATITUDE, which is the method the rest of the
 # DR work in this program uses and the method a navigator uses on a
@@ -1519,6 +1729,10 @@ BEGIN{
   else if(cmd=="devcard") cmd_devcard()
   else if(cmd=="current") cmd_current()
   else if(cmd=="ep")      cmd_ep()
+  else if(cmd=="table")   cmd_table()
+  else if(cmd=="tabargs") cmd_tabargs()
+  else if(cmd=="tabpage") cmd_tabpage()
+  else if(cmd=="tabcheck") cmd_tabcheck()
   else if(cmd=="selftest") cmd_selftest()
   else if(cmd=="stars")   cmd_stars()
   else if(cmd!="" && substr(cmd,1,2)!="t_"){ print "engine: unknown cmd \"" cmd "\"" ; exit 2 }
