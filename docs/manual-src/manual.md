@@ -357,7 +357,7 @@ lesson at a time and pick up where you left off.](fig/train.png)
 
 ### 7.1 Lessons
 
-Twenty-six lessons in seven modules: four modules of five, from first principles to the fix, then choosing bodies and checking the compass, latitude taken directly — at noon from the sun and all night from Polaris — and the bodies that are not the sun or a star: the moon, where the corrections stop being bookkeeping, and the planets, where they almost vanish. Each one is a diagram, a short explanation in
+Twenty-nine lessons in eight modules: a preliminary module on dead reckoning, the three kinds of position and set and drift — offered with a three-question gate, so anyone who already works that way can skip it — then four modules of five, from first principles to the fix, then choosing bodies and checking the compass, latitude taken directly — at noon from the sun and all night from Polaris — and the bodies that are not the sun or a star: the moon, where the corrections stop being bookkeeping, and the planets, where they almost vanish. Each one is a diagram, a short explanation in
 numbered steps, and a question to check that it landed. Answer the question correctly and
 the lesson is ticked off.
 

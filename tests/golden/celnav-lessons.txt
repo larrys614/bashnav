@@ -1,3 +1,214 @@
+=== lesson P1 ===
+
+  P1  Dead reckoning: course, speed and time
+  --------------------------------------------
+
+  Everything else in this program needs a position to start from. A
+  sight is reduced from an assumed position; a running fix is advanced
+  along a course and a speed; even deciding which of two circle
+  crossings is you needs a rough idea of where you are.
+
+  Dead reckoning is that idea, and it is the only position you can
+  always have. No sky, no satellites, no landmarks: just what you
+  steered, how fast, and for how long.
+
+  It is arithmetic and makes no claim to be true. That is not a
+  weakness as long as you remember it.
+
+  THE METHOD
+
+    1. Distance run = speed x time. Nothing subtle.
+    2. Resolve it onto north and east:
+
+         northing = distance x cos(course)
+         departure = distance x sin(course)
+
+    3. Northing IS difference of latitude: one minute of latitude is
+       one nautical mile, everywhere on earth. That is what a mile is.
+
+    4. Departure is NOT difference of longitude. The meridians close
+       together toward the poles, so a mile of easting is worth more
+       than a minute of longitude:
+
+         difference of longitude = departure / cos(latitude)
+
+  At 50 degrees north, cos 50 is 0.64 - so a mile east is 1.56
+  minutes of longitude. At 70 north it is nearly three. Forget this
+  and your DR walks east or west of the truth, and the error grows
+  with latitude, which is exactly where the weather is worst.
+  A worked run, computed by this lesson as you read it:
+
+      course 050 T    speed 6.5 kn    time 90 min
+
+                     N
+                     |
+                     |      /
+            northing |    /   distance 9.75 nm
+             6.27    |  /
+                     |/ 50 deg
+                     +------------ E
+                     departure 7.47 nm
+
+      difference of latitude      6.27'  = 6.27 nm
+      departure                   7.47 nm
+      cos(latitude 50)             0.641
+      difference of longitude    11.66'
+
+  Note the last three lines. The departure and the difference of
+  longitude are different numbers for the same movement east.
+
+  ----------------------------------------------------------------------
+  Q. You steer 050 T at 6.5 knots for 90 minutes. How far north and how
+     far east are you?
+       a) 6.3 nm north and 7.5 nm east
+       b) 9.8 nm north and 9.8 nm east
+       c) 7.5 nm north and 6.3 nm east
+
+=== answer P1 (given b) ===
+
+  Not quite - the answer is A.  9.75 nm run; northing is distance x cos 50 = 6.3, departure is x sin 50 = 7.5. C has the sine and cosine swapped, which is the mistake to know about.
+
+=== lesson P2 ===
+
+  P2  Three kinds of position, and which to believe
+  ---------------------------------------------------
+
+  A chart can carry three marks that all claim to be where you are.
+  They are not the same claim.
+
+    DR   DEAD RECKONING. Course, speed and time from the last known
+         position. No observation in it at all. It is where you would
+         be if the water had stood still and the helm had been
+         perfect.
+
+    EP   ESTIMATED POSITION. The DR with what you know about the
+         water put back in - set, drift, leeway. Better than the DR,
+         and still an assumption rather than an observation.
+
+    FIX  Two or more lines of position, each from something outside
+         the ship. The only one of the three with an observation in
+         it.
+
+  The order of confidence never changes: fix, then EP, then DR. A
+  navigator who cannot say which of the three a mark is has lost the
+  only thing that matters about it.
+
+  WHY THIS MODULE COMES BEFORE THE SIGHTS
+
+  A celestial fix is not independent of your DR. Three places it
+  leans on it:
+
+    1. The assumed position comes from the DR. Put it far from the
+       truth and the intercept gets long, and a long intercept is
+       where the straight-line approximation starts to cost you.
+    2. A running fix advances the earlier line of position along your
+       course and speed. A log reading 5 per cent high puts that error
+       straight into the fix - and it will look like a good fix.
+    3. With one body you have a line, not a position. Which point on
+       that line you are is a DR question.
+
+  So the fix is only ever as good as the reckoning you ran it from.
+  That is the honest version of "celestial navigation": it is
+  reckoning, corrected by observation, not observation alone.
+
+  ONE SHIP, THREE MARKS, FOUR HOURS APART
+
+  
+  
+  
+  
+       o 0400 fix              x 0800 DR
+  
+  
+                   0800 fix O
+                               e 0800 EP
+  
+  
+  
+  
+  o = where you were   x = DR   e = EP   O = where you actually are
+  one row and one column = 1 nm.
+
+  The DR ran 24 miles east on course and log alone. The EP allowed
+  four miles of south-going set. The fix landed near the EP and not
+  on it, which is the normal case - and the reason the next set and
+  drift is worked from the fix and never from the estimate.
+
+  ----------------------------------------------------------------------
+  Q. Which of the three would you bet the ship on, and why?
+       a) the DR, because it is arithmetic and cannot be wrong
+       b) the fix, because it is the only one with an observation in it
+       c) the EP, because it allows for the current
+
+=== answer P2 (given b) ===
+
+  Correct.  The DR's arithmetic being right is not the question - it is right about an assumption. The EP adds a better assumption. Only the fix looked outside the ship.
+
+=== lesson P3 ===
+
+  P3  Set and drift: what the sea did while you were not looking
+  ----------------------------------------------------------------
+
+  You have a DR for 0800 and a star fix for 0800, and they are not in
+  the same place. The difference has a name and a use.
+
+    SET    the direction the water is setting TOWARD, in degrees true
+    DRIFT  its rate, in knots
+
+  Take the bearing and distance from the DR to the fix. The bearing
+  is the set. The distance divided by the hours since the last fix is
+  the drift. That is the whole calculation.
+
+  TWO THINGS TO BE HONEST ABOUT
+
+    1. It is a remainder, not a measurement. Nothing in it was
+       observed. It is everything your reckoning failed to account
+       for, and the current is only one item on that list: leeway, a
+       log reading high or low, steering that averaged a few degrees
+       off the ordered course, and the error of the fix itself are all
+       inside the same number.
+    2. Direction is the commonest mistake. The set is FROM the DR
+       TOWARD the fix. If your reckoning put you west of where you
+       really were, the water has been setting you east - toward the
+       fix, not away from it. The reciprocal is a plausible, wrong,
+       and completely silent error.
+
+  IN CELNAV
+
+    celnav current   given the DR, the fix and the hours, the set and
+                     the drift
+    celnav ep        given a position, a course, a speed and a time,
+                     the DR - and with a set and drift, the EP
+
+  Carry a set and drift forward as the best estimate you have, and
+  expect the next fix to revise it. A tidal stream turns; an ocean
+  current does not, much. Which you are in decides how much faith the
+  number deserves tomorrow.
+  Worked as you read it, by the same code the command uses:
+
+      0800 DR               50 00.0'N  005 00.0'W
+      0800 star fix         50 02.8'N  004 55.6'W
+      hours since the DR    4
+
+      the fix lies          4.0 nm  045 T  from the DR
+      SET                   045 T
+      DRIFT                 1.00 kn
+
+  Reverse the two positions and the set comes out 225 T instead of
+  045 T - the same magnitude, the opposite conclusion, and nothing on
+  the page to tell you which one you did.
+
+  ----------------------------------------------------------------------
+  Q. Your 0800 DR and your 0800 star fix are 4 miles apart, the fix to the
+     north-east. The last fix was at 0400. What is the set and drift?
+       a) set 045 T, drift 1.0 kn
+       b) set 225 T, drift 1.0 kn
+       c) set 045 T, drift 4.0 kn
+
+=== answer P3 (given b) ===
+
+  Not quite - the answer is A.  Set is FROM the DR TOWARD the fix, so 045. Drift is 4 miles over 4 hours = 1 knot. B is the reciprocal and C forgot the hours.
+
 === lesson F1 ===
 
   F1  What a sight actually measures
@@ -1382,6 +1593,20 @@
   to know the whole of it you swing the ship and check on several
   headings in turn.
 
+  That is what devcard does. Turn the ship onto each heading, take a
+  bearing of the body, and note the TIME of each one separately:
+
+    celnav devcard "2026-10-22" sun -2 \
+       "000,10:00:00,147.0; 045,10:05:00,146.9; 090,10:10:00,148.4"
+
+  Each bearing keeps its own time because a swing takes twenty minutes
+  and the sun moves about five degrees of azimuth in that time. Share
+  one time across the whole swing and that nine degrees of the sun's
+  own motion lands in the card, looking exactly like deviation.
+
+  It prints the card above, computed from your own swing, and says
+  which parts of the compass you did not cover.
+
   A compass swung on eight headings - the same compass, the same
   ship, the same iron, eight different answers:
 
@@ -1413,6 +1638,11 @@
 
   LEARN -- the syllabus
   ----------------------------------------------------------------------
+
+  BEFORE THE SIGHTS
+   [ ]  P1   Dead reckoning: course, speed and time
+   [ ]  P2   Three kinds of position, and which to believe
+   [ ]  P3   Set and drift: what the sea did while you were not looking
 
   FOUNDATIONS
    [x]  F1   What a sight actually measures
@@ -1454,5 +1684,5 @@
    [x]  C1   Choosing your bodies: the cut and the band
    [ ]  C2   Checking the compass against the sky
   ----------------------------------------------------------------------
-  3 of 26 lessons done.  Type a lesson code (F1, R3 ...) to open it.
+  3 of 29 lessons done.  Type a lesson code (F1, R3 ...) to open it.
 

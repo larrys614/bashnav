@@ -1260,6 +1260,112 @@ function cmd_compass(   jd,lat,lon,zn,ce,dev,amp){
   hr(); print ""
 }
 
+# ---------------- DR, set and drift ----------------------------------
+# PLANE SAILING ON THE MEAN LATITUDE, which is the method the rest of the
+# DR work in this program uses and the method a navigator uses on a
+# plotting sheet.  Over the distances a set-and-drift calculation covers
+# -- a few miles over a few hours -- the difference from a great-circle
+# solution is far below the accuracy of the DR it is comparing.
+#
+# Sets LD_NM and LD_BRG rather than returning both.
+function ll_dist_brg(la1,lo1,la2,lo2,   dlat,dep,ml){
+  ml   = (la1+la2)/2
+  dlat = (la2-la1)*60
+  dep  = nrm180(lo2-lo1)*60*cosd(ml)
+  LD_NM  = sqrt(dlat*dlat + dep*dep)
+  LD_BRG = nrm360(atan2d(dep,dlat))
+  return LD_NM
+}
+
+# SET AND DRIFT IS THE DIFFERENCE THE SEA PUT BETWEEN WHERE YOU RECKONED
+# YOU WERE AND WHERE THE STARS SAY YOU ARE.  It is not measured; it is
+# what is left over, and that is why it carries every other error with it.
+function cmd_current(   la1,lo1,la2,lo2,h,st,dft){
+  if(drlat==""||drlon==""||fixlat==""||fixlon==""){
+    print "  needs a DR and a fix: -v drlat= -v drlon= -v fixlat= -v fixlon= -v hours="
+    return
+  }
+  h = hours+0
+  la1=parse_ang(drlat); lo1=parse_ang(drlon)
+  la2=parse_ang(fixlat); lo2=parse_ang(fixlon)
+  ll_dist_brg(la1,lo1,la2,lo2)
+  print ""
+  print "  SET AND DRIFT"
+  hr()
+  printf "  DR  position     %s  %s\n", fmt_lat(la1), fmt_lon(lo1)
+  printf "  FIX position     %s  %s\n", fmt_lat(la2), fmt_lon(lo2)
+  printf "  The fix lies     %.1f nm  %03d T  from the DR\n", LD_NM, LD_BRG+0.5
+  if(h<=0){
+    hr()
+    print "  Give the hours since the DR was last fixed (-v hours=) and this"
+    print "  becomes a rate. Without it, the displacement is all that can be said."
+    hr(); print ""
+    return
+  }
+  st  = LD_BRG
+  dft = LD_NM/h
+  printf "  Over %.2f hours\n", h
+  hr()
+  printf "  SET    %03d T     the direction the water is setting TOWARD\n", st+0.5
+  printf "  DRIFT  %.2f kn   %.1f nm in %.2f h\n", dft, LD_NM, h
+  hr()
+  # THE HONEST CAVEAT, because this number is a remainder and not a
+  # measurement.  Larry's rule for the whole program: say what a figure
+  # cannot tell you, in the place where it is printed.
+  print "  This is everything the DR did not account for, not only current:"
+  print "  leeway, a log reading high or low, steering that averaged off the"
+  print "  ordered course, and the fix's own error are all inside it. Carry it"
+  print "  forward as an estimate and expect to revise it at the next fix."
+  if(dft>3)
+    printf "  NOTE: %.1f knots is a strong set. Check the DR run and the fix\n        before trusting it -- an arithmetic slip looks like a current.\n", dft
+  hr(); print ""
+}
+
+# AN ESTIMATED POSITION IS A DR WITH THE CURRENT PUT BACK IN, and keeping
+# the two apart on the page is the point: the DR is what you steered and
+# logged, the EP is what you believe, and the difference between them is
+# the size of the assumption you are making.
+function cmd_ep(   la,lo,crs,spd,h,dn,de,dla,dlo,ml,epla,eplo,sn,se,st,dft){
+  if(drlat==""||drlon==""){ print "  needs a starting position: -v drlat= -v drlon="; return }
+  la=parse_ang(drlat); lo=parse_ang(drlon)
+  crs=course+0; spd=speed+0; h=hours+0
+  if(h<=0){ print "  needs a run: -v hours="; return }
+  dn = spd*h*cosd(crs); de = spd*h*sind(crs)
+  ml = la + (dn/60)/2
+  dla = dn/60; dlo = (de/60)/cosd(ml)
+  print ""
+  print "  DR RUN AND ESTIMATED POSITION"
+  hr()
+  printf "  From             %s  %s\n", fmt_lat(la), fmt_lon(lo)
+  printf "  Course %03d T  speed %.1f kn  for %.2f h  =  %.1f nm\n", crs, spd, h, spd*h
+  printf "  Difference       %+.1f' of latitude   %+.1f' of departure\n", dn, de
+  printf "  DR  position     %s  %s\n", fmt_lat(la+dla), fmt_lon(lo+dlo)
+  if(cset==""||cdrift==""){
+    hr()
+    print "  Give a set and drift (-v cset= -v cdrift=) and this becomes an"
+    print "  estimated position. Without them the DR is all you have, and a DR"
+    print "  makes no claim to be true: it is where you would be if the water"
+    print "  had stood still and the helm had been perfect."
+    hr(); print ""
+    return
+  }
+  st=parse_ang(cset); dft=cdrift+0
+  sn = dft*h*cosd(st); se = dft*h*sind(st)
+  epla = la + (dn+sn)/60
+  ml   = la + ((dn+sn)/60)/2
+  eplo = lo + ((de+se)/60)/cosd(ml)
+  printf "  Current          set %03d T  drift %.2f kn  =  %.1f nm\n", st+0.5, dft, dft*h
+  hr()
+  printf "  EP  position     %s  %s\n", fmt_lat(epla), fmt_lon(eplo)
+  ll_dist_brg(la+dla,lo+dlo,epla,eplo)
+  printf "  The EP lies      %.1f nm  %03d T  from the DR\n", LD_NM, LD_BRG+0.5
+  hr()
+  print "  An EP is a DR with an assumption added, so it is better than the DR"
+  print "  and still not a fix. The order of confidence never changes: fix,"
+  print "  then EP, then DR -- and only one of the three is an observation."
+  hr(); print ""
+}
+
 # ---------------- deviation card -------------------------------------
 # A SWING IS SEVERAL AZIMUTH CHECKS, AND THE CARD IS THE POINT OF THEM.
 # cmd_compass resolves one heading, and lesson C2 ends by saying that one
@@ -1411,6 +1517,8 @@ BEGIN{
   else if(cmd=="plan")    cmd_plan()
   else if(cmd=="compass") cmd_compass()
   else if(cmd=="devcard") cmd_devcard()
+  else if(cmd=="current") cmd_current()
+  else if(cmd=="ep")      cmd_ep()
   else if(cmd=="selftest") cmd_selftest()
   else if(cmd=="stars")   cmd_stars()
   else if(cmd!="" && substr(cmd,1,2)!="t_"){ print "engine: unknown cmd \"" cmd "\"" ; exit 2 }

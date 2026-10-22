@@ -84,7 +84,7 @@ Time       2026-08-29 07:30:00 UT   (or 073000 in the menu, today's date assumed
 
 `celnav learn`, or menu item 9.
 
-- **Lessons** — twenty-six, in seven modules, from what a sight measures to choosing the bodies, checking the compass against them, taking latitude directly from the sun at noon and Polaris at any hour, and handling the moon and the planets. Each ends with a question; answer it and the lesson is ticked off.
+- **Lessons** — twenty-nine, in eight modules, from dead reckoning and set and drift (a preliminary module you can test out of) through what a sight measures to choosing the bodies, checking the compass against them, taking latitude directly from the sun at noon and Polaris at any hour, and handling the moon and the planets. Each ends with a question; answer it and the lesson is ticked off.
 - **Walkthrough** — one real sight in ten steps, every line explained as it is computed.
 - **Drills** — problems built from the real almanac and marked, with the full working shown afterwards. Types: `corr`, `alm`, `red`, `int`, `full`, `fix`.
 - **Sandbox** — change latitude, declination or LHA and watch the navigational triangle move.

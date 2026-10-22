@@ -871,6 +871,209 @@ function dev_card(   i,hd,d,b,s,k){
   return 0
 }
 # =====================================================================
+#  Module P -- Before the sights
+#  Larry's instruction: "a preliminary module -- if you understand, skip;
+#  else take it."  The gate is in the shell and asks these three lessons'
+#  own check questions, so what the gate tests and what the module teaches
+#  cannot drift apart.
+# =====================================================================
+function les_P1(){
+  thead("P1","Dead reckoning: course, speed and time")
+  tb()
+  tp("Everything else in this program needs a position to start from. A")
+  tp("sight is reduced from an assumed position; a running fix is advanced")
+  tp("along a course and a speed; even deciding which of two circle")
+  tp("crossings is you needs a rough idea of where you are.")
+  tb()
+  tp("Dead reckoning is that idea, and it is the only position you can")
+  tp("always have. No sky, no satellites, no landmarks: just what you")
+  tp("steered, how fast, and for how long.")
+  tb()
+  tp("It is arithmetic and makes no claim to be true. That is not a")
+  tp("weakness as long as you remember it.")
+  tb()
+  tp("THE METHOD")
+  tb()
+  tp("  1. Distance run = speed x time. Nothing subtle.")
+  tp("  2. Resolve it onto north and east:")
+  tb()
+  tp("       northing = distance x cos(course)")
+  tp("       departure = distance x sin(course)")
+  tb()
+  tp("  3. Northing IS difference of latitude: one minute of latitude is")
+  tp("     one nautical mile, everywhere on earth. That is what a mile is.")
+  tb()
+  tp("  4. Departure is NOT difference of longitude. The meridians close")
+  tp("     together toward the poles, so a mile of easting is worth more")
+  tp("     than a minute of longitude:")
+  tb()
+  tp("       difference of longitude = departure / cos(latitude)")
+  tb()
+  tp("At 50 degrees north, cos 50 is 0.64 - so a mile east is 1.56")
+  tp("minutes of longitude. At 70 north it is nearly three. Forget this")
+  tp("and your DR walks east or west of the truth, and the error grows")
+  tp("with latitude, which is exactly where the weather is worst.")
+  return 0
+}
+function dr_fig(   crs,spd,h,d,dn,de,dlo,la){
+  crs=50; spd=6.5; h=1.5; la=50.15
+  d=spd*h; dn=d*cosd(crs); de=d*sind(crs); dlo=de/cosd(la)
+  tp("A worked run, computed by this lesson as you read it:")
+  tb()
+  printf "      course %03d T    speed %.1f kn    time %.0f min\n", crs, spd, h*60
+  tb()
+  #  The sketch is written as fixed strings with the numbers appended, so
+  #  the arithmetic cannot pull the drawing out of true.
+  tp("                   N")
+  tp("                   |")
+  tp("                   |      /")
+  printf "            northing |    /   distance %.2f nm\n", d
+  printf "            %5.2f    |  /\n", dn
+  printf "                     |/ %d deg\n", crs
+  tp("                   +------------ E")
+  printf "                     departure %.2f nm\n", de
+  tb()
+  printf "      difference of latitude    %6.2f'  = %.2f nm\n", dn, dn
+  printf "      departure                 %6.2f nm\n", de
+  printf "      cos(latitude %.0f)            %6.3f\n", la, cosd(la)
+  printf "      difference of longitude   %6.2f'\n", dlo
+  tb()
+  tp("Note the last three lines. The departure and the difference of")
+  tp("longitude are different numbers for the same movement east.")
+  return 0
+}
+function les_P2(){
+  thead("P2","Three kinds of position, and which to believe")
+  tb()
+  tp("A chart can carry three marks that all claim to be where you are.")
+  tp("They are not the same claim.")
+  tb()
+  tp("  DR   DEAD RECKONING. Course, speed and time from the last known")
+  tp("       position. No observation in it at all. It is where you would")
+  tp("       be if the water had stood still and the helm had been")
+  tp("       perfect.")
+  tb()
+  tp("  EP   ESTIMATED POSITION. The DR with what you know about the")
+  tp("       water put back in - set, drift, leeway. Better than the DR,")
+  tp("       and still an assumption rather than an observation.")
+  tb()
+  tp("  FIX  Two or more lines of position, each from something outside")
+  tp("       the ship. The only one of the three with an observation in")
+  tp("       it.")
+  tb()
+  tp("The order of confidence never changes: fix, then EP, then DR. A")
+  tp("navigator who cannot say which of the three a mark is has lost the")
+  tp("only thing that matters about it.")
+  tb()
+  tp("WHY THIS MODULE COMES BEFORE THE SIGHTS")
+  tb()
+  tp("A celestial fix is not independent of your DR. Three places it")
+  tp("leans on it:")
+  tb()
+  tp("  1. The assumed position comes from the DR. Put it far from the")
+  tp("     truth and the intercept gets long, and a long intercept is")
+  tp("     where the straight-line approximation starts to cost you.")
+  tp("  2. A running fix advances the earlier line of position along your")
+  tp("     course and speed. A log reading 5 per cent high puts that error")
+  tp("     straight into the fix - and it will look like a good fix.")
+  tp("  3. With one body you have a line, not a position. Which point on")
+  tp("     that line you are is a DR question.")
+  tb()
+  tp("So the fix is only ever as good as the reckoning you ran it from.")
+  tp("That is the honest version of \"celestial navigation\": it is")
+  tp("reckoning, corrected by observation, not observation alone.")
+  return 0
+}
+function pos3_fig(   w,h,cx,cy,xs,ys,de,sn){
+  #  Scaled so the longest label still fits inside the grid: the DR sits
+  #  24 miles east of the start, so at one column to the mile the mark
+  #  lands at column 30 of 63 and its label has room to the right of it.
+  w=63; h=13; cx=5; cy=4
+  ys=1.0; xs=1.0
+  de=24; sn=-4
+  tb(); tp("ONE SHIP, THREE MARKS, FOUR HOURS APART"); tb()
+  gclear(w,h)
+  gput(cy,cx,"o");               gputs(cy,cx+2,"0400 fix")
+  gput(cy,cx+de/xs,"x");         gputs(cy,cx+de/xs+2,"0800 DR")
+  gput(cy-sn/ys,cx+de/xs,"e");   gputs(cy-sn/ys,cx+de/xs+2,"0800 EP")
+  gput(cy-sn/ys-1,cx+de/xs-3,"O")
+  gputs(cy-sn/ys-1,cx+de/xs-12,"0800 fix")
+  gshow()
+  tp("o = where you were   x = DR   e = EP   O = where you actually are")
+  printf "  one row and one column = %g nm.\n", ys
+  tb()
+  tp("The DR ran 24 miles east on course and log alone. The EP allowed")
+  tp("four miles of south-going set. The fix landed near the EP and not")
+  tp("on it, which is the normal case - and the reason the next set and")
+  tp("drift is worked from the fix and never from the estimate.")
+  return 0
+}
+function les_P3(){
+  thead("P3","Set and drift: what the sea did while you were not looking")
+  tb()
+  tp("You have a DR for 0800 and a star fix for 0800, and they are not in")
+  tp("the same place. The difference has a name and a use.")
+  tb()
+  tp("  SET    the direction the water is setting TOWARD, in degrees true")
+  tp("  DRIFT  its rate, in knots")
+  tb()
+  tp("Take the bearing and distance from the DR to the fix. The bearing")
+  tp("is the set. The distance divided by the hours since the last fix is")
+  tp("the drift. That is the whole calculation.")
+  tb()
+  tp("TWO THINGS TO BE HONEST ABOUT")
+  tb()
+  tp("  1. It is a remainder, not a measurement. Nothing in it was")
+  tp("     observed. It is everything your reckoning failed to account")
+  tp("     for, and the current is only one item on that list: leeway, a")
+  tp("     log reading high or low, steering that averaged a few degrees")
+  tp("     off the ordered course, and the error of the fix itself are all")
+  tp("     inside the same number.")
+  tp("  2. Direction is the commonest mistake. The set is FROM the DR")
+  tp("     TOWARD the fix. If your reckoning put you west of where you")
+  tp("     really were, the water has been setting you east - toward the")
+  tp("     fix, not away from it. The reciprocal is a plausible, wrong,")
+  tp("     and completely silent error.")
+  tb()
+  tp("IN CELNAV")
+  tb()
+  tp("  celnav current   given the DR, the fix and the hours, the set and")
+  tp("                   the drift")
+  tp("  celnav ep        given a position, a course, a speed and a time,")
+  tp("                   the DR - and with a set and drift, the EP")
+  tb()
+  tp("Carry a set and drift forward as the best estimate you have, and")
+  tp("expect the next fix to revise it. A tidal stream turns; an ocean")
+  tp("current does not, much. Which you are in decides how much faith the")
+  tp("number deserves tomorrow.")
+  return 0
+}
+function curr_fig(   la1,lo1,la2,lo2,h){
+  #  Only three things go into a set and drift: the DR, the fix, and the
+  #  hours.  The earlier fix the DR was run from does not enter the
+  #  calculation at all, so it is not printed -- an earlier draft of this
+  #  figure showed it, with the same position as the DR, which is not how
+  #  a four-hour run works.
+  la1=50.0; lo1=-5.0
+  la2=50+2.83/60; lo2=-5+4.40/60
+  h=4
+  tp("Worked as you read it, by the same code the command uses:")
+  tb()
+  printf "      0800 DR               %s  %s\n", fmt_lat(la1), fmt_lon(lo1)
+  printf "      0800 star fix         %s  %s\n", fmt_lat(la2), fmt_lon(lo2)
+  printf "      hours since the DR    %.0f\n", h
+  ll_dist_brg(la1,lo1,la2,lo2)
+  tb()
+  printf "      the fix lies          %.1f nm  %03d T  from the DR\n", LD_NM, LD_BRG+0.5
+  printf "      SET                   %03d T\n", LD_BRG+0.5
+  printf "      DRIFT                 %.2f kn\n", LD_NM/h
+  tb()
+  tp("Reverse the two positions and the set comes out 225 T instead of")
+  tp("045 T - the same magnitude, the opposite conclusion, and nothing on")
+  tp("the page to tell you which one you did.")
+  return 0
+}
+# =====================================================================
 #  Module L -- Latitude the direct way
 # =====================================================================
 function les_L1(){
@@ -1303,6 +1506,12 @@ function les_fig(id,   la,lo,zd,b){
     moon_fig()
   } else if(id=="B2"){
     planet_fig()
+  } else if(id=="P1"){
+    dr_fig()
+  } else if(id=="P2"){
+    pos3_fig()
+  } else if(id=="P3"){
+    curr_fig()
   } else if(id=="C2"){
     tp("A compass swung on eight headings - the same compass, the same")
     tp("ship, the same iron, eight different answers:")
@@ -1412,6 +1621,23 @@ function ques(id,show){
       tp("        air and sea temperatures you do not know   c) its azimuth")
       tp("        changes too fast to time") }
     else { Q_ANS="b"; Q_WHY="Below about 15 degrees the refraction correction stops being arithmetic and becomes a guess. Fast azimuth change is the trouble at the other end of the scale, up near the zenith." } }
+  else if(id=="P1"){ if(show){ tp("Q. You steer 050 T at 6.5 knots for 90 minutes. How far north and how")
+      tp("   far east are you?")
+      tp("     a) 6.3 nm north and 7.5 nm east")
+      tp("     b) 9.8 nm north and 9.8 nm east")
+      tp("     c) 7.5 nm north and 6.3 nm east") }
+    else { Q_ANS="a"; Q_WHY="9.75 nm run; northing is distance x cos 50 = 6.3, departure is x sin 50 = 7.5. C has the sine and cosine swapped, which is the mistake to know about." } }
+  else if(id=="P2"){ if(show){ tp("Q. Which of the three would you bet the ship on, and why?")
+      tp("     a) the DR, because it is arithmetic and cannot be wrong")
+      tp("     b) the fix, because it is the only one with an observation in it")
+      tp("     c) the EP, because it allows for the current") }
+    else { Q_ANS="b"; Q_WHY="The DR's arithmetic being right is not the question - it is right about an assumption. The EP adds a better assumption. Only the fix looked outside the ship." } }
+  else if(id=="P3"){ if(show){ tp("Q. Your 0800 DR and your 0800 star fix are 4 miles apart, the fix to the")
+      tp("   north-east. The last fix was at 0400. What is the set and drift?")
+      tp("     a) set 045 T, drift 1.0 kn")
+      tp("     b) set 225 T, drift 1.0 kn")
+      tp("     c) set 045 T, drift 4.0 kn") }
+    else { Q_ANS="a"; Q_WHY="Set is FROM the DR TOWARD the fix, so 045. Drift is 4 miles over 4 hours = 1 knot. B is the reciprocal and C forgot the hours." } }
   else if(id=="C2"){ if(show){ tp("Q. A star azimuth check gives a compass error of 6 degrees east, and the")
       tp("   chart shows variation 10 degrees west. What is the deviation?")
       tp("     a) 4 degrees east   b) 16 degrees east   c) 16 degrees west") }
@@ -1425,7 +1651,10 @@ function ques(id,show){
 # =====================================================================
 function syl_init(){
   if(SYL_READY) return
-  SYL = "F1|Foundations|What a sight actually measures;" \
+  SYL = "P1|Before the sights|Dead reckoning: course, speed and time;" \
+        "P2|Before the sights|Three kinds of position, and which to believe;" \
+        "P3|Before the sights|Set and drift: what the sea did while you were not looking;" \
+        "F1|Foundations|What a sight actually measures;" \
         "F2|Foundations|The geographical position;" \
         "F3|Foundations|Your altitude puts you on a circle;" \
         "F4|Foundations|Two circles give a fix;" \
@@ -1456,7 +1685,8 @@ function syl_init(){
   return 0
 }
 function lesson(id){
-  if(id=="F1")les_F1(); else if(id=="F2")les_F2(); else if(id=="F3")les_F3()
+  if(id=="P1")les_P1(); else if(id=="P2")les_P2(); else if(id=="P3")les_P3()
+  else if(id=="F1")les_F1(); else if(id=="F2")les_F2(); else if(id=="F3")les_F3()
   else if(id=="F4")les_F4(); else if(id=="F5")les_F5()
   else if(id=="T1")les_T1(); else if(id=="T2")les_T2(); else if(id=="T3")les_T3()
   else if(id=="T4")les_T4(); else if(id=="T5")les_T5()
@@ -1500,6 +1730,15 @@ function cmd_t_lesson(){
   if(lesson(les)){ print ""; exit 2 }
   les_fig(les)
   tb(); hr()
+  ques(les,1)
+  tb()
+  return 0
+}
+#  THE GATE ASKS THE MODULE'S OWN QUESTIONS.  A separate set would be a
+#  second thing to keep in step with the first, and the whole point of the
+#  gate is that it tests exactly what the module teaches.
+function cmd_t_ques(){
+  tb()
   ques(les,1)
   tb()
   return 0
@@ -1917,6 +2156,7 @@ BEGIN{
   else if(cmd=="t_syllabus")  cmd_t_syllabus()
   else if(cmd=="t_lesson")    cmd_t_lesson()
   else if(cmd=="t_check")     cmd_t_check()
+  else if(cmd=="t_ques")      cmd_t_ques()
   else if(cmd=="t_walk")      cmd_t_walk()
   else if(cmd=="t_sandbox")   cmd_t_sandbox()
   else if(cmd=="t_drill"){

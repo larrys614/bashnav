@@ -285,6 +285,39 @@ emit() {   # emit <name> ; program output on stdin
      -v temp=10 -v press=1010 </dev/null
 } | emit celnav-polaris.txt
 
+# ---- celnav: DR, set and drift ----------------------------------------
+#  These two are plane geometry rather than astronomy, so the cases that
+#  matter are the ones where a sign or a divisor goes astray -- which is
+#  what set and drift is notorious for.
+#
+#  The first pair is a round trip: run a DR east with a southerly set,
+#  then hand the DR and the EP back to `current` and require the set and
+#  drift that went in to come out.  24 nm east, 4 nm south, 1.00 kn at
+#  180 T both ways.  The reciprocal case is there because reversing the
+#  two positions is the error the lesson warns about: the same pair the
+#  other way round has to read 000 T, not 180 T, and nothing but the
+#  order of the arguments distinguishes them.
+{
+  echo "=== ep: a run with a current ==="
+  $AW $CE -v cmode=plain -v cmd=ep -v drlat="50 00.0 N" -v drlon="005 00.0 W" \
+     -v course=090 -v speed=6 -v hours=4 -v cset=180 -v cdrift=1 </dev/null
+  echo "=== ep: the same run with no current given ==="
+  $AW $CE -v cmode=plain -v cmd=ep -v drlat="50 00.0 N" -v drlon="005 00.0 W" \
+     -v course=090 -v speed=6 -v hours=4 </dev/null
+  echo "=== current: the round trip back from that EP ==="
+  $AW $CE -v cmode=plain -v cmd=current -v drlat="50 00.0 N" -v drlon="004 22.6 W" \
+     -v fixlat="49 56.0 N" -v fixlon="004 22.6 W" -v hours=4 </dev/null
+  echo "=== current: the positions the wrong way round ==="
+  $AW $CE -v cmode=plain -v cmd=current -v drlat="49 56.0 N" -v drlon="004 22.6 W" \
+     -v fixlat="50 00.0 N" -v fixlon="004 22.6 W" -v hours=4 </dev/null
+  echo "=== current: no hours, so a displacement and not a rate ==="
+  $AW $CE -v cmode=plain -v cmd=current -v drlat="50 00.0 N" -v drlon="005 00.0 W" \
+     -v fixlat="50 02.83 N" -v fixlon="004 55.60 W" </dev/null
+  echo "=== current: a set strong enough to be worth doubting ==="
+  $AW $CE -v cmode=plain -v cmd=current -v drlat="50 00.0 N" -v drlon="005 00.0 W" \
+     -v fixlat="50 12.0 N" -v fixlon="005 00.0 W" -v hours=1 </dev/null
+} | emit celnav-current.txt
+
 # ---- celnav: the deviation card ---------------------------------------
 #  A swing is several checks, so the cases that differ in KIND are about
 #  the swing and not about the arithmetic of one bearing, which

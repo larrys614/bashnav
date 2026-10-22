@@ -1,0 +1,101 @@
+=== ep: a run with a current ===
+
+  DR RUN AND ESTIMATED POSITION
+  ----------------------------------------------------------------------
+  From             50 00.0'N  005 00.0'W
+  Course 090 T  speed 6.0 kn  for 4.00 h  =  24.0 nm
+  Difference       +0.0' of latitude   +24.0' of departure
+  DR  position     50 00.0'N  004 22.7'W
+  Current          set 180 T  drift 1.00 kn  =  4.0 nm
+  ----------------------------------------------------------------------
+  EP  position     49 56.0'N  004 22.7'W
+  The EP lies      4.0 nm  180 T  from the DR
+  ----------------------------------------------------------------------
+  An EP is a DR with an assumption added, so it is better than the DR
+  and still not a fix. The order of confidence never changes: fix,
+  then EP, then DR -- and only one of the three is an observation.
+  ----------------------------------------------------------------------
+
+=== ep: the same run with no current given ===
+
+  DR RUN AND ESTIMATED POSITION
+  ----------------------------------------------------------------------
+  From             50 00.0'N  005 00.0'W
+  Course 090 T  speed 6.0 kn  for 4.00 h  =  24.0 nm
+  Difference       +0.0' of latitude   +24.0' of departure
+  DR  position     50 00.0'N  004 22.7'W
+  ----------------------------------------------------------------------
+  Give a set and drift (-v cset= -v cdrift=) and this becomes an
+  estimated position. Without them the DR is all you have, and a DR
+  makes no claim to be true: it is where you would be if the water
+  had stood still and the helm had been perfect.
+  ----------------------------------------------------------------------
+
+=== current: the round trip back from that EP ===
+
+  SET AND DRIFT
+  ----------------------------------------------------------------------
+  DR  position     50 00.0'N  004 22.6'W
+  FIX position     49 56.0'N  004 22.6'W
+  The fix lies     4.0 nm  180 T  from the DR
+  Over 4.00 hours
+  ----------------------------------------------------------------------
+  SET    180 T     the direction the water is setting TOWARD
+  DRIFT  1.00 kn   4.0 nm in 4.00 h
+  ----------------------------------------------------------------------
+  This is everything the DR did not account for, not only current:
+  leeway, a log reading high or low, steering that averaged off the
+  ordered course, and the fix's own error are all inside it. Carry it
+  forward as an estimate and expect to revise it at the next fix.
+  ----------------------------------------------------------------------
+
+=== current: the positions the wrong way round ===
+
+  SET AND DRIFT
+  ----------------------------------------------------------------------
+  DR  position     49 56.0'N  004 22.6'W
+  FIX position     50 00.0'N  004 22.6'W
+  The fix lies     4.0 nm  000 T  from the DR
+  Over 4.00 hours
+  ----------------------------------------------------------------------
+  SET    000 T     the direction the water is setting TOWARD
+  DRIFT  1.00 kn   4.0 nm in 4.00 h
+  ----------------------------------------------------------------------
+  This is everything the DR did not account for, not only current:
+  leeway, a log reading high or low, steering that averaged off the
+  ordered course, and the fix's own error are all inside it. Carry it
+  forward as an estimate and expect to revise it at the next fix.
+  ----------------------------------------------------------------------
+
+=== current: no hours, so a displacement and not a rate ===
+
+  SET AND DRIFT
+  ----------------------------------------------------------------------
+  DR  position     50 00.0'N  005 00.0'W
+  FIX position     50 02.8'N  004 55.6'W
+  The fix lies     4.0 nm  045 T  from the DR
+  ----------------------------------------------------------------------
+  Give the hours since the DR was last fixed (-v hours=) and this
+  becomes a rate. Without it, the displacement is all that can be said.
+  ----------------------------------------------------------------------
+
+=== current: a set strong enough to be worth doubting ===
+
+  SET AND DRIFT
+  ----------------------------------------------------------------------
+  DR  position     50 00.0'N  005 00.0'W
+  FIX position     50 12.0'N  005 00.0'W
+  The fix lies     12.0 nm  000 T  from the DR
+  Over 1.00 hours
+  ----------------------------------------------------------------------
+  SET    000 T     the direction the water is setting TOWARD
+  DRIFT  12.00 kn   12.0 nm in 1.00 h
+  ----------------------------------------------------------------------
+  This is everything the DR did not account for, not only current:
+  leeway, a log reading high or low, steering that averaged off the
+  ordered course, and the fix's own error are all inside it. Carry it
+  forward as an estimate and expect to revise it at the next fix.
+  NOTE: 12.0 knots is a strong set. Check the DR run and the fix
+        before trusting it -- an arithmetic slip looks like a current.
+  ----------------------------------------------------------------------
+

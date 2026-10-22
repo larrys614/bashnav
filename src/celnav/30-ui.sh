@@ -180,6 +180,10 @@ help_text() {
     '      celnav polaris [ "UT" ] [ Hs ]           latitude from Polaris' \
     '      celnav compass "UT" body <bearing> [variation]' \
     '      celnav devcard "DATE" body <variation> "hdg,time,brg; ..."' \
+    '      celnav current "DRlat" "DRlon" "FIXlat" "FIXlon" <hours>' \
+    '                                               set and drift' \
+    '      celnav ep "lat" "lon" <crs> <spd> <hrs> [set] [drift]' \
+    '                                               the DR run, and the EP' \
     '                                               a swing, as a deviation card' \
     '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
     '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
@@ -363,6 +367,53 @@ sandbox_mode() {
     esac
   done
 }
+#  THE PRELIMINARY MODULE AND ITS GATE.
+#  Larry's instruction: "a preliminary module -- if you understand, skip;
+#  else take it."  So the gate asks three questions first, and it asks
+#  the module's OWN check questions rather than a separate set: what the
+#  gate tests and what the module teaches then cannot drift apart.
+#
+#  Two of three offers the skip and names what was missed. Fewer opens
+#  the module. Either way P1, P2 and P3 stay reachable by code from the
+#  lesson list, because a gate that LOCKS a lesson is worse than no gate.
+prelim_gate() {
+  echo
+  echo "  ==============================================================="
+  echo "   BEFORE THE SIGHTS -- three questions first"
+  echo "  ==============================================================="
+  echo "  Everything in this program starts from a reckoned position. If"
+  echo "  you already work in DR, EP and set and drift, these three will"
+  echo "  take a minute and you can skip the module."
+  pg_right=0; pg_missed=""
+  for pg_q in P1 P3 P2; do
+    teach -v cmd=t_ques -v les="$pg_q"
+    printf "  Your answer (a/b/c): "; IFS= read -r pg_a
+    if [ -n "$pg_a" ] && teach -v cmd=t_check -v les="$pg_q" -v ans="$pg_a"; then
+      pg_right=$((pg_right+1))
+    else
+      pg_missed="${pg_missed}${pg_missed:+ }$pg_q"
+    fi
+  done
+  echo "  ---------------------------------------------------------------"
+  echo "  $pg_right of 3."
+  if [ "$pg_right" -ge 2 ]; then
+    if [ -n "$pg_missed" ]; then
+      echo "  That is enough to skip the module. The one you missed is in $pg_missed,"
+      echo "  which is worth ten minutes even so."
+    else
+      echo "  All three. Nothing in this module will be new to you."
+    fi
+    printf "  Take it anyway? (y/N): "; IFS= read -r pg_t
+    case "$pg_t" in y|Y) ;; *) return 0 ;; esac
+  else
+    echo "  Worth taking. These three things are assumed by every lesson"
+    echo "  after them, and a celestial fix is only as good as the"
+    echo "  reckoning it was run from."
+  fi
+  for pg_q in P1 P2 P3; do do_lesson "$pg_q"; done
+  echo "  That is the preliminary module. The sights start at F1."
+  pause
+}
 train_menu() {
   while :; do
     load_prog
@@ -378,10 +429,13 @@ train_menu() {
     echo "   3  Drills               problems with answers, marked"
     echo "   4  Sandbox              change one thing, watch the triangle move"
     echo
+    echo "   p  Before the sights     DR, EP, set and drift -- skip it if you know it"
+    echo
     echo "   x  back to the navigation menu"
     printf "  > "; IFS= read -r a
     case "$a" in
       1) learn_menu ;; 2) walk_mode ;; 3) drill_menu ;; 4) sandbox_mode ;;
+      p|P) prelim_gate ;;
       x|X|"") return ;;
     esac
   done
@@ -441,6 +495,14 @@ case "$1" in
   noon)    shift; do_noon "$1" "$2" "$3" ;;
   polaris) shift; do_polaris "$1" "$2" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
+  current) shift
+           [ $# -lt 5 ] && { echo 'usage: celnav current "DRlat" "DRlon" "FIXlat" "FIXlon" <hours>'; exit 2; }
+           engine -v cmd=current -v drlat="$1" -v drlon="$2" \
+                  -v fixlat="$3" -v fixlon="$4" -v hours="$5" ;;
+  ep)      shift
+           [ $# -lt 4 ] && { echo 'usage: celnav ep "lat" "lon" <course> <speed> <hours> [set] [drift]'; exit 2; }
+           engine -v cmd=ep -v drlat="$1" -v drlon="$2" -v course="$3" \
+                  -v speed="$4" -v hours="$5" -v cset="$6" -v cdrift="$7" ;;
   devcard) shift
            [ $# -lt 4 ] && { echo 'usage: celnav devcard "YYYY-MM-DD" body <variation> "hdg,hh:mm:ss,brg; ..."'; exit 2; }
            do_devcard "$1 00:00:00" "$2" "$3" "$4" ;;
@@ -458,7 +520,7 @@ case "$1" in
   version|--version) echo "celnav $CELNAV_VERSION" ;;
   *) echo "celnav: there is no command '$1'."
      echo
-     echo "  Working    plan  alm  sight  fix  compass  devcard  stars  dr  log  clear"
+     echo "  Working    plan  alm  sight  fix  compass  devcard  current  ep  stars  dr  log  clear"
      echo "  Learning   learn  lesson  walk  drill  sandbox  syllabus"
      echo "  Setup      day  night  plain  about  doctor  where  version"
      echo "  Setup      doctor  test  day  night  plain  where  version  reinstall"
