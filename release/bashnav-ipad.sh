@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003441858
+BASHNAV_BYTES=003477182
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -582,6 +582,39 @@ about_why() {
     '  go away.  It is text, you can read every line of it, and' \
     '  "celnav doctor" will check it against an independent reference' \
     '  in front of you.' \
+    '' \
+    '  WHY THE SKILL STILL MATTERS' \
+    '  ---------------------------------------------------------------' \
+    '  Satellite positioning is the first thing an adversary turns' \
+    '  off.  Jamming it is cheap, spoofing it is subtle, and a ship' \
+    '  whose navigators have only ever been handed a position has no' \
+    '  way of telling that either one is happening.' \
+    '' \
+    '  The United States Navy has required a daily celestial' \
+    '  observation at sea since 2015, after years in which the skill' \
+    '  was allowed to lapse.  In 2022 USS Essex (LHD-2) crossed from' \
+    '  Hawaii to California - about 1,800 miles in five days - on' \
+    '  celestial navigation alone, with the electronic aids shut off' \
+    '  on purpose.  Two people who have done it and who teach it make' \
+    '  the case:' \
+    '' \
+    '    Walter O'\''Donnell and Caroline Stanton Chlaupek,' \
+    '    "Ships Must Practice Celestial Navigation",' \
+    '    U.S. Naval Institute Proceedings, January 2025,' \
+    '    Vol. 151/1/1,463.' \
+    '' \
+    '  Their argument is not nostalgia.  It is that a navigator who' \
+    '  can only read an answer off a box cannot work the problem when' \
+    '  the box is wrong; and that the habits a sextant imposes - plan' \
+    '  the sight, wait for it, correct in small deliberate amounts -' \
+    '  are better seamanship than the constant small adjustments that' \
+    '  instant feedback invites.' \
+    '' \
+    '  None of this is an argument against GPS.  Use it.  It is an' \
+    '  argument for being able to cross an ocean without it, which is' \
+    '  a different thing and a perishable one: it is a skill, and' \
+    '  skills decay unpractised.  That is what the lessons and the' \
+    '  drills in this program are for.' \
     ''
 }
 about_sources() {
@@ -718,6 +751,23 @@ do_almanac() {
   b="$2"; [ -z "$b" ] && b="sun,moon,venus,mars,jupiter,saturn"
   engine -v cmd=almanac -v utc="$u" -v bodies="$b"
 }
+do_noon() {
+  u="$1"; [ -z "$u" ] && u=$(utctoday)
+  engine -v cmd=noon -v utc="$u" -v drlat="$drlat" -v drlon="$drlon" \
+         -v hs="$2" -v limb="$3" -v ie="$ie" -v heye="$heye" \
+         -v temp="$temp" -v press="$press"
+}
+noon_mode() {
+  ask "Date, YYYY-MM-DD (blank = today)" ""; nd="$ANS"
+  [ -z "$nd" ] && nd=$(utctoday)
+  do_noon "$nd" "" ""
+  ask "Hs at the maximum (blank = just the prediction)" ""; nh="$ANS"
+  if [ -n "$nh" ]; then
+    ask "Limb, L or U" "L"; nl="$ANS"
+    do_noon "$nd" "$nh" "$nl"
+  fi
+  pause
+}
 do_compass() {
   engine -v cmd=compass -v utc="$1" -v drlat="$drlat" -v drlon="$drlon" \
          -v body="$2" -v cbrg="$3" -v variation="$4"
@@ -818,6 +868,7 @@ help_text() {
     '      celnav alm   [ "UT" ] [ body,body,... ]  GHA, Dec, SD, HP' \
     '      celnav sight "UT" body limb Hs [ie] [heye]    record one sight' \
     '      celnav fix   [ "UT of fix" ]             reduce the log and plot' \
+    '      celnav noon  [ "YYYY-MM-DD" ] [ Hs ] [ limb ]  latitude at LAN' \
     '      celnav compass "UT" body <bearing> [variation]' \
     '      celnav stars [ "UT" ]                    the 57 stars plus Polaris' \
     '      celnav dr <lat> <lon> [course] [speed]   set the DR' \
@@ -857,6 +908,8 @@ menu() {
       '    3  Sight planning / stars     7  Sight log' \
       '    4  Almanac for a time         8  Sextant and weather settings' \
       '' \
+      '    n  Noon sight                 latitude from the sun at its highest' \
+      '' \
       '    9  LEARN AND PRACTISE  -- lessons, drills, walkthrough, sandbox' \
       '' \
       '    s  Star list   t  Self test   d  Check setup   c  Colour' \
@@ -887,6 +940,7 @@ menu() {
       7) log_menu ;;
       8) set_opts ;;
       9) train_menu ;;
+      n|N) noon_mode ;;
       s|S) do_stars ;;
       t|T) do_selftest ;;
       d|D) doctor ;;
@@ -921,10 +975,10 @@ learn_menu() {
     case "$a" in
       x|X|"") return ;;
       n|N)  nx=""
-            for L in F1 F2 F3 F4 F5 T1 T2 T3 T4 T5 S1 S2 S3 S4 S5 R1 R2 R3 R4 R5; do
+            for L in $(teach -v cmd=t_codes); do
               case ",$lessons," in *,"$L",*) ;; *) nx="$L"; break ;; esac
             done
-            if [ -z "$nx" ]; then echo "  All twenty done. Try the drills."; else do_lesson "$nx"; fi ;;
+            if [ -z "$nx" ]; then echo "  Every lesson done. Try the drills."; else do_lesson "$nx"; fi ;;
       *)    do_lesson "$(echo "$a" | tr 'a-z' 'A-Z')" ;;
     esac
   done
@@ -996,11 +1050,12 @@ train_menu() {
     load_prog
     ndone=$(printf '%s' "$lessons" | tr ',' '\n' | grep -c '[A-Z]')
     [ -n "$ndone" ] || ndone=0
+    nles=$(teach -v cmd=t_codes | wc -w | tr -d ' ')
     echo
     echo "  ==============================================================="
-    echo "   LEARN AND PRACTISE          lessons $ndone of 20   drills $dok/$dtry"
+    echo "   LEARN AND PRACTISE          lessons $ndone of $nles   drills $dok/$dtry"
     echo "  ==============================================================="
-    echo "   1  Lessons              twenty of them, from first principles"
+    echo "   1  Lessons              $nles of them, from first principles"
     echo "   2  Walkthrough          one real sight, explained line by line"
     echo "   3  Drills               problems with answers, marked"
     echo "   4  Sandbox              change one thing, watch the triangle move"
@@ -1065,6 +1120,7 @@ case "$1" in
            add_sight "$1" "$2" "$3" "$4" "${5:-$ie}" "${6:-$heye}" "$temp" "$press" ""
            echo "sight recorded (${1})" ;;
   fix)     shift; do_fix "$1" ;;
+  noon)    shift; do_noon "$1" "$2" "$3" ;;
   compass) shift; do_compass "$1" "$2" "$3" "$4" ;;
   stars)   shift; do_stars "$1" ;;
   dr)      shift; drlat="$1"; drlon="$2"; [ -n "$3" ] && course="$3"; [ -n "$4" ] && speed="$4"
@@ -2000,6 +2056,117 @@ function fix_geometry(ns,   tr,dd,mu1,mu2,amaj,amin,brg,sig){
   else if(amaj>1.6) print "  Fair cut. A body more nearly at right angles would tighten it."
 }
 
+# ---------------- noon: local apparent noon, and latitude -----------
+#  The oldest useful sight in the book, and the only one that needs no
+#  assumed position, no tables and no intercept.  At local apparent noon
+#  the sun stands on your meridian: the LHA is zero, so the azimuth has
+#  no east-west component at all and the navigational triangle collapses
+#  into a single subtraction.  What falls out is a parallel of latitude,
+#  not a line lying at some angle across one.
+#
+#      lat = declination  +/-  (90 - Ho)
+#
+#  and the sign is only which side of you the sun stood.  Everything
+#  below is finding the moment and doing that arithmetic honestly.
+function lan_jd(lon,jd0,   jd,i,tgt,d){
+  #  LAN is the instant the sun's GHA equals your longitude measured west
+  #  of Greenwich.  Solved by iteration rather than from a formula,
+  #  because the sun's GHA is not linear in time -- that non-linearity is
+  #  precisely the equation of time -- and five passes settle it to far
+  #  under a second.
+  tgt = nrm360(-lon)
+  jd  = jd0 + (12.0 - lon/15.0)/24.0
+  for(i=0;i<5;i++){
+    body_at("Sun", jd)
+    d  = nrm180(tgt - B_GHA)
+    jd = jd + d/360.9856
+  }
+  return jd
+}
+function cmd_noon(   lat,lon,jd0,jd,ut,lmt,eot,dec,mer,sth,zd,ho,la,h1,h2,lim,fall){
+  lat=parse_ang(drlat); lon=parse_ang(drlon)
+  jd0=parse_utc(utc); jd0=int(jd0+0.5)-0.5
+  jd=lan_jd(lon,jd0)
+  body_at("Sun",jd); dec=B_DEC
+  reduce_sight(lat,lon,B_GHA,B_DEC); h1=R_HC
+  jd2cal(jd); ut=CAL_FRAC*24.0
+  lmt=ut+lon/15.0; if(lmt<0) lmt=lmt+24; if(lmt>=24) lmt=lmt-24
+  eot=nrm180(B_GHA-(15.0*ut-180.0))*4.0
+  mer=90.0-fabs(lat-dec)
+  sth=(lat>dec)
+
+  printf "\n  LOCAL APPARENT NOON  %04d-%02d-%02d\n", CAL_Y, CAL_M, CAL_D
+  printf "  Position %s  %s\n", fmt_lat(lat), fmt_lon(lon)
+  hr()
+  printf "  Sun on your meridian at       %s UT   (%s local mean time)\n", fmt_hms(ut), fmt_hms(lmt)
+  printf "  Equation of time              %+.1f min   (the sundial is %s the clock)\n", eot, (eot>=0?"ahead of":"behind")
+  printf "  Sun's declination then        %s\n", fmt_dm(fabs(dec)) (dec>=0?" N":" S")
+  printf "  Meridian altitude to expect   %.1f deg, bearing %s\n", mer, (sth?"SOUTH (180)":"NORTH (000)")
+  #  AND SAY SO WHEN THE SUN PASSES OVERHEAD.  Within a degree of the
+  #  zenith the azimuth swings through 180 degrees as the sun crosses,
+  #  so "bearing south" above is a statement the DR cannot support and
+  #  the sign of the latitude below turns on it.
+  if(fabs(lat-dec)<1.0){
+    print cw("  NOTE: the sun passes within a degree of your zenith today, so which", C_ACC)
+    print cw("  side of you it stands is not decidable from the DR, and its azimuth", C_ACC)
+    print cw("  swings through 180 degrees as it crosses. Note which way it bore.", C_ACC)
+  }
+
+  #  WHY THE CLOCK BARELY MATTERS HERE, and it is worth a number rather
+  #  than a reassurance: the altitude is at a stationary point, so it
+  #  changes as the SQUARE of the time either side of it.
+  body_at("Sun", jd+120.0/86400.0)
+  reduce_sight(lat,lon,B_GHA,B_DEC); h2=R_HC
+  fall=(h1-h2)*60.0
+  #  THE CLAIM IS CONDITIONAL, SO STATE IT CONDITIONALLY.  The altitude
+  #  sits at a stationary point and changes as the square of the time
+  #  either side -- which makes the clock almost irrelevant at a
+  #  workaday altitude and quite relevant near the zenith, where the
+  #  golden file caught this saying 22.4' of fall and "the clock is not
+  #  the point" in the same breath.
+  if(fall<=1.0){
+    printf "  Two minutes either side of it the altitude is only %.1f' lower,\n", fall
+    print  "  so catch the maximum by watching it -- the clock is not the point."
+  } else {
+    printf "  Two minutes either side of it the altitude is %.1f' lower: the sun\n", fall
+    print  "  passes close to your zenith and crosses fast, so the maximum is"
+    print  "  sharp and a careless moment here costs real altitude."
+  }
+  hr()
+
+  if(hs==""){
+    print "  Follow the sun up, catch the highest reading, and give it back:"
+    print "    celnav noon \"" substr(utc,1,10) "\" <Hs>        [limb L or U, default L]"
+    print ""
+    return
+  }
+
+  lim=(limb==""?"L":toupper(substr(limb,1,1)))
+  ho=corrections(parse_ang(hs), (ie==""?0:ie+0), (heye==""?0:heye+0),
+                 (temp==""?10:temp+0), (press==""?1010:press+0), lim)
+  zd=90.0-ho
+  la=(sth? dec+zd : dec-zd)
+  printf "  Hs  (sextant, %s limb)        %s\n", (lim=="U"?"upper":"lower"), fmt_dm(parse_ang(hs))
+  printf "    index error                 %+6.1f'\n", ((ie==""||ie+0==0)?0:-(ie+0))
+  printf "    dip                         %6.1f'\n", -C_DIP
+  printf "    refraction                  %6.1f'\n", -C_REF
+  printf "    semi-diameter               %+6.1f'\n", C_LIMB
+  printf "    parallax                    %+6.1f'\n", C_PAR
+  printf "  Ho  (observed altitude)       %s\n", fmt_dm(ho)
+  printf "  Zenith distance  90 - Ho      %s\n", fmt_dm(zd)
+  printf "  Declination                   %s\n", fmt_dm(fabs(dec)) (dec>=0?" N":" S")
+  printf "  LATITUDE   dec %s ZD          %s\n", (sth?"+":"-"), fmt_lat(la)
+  hr()
+  printf "  The sun was taken as bearing %s of you, from the DR.\n", (sth?"south":"north")
+  if(fabs(lat-dec)<1.0){
+    print cw("  CAREFUL: the sun passes within a degree of your zenith, so which", C_ACC)
+    print cw("  side it stood is not obvious from the DR. Your own note of whether", C_ACC)
+    print cw("  it bore north or south is what decides the sign here.", C_ACC)
+  }
+  printf "  One line only: a parallel of latitude. It needs no crossing to be\n"
+  printf "  true, and tells you nothing at all about your longitude.\n"
+  hr(); print ""
+}
 # ---------------- plan: what can I shoot, and when ------------------
 function sun_alt(jd,lat,lon){
   body_at("sun",jd); reduce_sight(lat,lon,B_GHA,B_DEC); return R_HC
@@ -2192,6 +2359,7 @@ BEGIN{
   col_init()
   if(cmd=="almanac")      cmd_almanac()
   else if(cmd=="reduce")  cmd_reduce()
+  else if(cmd=="noon")    cmd_noon()
   else if(cmd=="plan")    cmd_plan()
   else if(cmd=="compass") cmd_compass()
   else if(cmd=="selftest") cmd_selftest()
@@ -2924,6 +3092,249 @@ function lha_diagram(gha,lon,   w,h,cx,cy,rx,ry,t,lha,lw,r,rr,cc){
 # ---------------------------------------------------------------------
 #  Diagrams belonging to particular lessons
 # ---------------------------------------------------------------------
+# =====================================================================
+#  Module C -- Choosing and checking
+# =====================================================================
+function les_C1(){
+  thead("C1","Choosing your bodies: the cut matters more than the sights")
+  tb()
+  tp("A fix is only as good as the angles between its lines. Three careful")
+  tp("sights of three bodies in the same quarter of the sky make a worse")
+  tp("fix than three rough sights spread right round you.")
+  tb()
+  tp("  1. A line of position runs square across the azimuth of its body.")
+  tp("     Two lines crossing at a right angle pin a position in both")
+  tp("     directions at once.")
+  tp("  2. Two lines crossing at fifteen degrees pin it in one direction")
+  tp("     and leave it almost free in the other. One minute of sextant")
+  tp("     error slides the crossing four miles along that weak axis.")
+  tp("  3. So the number to weigh before you shoot is the azimuth spread,")
+  tp("     not the magnitude. Want bodies 90 to 120 degrees apart, and")
+  tp("     three of them rather than two.")
+  tb()
+  tp("Then the altitude. A body wants to stand between about 15 and 65")
+  tp("degrees up.")
+  tb()
+  tp("  4. Below 15 degrees the light has come a long way through the")
+  tp("     lowest air, and refraction there depends on the real air and")
+  tp("     sea temperatures, which you do not know. The correction stops")
+  tp("     being arithmetic and becomes a guess.")
+  tp("  5. Above about 65 the azimuth swings quickly - the body is on its")
+  tp("     way to your zenith, where it has no azimuth at all - so a few")
+  tp("     seconds of timing error moves the line. The circle of position")
+  tp("     is tightly curved up there as well, and we draw it straight.")
+  tb()
+  tp("And the window. A star needs a horizon to measure against and a sky")
+  tp("dark enough to show it. You get both only between civil and nautical")
+  tp("twilight, which is around twenty minutes, twice a day.")
+  tb()
+  tp("CELNAV does this arithmetic for you before you pick up the sextant.")
+  tb()
+  tp("  celnav plan        the twilight times, every body that is up with")
+  tp("                     its altitude, azimuth and magnitude, the ones")
+  tp("                     too low or too high marked as such, the best")
+  tp("                     three by azimuth spread, and a chart of the sky")
+  tp("                     with that set numbered on it")
+  tb()
+  tp("And afterwards it tells you what the cut was worth. 'celnav fix'")
+  tp("reports the geometry in miles: what one minute of sight error does")
+  tp("to the answer, and along which bearing. When it says WEAK CUT, that")
+  tp("is not a style note - it is the error ellipse, computed from your")
+  tp("own azimuths. Believe it.")
+  tb()
+  tp("The order of work is plan, then shoot. Not shoot, then hope.")
+  tb()
+}
+function les_C2(){
+  thead("C2","Checking the compass against the sky")
+  tb()
+  tp("Every other compass reference can be wrong. A charted bearing")
+  tp("assumes you already know where you are. A transit needs two marks in")
+  tp("sight. Another vessel's heading is her business. The azimuth of a")
+  tp("star is none of those things: it comes from the almanac and the")
+  tp("clock, and it is right.")
+  tb()
+  tp("Three quantities, and it matters which is which:")
+  tb()
+  tp("  1. Variation is the earth's. It is printed on the chart for your")
+  tp("     area and year, and it changes slowly with place and time. It is")
+  tp("     the same for every compass aboard.")
+  tp("  2. Deviation is the ship's. It is the iron in her, and it changes")
+  tp("     with her heading, because the iron turns when she turns.")
+  tp("  3. Compass error is the two together: the whole difference between")
+  tp("     what the card reads and true. A sky check measures the error.")
+  tp("     Take the charted variation off it and what remains is the")
+  tp("     deviation of that compass on that heading.")
+  tb()
+  tp("The method:")
+  tb()
+  tp("  4. Note the time to the second and read the bearing of the body")
+  tp("     over the compass.")
+  tp("  5. Give CELNAV the instant, the body, the bearing you read and the")
+  tp("     chart variation, west negative:")
+  tb()
+  tp("       celnav compass \"2026-10-21 19:00:00\" Saturn 88 -14")
+  tb()
+  tp("  6. It computes the true azimuth for that instant, subtracts to get")
+  tp("     the error, and names the deviation that is left.")
+  tb()
+  tp("Choose a low body, under about 20 degrees. High up the azimuth")
+  tp("changes fast, so a few seconds of clock error moves it; and a")
+  tp("bearing taken steeply over a compass card is hard to take honestly.")
+  tp("A body sitting on the horizon at rising or setting is the classical")
+  tp("choice, and its azimuth measured off true east or west has its own")
+  tp("name: the amplitude.")
+  tb()
+  tp("One honest limit. A check on one heading gives you the deviation on")
+  tp("that heading and no other. Deviation is a curve around the card, and")
+  tp("to know the whole of it you swing the ship and check on several")
+  tp("headings in turn.")
+  tb()
+}
+# ---------------------------------------------------------------------
+#  Three LOPs, drawn twice: the same sights with a good and a bad cut
+# ---------------------------------------------------------------------
+function cut_cross(cx,cy,xs,ys,za,pa,zb,pb,   dn,de){
+  dn = (pa*sind(zb)-pb*sind(za))/sind(zb-za)
+  de = (pb*cosd(za)-pa*cosd(zb))/sind(zb-za)
+  CX_N=dn; CX_E=de
+  gput(cy-dn/ys, cx+de/xs, "o")
+  return 0
+}
+function cut_fig(z1,z2,z3,p1,p2,p3,title,   w,h,cx,cy,xs,ys,n1,e1,n2,e2,n3,e3,d,m){
+  w=67; h=15; cx=int(w/2); cy=int(h/2)
+  ys=1.5; xs=ys/2.0
+  tb(); tp(title); tb()
+  gclear(w,h)
+  lop_line(cx,cy,xs,ys,z1,p1,"1",w,h)
+  lop_line(cx,cy,xs,ys,z2,p2,"2",w,h)
+  lop_line(cx,cy,xs,ys,z3,p3,"3",w,h)
+  cut_cross(cx,cy,xs,ys,z1,p1,z2,p2); n1=CX_N; e1=CX_E
+  cut_cross(cx,cy,xs,ys,z2,p2,z3,p3); n2=CX_N; e2=CX_E
+  cut_cross(cx,cy,xs,ys,z1,p1,z3,p3); n3=CX_N; e3=CX_E
+  gput(cy,cx,"+")
+  gshow()
+  m=0
+  d=sqrt((n1-n2)^2+(e1-e2)^2); if(d>m) m=d
+  d=sqrt((n2-n3)^2+(e2-e3)^2); if(d>m) m=d
+  d=sqrt((n1-n3)^2+(e1-e3)^2); if(d>m) m=d
+  tp("1 2 3 = the lines of position   o = where a pair crosses   + = the AP")
+  printf "  one row = %g nm.  The cocked hat is %.1f nm across.\n", ys, m
+  return 0
+}
+# ---------------------------------------------------------------------
+#  Deviation is a curve round the card, not one number
+# ---------------------------------------------------------------------
+function dev_card(   i,hd,d,b,s,k){
+  tp("     ship's head    deviation      west  <  |  >  east")
+  tp("     ------------   ---------")
+  for(i=0;i<8;i++){
+    hd = i*45
+    d  = 4.5*sind(hd+30)
+    s  = int(fabs(d)*2+0.5)
+    b  = ""
+    if(d<0){ for(k=0;k<12-s;k++) b=b " "; for(k=0;k<s;k++) b=b "#"; b=b "|" }
+    else   { for(k=0;k<12;k++)   b=b " "; b=b "|"; for(k=0;k<s;k++) b=b "#" }
+    printf "      %03d  T        %4.1f %s   %s\n", hd, fabs(d), (d<-0.05?"W":(d>0.05?"E":" ")), b
+  }
+  return 0
+}
+# =====================================================================
+#  Module L -- Latitude the direct way
+# =====================================================================
+function les_L1(){
+  thead("L1","The noon sight: latitude without a reduction")
+  tb()
+  tp("Everything in modules R and S was about a sight taken at any old")
+  tp("moment, from a position you only guessed. There is one moment in the")
+  tp("day when none of that is needed.")
+  tb()
+  tp("At local apparent noon the sun crosses your meridian. Its LHA is")
+  tp("zero. Look at what that does to the navigational triangle:")
+  tb()
+  tp("  1. The angle at the pole IS the LHA, and it has gone to zero. A")
+  tp("     triangle with no angle at one corner is not a triangle: the")
+  tp("     three points lie on one great circle, your own meridian.")
+  tp("  2. So the azimuth has no east-west component at all. The sun bears")
+  tp("     due south of you, or due north, and nothing in between.")
+  tp("  3. A line of position runs square across the azimuth. Square across")
+  tp("     due south is due east and west - a parallel of latitude.")
+  tb()
+  tp("That is why this sight needs no assumed position and no intercept.")
+  tp("You are not comparing what you measured with what you would have")
+  tp("measured from somewhere else. You are measuring your latitude.")
+  tb()
+  tp("The whole method:")
+  tb()
+  tp("     zenith distance  =  90 - Ho")
+  tp("     latitude         =  declination  +/-  zenith distance")
+  tb()
+  tp("and the sign is only which side of you the sun stood: PLUS the")
+  tp("zenith distance if it bore south of you, MINUS if it bore north.")
+  tb()
+  tp("Three things to know about the moment itself.")
+  tb()
+  tp("  4. It is not noon by your watch, and it is not noon by local mean")
+  tp("     time either. Two corrections stand between: your longitude")
+  tp("     (four minutes of time per degree) and the equation of time,")
+  tp("     which runs from about 14 minutes behind the clock in February")
+  tp("     to 16 minutes ahead of it in November.")
+  tp("  5. You do not need to know it in advance. The altitude is at a")
+  tp("     maximum, so it is momentarily standing still - it changes as")
+  tp("     the SQUARE of the time either side. Follow the sun up, catch")
+  tp("     the highest reading it gives you, and watch it start to fall.")
+  tp("     The reading is what you want; the clock is not the point.")
+  tp("  6. That is the opposite of every other sight you have taken. Four")
+  tp("     seconds of clock error moves a star sight a mile. Here it moves")
+  tp("     almost nothing, which is why this sight was the backbone of")
+  tp("     navigation for two centuries.")
+  tb()
+  tp("And the honest limit. One sight, one line, and that line is a")
+  tp("parallel of latitude: it is true on its own and needs no crossing,")
+  tp("but it tells you NOTHING about your longitude. For that you need a")
+  tp("second body, or a second sight after a run, or the old trick of")
+  tp("equal altitudes either side of noon.")
+  tb()
+  tp("  celnav noon                      the moment, and what to expect")
+  tp("  celnav noon \"2026-10-21\" <Hs>    the latitude from your reading")
+  tb()
+}
+# ---------------------------------------------------------------------
+#  The meridian, and a real local apparent noon computed on the spot
+# ---------------------------------------------------------------------
+function noon_fig(   jd,d,mer,lat,lon,ut){
+  tp("          Z    your zenith - and its height above the equator")
+  tp("          |    IS your latitude, which is what you want")
+  tp("          |")
+  tp("          |    90 - Ho, the zenith distance: how far the sun")
+  tp("          |    stands from straight overhead")
+  tp("          |")
+  tp("          *    the sun, on your meridian, bearing due south")
+  tp("          |")
+  tp("          |    its declination, straight out of the almanac")
+  tp("   - - - -+- - - -   the celestial equator")
+  tb()
+  tp("Read it off the diagram: from the equator up to your zenith is your")
+  tp("latitude, and that same span is the declination plus the zenith")
+  tp("distance. There is nothing else in it.")
+  tb()
+  #  Computed here rather than written down, so the lesson cannot drift
+  #  away from what the program would actually tell you.
+  lat=50.15; lon=-5.0667
+  jd=lan_jd(lon, jdate(2026,10,21))
+  body_at("Sun", jd); d=B_DEC
+  jd2cal(jd); ut=CAL_FRAC*24.0
+  mer=90.0-fabs(lat-d)
+  tp("A worked one. Falmouth, 50 09'N 005 04'W, on 21 October 2026:")
+  tb()
+  printf "    the sun crosses your meridian at   %s UT\n", fmt_hms(ut)
+  printf "    its declination then is            %s S\n", fmt_dm(fabs(d))
+  printf "    so expect a meridian altitude of   %.1f degrees, bearing south\n", mer
+  printf "    measure that, and 90 - Ho = %s of zenith distance,\n", fmt_dm(90.0-mer)
+  printf "    which minus %s of southerly declination puts you\n", fmt_dm(fabs(d))
+  printf "    back on %s.\n", fmt_dm(lat)
+  tb()
+}
 function les_fig(id,   la,lo,zd,b){
   if(id=="F3"){
     gl_init(67,25, 25, -30); gl_graticule(0); gl_limb()
@@ -2983,6 +3394,30 @@ function les_fig(id,   la,lo,zd,b){
     tp("  .  the LOP from the first sight, where it fell at the time")
     tp("  =  the same LOP advanced along the run")
     tp("  |  the LOP from the second sight     >  the run     @  the fix")
+  } else if(id=="C1"){
+    cut_fig(30,150,270,1.2,-0.9,0.6,"THE SAME THREE SIGHTS, SPREAD 120 DEGREES APART")
+    tb()
+    tp("Each line is one minute of arc off the true position. They close")
+    tp("into a cocked hat about a mile across, and the fix is inside it.")
+    tb()
+    cut_fig(40,55,70,1.2,-0.9,0.6,"AND THE SAME THREE SIGHTS BUNCHED IN ONE QUADRANT")
+    tb()
+    tp("Identical sights, identical errors, azimuths fifteen degrees")
+    tp("apart. The crossings have slid miles out along the one weak")
+    tp("direction. No amount of care with the sextant would have helped:")
+    tp("the geometry did this, and only a fourth body elsewhere in the sky")
+    tp("can undo it.")
+  } else if(id=="L1"){
+    noon_fig()
+  } else if(id=="C2"){
+    tp("A compass swung on eight headings - the same compass, the same")
+    tp("ship, the same iron, eight different answers:")
+    tb()
+    dev_card()
+    tb()
+    tp("One sky check gives you one row of that table. It is the row you")
+    tp("are steering on, which is the row that matters now, but it is not")
+    tp("the whole character of the compass. Swing her to learn that.")
   }
   return 0
 }
@@ -3058,6 +3493,20 @@ function ques(id,show){
       tp("     a) nothing, three sights is three sights   b) the LOPs are nearly parallel,")
       tp("        so the position is poorly fixed along one axis   c) the stars are too bright") }
     else { Q_ANS="b"; Q_WHY="A narrow spread gives a long thin error ellipse. CELNAV reports this in miles." } }
+  else if(id=="L1"){ if(show){ tp("Q. At local apparent noon your zenith distance is 60 57.0', the sun's")
+      tp("   declination is 10 48.1' S, and the sun bore due south of you. Where are you?")
+      tp("     a) 50 08.9' N      b) 71 45.1' N      c) 50 08.9' S") }
+    else { Q_ANS="a"; Q_WHY="Latitude is the declination plus the zenith distance, and the declination is southerly: 60 57.0 - 10 48.1 = 50 08.9 N. Adding the two instead gives (b), which is the commonest mistake of all." } }
+  else if(id=="C1"){ if(show){ tp("Q. A star stands 8 degrees above the horizon and is beautifully placed")
+      tp("   for the cut. Why is it still a poor sight?")
+      tp("     a) it is too dim that low   b) refraction down there depends on")
+      tp("        air and sea temperatures you do not know   c) its azimuth")
+      tp("        changes too fast to time") }
+    else { Q_ANS="b"; Q_WHY="Below about 15 degrees the refraction correction stops being arithmetic and becomes a guess. Fast azimuth change is the trouble at the other end of the scale, up near the zenith." } }
+  else if(id=="C2"){ if(show){ tp("Q. A star azimuth check gives a compass error of 6 degrees east, and the")
+      tp("   chart shows variation 10 degrees west. What is the deviation?")
+      tp("     a) 4 degrees east   b) 16 degrees east   c) 16 degrees west") }
+    else { Q_ANS="b"; Q_WHY="Error is variation and deviation together. 6 east with 10 west of variation leaves 16 east of deviation - the ship is pulling the card hard the other way." } }
   else { Q_ANS=""; Q_WHY="" }
   return 0
 }
@@ -3086,7 +3535,10 @@ function syl_init(){
         "R2|Reduction and the fix|Hc and Zn;" \
         "R3|Reduction and the fix|The intercept: toward or away;" \
         "R4|Reduction and the fix|Plotting the line of position;" \
-        "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it"
+        "R5|Reduction and the fix|Crossing, running, and knowing when to doubt it;" \
+        "L1|Latitude the direct way|The noon sight: latitude without a reduction;" \
+        "C1|Choosing and checking|Choosing your bodies: the cut and the band;" \
+        "C2|Choosing and checking|Checking the compass against the sky"
   NSYL=split(SYL,SYLROW,";")
   SYL_READY=1
   return 0
@@ -3100,7 +3552,16 @@ function lesson(id){
   else if(id=="S4")les_S4(); else if(id=="S5")les_S5()
   else if(id=="R1")les_R1(); else if(id=="R2")les_R2(); else if(id=="R3")les_R3()
   else if(id=="R4")les_R4(); else if(id=="R5")les_R5()
+  else if(id=="L1")les_L1()
+  else if(id=="C1")les_C1(); else if(id=="C2")les_C2()
   else { print "  no such lesson: " id; return 1 }
+  return 0
+}
+function cmd_t_codes(   i,a,out){
+  syl_init()
+  out=""
+  for(i=1;i<=NSYL;i++){ split(SYLROW[i],a,"|"); out = out (i>1?" ":"") a[1] }
+  print out
   return 0
 }
 function cmd_t_syllabus(   i,a,mod,pm,mark,n,d){
@@ -3539,7 +4000,8 @@ function cmd_t_sandbox(   la,de,lh,hc,zn){
 
 BEGIN{
   col_init()
-  if(cmd=="t_syllabus")       cmd_t_syllabus()
+  if(cmd=="t_codes")          cmd_t_codes()
+  else if(cmd=="t_syllabus")  cmd_t_syllabus()
   else if(cmd=="t_lesson")    cmd_t_lesson()
   else if(cmd=="t_check")     cmd_t_check()
   else if(cmd=="t_walk")      cmd_t_walk()
@@ -4285,6 +4747,12 @@ run_scen() {
       sok=$((sok+1))
     fi
     save_prog
+    #  AFTER the marking, deliberately.  The panel names the governing
+    #  rule, which is most of the answer to Q3 -- offered before you
+    #  answer it would be a hint, and the point is to check your reading
+    #  of the lights against the rule once you have committed.
+    printf "  Show the lights each boat sees? [y/N] "; IFS= read -r L
+    case "$L" in y|Y|l|L) eng -v cmd=scenlights -v seed="$sd" ;; esac
     printf "  Watch it run? [Y/n] "; IFS= read -r w
     case "$w" in
       n|N) ;;
@@ -4476,6 +4944,7 @@ help_text() {
     '  colregs scenario         a developing situation: plot it, decide, watch it run' \
     '  colregs sound            identify sound signals' \
     '  colregs numbers          which rule is which, both ways round' \
+    '  (in a scenario, y at the lights prompt shows what each boat sees)' \
     '  colregs rules            fifteen lessons on the rules' \
     '  colregs lesson L7        one lesson' \
     '  colregs contacts         bearing drift and contact management' \
@@ -5717,7 +6186,11 @@ function qpick_rule(seed,   i,c){
 function quiz_rule(seed,   i){
   qpick_rule(seed)
   print ""
-  if(QZ_DIR==1) printf "  %s\n", cw("What is " RUL_N[QZ_C] "?",C_ACC)
+  #  "What is Rules 15 and 16?" -- three of the fifteen entries cover more
+  #  than one rule ("Rules 15 and 16", "Rules 20-31", "Rules 32-37"), and
+  #  the singular stem reads wrong on all three.  The label says which it
+  #  is: it starts "Rules" when it is plural.
+  if(QZ_DIR==1) printf "  %s\n", cw((RUL_N[QZ_C] ~ /^Rules/ ? "What are " : "What is ") RUL_N[QZ_C] "?",C_ACC)
   else          printf "  %s\n", cw("Which rule is \"" RUL_T[QZ_C] "\"?",C_ACC)
   print ""
   for(i=1;i<=4;i++)
@@ -5974,6 +6447,8 @@ BEGIN{
                            if(tolower(ans)!=QZ_ANS) printf "  %s\n", cw("Not right.",C_ACC)
                            quiz_rule_reveal(); exit (tolower(ans)==QZ_ANS?0:1) }
   else if(cmd=="syllabus") syl_show(done)
+  else if(cmd=="scenlights"){ if(!scen_gen(seed+0)){ print "  no scenario"; exit 2 }
+                           scen_lights() }
   else if(cmd=="scen"){    if(!scen_gen(seed+0)){ print "  could not build a scenario"; exit 2 }
                            scen_show() }
   else if(cmd=="scenm"){   if(!scen_gen(seed+0)){ print "  could not build a scenario"; exit 2 }
@@ -6033,6 +6508,166 @@ function atan2d(y,x){ return 57.2957795130823209*atan2(y,x) }
 function acosd(x){ if(x>=1) return 0; if(x<=-1) return 180
   return atan2d(sqrt(1-x*x),x) }
 
+#  ---- what each vessel sees of the other, and what decides it -------
+#  Larry's idea, and his worked example: a boat on the port bow shows us
+#  her green, she sees our red, so she has us on her starboard side and
+#  she keeps clear.  Right -- for a power-driven crossing.
+#
+#  The finding that shaped this: of the nine situations the generator
+#  builds, the colour decides TWO of them.  In three it is actively
+#  misleading, because a sailing vessel, a vessel fishing and a vessel
+#  restricted in her ability to manoeuvre can all show you GREEN and
+#  still be the vessel you keep clear of.  "Green means go" is the exact
+#  wrong reflex there.  So the panel shows the lights, and then says what
+#  actually governs -- which is the colour sometimes, and Rule 13, 14 or
+#  18 the rest of the time.
+#
+#  The arcs, from Rule 21: sidelights 112.5 degrees each, from right
+#  ahead to 22.5 abaft the beam; sternlight 135 degrees; masthead 225.
+function tpw(str,   w,n,a,i,line,vis,plain){
+  #  WRAP ON VISIBLE WIDTH, not on string length: the verdict lines carry
+  #  colour escapes, and counting those as characters wraps at the wrong
+  #  place and ragged.  The escapes are stripped for measuring only.
+  w = 68
+  n = split(str, a, " ")
+  line = ""
+  for(i=1;i<=n;i++){
+    plain = line " " a[i]
+    gsub(/\033\[[0-9;]*m/, "", plain)
+    if(line=="") line = a[i]
+    else if(length(plain) <= w + 1) line = line " " a[i]
+    else { print "  " line; line = a[i] }
+  }
+  if(line!="") print "  " line
+  return 0
+}
+function lt_arc(rel,   r){
+  #  `rel` is the viewer's bearing FROM the subject, relative to the
+  #  subject's bow.  What the viewer can see follows from that alone.
+  r = nrm360(rel)
+  if(r <= 1.5 || r >= 358.5) return "both"
+  if(r < 112.5)              return "green"
+  if(r > 247.5)              return "red"
+  return "stern"
+}
+function lt_phrase(arc,kind,mine,   s){
+  if(arc=="green")     s = cw("green",K_G) " starboard light"
+  else if(arc=="red")  s = cw("red",K_R) " port light"
+  else if(arc=="both") s = cw("both",K_W) " sidelights, bow-on,"
+  else                 s = cw("white",K_W) " sternlight"
+  if(mine) return s
+  #  AN ALL-ROUND LIGHT IS VISIBLE FROM EVERY DIRECTION, including from
+  #  astern -- that is what "all-round" means, and it is the whole reason
+  #  those lights outrank the colour.  Skipping them in the stern arc
+  #  would have shown a trawler overtaken from astern as nothing but a
+  #  white sternlight.
+  if(kind=="fishing")  return s ", under " cw("red over white",K_R) " -- engaged in fishing"
+  if(kind=="ram")      return s ", under " cw("red, white, red",K_R) " -- restricted in her ability to manoeuvre"
+  if(arc=="stern")     return s
+  if(kind=="sail")     return s " (no masthead light -- she is under sail)"
+  return s " and her masthead light"
+}
+#  ---- relative bearing, by name -------------------------------------
+#  Larry: "for releative bearings by name, we should have fine on bow,
+#  broad on bow, on beam, fwd of beam, aft of beam, on quarter, etc.  We
+#  can look up angles to refine meaning."
+#
+#  Looked up.  The named positions are not approximations -- they are the
+#  four-point marks, and a point is 11.25 degrees:
+#
+#      broad on the bow   four points ahead of the beam   045
+#      on the beam        eight points                    090
+#      on the quarter     the fourth point aft of the beam 135
+#
+#  "Fine" is a point or two off the fore-and-aft line.  So the sectors
+#  are centred on those names with their boundaries at the TWO-point
+#  marks: 22.5, 67.5, 112.5, 157.5.
+#
+#  Which lands somewhere worth noticing in this app of all places: 112.5
+#  is both where "broad on the quarter" begins AND the outer edge of the
+#  sidelight arc -- 22.5 degrees abaft the beam, Rule 21.  The lights are
+#  cut at the same marks the bearing names are cut at, so "her green has
+#  just gone out" and "she has come broad on my quarter" are the same
+#  observation.
+function lt_sector(rel,   r, side){
+  r = nrm360(rel)
+  if(r <= 2 || r >= 358)    return "right ahead"
+  if(r >= 178 && r <= 182)  return "right astern"
+  side = (r < 180) ? "starboard" : "port"
+  if(r >= 180) r = 360 - r                 # fold onto one side
+  if(r < 22.5)   return "fine on the " side " bow"
+  if(r < 67.5)   return "broad on the " side " bow"
+  if(r < 88)     return "forward of the " side " beam"
+  if(r <= 92)    return "on the " side " beam"
+  if(r < 112.5)  return "abaft the " side " beam"
+  if(r < 157.5)  return "broad on the " side " quarter"
+  return "fine on the " side " quarter"
+}
+function scen_lights(   relus, relher, we, she, bow, v){
+  relus  = nrm360(SC_B0 - SC_CO)            # where she is, off our bow
+  relher = nrm360(SC_B0 + 180 - SC_CT)      # where we are, off her bow
+  we  = lt_arc(relher)                      # so this is what WE see of HER
+  she = lt_arc(relus)                       # and this is what SHE sees of US
+  bow = (relus < 180) ? "starboard" : "port"
+  print ""
+  printf "  %s\n", cw("THE LIGHTS",C_ACC)
+  hr()
+  #  THE RELATIVE BEARING IS THE USEFUL ONE.  "Port of your bow" is true
+  #  of anything from one degree to a hundred and seventy-nine, and an
+  #  overtaking at ten degrees off the bow read the same as a crossing at
+  #  a hundred.  The number is what you would take off the plot, and the
+  #  words name the arc it falls in.
+  printf "  She bears %03d T, %03d relative -- %s, %.1f nm.\n", SC_B0, relus, lt_sector(relus), SC_R0
+  printf "  You see   %s\n", lt_phrase(we,SC_KIND,0)
+  printf "  She sees  %s\n", lt_phrase(she,"power",1)
+  hr()
+  v = ""
+  if(SC_KEY=="cross_stbd"){
+    v = "Her " cw("red",K_R) " on your starboard side. \"If to starboard red appear,"
+    v = v " 'tis your duty to keep clear\" -- you give way (Rule 15), and Rule 8"
+    v = v " wants it early and large enough to be obvious." }
+  else if(SC_KEY=="cross_port"){
+    v = "Her " cw("green",K_G) " on your port side: she has you on HER starboard,"
+    v = v " so she keeps clear (Rule 15). You stand on -- and Rule 17 means hold"
+    v = v " your course and speed, which is an instruction, not permission to stop looking." }
+  else if(SC_KEY=="headon"){
+    v = "Both her sidelights: she is bow-on, and this is Rule 14. "
+    v = v cw("Nobody stands on.",C_ACC) " Both of you alter to starboard. The colour"
+    v = v " decides nothing here, because you can see them both." }
+  else if(SC_KEY=="overtaking"){
+    v = "Her " cw("sternlight",K_W) " -- no colour to read at all. You are the"
+    v = v " overtaking vessel, so you keep clear until you are past and clear"
+    v = v " (Rule 13), whatever else you can see." }
+  else if(SC_KEY=="overtaken"){
+    v = "She sees your " cw("sternlight",K_W) ". She is overtaking you, so she keeps"
+    v = v " clear (Rule 13) and you stand on (Rule 17)." }
+  else if(SC_KEY=="sail"){
+    v = cw("The colour tells you nothing here.",C_ACC) " She is under sail and you"
+    v = v " are under power, so you keep out of her way (Rule 18) -- and between two"
+    v = v " sailing vessels it is Rule 12, decided by tack and by windward or leeward,"
+    v = v " not by which light you happen to see." }
+  else if(SC_KEY=="fishing"){
+    v = cw("The all-round lights outrank the colour.",C_ACC) " Red over white is the"
+    v = v " signal that governs: you keep out of the way of a vessel engaged in"
+    v = v " fishing (Rule 18), even when she is showing you green." }
+  else if(SC_KEY=="ram"){
+    v = cw("The all-round lights outrank the colour.",C_ACC) " Red, white, red is the"
+    v = v " signal that governs: you keep out of the way of a vessel restricted in"
+    v = v " her ability to manoeuvre (Rule 18), even when she is showing you green." }
+  else {
+    v = "The lights read like a crossing, but the bearing is opening and the CPA is"
+    v = v " wide -- no risk of collision exists yet (Rule 7). Keep taking the bearing;"
+    v = v " that, not the colour, is what tells you." }
+  tpw(v)
+  tb()
+  v = cw("What the colour is worth:",C_ACC) " it decides a power-driven crossing and"
+  v = v " nothing else. An all-round light above a sidelight outranks it, a sailing"
+  v = v " vessel's right of way is decided by tack rather than by aspect, and head-on"
+  v = v " or overtaking are settled before you look at the colour at all."
+  tpw(v)
+  tb()
+  return 0
+}
 function scen_class(k){
   # key | description | rel-bearing lo | hi | cpa band | target kind
   if(k==1) return "cross_stbd|crossing from starboard|20|95|near|power"
@@ -6066,9 +6701,63 @@ function scen_gen(seed,   i,a,k,lo,hi,rb,d,T,side,beta,alpha,thr,vr,p0e,p0n,vte,
       else if(SC_BAND==2) SC_CPA = 0.85 + xrand()*0.3
       else SC_CPA = 1.85 + xrand()*0.3
     }
+    p0e = SC_R0*sind(SC_B0); p0n = SC_R0*cosd(SC_B0)
+
+    #  ---- COURSE FIRST, for the three classes that ARE a course -------
+    #  Head-on, overtaking and overtaken are defined by her course
+    #  relative to ours.  The construction below picks a CPA and lets her
+    #  course fall out of the geometry -- and it almost never falls within
+    #  25 degrees of reciprocal, so the acceptance test threw those draws
+    #  away and the loop quietly replaced them with another class.
+    #
+    #  Measured before fixing it: across 400 consecutive seeds, "meeting
+    #  head-on" and "you overtaking her" NEVER appeared.  Two of the nine
+    #  declared classes were dead, and they are two of the four the rules
+    #  spend the most time on -- and the two where the light colour
+    #  decides nothing at all.
+    #
+    #  So for these three, choose her course and speed first and DERIVE
+    #  the CPA and the time to it, which is the honest direction: at sea
+    #  you measure the bearings and work out the CPA, you do not choose it.
+    if(SC_KEY=="headon" || SC_KEY=="overtaking" || SC_KEY=="overtaken"){
+      if(SC_KEY=="headon"){
+        SC_CT = nrm360(SC_CO + 180 + (xrand()*20 - 10))
+        SC_ST = 5 + xrand()*13 }
+      else {
+        #  AN OVERTAKING PLOT STARTS CLOSE, and it has to.  The closing
+        #  speed is only the difference between the two speeds -- three
+        #  to six knots -- so from six to ten miles the CPA is an hour
+        #  and a half away, not the sixteen to thirty-eight minutes this
+        #  drill is built around.  Head-on closes at the SUM of the
+        #  speeds and works at any range; overtaking does not, and
+        #  keeping the long range is why these two still did not appear
+        #  after her course was chosen first.  At sea you would not plot
+        #  an overtaking at eight miles either: you would watch it.
+        SC_R0 = 1.2 + xrand()*2.2
+        p0e = SC_R0*sind(SC_B0); p0n = SC_R0*cosd(SC_B0)
+        SC_CT = nrm360(SC_CO + (xrand()*20 - 10))
+        if(SC_KEY=="overtaking") SC_ST = SC_SO - (3 + xrand()*3)
+        else                     SC_ST = SC_SO + (3 + xrand()*3) }
+      if(SC_ST < 3.5 || SC_ST > 26) continue
+      vte = vE(SC_CT,SC_ST) - vE(SC_CO,SC_SO)      # relative velocity
+      vtn = vN(SC_CT,SC_ST) - vN(SC_CO,SC_SO)
+      vr = sqrt(vte*vte + vtn*vtn)
+      if(vr < 1.5) continue                        # no useful relative motion
+      T = -(p0e*vte + p0n*vtn)/(vr*vr)             # hours to CPA
+      if(T <= 0.26 || T > 0.64) continue           # 16 to 38 minutes, as above
+      SC_CPA = sqrt((p0e + vte*T)^2 + (p0n + vtn*T)^2)
+      if(SC_CPA <= 0.45)       SC_BAND = 1
+      else if(SC_CPA <= 1.15)  SC_BAND = 2
+      else if(SC_CPA <= 2.15)  SC_BAND = 3
+      else continue                                # too wide to be the drill
+      thr = brg(vte,vtn)                           # so the tail below holds
+      SC_TCPA = T*60.0
+      ok = 1
+      continue
+    }
+
     T = (16 + xrand()*22)/60.0                    # time to CPA, hours
     side = (xrand()<0.5) ? 1 : -1
-    p0e = SC_R0*sind(SC_B0); p0n = SC_R0*cosd(SC_B0)
     beta = brg(-p0e,-p0n)                          # from her, towards us
     alpha = asind(SC_CPA/SC_R0)
     thr = nrm360(beta + side*alpha)                # relative-motion direction
@@ -6079,9 +6768,6 @@ function scen_gen(seed,   i,a,k,lo,hi,rb,d,T,side,beta,alpha,thr,vr,p0e,p0n,vte,
     SC_CT = brg(vte,vtn)
     SC_TCPA = T*60.0
     if(SC_ST<3.5 || SC_ST>26) continue
-    if(SC_KEY=="headon"   && fabs(nrm180(SC_CT-(SC_CO+180)))>25) continue
-    if(SC_KEY=="overtaking" && (fabs(nrm180(SC_CT-SC_CO))>25 || SC_ST>SC_SO-2)) continue
-    if(SC_KEY=="overtaken"  && (fabs(nrm180(SC_CT-SC_CO))>25 || SC_ST<SC_SO+3)) continue
     if(SC_KEY=="clear" && SC_CPA<3.0) continue
     ok=1
   }

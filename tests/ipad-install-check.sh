@@ -18,7 +18,16 @@ cd "$(dirname "$0")/.."
 SH=${1:-sh}
 here=$(pwd)
 INST=release/bashnav-ipad.sh
-[ -f "$INST" ] && [ "$INST" -nt bin/tides ] || sh release/make-ipad.sh >/dev/null
+#  REBUILDING IT HERE IS A SIDE EFFECT, SO SAY SO.  build.sh refreshes
+#  bin/ but not this bundle, so the installer lags the source until some
+#  test happens to notice -- and then it appears as a modified tracked
+#  file that is easy to commit without meaning to, or to leave behind and
+#  ship an installer a release behind the tools it installs.  Either way
+#  the human should hear about it rather than find out from git status.
+if [ -f "$INST" ] && [ "$INST" -nt bin/tides ]; then :; else
+  echo "  note  $INST was older than bin/ and has been rebuilt -- commit it" >&2
+  sh release/make-ipad.sh >/dev/null
+fi
 
 d=$(mktemp -d); trap 'chmod -R u+w "$d" 2>/dev/null; rm -rf "$d"' EXIT
 bad=0; say(){ echo "  FAIL $1"; bad=1; }
