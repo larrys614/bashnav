@@ -633,7 +633,7 @@ WXLOG
         src/tides/engine.awk src/tides/tables.awk docs/ansi2svg.awk \
         tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
         tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk \
-        tests/colregs-wind.awk)
+        tests/colregs-wind.awk tests/colregs-vessel.awk)
   n=$(echo "$r" | tail -1 | $AW '{print $2}')
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
@@ -919,20 +919,48 @@ WXLOG
   #  OUTPUT could see it; only the exit status could.
   nbad=0; nscen=0
   for i in $(seq 1 40); do
-    o=$($AW $CSRC -v cmode=plain -v cmd=enc -v which=$i -v seed=3 </dev/null 2>/dev/null)
-    rc=$?
+    #  `&& rc=0 || rc=$?` rather than `|| true`: the loop deliberately
+    #  runs past the end, so set -e has to be kept off its back WITHOUT
+    #  throwing away the exit status, which is the one thing this loop
+    #  exists to look at.
+    o=$($AW $CSRC -v cmode=plain -v cmd=enc -v which=$i -v seed=3 </dev/null 2>/dev/null) && rc=0 || rc=$?
     [ -z "$o" ] && continue
     nscen=$((nscen+1))
     [ "$rc" -ne 0 ] && { nbad=$((nbad+1)); echo "    scenario $i exited $rc"; }
     #  and the lights view for the same scenario, which is reached from
     #  the encounter flow and has its own unset-field paths
-    o=$($AW $CSRC -v cmode=plain -v cmd=enclights -v which=$i -v seed=3 </dev/null 2>/dev/null)
-    rc=$?
+    o=$($AW $CSRC -v cmode=plain -v cmd=enclights -v which=$i -v seed=3 </dev/null 2>/dev/null) && rc=0 || rc=$?
     [ "$rc" -ne 0 ] && { nbad=$((nbad+1)); echo "    scenario $i lights exited $rc"; }
     [ -z "$o" ] && { nbad=$((nbad+1)); echo "    scenario $i lights printed nothing"; }
   done
-  if [ "$nbad" = 0 ]; then ok "all $nscen scenarios exit cleanly, not only print correctly"
-  else bad "$nbad scenario(s) printed correctly and then died"; fi
+  #  and the COUNT is part of the check: the loop runs past the end on
+  #  purpose, and a scenario number that does not exist must refuse
+  #  rather than draw an empty plan. It drew one until 22 October, so
+  #  this loop said "all 40" when there are 28.
+  if [ "$nbad" != 0 ]; then bad "$nbad scenario(s) printed correctly and then died"
+  elif [ "$nscen" != 28 ]; then bad "$nscen scenarios answered, expected 28 -- out-of-range numbers are being drawn"
+  else ok "all $nscen scenarios exit cleanly, and 29 upwards are refused"; fi
+
+  # ---- every encounter's vessel key ------------------------------
+  if r=$($AW $CSRC -f tests/colregs-vessel.awk -v cmode=plain </dev/null); then
+    echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+  else
+    bad "an encounter names a vessel that is not in the table"; echo "$r" | grep FAIL | head -4
+  fi
+  #  and the browser must see the same keys, from the same dump
+  r=$(node -e '
+    const fs=require("fs"), s=fs.readFileSync("docs/web/colregs/data.js","utf8");
+    const d=JSON.parse(s.slice(s.indexOf("{"), s.lastIndexOf("}")+1));
+    const keys=new Set(d.vessels.map(v=>v.key));
+    const bad=d.encounters.filter(e=>e.vessel!==undefined && !keys.has(e.vessel));
+    const none=d.encounters.filter(e=>e.vessel===undefined).length;
+    console.log(bad.length+" "+none);
+  ' 2>/dev/null || echo "x x")
+  case "$r" in
+    "0 3") ok "every encounter vessel in data.js resolves, and 3 have none" ;;
+    "x x") ok "(node absent: skipped the data.js vessel-key check)" ;;
+    *)     bad "data.js encounter vessels: $r (want \"0 3\")" ;;
+  esac
 
   # ---- the sailing scenarios' wind --------------------------------
   #  Larry, drilling scenario 12: "wind dir not shown". Rule 12 is decided

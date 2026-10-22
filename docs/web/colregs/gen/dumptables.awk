@@ -57,10 +57,19 @@ BEGIN{
   print " ],"
 
   #  ENCOUNTERS CARRY TWO FIELDS THE WEB BUILD HAS NEVER SEEN: the wind a
-  #  sailing scenario is sailed in, and what the contact IS where the
-  #  question does not say so by describing her lights. Both were added to
-  #  the shell on 22 October; they reach the browser by being dumped here
-  #  rather than by being typed again.
+  #  sailing scenario is sailed in, and WHICH VESSEL the contact is -- a
+  #  key into the same twenty-two the lights drill renders, so both builds
+  #  can draw her at the aspect the question was drawn from instead of
+  #  describing her in prose. Larry asked for a light picture on every
+  #  scenario; twenty-five have one, and the three that do not are the two
+  #  fog signals, where you cannot see her at all, and the seaplane, whose
+  #  lights Rule 31 leaves as "as closely as possible" to Rule 23.
+  #
+  #  The wind is field 10 and the vessel field 11, ALWAYS -- a scenario
+  #  with no wind carries an empty field 10 rather than omitting it. They
+  #  were optional-and-omitted for an hour, and the vessel then sat at
+  #  field 10 on twenty-five rows and field 11 on three, so every one of
+  #  the twenty-five read as having no vessel at all.
   print " \"encounters\": ["
   for(i=1;i<=NENC;i++){
     split(EC[i],a,"|")
@@ -68,7 +77,7 @@ BEGIN{
       jstr(a[1]), jstr(a[2]), a[3]+0, a[4]+0, a[5]+0, jstr(a[6]),
       listof(a[7],";"), jstr(a[8]), jstr(a[9])
     if(a[10]!="") printf ",\n   \"wind\": %d", a[10]+0
-    if(a[11]!="") printf ",\n   \"kind\": %s", jstr(a[11])
+    if(a[11]!="") printf ",\n   \"vessel\": %s", jstr(a[11])
     printf "\n  }%s\n", (i<NENC?",":"")
   }
   print " ],"

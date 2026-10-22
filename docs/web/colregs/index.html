@@ -153,6 +153,24 @@
 
   <!-- ---------- encounters ---------- -->
   <section class="view" id="v-encounters" hidden>
+    <!--  Her lights, in a bar above the plan: Larry's suggestion, and the
+          only way red over white over red reads without three lines of
+          prose. Drawn by the lights drill's own renderer.  -->
+    <div id="enc-lights" hidden>
+      <h2 class="barhead">What you would see</h2>
+      <div id="enc-light-pic">
+        <div class="stage" id="enc-light-stage"></div>
+        <p class="aspect" id="enc-light-aspect"></p>
+        <p class="legend">
+          <span class="k k-w">W</span> white
+          <span class="k k-r">R</span> red
+          <span class="k k-g">G</span> green
+          <span class="k k-y">Y</span> yellow
+          &mdash; every lamp carries its letter.
+        </p>
+      </div>
+      <p class="situation" id="enc-light-note" hidden></p>
+    </div>
     <div class="stage" id="enc-stage"></div>
     <p class="situation" id="enc-own"></p>
     <p class="situation" id="enc-target"></p>
@@ -160,6 +178,7 @@
     <div class="answer" id="enc-answer" hidden>
       <h2 id="enc-verdict"></h2>
       <p><strong id="enc-rule"></strong> <span id="enc-why"></span></p>
+      <button class="deckbtn" id="enc-lights-btn" hidden>See her lights</button>
     </div>
     <div class="actions">
       <button class="btn" id="enc-next">Another</button>

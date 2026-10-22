@@ -151,6 +151,10 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* ---------- lamp letter keys ---------- */
+/*  The heading over the light bar: this is her, not another plan view,
+    and the two pictures sit one above the other.  */
+.barhead { font-size: 13px; font-weight: 700; letter-spacing: 0.14em;
+           text-transform: uppercase; color: var(--dim); margin: 0 0 8px; }
 .legend { font-size: 13px; color: var(--dim); line-height: 2; margin: 4px 0 16px; }
 .k {
   display: inline-block; min-width: 22px; padding: 1px 5px; margin-right: 2px;

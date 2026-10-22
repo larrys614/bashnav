@@ -20,7 +20,7 @@
     at colregs-v1 since the app was written. tests/run-tests.sh now
     refuses a build and a cache that disagree, which is the same check
     the drill app got for the same reason.  */
-var BUILD = 2;
+var BUILD = 3;
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
@@ -189,10 +189,20 @@ function drawDeck(el, s, cx, seaY, W, deckCol) {
   }
 }
 
-function drawLights(vessel, th) {
+/*  THE RENDERER TAKES A TARGET, because it now has two callers.  The
+    lights drill draws into its own stage with the deck-light wash under
+    the user's control; an encounter draws the SAME picture into a bar
+    above its plan, at the aspect that encounter was drawn from, and has
+    no deck switch.  Everything that makes the picture -- the hull that
+    narrows bow-on, the droplines, the stacked all-round lamps, the
+    letters that carry the colour -- is shared rather than written twice,
+    which is the whole reason red-over-white-over-red costs nothing here. */
+function drawLights(vessel, th, o) {
+  o = o || {};
   var W = 600, H = 340, seaY = 252, cx = W / 2;
   var uScale = 420, vScale = 196;
-  var stage = $('light-stage');
+  var deckOn = (o.deck === undefined) ? DECK_ON : o.deck;
+  var stage = $(o.stage || 'light-stage');
   stage.textContent = '';
   var s = svg(W, H);
   s.setAttribute('aria-label', 'A vessel seen from bearing ' + Math.round(th));
@@ -226,7 +236,7 @@ function drawLights(vessel, th) {
     }, s);
   });
 
-  if (DECK_ON) drawDeck(el, s, cx, seaY, W, cssvar('--deck'));
+  if (deckOn) drawDeck(el, s, cx, seaY, W, cssvar('--deck'));
 
   /* the lamps */
   visible.forEach(function (L) {
@@ -259,7 +269,7 @@ function drawLights(vessel, th) {
     n.textContent = 'No lights visible from this bearing.';
   }
 
-  if (DECK_ON) {
+  if (deckOn) {
     /* The point of the exercise.  Working lights do not change a navigation
        light; they change what it has to be seen against.  A warm wash over
        the whole scene costs the lamps their contrast, which is exactly the
@@ -268,7 +278,7 @@ function drawLights(vessel, th) {
                  fill: cssvar('--deck'), opacity: 0.085 }, s);
   }
   stage.appendChild(s);
-  $('light-aspect').textContent = aspect_words(th);
+  $(o.aspect || 'light-aspect').textContent = aspect_words(th);
 }
 
 function lightsShow(i, th) {
@@ -750,13 +760,17 @@ function encShow(i) {
     box.appendChild(b);
   });
   $('enc-answer').hidden = true;
+  $('enc-lights').hidden = true;
+  $('enc-lights-btn').hidden = true;
 }
-/*  WHAT YOU WOULD ACTUALLY SEE, for the scenarios described by type
-    rather than by their lights.  The arcs come from the same rule as the
-    shell's lt_arc: the viewer's bearing from the subject, relative to the
-    subject's bow.  Sixteen of the twenty-eight scenarios describe her
-    lights in the question itself, and those carry no `kind`, so nothing
-    is said about them here either.  */
+/*  WHAT YOU WOULD ACTUALLY SEE.  This was four lines of prose -- "her
+    green starboard light and her masthead light" -- which works for a
+    power-driven vessel and falls apart at red over white over red, the
+    case Larry named.  So it draws her instead, with the renderer the
+    lights drill already uses, at the aspect this question was drawn
+    from: a bar above the plan, which was his suggestion.
+    The arcs still come from the same rule as the shell's lt_arc: the
+    viewer's bearing from the subject, relative to the subject's bow.  */
 function lt_arc_web(rel) {
   var r = nrm360(rel);
   if (r <= 1.5 || r >= 358.5) return 'both';
@@ -764,15 +778,73 @@ function lt_arc_web(rel) {
   if (r > 247.5) return 'red';
   return 'stern';
 }
-function lt_phrase_web(e, brg) {
-  var relher = nrm360(brg + 180 - encThdg);
-  var arc = lt_arc_web(relher);
-  if (arc === 'both') return 'both her sidelights, bow-on';
-  if (arc === 'stern') return 'her white sternlight and no colour at all';
-  var side = arc === 'green' ? 'green starboard' : 'red port';
-  return 'her ' + side + ' light' +
-         (e.kind === 'sail' ? ' and no masthead light, because she is under sail'
-                            : ' and her masthead light');
+function vesselByKey(k) {
+  for (var i = 0; i < D.vessels.length; i++)
+    if (D.vessels[i].key === k) return D.vessels[i];
+  return null;
+}
+/*  The half the picture cannot tell you -- read off the lamps that are
+    actually lit, not off the geometry.  Ported from the shell's lt_note
+    and diffed against it over all twenty-two vessels and every bearing;
+    the comment there says what asking the geometry got wrong.  */
+function lt_note(key, th) {
+  var v = vesselByKey(key);
+  if (!v) return '';
+  if (key === 'sail') return 'sail';
+  var nv = 0, mast = 0, stern = 0, red = 0, grn = 0, allr = 0;
+  v.lights.forEach(function (L) {
+    if (!arc_vis(L.arc, th)) return;
+    nv++;
+    if (L.arc === 'A') allr++;
+    else if (L.arc === 'M') mast++;
+    else if (L.arc === 'S') grn++;
+    else if (L.arc === 'P') red++;
+    else if (L.arc === 'T' && L.col === 'W') stern++;
+  });
+  if (nv === 1 && stern === 1) return 'stern';
+  if (red && grn && mast && !allr) return 'bow';
+  return '';
+}
+function encLightNote(e, relher) {
+  var n = lt_note(e.vessel, relher);
+  if (n === 'sail')
+    return 'Her sidelights say she is there and which way she is pointing. ' +
+           'They say nothing about which tack she is on, and Rule 12 turns on that.';
+  if (n === 'stern')
+    return 'A sternlight and no colour: you are overtaking (Rule 13), ' +
+           'whatever else is true of her.';
+  if (n === 'bow')
+    return 'Both sidelights and a masthead light: an ordinary power-driven ' +
+           'vessel end on. Rule 14, and nobody stands on.';
+  return '';
+}
+function encLights() {
+  var e = D.encounters[encIdx];
+  var pic = $('enc-light-pic'), note = $('enc-light-note');
+  if (e.vessel === undefined) {
+    /*  Three have no picture, for two different reasons, and saying
+        which is the teaching point rather than an apology.  */
+    pic.hidden = true;
+    /*  and the stage is emptied, not just hidden: a hidden stage still
+        holding the last vessel's picture is one forgotten `hidden` away
+        from showing the wrong ship.  */
+    $('enc-light-stage').textContent = '';
+    note.textContent = /blast|fog signal/.test(e.target)
+      ? 'Nothing. You cannot see her at all — that is the whole point of a ' +
+        'sound signal, and why the rule hangs on hearing rather than seeing.'
+      : 'Rule 31 says a seaplane shows lights “as closely as possible” to the ' +
+        'rules for a power-driven vessel, so there is no one right picture to ' +
+        'draw. Expect something approximating Rule 23 and treat her as one.';
+  } else {
+    var relher = nrm360(encBrg + 180 - encThdg);  /* where WE are, off HER bow */
+    drawLights(vesselByKey(e.vessel), relher,
+               { stage: 'enc-light-stage', aspect: 'enc-light-aspect', deck: false });
+    pic.hidden = false;
+    note.textContent = encLightNote(e, relher);
+  }
+  note.hidden = note.textContent === '';
+  $('enc-lights').hidden = false;
+  $('enc-lights-btn').hidden = true;
 }
 
 function encAnswer(ltr) {
@@ -794,11 +866,11 @@ function encAnswer(ltr) {
       belongs. Same split as the shell build: the arc asks, the number
       confirms.  */
   $('enc-why').textContent = e.why + '  (she bore ' +
-    ('00' + Math.round(nrm360(encBrg))).slice(-3) + ' relative.)' +
-    (e.kind === undefined ? '' :
-      '  She is ' + (e.kind === 'sail' ? 'under sail' : 'power-driven') +
-      ', so you would see ' + lt_phrase_web(e, encBrg) + '.');
+    ('00' + Math.round(nrm360(encBrg))).slice(-3) + ' relative.)';
   $('enc-answer').hidden = false;
+  /*  The lights, after the answer and not before it -- same place in the
+      flow as the shell's "See her lights? [y/N]".  */
+  $('enc-lights-btn').hidden = false;
 }
 function encNext() { encShow(Math.floor(Math.random() * D.encounters.length)); }
 
@@ -952,6 +1024,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(function () { b.disabled = false; b.textContent = was; }, Math.ceil(secs * 1000));
   });
   $('enc-next').addEventListener('click', encNext);
+  $('enc-lights-btn').addEventListener('click', encLights);
 
   /* reference lists */
   var ll = $('light-list');
@@ -1002,7 +1075,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     nrm180: nrm180, nrm360: nrm360, fabs: fabs,
     arc_vis: arc_vis, rel_phrase: rel_phrase,
-    aspect_words: aspect_words, lt_arc_web: lt_arc_web
+    aspect_words: aspect_words, lt_arc: lt_arc_web, lt_note: lt_note
   };
 }
 

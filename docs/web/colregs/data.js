@@ -242,7 +242,8 @@ window.COLREGS_DATA = {
    "answer": "d",
    "options": ["Stand on: keep your course and speed.", "Give way: alter to port and pass down her starboard side.", "Sound one short blast and hold on.", "Alter course to starboard, and expect her to do the same."],
    "why": "Head-on, or nearly so, between two power-driven vessels. Neither is the stand-on vessel: each alters to starboard so that they pass port to port. Seeing both her sidelights is the classic sign.",
-   "rule": "Rule 14"
+   "rule": "Rule 14",
+   "vessel": "power50p"
   },
   {
    "own": "You are a power-driven vessel under way.",
@@ -253,7 +254,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: she must keep clear of you.", "Give way: alter to starboard and pass under her stern.", "Give way: alter to port to cut across ahead of her.", "Slow down and let her decide."],
    "why": "She is crossing from your starboard side, so you are the give-way vessel. Rule 15 says keep out of her way and, if the circumstances admit, avoid crossing ahead of her - so you alter to starboard and go under her stern.",
-   "rule": "Rule 15"
+   "rule": "Rule 15",
+   "vessel": "power50"
   },
   {
    "own": "You are a power-driven vessel under way.",
@@ -264,7 +266,8 @@ window.COLREGS_DATA = {
    "answer": "a",
    "options": ["Stand on: keep your course and speed, and watch her.", "Give way: alter to starboard.", "Give way: alter to port.", "Stop your engines at once."],
    "why": "She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.",
-   "rule": "Rule 17"
+   "rule": "Rule 17",
+   "vessel": "power50"
   },
   {
    "own": "You are a power-driven vessel making 18 knots.",
@@ -275,7 +278,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: you are the faster vessel.", "Give way: you are overtaking, so keep clear until you are finally past and clear.", "Sound two short blasts and pass down her port side.", "Alter to starboard only if she alters first."],
    "why": "You are coming up on her from more than 22.5 degrees abaft her beam - you can see only her sternlight, which is the test. Any subsequent alteration of bearing does not make you a crossing vessel: you remain the give-way vessel until finally past and clear.",
-   "rule": "Rule 13"
+   "rule": "Rule 13",
+   "vessel": "power50"
   },
   {
    "own": "You are a power-driven vessel making 8 knots.",
@@ -287,7 +291,7 @@ window.COLREGS_DATA = {
    "options": ["Stand on: keep your course and speed.", "Give way: alter to starboard.", "Give way: slow down and let her pass.", "Alter to port to open the distance."],
    "why": "She is overtaking you, so she must keep out of your way. You are the stand-on vessel and should hold your course and speed so that she can plan around you.",
    "rule": "Rule 13",
-   "kind": "power"
+   "vessel": "power50p"
   },
   {
    "own": "You are a power-driven vessel under way.",
@@ -299,7 +303,7 @@ window.COLREGS_DATA = {
    "options": ["Stand on: she is smaller than you.", "Give way: keep out of her way.", "Give way only if she is on your starboard side.", "Sound five short blasts."],
    "why": "A power-driven vessel under way keeps out of the way of a sailing vessel. Which side she is on does not come into it, and neither does her size.",
    "rule": "Rule 18",
-   "kind": "sail"
+   "vessel": "sail"
   },
   {
    "own": "You are a sailing vessel under sail alone.",
@@ -311,7 +315,7 @@ window.COLREGS_DATA = {
    "options": ["Stand on: she must keep out of your way.", "Give way: alter to starboard.", "Give way: tack away.", "Bear away and pass under her stern."],
    "why": "She is a power-driven vessel and you are under sail, so she keeps clear. Stand on - but keep watching, and be ready to act under Rule 17 if she does nothing.",
    "rule": "Rule 18",
-   "kind": "power"
+   "vessel": "power50"
   },
   {
    "own": "You are a power-driven vessel under way.",
@@ -322,7 +326,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: she is fishing and must keep clear.", "Give way: keep well out of her way.", "Give way only if she is on your starboard side.", "Pass close ahead to give her room astern."],
    "why": "Red over white means a vessel engaged in fishing other than trawling. A power-driven vessel keeps out of the way of a vessel engaged in fishing, and you should also expect gear to be streamed a long way astern of her.",
-   "rule": "Rule 18"
+   "rule": "Rule 18",
+   "vessel": "fishing"
   },
   {
    "own": "You are a power-driven vessel under way.",
@@ -333,7 +338,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: she is the give-way vessel.", "Give way: keep well out of her way.", "Sound one short blast and alter to starboard.", "Stand on but sound five short blasts."],
    "why": "Red over white over red: restricted in her ability to manoeuvre. She may be dredging, laying cable or transferring stores, and she cannot get out of your way. Everything keeps clear of her except a vessel not under command.",
-   "rule": "Rule 18"
+   "rule": "Rule 18",
+   "vessel": "ram"
   },
   {
    "own": "You are a power-driven vessel in a deep-water channel.",
@@ -344,7 +350,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: a constrained vessel has no special status.", "Give way: avoid impeding her safe passage.", "Overtake her quickly on her starboard side.", "Anchor until she has passed."],
    "why": "Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.",
-   "rule": "Rule 18(d)"
+   "rule": "Rule 18(d)",
+   "vessel": "draught"
   },
   {
    "own": "You are a sailing vessel on the port tack.",
@@ -357,7 +364,7 @@ window.COLREGS_DATA = {
    "why": "When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.",
    "rule": "Rule 12",
    "wind": 330,
-   "kind": "sail"
+   "vessel": "sail"
   },
   {
    "own": "You are a sailing vessel to windward.",
@@ -370,7 +377,7 @@ window.COLREGS_DATA = {
    "why": "With the wind on the same side, the vessel to windward keeps out of the way of the vessel to leeward. Windward gives way - the opposite of what many people first guess.",
    "rule": "Rule 12",
    "wind": 320,
-   "kind": "sail"
+   "vessel": "sail"
   },
   {
    "own": "You are a power-driven vessel under way.",
@@ -381,7 +388,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: she is not moving.", "Give way: keep well out of her way - she is not under command.", "Sound five short blasts and hold on.", "Pass close ahead - she cannot move."],
    "why": "Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.",
-   "rule": "Rule 18"
+   "rule": "Rule 18",
+   "vessel": "nuc"
   },
   {
    "own": "You are a power-driven vessel under way in fog, hearing but not seeing her.",
@@ -404,7 +412,7 @@ window.COLREGS_DATA = {
    "options": ["Stand on: you are crossing and she is on your starboard side, so Rule 15 applies.", "Keep clear early: do not impede a vessel that can only navigate within the channel.", "Cross ahead quickly to get out of her way.", "Anchor in the channel until she has passed."],
    "why": "Rule 9(b): a vessel of less than 20 metres or a sailing vessel shall not impede the passage of a vessel which can safely navigate only within a narrow channel. Shall not impede is stronger than give way - keep clear early enough that the question never arises.",
    "rule": "Rule 9",
-   "kind": "power"
+   "vessel": "draught"
   },
   {
    "own": "You are a 12 m yacht under sail, crossing a traffic separation scheme.",
@@ -416,7 +424,7 @@ window.COLREGS_DATA = {
    "options": ["Stand on: you are under sail, so power keeps clear of you.", "Keep clear: a sailing vessel shall not impede a power-driven vessel following a lane, and cross on a heading at right angles to the flow.", "Motor along the lane until there is a gap.", "Cross at a shallow angle to spend less time in the lane."],
    "why": "Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede the safe passage of a power-driven vessel following a traffic lane. And Rule 10(c) says cross on a heading as nearly as practicable at right angles to the flow - heading, not ground track, because a beam-on aspect is what makes you visible and predictable.",
    "rule": "Rule 10",
-   "kind": "power"
+   "vessel": "power50p"
   },
   {
    "own": "You are a coaster overtaking a slower vessel in a narrow channel.",
@@ -428,7 +436,7 @@ window.COLREGS_DATA = {
    "options": ["Alter to starboard and pass, sounding one short blast.", "Pass on whichever side has more water, without signalling.", "Sound two prolonged and one short - I intend to overtake you on your starboard side - and wait for her answer.", "Call her on VHF and pass when she does not object."],
    "why": "Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.",
    "rule": "Rule 9(e)",
-   "kind": "power"
+   "vessel": "power50"
   },
   {
    "own": "You are a power-driven vessel in thick fog, hearing but not seeing her.",
@@ -450,7 +458,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: you are under sail, so everything keeps clear of you.", "Keep well out of her way: she is not under command and cannot manoeuvre at all.", "Pass close under her stern to see what is wrong.", "Sound five short blasts."],
    "why": "Being under sail does not put you at the top of the order. Rule 18(b): a sailing vessel keeps out of the way of a vessel not under command, of one restricted in her ability to manoeuvre, and of one engaged in fishing.",
-   "rule": "Rule 18(b)"
+   "rule": "Rule 18(b)",
+   "vessel": "nuc"
   },
   {
    "own": "You are a sailing vessel, and the vessel to windward is on the same tack.",
@@ -463,7 +472,7 @@ window.COLREGS_DATA = {
    "why": "Rule 12(a)(ii): when two sailing vessels have the wind on the same side, the vessel which is to windward keeps out of the way of the vessel to leeward. You are to leeward, so you stand on.",
    "rule": "Rule 12",
    "wind": 50,
-   "kind": "sail"
+   "vessel": "sail"
   },
   {
    "own": "You are a power-driven vessel in a deep-water route.",
@@ -474,7 +483,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: she has no special status under Rule 18.", "Avoid impeding her safe passage - she may have very little water under her keel.", "Overtake her briskly on her starboard side.", "Cross close ahead of her to clear the route."],
    "why": "Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.",
-   "rule": "Rule 18(d)"
+   "rule": "Rule 18(d)",
+   "vessel": "draught"
   },
   {
    "own": "You are a power-driven vessel under way.",
@@ -496,7 +506,8 @@ window.COLREGS_DATA = {
    "answer": "c",
    "options": ["Stand on: green lights mean she is under way and keeping clear.", "Give way: alter to starboard and pass a cable astern of her.", "Keep at least 1000 metres clear of her: she is engaged in mine clearance.", "Sound one short blast and pass close ahead."],
    "why": "Rule 27(f): three all-round greens marks a vessel engaged in mine clearance operations. Other vessels shall keep at least 1000 metres clear of her - much further than ordinary avoiding action.",
-   "rule": "Rule 27(f)"
+   "rule": "Rule 27(f)",
+   "vessel": "mineclear"
   },
   {
    "own": "You are a power-driven vessel closing the coast at night.",
@@ -507,7 +518,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: she is showing red over red, so she is not under command and under way.", "Keep clear: anchor lights with two all-round reds means she is aground, so there is shoal water where she sits.", "Close her to offer assistance without altering course.", "Sound one prolonged blast and hold on."],
    "why": "Rule 30(d): a vessel aground shows the anchor lights plus two all-round reds in a vertical line. The important part is not only that she cannot move - it is that you now know exactly where the shoal is.",
-   "rule": "Rule 30(d)"
+   "rule": "Rule 30(d)",
+   "vessel": "aground"
   },
   {
    "own": "You are entering a busy anchorage after dark.",
@@ -518,7 +530,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: a single white light is a sternlight, so she is going away from you.", "Treat her as a vessel at anchor and pass well clear: she is not under way and cannot get out of your way.", "Assume it is a small boat under oars and hold your course.", "Sound two short blasts and pass down her port side."],
    "why": "One all-round white is a vessel of under 50 metres at anchor. A single white light is genuinely ambiguous at first sight - it may be a sternlight, an anchor light or a small craft - so the answer is to keep watching the bearing and pass well clear until you know which.",
-   "rule": "Rule 30"
+   "rule": "Rule 30",
+   "vessel": "anchor"
   },
   {
    "own": "You are a power-driven vessel approaching a pilot station.",
@@ -529,7 +542,8 @@ window.COLREGS_DATA = {
    "answer": "a",
    "options": ["Stand on: she is crossing from your port side, and being a pilot vessel gives her no special status.", "Give way: pilot vessels always have right of way.", "Give way: sound one short blast and alter to starboard.", "Stop and let her cross."],
    "why": "White over red - pilot ahead. Rule 29 says what a pilot vessel shows, not that she is privileged. Unless she is also restricted in her ability to manoeuvre, the ordinary steering rules apply, and here she is on your port side crossing.",
-   "rule": "Rule 29"
+   "rule": "Rule 29",
+   "vessel": "pilot"
   },
   {
    "own": "You are a yacht under sail alone, overhauling a fishing boat that is under way and making 5 knots.",
@@ -540,7 +554,8 @@ window.COLREGS_DATA = {
    "answer": "b",
    "options": ["Stand on: you are under sail, so she keeps clear of you.", "Give way: you are overtaking, and Rule 13 overrides the order of Rule 18.", "Give way only if she starts fishing.", "Sound one short blast and pass to starboard."],
    "why": "Rule 13 applies notwithstanding anything contained in Rules 4 to 18 - so an overtaking vessel keeps clear whatever the two vessels are. Sailing does not help you here, and you only see her sternlight, which is the test for overtaking.",
-   "rule": "Rule 13"
+   "rule": "Rule 13",
+   "vessel": "power50"
   },
   {
    "own": "You are a power-driven vessel crossing ahead of a tug and her tow at night.",
@@ -551,7 +566,8 @@ window.COLREGS_DATA = {
    "answer": "c",
    "options": ["Stand on: the tug is restricted and will keep clear of you.", "Give way: alter to port and pass between the tug and her tow.", "Give way: alter to starboard and pass well astern of the whole tow - it is more than 200 metres long.", "Cross close ahead of the tug to stay clear of the tow."],
    "why": "Three masthead lights in a vertical line means the tow exceeds 200 metres. The tow itself may show only sidelights and a sternlight and is easy to miss, and the towline between them is not lit at all. Never pass between a tug and her tow.",
-   "rule": "Rule 24"
+   "rule": "Rule 24",
+   "vessel": "tow200p"
   }
  ],
  "sounds": [
