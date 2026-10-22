@@ -380,6 +380,22 @@ details.asterm pre {
 .ref .tablewrap { overflow-x: auto; }
 .ref strong { color: var(--text); font-weight: 700; }
 
+/*  A FIGURE IN THE REFERENCE.  Some of what this app teaches is a SHAPE:
+    the search patterns are rows of bearings and distances that mean
+    nothing until you see the spiral, and Larry's word on them was that
+    they "need a visual in any event to properly understand them".  The
+    pack draws its own, as inline SVG.
+
+    Nothing here sets a stroke or a fill.  The drawing takes its colour
+    from currentColor, so it follows day, night and the red mode without
+    being told which one is on -- and a figure that needed its own colours
+    would need three sets of them.  */
+.ref figure.fig { margin: 4px 0 18px; }
+.ref figure.fig svg { display: block; margin: 0 auto; max-width: 100%;
+                      height: auto; overflow: visible; }
+.ref .fig-cap { color: var(--dim); font-size: 13px; line-height: 1.5;
+                max-width: 34rem; margin: 8px auto 0; }
+
 /* ---- drilling -------------------------------------------------------- */
 .card { background: var(--panel); border: 1px solid var(--line);
         border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
