@@ -938,9 +938,17 @@ function les(id){
     tp("  4. 'At all times' has no exceptions for singlehanders, for tiredness,")
     tp("     or for the middle of an ocean.")
     tb()
+    #  THE SPRAYHOOD IS FORWARD OF THE COCKPIT, so it blocks the helm's
+    #  view AHEAD, over the coachroof -- not astern. Larry: "If you are at
+    #  the wheel, the sprayhood would block your forward view, not your
+    #  astern view." Written the wrong way round, the example was not
+    #  merely inaccurate, it was backwards about the thing Rule 5 is for:
+    #  the helm's blind sector is the one ahead, which is where the risk
+    #  of collision is, and that is precisely why somebody else has to be
+    #  looking there.
     tp("The look-out must be able to appraise the situation. Someone at the")
-    tp("wheel who cannot see astern past the sprayhood is not, by themselves, a")
-    tp("proper look-out.")
+    tp("wheel whose forward view is blocked by the sprayhood is not, by")
+    tp("themselves, a proper look-out.")
     tb() }
   else if(id=="L2"){ thead("L2","Rule 6 - Safe speed")
     tp("Every vessel shall at all times proceed at a safe speed so that she can")

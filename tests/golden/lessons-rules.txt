@@ -19,8 +19,8 @@
        or for the middle of an ocean.
 
   The look-out must be able to appraise the situation. Someone at the
-  wheel who cannot see astern past the sprayhood is not, by themselves, a
-  proper look-out.
+  wheel whose forward view is blocked by the sprayhood is not, by
+  themselves, a proper look-out.
 
   Q. Which of these on its own satisfies Rule 5?
        a) a radar with ARPA, watched from the chart table
