@@ -883,6 +883,12 @@ WXLOG
     #  it carried the row of dashes the terminal draws under a heading
     #  into the page, and nothing could have told me: the only check on
     #  it was reading it. It is generated now, and compared here.
+    #  ONE CASE THIS CANNOT SEE, and it is in the shape of the check:
+    #  the generator runs first and overwrites the working tree, so a
+    #  hand-edit of a generated file that has not been committed is
+    #  destroyed by this run rather than reported by it. A hand-edit that
+    #  reaches a commit does fail here -- all three faults were planted
+    #  and reproduced. Do not read a pass as "nobody hand-edited it".
     gw=docs/web/colregs/data.js
     gc=docs/web/colregs/contacts-lessons.js
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
