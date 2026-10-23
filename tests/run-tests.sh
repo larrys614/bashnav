@@ -1030,6 +1030,20 @@ WXLOG
     *)     bad "data.js encounter vessels: $r (want \"0 3\")" ;;
   esac
 
+  # ---- the browser contacts against the shell contacts ---------------
+  #  The contacts module was shell-only until the port began. It is the
+  #  tracking-party material -- relative motion, bearing drift, Ekelund
+  #  -- and the port is verified the same way the rest of the browser
+  #  build is: by running both over their whole input range and diffing,
+  #  not by reading them side by side. The first draft read correctly
+  #  and failed on ct_yd.
+  if r=$(sh tests/contacts-web-diff.sh 2>&1); then
+    echo "$r" | grep -q '^  ok' && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+    echo "$r" | grep -q '^SKIPPED' && say "  --    ${r#SKIPPED -- }"
+  else
+    bad "the browser and shell contacts disagree"; echo "$r" | head -6
+  fi
+
   # ---- a give-way call answers what she IS --------------------------
   if r=$($AW $CSRC -f tests/colregs-r18.awk -v cmode=plain </dev/null); then
     echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
