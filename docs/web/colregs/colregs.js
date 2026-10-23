@@ -20,7 +20,7 @@
     at colregs-v1 since the app was written. tests/run-tests.sh now
     refuses a build and a cache that disagree, which is the same check
     the drill app got for the same reason.  */
-var BUILD = 6;
+var BUILD = 7;
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
@@ -880,6 +880,104 @@ function encAnswer(ltr) {
 function encNext() { encShow(Math.floor(Math.random() * D.encounters.length)); }
 
 /* =====================================================================
+   PROSE FROM THE SHELL
+
+   Every lesson in this app was written for a terminal, so its prose
+   carries hard line breaks at 72 columns. Put in a pre-wrap box those
+   breaks are honoured AND the long lines wrap again, so on a phone -- a
+   402px box, about 44 characters -- a 72-character line becomes one full
+   line and a 28-character stub. Four lines from the shell became seven
+   on screen, three of them ending mid-way across. It read ragged for as
+   long as the lessons have existed.
+
+   So the breaks are dropped and the browser does the wrapping. Not all
+   of them: in some paragraphs the line breaks ARE the layout, and
+   joining those would destroy the thing they are showing. Three shapes,
+   decided per paragraph:
+
+     pre    a column gutter -- two or more spaces that do not follow
+            sentence punctuation -- or a hanging indent deeper than a
+            list's. C4's anatomy of a report, C5's and C6's formulas,
+            C6's worked legs, C7's relative-bearing table, C2's two
+            quoted phrases side by side. Six of them, left exactly as
+            the shell draws them.
+     list   a numbered or lettered item. The item's own lines are joined
+            and the marker keeps its hanging indent, so a long item
+            wraps under itself instead of under its number.
+     flow   everything else, joined into a paragraph.
+
+   Measured over all twenty-two lessons: 75 flowing, 18 lists, 6 held.
+   The two that look marginal were read rather than counted -- C4's
+   spoken example report, which is a sentence and reads better joined,
+   and a C7 paragraph whose second line carries a stray two-space indent
+   that joining quietly fixes.
+
+   The rule is deliberately conservative: when in doubt it keeps the
+   shell's layout, because a table flowed into a paragraph is unreadable
+   and a paragraph left hard-wrapped is merely ugly.
+   ===================================================================== */
+var PR_GUTTER = /[^.!?: ] {2,}\S/;
+var PR_MARKER = /^( *)(\d+\.|\([a-z]\)|[a-z]\))\s+\S/;
+var PR_DEEP = 6;
+
+function proseKind(lines) {
+  var i, ind = [], mn, mx;
+  for (i = 0; i < lines.length; i++) if (PR_GUTTER.test(lines[i])) return 'pre';
+  for (i = 0; i < lines.length; i++) ind.push(lines[i].match(/^ */)[0].length);
+  mn = Math.min.apply(null, ind); mx = Math.max.apply(null, ind);
+  if (mx - mn >= PR_DEEP) return 'pre';
+  for (i = 0; i < lines.length; i++) if (PR_MARKER.test(lines[i])) return 'list';
+  return 'flow';
+}
+function proseJoin(lines) {
+  var i, out = '';
+  for (i = 0; i < lines.length; i++) {
+    out += (out === '' ? '' : ' ') + lines[i].replace(/^ +/, '').replace(/ +$/, '');
+  }
+  return out;
+}
+/*  fill `box` with `text`, laid out as above  */
+function renderProse(text, box) {
+  box.textContent = '';
+  var pars = String(text).split(/\n[ \t]*\n/);
+  pars.forEach(function (par) {
+    var lines = par.split('\n').filter(function (l) { return l.replace(/\s/g, '') !== ''; });
+    if (!lines.length) return;
+    var kind = proseKind(lines), i, e;
+
+    if (kind === 'pre') {
+      e = document.createElement('pre');
+      e.className = 'lp-pre';
+      e.textContent = par.replace(/^\n+/, '').replace(/\s+$/, '');
+      box.appendChild(e);
+      return;
+    }
+    if (kind === 'flow') {
+      e = document.createElement('p');
+      e.className = 'lp';
+      e.textContent = proseJoin(lines);
+      box.appendChild(e);
+      return;
+    }
+    /*  a list: an item starts at a marker and runs on through the lines
+        indented under it  */
+    var items = [], cur = null;
+    for (i = 0; i < lines.length; i++) {
+      if (PR_MARKER.test(lines[i])) { cur = [lines[i]]; items.push(cur); }
+      else if (cur) cur.push(lines[i]);
+      else { cur = [lines[i]]; items.push(cur); }
+    }
+    items.forEach(function (it) {
+      var d = document.createElement('div');
+      d.className = 'lp-item';
+      d.textContent = proseJoin(it);
+      box.appendChild(d);
+    });
+  });
+  return box;
+}
+
+/* =====================================================================
    THE RULES
    ===================================================================== */
 function doneSet() {
@@ -922,8 +1020,8 @@ function openLesson(i) {
   $('rules-index').hidden = true;
   $('lesson').hidden = false;
   $('lesson-title').textContent = L.id + '  ' + L.title;
-  $('lesson-body').textContent = L.body;
-  $('lesson-q').textContent = L.question;
+  renderProse(L.body, $('lesson-body'));
+  renderProse(L.question, $('lesson-q'));
   var box = $('lesson-opts');
   box.textContent = '';
   var answered = false;
@@ -1010,12 +1108,10 @@ function openContact(i) {
   body.textContent = '';
   L.blocks.forEach(function (b) {
     if (b.t === 'p') {
-      /*  a pre, like the rules lessons: the prose is laid out in columns
-          in places -- C4's anatomy of a report, C6's formula -- and the
-          shell's alignment is the only layout it has  */
-      var pre = document.createElement('pre');
-      pre.textContent = b.s;
-      body.appendChild(pre);
+      var blk = document.createElement('div');
+      blk.className = 'prose';
+      renderProse(b.s, blk);
+      body.appendChild(blk);
       return;
     }
     var draw = CONTACTS_FIGS[b.kind];
@@ -1166,7 +1262,10 @@ if (typeof module !== 'undefined' && module.exports) {
     nrm180: nrm180, nrm360: nrm360, fabs: fabs,
     arc_vis: arc_vis, rel_phrase: rel_phrase,
     aspect_words: aspect_words, lt_arc: lt_arc_web, lt_note: lt_note,
-    heard: heard
+    heard: heard,
+    //  tests/prose-reflow-check.js: the shell's line breaks are dropped
+    //  for the browser, and this is what decides where they are kept
+    renderProse: renderProse, proseKind: proseKind
   };
 }
 

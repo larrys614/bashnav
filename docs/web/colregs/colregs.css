@@ -311,13 +311,40 @@ input[type="range"]::-moz-range-thumb {
 .ridx .done { color: var(--lamp-g); font-family: ui-monospace, Menlo, monospace; }
 .ridx .todo { color: var(--dim); font-family: ui-monospace, Menlo, monospace; }
 
-.lesson pre, .check pre {
-  white-space: pre-wrap; word-wrap: break-word;
+/*  THE PANEL IS THE CONTAINER, NOT EACH PARAGRAPH. The lesson body used
+    to be one pre; it is now a box of paragraphs, so the border, padding
+    and background belong to the box and its children carry none.       */
+.prose {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 13.5px; line-height: 1.6; color: var(--text);
   background: var(--panel); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 14px; margin: 0 0 16px;
-  overflow-x: auto;
+}
+/*  NOTHING ELSE STYLES A pre IN HERE. There was a `.lesson pre, .check
+    pre` pair setting pre-wrap, left over from when a lesson body WAS one
+    pre. It still matched -- the only pre left in a lesson is .lp-pre --
+    and out-specified it, so a held paragraph went on wrapping and drew a
+    second panel inside the first. The question box showed both.        */
+
+/*  the shell's 72-column breaks are dropped and the browser wraps: see
+    renderProse() in colregs.js for which paragraphs keep theirs        */
+.prose > :first-child { margin-top: 0; }
+.prose > :last-child  { margin-bottom: 0; }
+.lp      { margin: 0 0 12px; }
+.lp-item { margin: 0 0 6px; padding-left: 2.2em; text-indent: -2.2em; }
+.lp-item + .lp { margin-top: 12px; }
+
+/*  A HELD PARAGRAPH KEEPS THE SHELL'S LAYOUT EXACTLY. C4's anatomy of a
+    report is 67 columns and the box is about 44, so it has to scroll --
+    on its own, never pushing the page sideways. It is given its own
+    inset panel because, flush with the reflowed prose around it, a
+    clipped table looks like text that went missing rather than a table
+    you can push. The inset says: this one is wider than the screen.   */
+.lp-pre {
+  white-space: pre; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  margin: 0 0 12px; font: inherit; color: inherit;
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 6px; padding: 10px 12px;
 }
 .check { border-top: 1px solid var(--line); padding-top: 14px; }
 

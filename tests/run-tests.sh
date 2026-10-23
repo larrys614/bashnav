@@ -932,6 +932,25 @@ WXLOG
     say "  --    the contacts figure check needs node, skipped"
   fi
 
+  #  2c. THE REFLOW KEEPS EVERY WORD, AND HOLDS WHAT HAS COLUMNS IN IT.
+  #     The lessons were written for a terminal and carry hard breaks at
+  #     72 columns; the browser drops them and wraps for itself, except
+  #     where the breaks are the layout. Two silent failures: a word lost
+  #     when lines are joined, and a table flowed into a paragraph. The
+  #     second test uses its own idea of what a table is -- three spaces
+  #     inside a line -- rather than asking the renderer whether it
+  #     agrees with itself.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node tests/prose-reflow-check.js 2>&1); then
+      ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+    else
+      bad "the lesson reflow loses words, or flows a paragraph it should hold"
+      echo "$r" | head -8
+    fi
+  else
+    say "  --    the prose reflow check needs node, skipped"
+  fi
+
   #  3. A CHANGED WEB APP MOVES ITS CACHE. The worker is cache-first, so a
   #     build shipped without bumping the cache reaches nobody who has
   #     opened the page before -- which is exactly what happened: Larry
