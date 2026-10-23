@@ -633,7 +633,8 @@ WXLOG
         src/tides/engine.awk src/tides/tables.awk docs/ansi2svg.awk \
         tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
         tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk \
-        tests/colregs-wind.awk tests/colregs-vessel.awk)
+        tests/colregs-wind.awk tests/colregs-vessel.awk tests/colregs-bearing.awk \
+        tests/colregs-r18.awk)
   n=$(echo "$r" | tail -1 | $AW '{print $2}')
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
@@ -1028,6 +1029,22 @@ WXLOG
     "x x") ok "(node absent: skipped the data.js vessel-key check)" ;;
     *)     bad "data.js encounter vessels: $r (want \"0 3\")" ;;
   esac
+
+  # ---- a give-way call answers what she IS --------------------------
+  if r=$($AW $CSRC -f tests/colregs-r18.awk -v cmode=plain </dev/null); then
+    echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+  else
+    bad "a give-way call ignores her standing under Rule 18"
+    echo "$r" | grep FAIL | head -4
+  fi
+
+  # ---- one bearing per scenario, stated by the stem ----------------
+  if r=$($AW $CSRC -f tests/colregs-bearing.awk -v cmode=plain </dev/null); then
+    echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+  else
+    bad "a scenario states a bearing that its own stem will state again, differently"
+    echo "$r" | grep FAIL | head -4
+  fi
 
   # ---- the sailing scenarios' wind --------------------------------
   #  Larry, drilling scenario 12: "wind dir not shown". Rule 12 is decided

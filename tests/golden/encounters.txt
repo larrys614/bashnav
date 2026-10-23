@@ -200,7 +200,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel making 18 knots.
-  You see a power-driven vessel dead ahead making 8 knots, showing only her sternlight, fine on your starboard bow, heading as drawn.
+  You see a power-driven vessel making 8 knots, showing only her sternlight, fine on your starboard bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: you are the faster vessel.
    b) Give way: you are overtaking, so keep clear until you are finally past and clear.
@@ -257,7 +257,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel making 8 knots.
-  You see a large power-driven vessel coming up astern, fine on your port quarter, fine on your port quarter, heading as drawn.
+  You see a large power-driven vessel coming up astern, fine on your port quarter, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: keep your course and speed.
    b) Give way: alter to starboard.
@@ -314,7 +314,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel under way.
-  You see a sailing vessel under sail alone, on your starboard bow, on your starboard beam, heading as drawn.
+  You see a sailing vessel under sail alone, on your starboard beam, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: she is smaller than you.
    b) Give way: keep out of her way.
@@ -371,7 +371,7 @@
   
   ----------------------------------------------------------------------
   You are a sailing vessel under sail alone.
-  You see a power-driven vessel on your port bow, fine on your port bow, heading as drawn.
+  You see a power-driven vessel, fine on your port bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: she must keep out of your way.
    b) Give way: alter to starboard.
@@ -599,7 +599,7 @@
   
   ----------------------------------------------------------------------
   You are a sailing vessel on the port tack.
-  You see a sailing vessel on the starboard tack, on your starboard bow, on your starboard beam, heading as drawn.
+  You see a sailing vessel on the starboard tack, on your starboard beam, heading as drawn.
   The wind is from 330 relative, as drawn.
   ----------------------------------------------------------------------
    a) Stand on: you were there first.
@@ -772,7 +772,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel under way in fog, hearing but not seeing her.
-  You hear a fog signal of one prolonged blast followed by two short, forward of your beam, broad on your starboard bow, heading as drawn.
+  You hear a fog signal of one prolonged blast followed by two short, broad on your starboard bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: the signal tells you she will keep clear.
    b) Reduce to bare steerage way - she may be a vessel restricted in her ability to manoeuvre, fishing, towing or under sail.
@@ -886,7 +886,7 @@
   
   ----------------------------------------------------------------------
   You are a 12 m yacht under sail, crossing a traffic separation scheme.
-  You see a container ship following the lane, fine on your starboard bow, on your starboard beam, heading as drawn.
+  You see a container ship following the lane, on your starboard beam, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: you are under sail, so power keeps clear of you.
    b) Keep clear: a sailing vessel shall not impede a power-driven vessel following a lane, and cross on a heading at right angles to the flow.
@@ -1000,7 +1000,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel in thick fog, hearing but not seeing her.
-  You hear two prolonged blasts, about two seconds apart, from fine on the port bow, fine on your starboard bow, heading as drawn.
+  You hear two prolonged blasts, about two seconds apart, fine on your starboard bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: two prolonged means she is stopped, so she is no danger.
    b) Reduce to the least speed at which you can be kept on course, and be ready to take all way off.
@@ -1229,7 +1229,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel under way.
-  You see a seaplane on the water, ahead and to starboard, on your starboard beam, heading as drawn.
+  You see a seaplane on the water, on your starboard beam, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: a seaplane on the water keeps well clear of all vessels.
    b) Give way: an aircraft has right of way.
@@ -1400,7 +1400,7 @@
   
   ----------------------------------------------------------------------
   You are entering a busy anchorage after dark.
-  You see a single all-round white light, low down, not moving, fine on the starboard bow, fine on your starboard bow, heading as drawn.
+  You see a single all-round white light, low down, not moving, fine on your starboard bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: a single white light is a sternlight, so she is going away from you.
    b) Treat her as a vessel at anchor and pass well clear: she is not under way and cannot get out of your way.

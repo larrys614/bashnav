@@ -271,7 +271,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a power-driven vessel making 18 knots.",
-   "target": "a power-driven vessel dead ahead making 8 knots, showing only her sternlight",
+   "target": "a power-driven vessel making 8 knots, showing only her sternlight",
    "brglo": 350,
    "brghi": 10,
    "thdg": 0,
@@ -283,7 +283,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a power-driven vessel making 8 knots.",
-   "target": "a large power-driven vessel coming up astern, fine on your port quarter",
+   "target": "a large power-driven vessel coming up astern",
    "brglo": 170,
    "brghi": 200,
    "thdg": 0,
@@ -295,7 +295,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a power-driven vessel under way.",
-   "target": "a sailing vessel under sail alone, on your starboard bow",
+   "target": "a sailing vessel under sail alone",
    "brglo": 20,
    "brghi": 80,
    "thdg": 300,
@@ -307,7 +307,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a sailing vessel under sail alone.",
-   "target": "a power-driven vessel on your port bow",
+   "target": "a power-driven vessel",
    "brglo": 300,
    "brghi": 350,
    "thdg": 80,
@@ -355,7 +355,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a sailing vessel on the port tack.",
-   "target": "a sailing vessel on the starboard tack, on your starboard bow",
+   "target": "a sailing vessel on the starboard tack",
    "brglo": 20,
    "brghi": 70,
    "thdg": 300,
@@ -393,7 +393,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a power-driven vessel under way in fog, hearing but not seeing her.",
-   "target": "a fog signal of one prolonged blast followed by two short, forward of your beam",
+   "target": "a fog signal of one prolonged blast followed by two short",
    "brglo": 300,
    "brghi": 60,
    "thdg": 170,
@@ -416,7 +416,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a 12 m yacht under sail, crossing a traffic separation scheme.",
-   "target": "a container ship following the lane, fine on your starboard bow",
+   "target": "a container ship following the lane",
    "brglo": 30,
    "brghi": 80,
    "thdg": 300,
@@ -440,7 +440,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a power-driven vessel in thick fog, hearing but not seeing her.",
-   "target": "two prolonged blasts, about two seconds apart, from fine on the port bow",
+   "target": "two prolonged blasts, about two seconds apart",
    "brglo": 300,
    "brghi": 10,
    "thdg": 0,
@@ -488,7 +488,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are a power-driven vessel under way.",
-   "target": "a seaplane on the water, ahead and to starboard",
+   "target": "a seaplane on the water",
    "brglo": 20,
    "brghi": 70,
    "thdg": 280,
@@ -523,7 +523,7 @@ window.COLREGS_DATA = {
   },
   {
    "own": "You are entering a busy anchorage after dark.",
-   "target": "a single all-round white light, low down, not moving, fine on the starboard bow",
+   "target": "a single all-round white light, low down, not moving",
    "brglo": 350,
    "brghi": 30,
    "thdg": 0,

@@ -250,13 +250,115 @@ function motion_text(k){
   if(k==4) return "Going away from you - you are overtaking her."
   return "She is not under way, or not making way through the water."
 }
-function motion_why(k,idx,   a){
-  split(VT[idx],a,"|")
-  if(k==1) return "Both sidelights at once means you are within a degree or two of her bow, and she of yours. Her red appears on your right and her green on your left, because she is facing you. Rule 14: neither of you stands on - each alters to starboard and you pass port to port."
-  if(k==2) return "Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk."
-  if(k==3) return "Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear."
-  if(k==4) return "A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear."
+#  WHAT HER LIGHTS TELL YOU ABOUT HER HEADING.  This half is pure
+#  geometry and is the skill the drill is for: which sector of hers you
+#  are standing in, and therefore which way she is going.
+function motion_lights(k){
+  if(k==1) return "Both sidelights at once means you are within a degree or two of her bow, and she of yours. Her red appears on your right and her green on your left, because she is facing you."
+  if(k==2) return "Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right."
+  if(k==3) return "Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left."
+  if(k==4) return "A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam."
   return "No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped."
+}
+
+#  HER STANDING UNDER RULE 18, which is a different question from her
+#  heading and is decided by what she IS, not by where she is.
+function r18_of(key){
+  if(key=="nuc" || key=="nucway")        return "nuc"
+  if(key=="ram" || key=="mineclear")     return "ram"
+  if(key=="trawl" || key=="fishing")     return "fish"
+  if(key=="sail" || key=="sailrg" || key=="sail7") return "sail"
+  if(key=="draught")                     return "cbd"
+  if(key=="wig")                         return "wig"
+  if(key=="towed")                       return "tow"
+  return ""
+}
+
+#  THE GIVE-WAY HALF, AND WHY IT IS SEPARATE.
+#
+#  Larry, reviewing mot-4 -- constrained by her draught, crossing from
+#  your left to your right, where the program said she must keep out of
+#  the way and "You stand on and hold your course":
+#
+#      "IF she is constrained by her draft, the sidelights dont matter,
+#      you give way"
+#
+#  and on mot-5, where the program happened to reach the right action:
+#
+#      "correct for the wrong reason.  the higher reason is that she is
+#      constrained by her draft."
+#
+#  He is right twice over.  motion_why() was handed the vessel and never
+#  looked at it: the whole answer was built from the arc.  Measured
+#  afterwards, 42 of the 73 distinct claims are about a vessel with a
+#  standing under Rule 18 and not one of them mentioned it -- and NINE
+#  told the reader to stand on against a vessel he must keep clear of or
+#  must not impede: not under command, restricted in her ability to
+#  manoeuvre, fishing, trawling, under sail, under tow, mine clearance,
+#  and his constrained by her draught.
+#
+#  Rule 15 and Rule 14 are rules for two POWER-DRIVEN vessels. Where she
+#  is something Rule 18 ranks above you, the geometry still says which
+#  way she is going -- that is why you read the lights -- but it does not
+#  decide who gives way.
+#
+#  Our own status has to be stated or the question does not carry its own
+#  context, which is Larry's rule: the drill never said what WE are.
+function r18_say(st,k){
+  if(st=="nuc")  return "But she is NOT UNDER COMMAND. Rule 18(a)(i): a power-driven vessel under way keeps out of the way of a vessel not under command, whichever way she is crossing. Her lights tell you where she is going; they do not decide who gives way."
+  if(st=="ram")  return "But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all."
+  if(st=="fish") return "But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull."
+  if(st=="sail") return "But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here."
+  if(st=="cbd")  return "But she is CONSTRAINED BY HER DRAUGHT. Rule 18(d)(i): avoid impeding her safe passage, if the circumstances of the case admit -- she may have no water to go anywhere else. Rule 8(f) says what not impeding means: act early and give her room, and do not put her in a position where she has to manoeuvre for you."
+  if(st=="wig")  return "She is a WIG CRAFT taking off, landing or in flight near the surface. Rule 18(f)(i): she keeps well clear of all vessels and avoids impeding their navigation. On the water, she is a power-driven vessel like any other."
+  if(st=="tow")  return "She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her."
+  return ""
+}
+function motion_plain(k){
+  if(k==1) return "Taking you as a power-driven vessel under way, Rule 14: neither of you stands on - each alters to starboard and you pass port to port."
+  if(k==2) return "Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk."
+  if(k==3) return "Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear."
+  return ""
+}
+#  OVERTAKING IS DECIDED BEFORE RULE 18 GETS A VOTE.  Rule 13(a) opens
+#  "notwithstanding anything contained in the Rules of Part B, Sections I
+#  and II", and Rule 18 is in Section I -- so the overtaking vessel keeps
+#  clear whatever the other one is, and the plain answer was already
+#  right.  Larry, on mot-7: "if the rule says you should not impeed her,
+#  I would wonder if passing her has the potential to impeed her".  It
+#  does, and that is Rule 18(d) sitting on top of Rule 13 rather than
+#  instead of it.
+#  her standing in plain words, for the sentences that name her
+function r18_name(st){
+  if(st=="nuc")  return "NOT UNDER COMMAND"
+  if(st=="ram")  return "RESTRICTED IN HER ABILITY TO MANOEUVRE"
+  if(st=="fish") return "ENGAGED IN FISHING"
+  if(st=="sail") return "UNDER SAIL"
+  if(st=="cbd")  return "CONSTRAINED BY HER DRAUGHT"
+  if(st=="wig")  return "a WIG CRAFT"
+  if(st=="tow")  return "BEING TOWED"
+  return ""
+}
+function motion_ovt(st,   n){
+  if(st=="")    return "You are overtaking her, and you keep out of her way until you are finally past and clear."
+  if(st=="cbd") return "You are overtaking her, and you keep out of her way until you are finally past and clear -- Rule 13 says so whatever she is. She is also CONSTRAINED BY HER DRAUGHT, and Rule 18(d) sits on top of Rule 13 rather than under it: passing close can itself impede her safe passage, so give her room as well as way."
+  if(st=="tow") return "You are overtaking her, and you keep out of her way until you are finally past and clear. She is BEING TOWED: the tow line and whatever is on the end of it may be a long way astern of the vessel showing these lights, so pass well clear of all of it."
+  n = r18_name(st)
+  #  Rule 13(a) opens "notwithstanding anything contained in the Rules of
+  #  Part B, Sections I and II", and Rule 18 is in Section I, so
+  #  overtaking is decided before her standing comes into it. She is still
+  #  named: it does not change WHETHER you keep clear, it changes how
+  #  much room you leave while you do it.
+  return "You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens \"notwithstanding anything contained in the Rules of Part B, Sections I and II\", so it decides that before Rule 18 comes into it. She is " n ", which does not change whether you keep clear -- it changes how wide you go."
+}
+function motion_why(k,idx,   a,st,s){
+  split(VT[idx],a,"|")
+  st = r18_of(a[1])
+  s = motion_lights(k)
+  if(k==5) return s
+  if(k==4) return s " " motion_ovt(st)
+  if(st=="") return s " " motion_plain(k)
+  return s " " r18_say(st,k)
 }
 
 function light_sig(idx,th,   a,n,L,i,f,cnt,j,t1,t2,sig){
@@ -601,16 +703,16 @@ function enc_init(){
   EC[3]="You are a power-driven vessel under way.|a power-driven vessel showing her green sidelight|260|330|070|a|"\
 "Stand on: keep your course and speed, and watch her.;Give way: alter to starboard.;Give way: alter to port.;Stop your engines at once.|"\
 "She is crossing from your port side, so she must keep out of your way and you are the stand-on vessel. Keep your course and speed - but Rule 17 also allows you to act as soon as it is clear she is not, and requires you to act when collision cannot be avoided by her action alone.|Rule 17||power50"
-  EC[4]="You are a power-driven vessel making 18 knots.|a power-driven vessel dead ahead making 8 knots, showing only her sternlight|350|010|000|b|"\
+  EC[4]="You are a power-driven vessel making 18 knots.|a power-driven vessel making 8 knots, showing only her sternlight|350|010|000|b|"\
 "Stand on: you are the faster vessel.;Give way: you are overtaking, so keep clear until you are finally past and clear.;Sound two short blasts and pass down her port side.;Alter to starboard only if she alters first.|"\
 "You are coming up on her from more than 22.5 degrees abaft her beam - you can see only her sternlight, which is the test. Any subsequent alteration of bearing does not make you a crossing vessel: you remain the give-way vessel until finally past and clear.|Rule 13||power50"
-  EC[5]="You are a power-driven vessel making 8 knots.|a large power-driven vessel coming up astern, fine on your port quarter|170|200|000|a|"\
+  EC[5]="You are a power-driven vessel making 8 knots.|a large power-driven vessel coming up astern|170|200|000|a|"\
 "Stand on: keep your course and speed.;Give way: alter to starboard.;Give way: slow down and let her pass.;Alter to port to open the distance.|"\
 "She is overtaking you, so she must keep out of your way. You are the stand-on vessel and should hold your course and speed so that she can plan around you.|Rule 13||power50p"
-  EC[6]="You are a power-driven vessel under way.|a sailing vessel under sail alone, on your starboard bow|020|080|300|b|"\
+  EC[6]="You are a power-driven vessel under way.|a sailing vessel under sail alone|020|080|300|b|"\
 "Stand on: she is smaller than you.;Give way: keep out of her way.;Give way only if she is on your starboard side.;Sound five short blasts.|"\
 "A power-driven vessel under way keeps out of the way of a sailing vessel. Which side she is on does not come into it, and neither does her size.|Rule 18||sail"
-  EC[7]="You are a sailing vessel under sail alone.|a power-driven vessel on your port bow|300|350|080|a|"\
+  EC[7]="You are a sailing vessel under sail alone.|a power-driven vessel|300|350|080|a|"\
 "Stand on: she must keep out of your way.;Give way: alter to starboard.;Give way: tack away.;Bear away and pass under her stern.|"\
 "She is a power-driven vessel and you are under sail, so she keeps clear. Stand on - but keep watching, and be ready to act under Rule 17 if she does nothing.|Rule 18||power50"
   EC[8]="You are a power-driven vessel under way.|a vessel showing red over white all-round lights, with sidelights|300|060|150|b|"\
@@ -622,7 +724,7 @@ function enc_init(){
   EC[10]="You are a power-driven vessel in a deep-water channel.|a vessel showing three all-round red lights in a vertical line|300|060|170|b|"\
 "Stand on: a constrained vessel has no special status.;Give way: avoid impeding her safe passage.;Overtake her quickly on her starboard side.;Anchor until she has passed.|"\
 "Three all-round reds means a vessel constrained by her draught. She is not technically a stand-on vessel under Rule 18, but every vessel must avoid impeding her safe passage, and she may have very little water under her.|Rule 18(d)||draught"
-  EC[11]="You are a sailing vessel on the port tack.|a sailing vessel on the starboard tack, on your starboard bow|020|070|300|b|"\
+  EC[11]="You are a sailing vessel on the port tack.|a sailing vessel on the starboard tack|020|070|300|b|"\
 "Stand on: you were there first.;Give way: keep out of her way.;Give way only if she is to windward.;Tack immediately.|"\
 "When two sailing vessels have the wind on different sides, the one with the wind on the port side keeps out of the way of the other. You are on port tack, so you give way.|Rule 12|330|sail"
   EC[12]="You are a sailing vessel to windward.|a sailing vessel to leeward, both of you on the same tack|100|150|020|b|"\
@@ -631,19 +733,19 @@ function enc_init(){
   EC[13]="You are a power-driven vessel under way.|a vessel showing two all-round red lights and no sidelights|280|080|000|b|"\
 "Stand on: she is not moving.;Give way: keep well out of her way - she is not under command.;Sound five short blasts and hold on.;Pass close ahead - she cannot move.|"\
 "Two all-round reds and nothing else: not under command, and making no way through the water. She cannot manoeuvre at all. Everything keeps out of her way.|Rule 18||nuc"
-  EC[14]="You are a power-driven vessel under way in fog, hearing but not seeing her.|a fog signal of one prolonged blast followed by two short, forward of your beam|300|060|170|b|"\
+  EC[14]="You are a power-driven vessel under way in fog, hearing but not seeing her.|a fog signal of one prolonged blast followed by two short|300|060|170|b|"\
 "Stand on: the signal tells you she will keep clear.;Reduce to bare steerage way - she may be a vessel restricted in her ability to manoeuvre, fishing, towing or under sail.;Alter boldly to port.;Sound five short blasts and continue.|"\
 "One prolonged and two short is the signal for a vessel not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, or towing. In restricted visibility there is no stand-on vessel: Rule 19 requires you to reduce to the minimum at which you can be kept on course, and if necessary take all way off.|Rule 19||"
   EC[15]="You are a yacht of 11 m, under power, crossing a narrow buoyed channel.|a laden bulk carrier coming down the channel, which she cannot leave|020|090|300|b|"\
 "Stand on: you are crossing and she is on your starboard side, so Rule 15 applies.;Keep clear early: do not impede a vessel that can only navigate within the channel.;Cross ahead quickly to get out of her way.;Anchor in the channel until she has passed.|"\
 "Rule 9(b): a vessel of less than 20 metres or a sailing vessel shall not impede the passage of a vessel which can safely navigate only within a narrow channel. Shall not impede is stronger than give way - keep clear early enough that the question never arises.|Rule 9||draught"
-  EC[16]="You are a 12 m yacht under sail, crossing a traffic separation scheme.|a container ship following the lane, fine on your starboard bow|030|080|300|b|"\
+  EC[16]="You are a 12 m yacht under sail, crossing a traffic separation scheme.|a container ship following the lane|030|080|300|b|"\
 "Stand on: you are under sail, so power keeps clear of you.;Keep clear: a sailing vessel shall not impede a power-driven vessel following a lane, and cross on a heading at right angles to the flow.;Motor along the lane until there is a gap.;Cross at a shallow angle to spend less time in the lane.|"\
 "Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede the safe passage of a power-driven vessel following a traffic lane. And Rule 10(c) says cross on a heading as nearly as practicable at right angles to the flow - heading, not ground track, because a beam-on aspect is what makes you visible and predictable.|Rule 10||power50p"
   EC[17]="You are a coaster overtaking a slower vessel in a narrow channel.|the vessel ahead, whose agreement you need before you pass|350|010|000|c|"\
 "Alter to starboard and pass, sounding one short blast.;Pass on whichever side has more water, without signalling.;Sound two prolonged and one short - I intend to overtake you on your starboard side - and wait for her answer.;Call her on VHF and pass when she does not object.|"\
 "Rule 9(e) with Rule 34(c): in a narrow channel, overtaking needs the other vessel indicating agreement. You signal two prolonged and one short for her starboard side, two prolonged and two short for her port side, and she answers prolonged, short, prolonged, short if she agrees.|Rule 9(e)||power50"
-  EC[18]="You are a power-driven vessel in thick fog, hearing but not seeing her.|two prolonged blasts, about two seconds apart, from fine on the port bow|300|010|000|b|"\
+  EC[18]="You are a power-driven vessel in thick fog, hearing but not seeing her.|two prolonged blasts, about two seconds apart|300|010|000|b|"\
 "Stand on: two prolonged means she is stopped, so she is no danger.;Reduce to the least speed at which you can be kept on course, and be ready to take all way off.;Alter boldly to port and pass down her starboard side.;Sound five short blasts and hold your speed.|"\
 "Two prolonged blasts is a power-driven vessel under way but stopped and making no way. In restricted visibility there is no stand-on vessel: Rule 19(e) requires you to reduce to bare steerage way on hearing a fog signal apparently forward of the beam, and if necessary take all your way off.|Rule 19||"
   EC[19]="You are a yacht under sail alone.|a vessel showing two all-round red lights and nothing else|280|080|000|b|"\
@@ -655,7 +757,7 @@ function enc_init(){
   EC[21]="You are a power-driven vessel in a deep-water route.|a loaded tanker showing three all-round red lights in a vertical line|300|060|170|b|"\
 "Stand on: she has no special status under Rule 18.;Avoid impeding her safe passage - she may have very little water under her keel.;Overtake her briskly on her starboard side.;Cross close ahead of her to clear the route.|"\
 "Three all-round reds means constrained by her draught. Rule 18(d) says every vessel shall, if the circumstances of the case admit, avoid impeding her safe passage, and she must navigate with particular caution.|Rule 18(d)||draught"
-  EC[22]="You are a power-driven vessel under way.|a seaplane on the water, ahead and to starboard|020|070|280|a|"\
+  EC[22]="You are a power-driven vessel under way.|a seaplane on the water|020|070|280|a|"\
 "Stand on: a seaplane on the water keeps well clear of all vessels.;Give way: an aircraft has right of way.;Give way: alter to starboard and pass astern of her.;Stop your engines.|"\
 "Rule 18(e): a seaplane on the water shall, in general, keep well clear of all vessels and avoid impeding their navigation. In a risk-of-collision situation she then complies with the rules of this part like any other vessel.|Rule 18(e)||"
   EC[23]="You are a power-driven vessel under way.|a vessel showing three all-round green lights, one at the masthead and one at each yardarm|300|060|170|c|"\
@@ -664,7 +766,7 @@ function enc_init(){
   EC[24]="You are a power-driven vessel closing the coast at night.|two all-round red lights in a line, with a white light below and forward, and no sidelights|300|060|000|b|"\
 "Stand on: she is showing red over red, so she is not under command and under way.;Keep clear: anchor lights with two all-round reds means she is aground, so there is shoal water where she sits.;Close her to offer assistance without altering course.;Sound one prolonged blast and hold on.|"\
 "Rule 30(d): a vessel aground shows the anchor lights plus two all-round reds in a vertical line. The important part is not only that she cannot move - it is that you now know exactly where the shoal is.|Rule 30(d)||aground"
-  EC[25]="You are entering a busy anchorage after dark.|a single all-round white light, low down, not moving, fine on the starboard bow|350|030|000|b|"\
+  EC[25]="You are entering a busy anchorage after dark.|a single all-round white light, low down, not moving|350|030|000|b|"\
 "Stand on: a single white light is a sternlight, so she is going away from you.;Treat her as a vessel at anchor and pass well clear: she is not under way and cannot get out of your way.;Assume it is a small boat under oars and hold your course.;Sound two short blasts and pass down her port side.|"\
 "One all-round white is a vessel of under 50 metres at anchor. A single white light is genuinely ambiguous at first sight - it may be a sternlight, an anchor light or a small craft - so the answer is to keep watching the bearing and pass well clear until you know which.|Rule 30||anchor"
   EC[26]="You are a power-driven vessel approaching a pilot station.|a pilot vessel showing white over red, with sidelights and a sternlight, crossing from your port side|280|340|070|a|"\

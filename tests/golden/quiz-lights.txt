@@ -46,7 +46,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is ENGAGED IN FISHING, which does not change whether you keep clear -- it changes how wide you go.
       You are broad on her starboard quarter.
 
   Not quite.
@@ -55,7 +55,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is ENGAGED IN FISHING, which does not change whether you keep clear -- it changes how wide you go.
       You are broad on her starboard quarter.
 
   Not quite.
@@ -64,7 +64,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is ENGAGED IN FISHING, which does not change whether you keep clear -- it changes how wide you go.
       You are broad on her starboard quarter.
 
   Not quite.
@@ -73,7 +73,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is ENGAGED IN FISHING, which does not change whether you keep clear -- it changes how wide you go.
       You are broad on her starboard quarter.
 
 === qlight 2 ===
@@ -123,7 +123,7 @@
       Rule 23.  One masthead light, sidelights, sternlight.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are broad on her starboard bow.
 
   Not quite.
@@ -131,7 +131,7 @@
       Rule 23.  One masthead light, sidelights, sternlight.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are broad on her starboard bow.
 
   Not quite.
@@ -139,7 +139,7 @@
       Rule 23.  One masthead light, sidelights, sternlight.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are broad on her starboard bow.
 
   Not quite.
@@ -147,7 +147,7 @@
       Rule 23.  One masthead light, sidelights, sternlight.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are broad on her starboard bow.
 
 === qlight 3 ===
@@ -198,7 +198,7 @@
       Watch out: red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are fine on her port bow.
 
   Not quite.
@@ -207,7 +207,7 @@
       Watch out: red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are fine on her port bow.
 
   Not quite.
@@ -216,7 +216,7 @@
       Watch out: red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are fine on her port bow.
 
   Q1  D is right -- Fishing, other than trawling
@@ -224,7 +224,7 @@
       Watch out: red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are fine on her port bow.
 
 === qlight 4 ===
@@ -274,7 +274,7 @@
       Rule 23.  Two masthead lights, the after one higher.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are broad on her port bow.
 
   Not quite.
@@ -282,7 +282,7 @@
       Rule 23.  Two masthead lights, the after one higher.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are broad on her port bow.
 
   Not quite.
@@ -290,7 +290,7 @@
       Rule 23.  Two masthead lights, the after one higher.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are broad on her port bow.
 
   Not quite.
@@ -298,7 +298,7 @@
       Rule 23.  Two masthead lights, the after one higher.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are broad on her port bow.
 
 === qlight 5 ===
@@ -425,7 +425,7 @@
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is UNDER SAIL, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -440,7 +440,7 @@
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is UNDER SAIL, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -455,7 +455,7 @@
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is UNDER SAIL, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -470,7 +470,7 @@
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is UNDER SAIL, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -604,7 +604,7 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are broad on her starboard bow.
 
   Not quite.
@@ -612,7 +612,7 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are broad on her starboard bow.
 
   Not quite.
@@ -620,7 +620,7 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are broad on her starboard bow.
 
   Not quite.
@@ -628,7 +628,7 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are broad on her starboard bow.
 
 === qlight 9 ===
@@ -678,7 +678,7 @@
       Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Q2  C is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are fine on her port bow.
 
   Not quite.
@@ -686,7 +686,7 @@
       Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Q2  C is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are fine on her port bow.
 
   Not quite.
@@ -694,7 +694,7 @@
       Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Q2  C is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are fine on her port bow.
 
   Not quite.
@@ -702,7 +702,7 @@
       Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Q2  C is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are fine on her port bow.
 
 === qlight 10 ===
@@ -1001,7 +1001,7 @@
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
   Q2  B is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
@@ -1016,7 +1016,7 @@
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
   Q2  B is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
@@ -1031,7 +1031,7 @@
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
   Q2  B is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
@@ -1046,7 +1046,7 @@
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
   Q2  B is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
@@ -1178,7 +1178,7 @@
       Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are fine on her port bow.
 
   Not quite.
@@ -1187,7 +1187,7 @@
       Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are fine on her port bow.
 
   Not quite.
@@ -1196,7 +1196,7 @@
       Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are fine on her port bow.
 
   Not quite.
@@ -1205,7 +1205,7 @@
       Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are fine on her port bow.
 
 === qlight 16 ===
@@ -1550,7 +1550,7 @@
       Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is NOT UNDER COMMAND. Rule 18(a)(i): a power-driven vessel under way keeps out of the way of a vessel not under command, whichever way she is crossing. Her lights tell you where she is going; they do not decide who gives way.
       You are broad on her starboard bow.
 
   Not quite.
@@ -1558,7 +1558,7 @@
       Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is NOT UNDER COMMAND. Rule 18(a)(i): a power-driven vessel under way keeps out of the way of a vessel not under command, whichever way she is crossing. Her lights tell you where she is going; they do not decide who gives way.
       You are broad on her starboard bow.
 
   Not quite.
@@ -1566,7 +1566,7 @@
       Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is NOT UNDER COMMAND. Rule 18(a)(i): a power-driven vessel under way keeps out of the way of a vessel not under command, whichever way she is crossing. Her lights tell you where she is going; they do not decide who gives way.
       You are broad on her starboard bow.
 
   Not quite.
@@ -1574,7 +1574,7 @@
       Rule 27.  Two all-round reds, and because she is making way, sidelights and sternlight too.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is NOT UNDER COMMAND. Rule 18(a)(i): a power-driven vessel under way keeps out of the way of a vessel not under command, whichever way she is crossing. Her lights tell you where she is going; they do not decide who gives way.
       You are broad on her starboard bow.
 
 === qlight 21 ===
@@ -1699,7 +1699,7 @@
       Watch out: the lower two of her three lights are red over white, which on its own is a vessel fishing. The third light, red on top, is what makes her restricted in her ability to manoeuvre.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -1708,7 +1708,7 @@
       Watch out: the lower two of her three lights are red over white, which on its own is a vessel fishing. The third light, red on top, is what makes her restricted in her ability to manoeuvre.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -1717,7 +1717,7 @@
       Watch out: the lower two of her three lights are red over white, which on its own is a vessel fishing. The third light, red on top, is what makes her restricted in her ability to manoeuvre.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are on her port beam: you see her whole port side.
 
   Q1  D is right -- Restricted in her ability to manoeuvre
@@ -1725,7 +1725,7 @@
       Watch out: the lower two of her three lights are red over white, which on its own is a vessel fishing. The third light, red on top, is what makes her restricted in her ability to manoeuvre.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are on her port beam: you see her whole port side.
 
 === qlight 23 ===
@@ -1775,7 +1775,7 @@
       Rule 23(c).  The ordinary power-driven lights plus a high intensity all-round flashing red, shown only when taking off, landing or in flight near the surface.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is a WIG CRAFT, which does not change whether you keep clear -- it changes how wide you go.
       You are broad on her port quarter.
 
   Not quite.
@@ -1783,7 +1783,7 @@
       Rule 23(c).  The ordinary power-driven lights plus a high intensity all-round flashing red, shown only when taking off, landing or in flight near the surface.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is a WIG CRAFT, which does not change whether you keep clear -- it changes how wide you go.
       You are broad on her port quarter.
 
   Not quite.
@@ -1791,7 +1791,7 @@
       Rule 23(c).  The ordinary power-driven lights plus a high intensity all-round flashing red, shown only when taking off, landing or in flight near the surface.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is a WIG CRAFT, which does not change whether you keep clear -- it changes how wide you go.
       You are broad on her port quarter.
 
   Not quite.
@@ -1799,7 +1799,7 @@
       Rule 23(c).  The ordinary power-driven lights plus a high intensity all-round flashing red, shown only when taking off, landing or in flight near the surface.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is a WIG CRAFT, which does not change whether you keep clear -- it changes how wide you go.
       You are broad on her port quarter.
 
 === qlight 24 ===
@@ -1849,7 +1849,7 @@
       Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear -- Rule 13 says so whatever she is. She is also CONSTRAINED BY HER DRAUGHT, and Rule 18(d) sits on top of Rule 13 rather than under it: passing close can itself impede her safe passage, so give her room as well as way.
       You are fine on her starboard quarter.
 
   Not quite.
@@ -1857,7 +1857,7 @@
       Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear -- Rule 13 says so whatever she is. She is also CONSTRAINED BY HER DRAUGHT, and Rule 18(d) sits on top of Rule 13 rather than under it: passing close can itself impede her safe passage, so give her room as well as way.
       You are fine on her starboard quarter.
 
   Not quite.
@@ -1865,7 +1865,7 @@
       Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear -- Rule 13 says so whatever she is. She is also CONSTRAINED BY HER DRAUGHT, and Rule 18(d) sits on top of Rule 13 rather than under it: passing close can itself impede her safe passage, so give her room as well as way.
       You are fine on her starboard quarter.
 
   Not quite.
@@ -1873,7 +1873,7 @@
       Rule 28.  Three all-round reds in a vertical line, over the ordinary power-driven lights.
 
   Q2  A is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear -- Rule 13 says so whatever she is. She is also CONSTRAINED BY HER DRAUGHT, and Rule 18(d) sits on top of Rule 13 rather than under it: passing close can itself impede her safe passage, so give her room as well as way.
       You are fine on her starboard quarter.
 
 === qlight 25 ===
@@ -1923,7 +1923,7 @@
       32 CFR 707.7.  NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition.
 
   Q2  D is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are on her starboard beam: you see her whole starboard side.
 
   Not quite.
@@ -1931,7 +1931,7 @@
       32 CFR 707.7.  NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition.
 
   Q2  D is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are on her starboard beam: you see her whole starboard side.
 
   Not quite.
@@ -1939,14 +1939,14 @@
       32 CFR 707.7.  NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition.
 
   Q2  D is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are on her starboard beam: you see her whole starboard side.
 
   Q1  D is right -- Submarine on the surface (US Navy identification light)
       32 CFR 707.7.  NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition.
 
   Q2  D is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are on her starboard beam: you see her whole starboard side.
 
 === qlight 26 ===
@@ -1997,7 +1997,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are broad on her starboard bow.
 
   Not quite.
@@ -2006,7 +2006,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are broad on her starboard bow.
 
   Not quite.
@@ -2015,7 +2015,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are broad on her starboard bow.
 
   Not quite.
@@ -2024,7 +2024,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are broad on her starboard bow.
 
 === qlight 27 ===
@@ -2073,7 +2073,7 @@
       Rule 23.  One masthead light, sidelights, sternlight.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are fine on her port bow.
 
   Not quite.
@@ -2081,7 +2081,7 @@
       Rule 23.  One masthead light, sidelights, sternlight.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are fine on her port bow.
 
   Not quite.
@@ -2089,7 +2089,7 @@
       Rule 23.  One masthead light, sidelights, sternlight.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are fine on her port bow.
 
   Not quite.
@@ -2097,7 +2097,7 @@
       Rule 23.  One masthead light, sidelights, sternlight.
 
   Q2  A is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are fine on her port bow.
 
 === qlight 28 ===
@@ -2148,7 +2148,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -2157,7 +2157,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -2166,7 +2166,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -2175,7 +2175,7 @@
       Watch out: green over white is trawling; red over white is fishing other than trawling. Green for the gear dragged along the ground.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is ENGAGED IN FISHING. Rule 18(a)(iii): a power-driven vessel under way keeps out of the way of a vessel engaged in fishing. Her gear may be streamed a long way from her, so give the whole of her a wide berth, not just the hull.
       You are on her port beam: you see her whole port side.
 
 === qlight 29 ===
@@ -2328,7 +2328,7 @@
       Watch out: red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel.
 
   Q2  B is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is ENGAGED IN FISHING, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her starboard quarter.
 
   Not quite.
@@ -2337,7 +2337,7 @@
       Watch out: red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel.
 
   Q2  B is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is ENGAGED IN FISHING, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her starboard quarter.
 
   Not quite.
@@ -2346,7 +2346,7 @@
       Watch out: red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel.
 
   Q2  B is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is ENGAGED IN FISHING, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her starboard quarter.
 
   Not quite.
@@ -2355,7 +2355,7 @@
       Watch out: red over white is fishing other than trawling; green over white is a trawler. Both keep gear streamed a long way from the vessel.
 
   Q2  B is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is ENGAGED IN FISHING, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her starboard quarter.
 
 === qlight 31 ===
@@ -2405,7 +2405,7 @@
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
   Q2  C is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
@@ -2420,7 +2420,7 @@
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
   Q2  C is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
@@ -2435,7 +2435,7 @@
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
   Q2  C is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
@@ -2450,7 +2450,7 @@
       Rule 25.  Sidelights and a sternlight. No masthead light - that is the whole point.
 
   Q2  C is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are on her starboard beam: you see her whole starboard side.
 
   But from this angle she is genuinely ambiguous.
@@ -2507,7 +2507,7 @@
       Watch out: white over red is the pilot; red over white is fishing. They are the same two colours the other way up, and it is the commonest mistake made at night.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are fine on her starboard bow.
 
   But from this angle she is genuinely ambiguous.
@@ -2523,7 +2523,7 @@
       Watch out: white over red is the pilot; red over white is fishing. They are the same two colours the other way up, and it is the commonest mistake made at night.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are fine on her starboard bow.
 
   But from this angle she is genuinely ambiguous.
@@ -2539,7 +2539,7 @@
       Watch out: white over red is the pilot; red over white is fishing. They are the same two colours the other way up, and it is the commonest mistake made at night.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are fine on her starboard bow.
 
   But from this angle she is genuinely ambiguous.
@@ -2555,7 +2555,7 @@
       Watch out: white over red is the pilot; red over white is fishing. They are the same two colours the other way up, and it is the commonest mistake made at night.
 
   Q2  A is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
       You are fine on her starboard bow.
 
   But from this angle she is genuinely ambiguous.
@@ -2612,7 +2612,7 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are fine on her port bow.
 
   Not quite.
@@ -2620,7 +2620,7 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are fine on her port bow.
 
   Not quite.
@@ -2628,7 +2628,7 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are fine on her port bow.
 
   Not quite.
@@ -2636,7 +2636,7 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  D is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is UNDER SAIL. Rule 18(a)(iv): a power-driven vessel under way keeps out of the way of a sailing vessel. Rule 15 is for two power-driven vessels and does not apply here.
       You are fine on her port bow.
 
 === qlight 34 ===
@@ -2686,7 +2686,7 @@
       Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Q2  B is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -2694,7 +2694,7 @@
       Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Q2  B is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -2702,7 +2702,7 @@
       Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Q2  B is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -2710,7 +2710,7 @@
       Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Q2  B is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
       You are on her port beam: you see her whole port side.
 
 === qlight 35 ===
@@ -2760,22 +2760,14 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  B is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is UNDER SAIL, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her port quarter.
 
   Q1  B is right -- Sailing vessel, optional all-round pair
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  B is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
-      You are fine on her port quarter.
-
-  Not quite.
-  Q1  B is right -- Sailing vessel, optional all-round pair
-      Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
-
-  Q2  B is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is UNDER SAIL, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her port quarter.
 
   Not quite.
@@ -2783,7 +2775,15 @@
       Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
 
   Q2  B is right -- Going away from you - you are overtaking her.
-      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is UNDER SAIL, which does not change whether you keep clear -- it changes how wide you go.
+      You are fine on her port quarter.
+
+  Not quite.
+  Q1  B is right -- Sailing vessel, optional all-round pair
+      Rule 25.  Red over green at the masthead, with normal sidelights and sternlight.
+
+  Q2  B is right -- Going away from you - you are overtaking her.
+      A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens "notwithstanding anything contained in the Rules of Part B, Sections I and II", so it decides that before Rule 18 comes into it. She is UNDER SAIL, which does not change whether you keep clear -- it changes how wide you go.
       You are fine on her port quarter.
 
 === qlight 36 ===
@@ -3008,7 +3008,7 @@
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
   Q2  B is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her.
       You are fine on her starboard bow.
 
   But from this angle she is genuinely ambiguous.
@@ -3023,7 +3023,7 @@
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
   Q2  B is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her.
       You are fine on her starboard bow.
 
   But from this angle she is genuinely ambiguous.
@@ -3038,7 +3038,7 @@
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
   Q2  B is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her.
       You are fine on her starboard bow.
 
   But from this angle she is genuinely ambiguous.
@@ -3053,7 +3053,7 @@
       Rule 24.  Sidelights and a sternlight, and nothing else. She looks like a sailing vessel until you see what is ahead of her.
 
   Q2  B is right -- Crossing from your left to your right.
-      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Which also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+      Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her.
       You are fine on her starboard bow.
 
   But from this angle she is genuinely ambiguous.
@@ -3185,7 +3185,7 @@
       Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
 
   Q2  B is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are on her port beam: you see her whole port side.
 
   Q1  B is right -- Mine clearance vessel
@@ -3193,16 +3193,7 @@
       Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
 
   Q2  B is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
-      You are on her port beam: you see her whole port side.
-
-  Not quite.
-  Q1  B is right -- Mine clearance vessel
-      Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
-      Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
-
-  Q2  B is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are on her port beam: you see her whole port side.
 
   Not quite.
@@ -3211,6 +3202,15 @@
       Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
 
   Q2  B is right -- Crossing from your right to your left.
-      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. In a crossing situation that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
+      You are on her port beam: you see her whole port side.
+
+  Not quite.
+  Q1  B is right -- Mine clearance vessel
+      Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
+      Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
+
+  Q2  B is right -- Crossing from your right to your left.
+      Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
       You are on her port beam: you see her whole port side.
 
