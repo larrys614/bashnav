@@ -173,6 +173,11 @@ function ct_gen(seed) {
    rate was yours, and you knew how much of it you put in.
    1909.86 is the constant that falls out of 33 1/3 yards a minute and
    degrees per minute. */
+function ek_plot(r) {
+  var v = Math.trunc(r * 10 + (r < 0 ? -0.5 : 0.5)) / 10;
+  if (v === 0) v = 0;                  /* -0 === 0, so this stores +0 */
+  return v;
+}
 function ek_across(sp, co, bg) { return sp * sind(co - bg); }
 function ek_rate(R, bg, cs, cc, os, oc) {
   return ((ek_across(cs, cc, bg) - ek_across(os, oc, bg)) * ktym() / R) * 57.2957795130823;
@@ -192,8 +197,10 @@ function ek_gen(seed) {
     var r2 = ek_rate(R, tb, cs, cc, s2, c2);
     /* what the plot would give you, rounded to a tenth the way the awk
        rounds it: int(x*10 +/- 0.5)/10, which is away from zero */
-    var R1 = Math.trunc(r1 * 10 + (r1 < 0 ? -0.5 : 0.5)) / 10;
-    var R2 = Math.trunc(r2 * 10 + (r2 < 0 ? -0.5 : 0.5)) / 10;
+    /*  ek_plot() in the awk: a small negative rounds to a zero that
+        carries a sign bit, and the sign is not ours to claim at this
+        resolution. See the long note there.  */
+    var R1 = ek_plot(r1), R2 = ek_plot(r2);
     if (fabs(R1) > 9 || fabs(R2) > 9) continue;
     if (fabs(R1 - R2) < 0.6) continue;
     var est = 1909.86 * (a2 - a1) / (R1 - R2);
@@ -224,7 +231,7 @@ var API = {
   ktym: ktym, rbrg: rbrg, sgn180: sgn180,
   ct_cpa: ct_cpa, ct_yd: ct_yd,
   ct_obs: ct_obs, ct_brg: ct_brg, ct_rng: ct_rng, ct_gen: ct_gen,
-  ek_across: ek_across, ek_rate: ek_rate, ek_gen: ek_gen,
+  ek_across: ek_across, ek_rate: ek_rate, ek_gen: ek_gen, ek_plot: ek_plot,
   ct_ans1: ct_ans1, ct_ans2: ct_ans2, ct_ans3: ct_ans3
 };
 root.CONTACTS = API;

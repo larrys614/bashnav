@@ -553,6 +553,29 @@ function ct_lesson(id,   x){
 function ek_across(sp,co,bg){ return sp*sind(co-bg) }
 function ek_rate(R,bg,cs,cc,os,oc){
   return ((ek_across(cs,cc,bg) - ek_across(os,oc,bg))*ktym()/R)*57.2957795130823 }
+#  WHAT A PLOT AT A TENTH OF A DEGREE A MINUTE WOULD GIVE YOU.
+#
+#  A small negative rate rounds to zero, and IEEE gives that zero a
+#  sign. gawk and mawk keep the sign bit; one-true-awk, which is macOS's
+#  /usr/bin/awk, normalises it away. So the same exercise, from the same
+#  seed, printed "-0.0 deg/min" on Linux and "+0.0" on a Mac -- and the
+#  legend directly under it says a rate is + when the bearing is drawing
+#  right. Three of the sixty seeds told a Mac reader the bearing was
+#  going the other way. Found by tests/contacts-web-diff.sh on Larry's
+#  machine; it passed on every awk I had.
+#
+#  Resolved by not making the claim: a plot at this resolution cannot
+#  tell you the direction of so small a drift, so neither does this.
+#  Zero is zero, unsigned, on every platform.
+function ek_plot(r,   v){
+  v = int(r*10 + (r<0 ? -0.5 : 0.5))/10
+  if(v==0) v = 0                       # -0 and +0 compare equal; this stores +0
+  return v
+}
+#  and the sign is forced on everything EXCEPT that zero
+function ek_rfmt(r){
+  return (r==0) ? sprintf("%5.1f", 0) : sprintf("%+5.1f", r)
+}
 function ek_gen(seed,   try,r1,r2,a1,a2,est,band,eband){
   xsrand(seed+0)
   EK_WANT = 1 + int(xrand()*4)
@@ -566,8 +589,8 @@ function ek_gen(seed,   try,r1,r2,a1,a2,est,band,eband){
     if(fabs(a2-a1) < 6) continue                  # too small a change to be worth it
     r1 = ek_rate(EK_R,EK_TB,EK_CS,EK_CC,EK_S1,EK_C1)
     r2 = ek_rate(EK_R,EK_TB,EK_CS,EK_CC,EK_S2,EK_C2)
-    EK_R1 = int(r1*10+(r1<0?-0.5:0.5))/10         # what the plot would give you
-    EK_R2 = int(r2*10+(r2<0?-0.5:0.5))/10
+    EK_R1 = ek_plot(r1)                           # what the plot would give you
+    EK_R2 = ek_plot(r2)
     if(fabs(EK_R1)>9 || fabs(EK_R2)>9) continue
     if(fabs(EK_R1-EK_R2) < 0.6) continue
     est = 1909.86*(a2-a1)/(EK_R1-EK_R2)
@@ -594,8 +617,8 @@ function ek_show(seed){
   printf "  She bears %s and holds her course and speed throughout.\n", cw(sprintf("%03d",EK_TB),C_ACC)
   print  "  You have bearings only. No range."
   print ""
-  printf "     leg 1   own course %03d, speed %2d   bearing rate %+5.1f deg/min\n", EK_C1, EK_S1, EK_R1
-  printf "     leg 2   own course %03d, speed %2d   bearing rate %+5.1f deg/min\n", EK_C2, EK_S2, EK_R2
+  printf "     leg 1   own course %03d, speed %2d   bearing rate %s deg/min\n", EK_C1, EK_S1, ek_rfmt(EK_R1)
+  printf "     leg 2   own course %03d, speed %2d   bearing rate %s deg/min\n", EK_C2, EK_S2, ek_rfmt(EK_R2)
   print ""
   print  "     (a bearing rate is + when the bearing is drawing right)"
   hr()

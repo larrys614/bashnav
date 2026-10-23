@@ -30,27 +30,48 @@ if ! command -v node >/dev/null 2>&1; then
   exit 0
 fi
 
-AWK=awk
-for a in mawk gawk awk; do command -v "$a" >/dev/null 2>&1 && { AWK=$a; break; }; done
+#  EVERY AWK ON THE MACHINE, NOT THE FIRST ONE FOUND.
+#
+#  This picked one awk, mawk-first, and compared it with node. On 23
+#  October 2026 it passed on every machine I had and failed on Larry's
+#  Mac, because macOS's /usr/bin/awk is one-true-awk and it alone
+#  normalised a negative zero away -- so a bearing rate that rounds to
+#  zero from below printed with the wrong sign, under a legend that
+#  says what the sign means. One awk agreeing with node says nothing
+#  about the others, which is the same reason CLAUDE.md says a gawk-only
+#  run proves nothing.
+AWKS=
+for a in mawk gawk awk original-awk busybox; do
+  command -v "$a" >/dev/null 2>&1 || continue
+  [ "$a" = busybox ] && { busybox awk '' >/dev/null 2>&1 || continue; }
+  AWKS="$AWKS $a"
+done
+[ -n "$AWKS" ] || AWKS=awk
 TMP=${TMPDIR:-/tmp}/colregs-diff.$$
 mkdir -p "$TMP"
 trap 'rm -rf "$TMP"' EXIT
 
-$AWK -f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
-     -f tests/colregs-web-dump.awk </dev/null > "$TMP/awk.out"
 node tests/colregs-web-dump.js docs/web/colregs/colregs.js > "$TMP/js.out"
-
-a=$(wc -l < "$TMP/awk.out" | tr -d ' ')
 b=$(wc -l < "$TMP/js.out" | tr -d ' ')
-if [ "$a" != "$b" ]; then
-  echo "FAIL -- the two dumps are different lengths: awk $a, js $b"
-  exit 1
-fi
-if diff "$TMP/awk.out" "$TMP/js.out" > "$TMP/d" 2>&1; then
-  echo "  ok    the web and shell implementations agree ($a comparisons)"
-  exit 0
-fi
-echo "FAIL -- the web and shell implementations disagree:"
-head -10 "$TMP/d"
-echo "        $(grep -c '^[<>]' "$TMP/d") differing lines"
-exit 1
+rc=0; n=0
+
+for A in $AWKS; do
+  n=$((n+1))
+  $A -f src/colregs/engine.awk -f src/colregs/contacts.awk -f src/colregs/review.awk \
+     -f tests/colregs-web-dump.awk </dev/null > "$TMP/awk.out" 2>"$TMP/err" || {
+       echo "FAIL -- $A could not run the colregs dump:"; head -3 "$TMP/err"; rc=1; continue; }
+  a=$(wc -l < "$TMP/awk.out" | tr -d ' ')
+  if [ "$a" != "$b" ]; then
+    echo "FAIL -- $A and the browser dump different numbers of lines: $a and $b"
+    rc=1; continue
+  fi
+  if ! diff "$TMP/awk.out" "$TMP/js.out" > "$TMP/d" 2>&1; then
+    echo "FAIL -- the browser and $A disagree:"
+    head -10 "$TMP/d"
+    echo "        $(grep -c '^[<>]' "$TMP/d") differing lines"
+    rc=1
+  fi
+done
+
+[ "$rc" = 0 ] && echo "  ok    the web and shell implementations agree ($b comparisons x $n awk:$AWKS)"
+exit $rc
