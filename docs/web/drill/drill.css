@@ -470,4 +470,11 @@ details.asterm pre {
 .seq-row.chosen .seq-n { background: var(--accent); color: var(--ground); }
 .seq-row[data-mark="right"] { border-color: var(--pass); color: var(--pass); }
 .seq-row[data-mark="right"] .seq-n { background: var(--pass); color: var(--ground); }
+/*  A STEP IN THE WRONG PLACE HAS TO LOOK WRONG.  There was no rule for
+    this at all: a placed row carried no mark, so a wrong order rendered
+    in the accent colour next to the right order in green, and read as
+    green.  The accent rule below it would otherwise win on the chosen
+    rows, so these come after .seq-row.chosen deliberately. */
+.seq-row[data-mark="wrong"] { border-color: var(--bad); color: var(--bad); }
+.seq-row[data-mark="wrong"] .seq-n { background: var(--bad); color: var(--ground); }
 .seq-picked.right .seq-row { cursor: default; }

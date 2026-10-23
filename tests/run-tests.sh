@@ -911,6 +911,41 @@ WXLOG
     bad "colregs web build '$cb' and cache 'colregs-v$cc' disagree -- an installed copy would keep the old app"
   fi
 
+  # ---- the drill app ------------------------------------------------
+  #  1. BUILD AND THE CACHE AGREE, the same check colregs has, for the
+  #     same reason: the worker is cache-first, so a changed drill.js
+  #     reaches nobody unless the cache version moves. drill had no such
+  #     check at all.
+  db=$(sed -n "s/.*var BUILD = '\([0-9][0-9]*\).*/\1/p" docs/web/drill/drill.js | head -1)
+  dc=$(sed -n "s/.*CACHE = 'drill-v\([0-9][0-9]*\)'.*/\1/p" docs/web/drill/sw.js | head -1)
+  if [ -n "$db" ] && [ "$db" = "$dc" ]; then
+    ok "drill web build $db and cache drill-v$dc agree"
+  else
+    bad "drill web build '$db' and cache 'drill-v$dc' disagree -- an installed copy would keep the old app"
+  fi
+
+  #  2. EVERY MARK THE CODE SETS HAS A COLOUR.  Larry, after putting the
+  #     last two steps of the hoist the wrong way round: "I got the order
+  #     wrong, but it gave me all green." He had, and it was scored
+  #     wrong -- but the rows he placed carried no mark and there was no
+  #     .seq-row[data-mark="wrong"] rule in the stylesheet at all, so a
+  #     wrong order rendered in the accent colour beside the right order
+  #     in green. A mark the code sets and the stylesheet does not paint
+  #     is invisible, which is the same as not marking it.
+  mbad=0
+  for cls in choice seq-row; do
+    for mk in right wrong; do
+      grep -q "\.$cls\[data-mark=\"$mk\"\]" docs/web/drill/drill.css || {
+        mbad=$((mbad+1)); echo "    no colour for .$cls[data-mark=\"$mk\"]"; }
+    done
+  done
+  #  and the ordering question must actually set both marks on the rows
+  #  the reader placed, not only on the answer printed underneath
+  grep -q "picked.querySelectorAll('.seq-row')" docs/web/drill/drill.js || {
+    mbad=$((mbad+1)); echo "    the rows the reader placed are never marked"; }
+  if [ "$mbad" = 0 ]; then ok "every mark the drill sets has a colour, and a placed row gets one"
+  else bad "$mbad drill mark(s) are set but never painted"; fi
+
   # ---- every scenario must also EXIT cleanly -----------------------
   #  Found the hard way: handing the unset array element a[10] straight to
   #  a function argument aborted gawk on exit -- "free(): double free

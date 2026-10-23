@@ -26,7 +26,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '19 \u2014 22 Oct 2026';
+var BUILD = '20 \u2014 23 Oct 2026';
 var DB_NAME = 'bashnav-drill';
 var PACK = null;          // the loaded pack
 var PROG = {};            // sectionId -> {best, attempts, seen{}, right, wrong}
@@ -838,6 +838,22 @@ function renderOrder(card, q, mark, advLabel, onAdv, nav) {
     var ok = chosen.length === q.seq.length &&
              chosen.every(function (t, i) { return t === q.seq[i]; });
     draw();
+    /*  MARK WHAT HE PUT, not only what it should have been.
+        Larry, after putting the hoist's last two steps the wrong way
+        round: "I got the order wrong, but it gave me all green." He had.
+        The mark was taken correctly and the point was not scored -- what
+        failed was the screen. His own rows kept the accent border they
+        had while he was placing them, the correct order below them was
+        drawn in green, and the only verdict anywhere was the difference
+        between "The order is:" and "Correct, in that order." Two lists,
+        one of them green, and nothing saying which was his.
+        Each row he placed now carries its own mark, by position: green
+        where that step belongs where he put it, red where it does not.
+        A swapped pair therefore shows two red rows and names itself --
+        which is the teaching, and more than "wrong" could say. */
+    [].forEach.call(picked.querySelectorAll('.seq-row'), function (li, i) {
+      li.setAttribute('data-mark', chosen[i] === q.seq[i] ? 'right' : 'wrong');
+    });
     //  Show the order it should have been, every time. The point of the
     //  question is the sequence, so being told only "wrong" teaches
     //  nothing.
@@ -849,8 +865,17 @@ function renderOrder(card, q, mark, advLabel, onAdv, nav) {
       li.appendChild(el('span', null, t));
       right.appendChild(li);
     });
+    /*  AND SAY IT IN WORDS, not only in colour.  "The order is:" is
+        information, not a verdict, and this was the one question kind
+        that never gave one. It goes in the line that is already there
+        rather than a heading of its own: nothing in this stylesheet
+        styles a verdict, and a four-option question gives its own by
+        colouring the options -- which is what the rows above now do.
+        Said in words as well because the lights drill settled this
+        argument already: a mark that reads only in colour does not
+        reach everybody looking at it. */
     card.appendChild(el('p', 'qsrc', ok ? 'Correct, in that order.'
-                                        : 'The order is:'));
+                                        : 'Not right. The order is:'));
     if (!ok) card.appendChild(right);
     if ((q.extra || []).length) {
       card.appendChild(el('p', 'note', 'Not part of it: \u201c' +
