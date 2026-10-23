@@ -50,4 +50,69 @@ for (let s = 1; s <= 20; s++) {
   for (let i = 0; i < 5; i++)
     out.push('ctobs\t' + s + '\t' + i + '\t' + f6(F.ct_brg(g, i)) + '\t' + f6(F.ct_rng(g, i)));
 }
+
+/*  the exercises, and the reporting styles they print in. rel_style and
+    rel_other live in colregs.js, which is an IIFE with an export seam --
+    and which reads window.COLREGS_DATA and wires up a page at load, so
+    it gets the same stubs tests/colregs-web-dump.js gives it.  */
+const DATA = (() => {
+  const t = require('fs').readFileSync('docs/web/colregs/data.js', 'utf8');
+  return JSON.parse(t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1));
+})();
+const el0 = () => ({ style: {}, dataset: {}, hidden: false, textContent: '',
+                     appendChild() {}, addEventListener() {}, setAttribute() {},
+                     removeAttribute() {}, replaceChild() {}, children: [],
+                     querySelector: () => null, querySelectorAll: () => [] });
+global.window = { addEventListener() {}, COLREGS_DATA: DATA, scrollTo() {} };
+global.document = { getElementById: () => el0(), createElement: el0,
+                    createElementNS: el0, documentElement: el0(),
+                    addEventListener() {}, querySelector: () => null,
+                    querySelectorAll: () => [] };
+global.localStorage = undefined;
+const CJ = { exports: {} };
+new Function('module', 'window', 'document',
+  require('fs').readFileSync('docs/web/colregs/colregs.js', 'utf8'))
+  (CJ, global.window, global.document);
+const EXW = {};
+new Function('window', require('fs').readFileSync('docs/web/colregs/contacts-ex.js', 'utf8'))
+  (Object.assign(EXW, { CONTACTS: F }));
+const EX = EXW.CONTACTS_EX;
+const d3 = v => ('00' + v).slice(-3);
+const sg = (v, n) => EX.sg(v, n);   /* one definition, in contacts-ex.js */
+const pad = (v, n) => String(v).padStart(n, ' ');
+
+for (const st of ['rn', 'usn', 'rel360', 'words', 'none']) {
+  const RS = r => CJ.exports.rel_style(r, st);
+  const RO = r => CJ.exports.rel_other_as(r, st);
+  for (let s = 1; s <= 40; s++) {
+    const t = EX.track(s, RS);
+    if (!t.ok) { out.push('trk\t' + st + '\t' + s + '\tnone'); continue; }
+    const g = t.g;
+    out.push(['trk', st, s, d3(g.oc), g.os].join('\t'));
+    t.rows.forEach((r, i) =>
+      out.push(['trkrow', st, s, i, ('000' + r.t).slice(-4), r.brg, r.rel, r.rng].join('\t')));
+    out.push(['trkq1', st, s, F.ct_ans1(g), EX.q1state(g), EX.q1lead(g),
+              EX.q1why(g).replace(/\n/g, '|'), EX.toward(g)].join('\t'));
+    out.push(['trkq2', st, s, F.ct_ans2(g), EX.q2line(g)].join('\t'));
+    out.push(['trkq3', st, s, F.ct_ans3(g), EX.cpaline(g)].join('\t'));
+    out.push(['trkrep', st, s, EX.report(g, RS)].join('\t'));
+    out.push(['trkfnd', st, s, EX.findher(g, RO)].join('\t'));
+    out.push(['trkadv', st, s, EX.advice(g)].join('\t'));
+    out.push(['trkside', st, s, EX.side(g)].join('\t'));
+  }
+}
+for (let s = 1; s <= 40; s++) {
+  const k = EX.ek(s);
+  if (!k.ok) { out.push('ekx\t' + s + '\tnone'); continue; }
+  const e = k.e;
+  out.push(['ekx', s, d3(e.tb), d3(e.c1), e.s1, EX.rate(e.r1),
+            d3(e.c2), e.s2, EX.rate(e.r2), 'abcd'.charAt(e.band - 1)].join('\t'));
+  out.push(['ekwk', s,
+            pad(e.s1, 2) + ' x sin(' + d3(e.c1) + ' - ' + d3(e.tb) + ') = ' + pad(sg(e.a1, 1), 6),
+            pad(e.s2, 2) + ' x sin(' + d3(e.c2) + ' - ' + d3(e.tb) + ') = ' + pad(sg(e.a2, 1), 6)].join('\t'));
+  out.push(['ekwk2', s, sg(e.a2 - e.a1, 1), sg(e.r1 - e.r2, 1),
+            (e.a2 - e.a1).toFixed(1), (e.r1 - e.r2).toFixed(1),
+            F.ct_yd(e.est), F.ct_yd(e.R)].join('\t'));
+}
+
 console.log(out.join('\n'));

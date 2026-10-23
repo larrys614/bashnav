@@ -3498,11 +3498,71 @@ function ct_yd(v,   n,s,o){    # 14200 -> 14,200
 function ct_cpaline(){
   if(CG_CPA<250) return sprintf("CPA nil - she hits you in %d minutes", int(CG_TC+0.5))
   return sprintf("CPA %s yards at %d minutes", ct_yd(CG_CPA), int(CG_TC+0.5)) }
+#  ---------------------------------------------------------------------
+#  THE WORDS THE MARKING USES, AS FUNCTIONS.
+#
+#  These were printf statements inside ct_trackm(), which made them
+#  impossible to check and impossible to port without typing them a
+#  second time. The browser says the same things now, and
+#  tests/contacts-web-diff.sh compares them seed by seed -- so "the same
+#  exercise in both places" is a diff and not a claim. Same move as
+#  lt_note(): a sentence the reader is given should come from one place.
+#  ---------------------------------------------------------------------
+function ct_side(){ return (sgn180(CG_TB - CG_OC) < 0) ? "port" : "starboard" }
+function ct_toward(   rb){
+  rb = sgn180(CG_TB - CG_OC)
+  return ((rb<0 && CG_DRIFT=="right") || (rb>0 && CG_DRIFT=="left")) ? 1 : 0
+}
+function ct_q1state(){ return (CG_DRIFT=="steady") ? "steady" : ("drawing " CG_DRIFT) }
+function ct_q1lead(){
+  if(CG_DRIFT=="steady")
+    return sprintf("She is on your %s bow and the bearing is not changing,", ct_side())
+  return sprintf("She is on your %s bow and the bearing is drawing %s,",
+                 ct_side(), (ct_toward() ? "TOWARD your bow" : "AWAY from your bow"))
+}
+function ct_q1why(){
+  if(CG_DRIFT=="steady")
+    return "which is the one thing that means collision. Constant bearing,\n" \
+           "decreasing range. Rule 7(d)(i). Act now."
+  if(ct_toward())
+    return "so she is going to cross ahead of you. The miss is being built\n" \
+           "in front of your bow, and it shrinks to nothing if the drift\n" \
+           "stops. This is the one you keep calling out."
+  return "so she cannot cross ahead of you. A contact drawing away from\n" \
+         "your bow passes astern - the relative track is a straight line\n" \
+         "and the bearing can never come back."
+}
+function ct_q2line(){
+  #  plain ifs, not a split ternary: mawk refuses a newline at the ':'
+  #  and gawk refuses it here too. CLAUDE.md rule 4, learned again.
+  if(CG_AHEAD<0)  return "neither - she is CBDR"
+  if(CG_AHEAD==1) return "she crosses ahead"
+  return "she passes astern"
+}
+function ct_report(   rel){
+  rel = rel_style(ct_brg(4)-CG_OC)
+  return sprintf("Master 2, bearing %03d, %s%s, range %s, CPA %s at %d minutes.",
+     int(ct_brg(4)+0.5)%360,
+     (rel=="") ? "" : (rel ", "),
+     ct_q1state(),
+     ct_yd(ct_rng(4)),
+     (CG_CPA<250) ? "nil" : ct_yd(CG_CPA), int(CG_TC+0.5))
+}
+function ct_findher(){
+  return sprintf("(and if he still cannot find her: she is %s.)",
+                 rel_other(ct_brg(4)-CG_OC))
+}
+function ct_advice(){
+  if(CG_CPA >= 3000) return ""
+  if(CG_CPA < 250)   return "Recommend coming right immediately to open the bearing."
+  return "That is inside night orders. Recommend a course change."
+}
+
 function ct_ans1(){ return (CG_DRIFT=="left")?"a":((CG_DRIFT=="right")?"b":"c") }
 function ct_ans2(){ return (CG_AHEAD<0)?"c":((CG_AHEAD==1)?"a":"b") }
 function ct_ans3(){ return substr("abcd",CG_BAND,1) }
 
-function ct_trackm(seed,a1,a2,a3,   ok,n,rb,side,toward,rep,rel){
+function ct_trackm(seed,a1,a2,a3,   ok,n,n2,i2){
   if(!ct_gen(seed)) return 1
   a1=tolower(substr(a1,1,1)); a2=tolower(substr(a2,1,1)); a3=tolower(substr(a3,1,1))
   n=0
@@ -3515,49 +3575,22 @@ function ct_trackm(seed,a1,a2,a3,   ok,n,rb,side,toward,rep,rel){
   printf "  %s\n", cwd("The upright line is your own track. Which side of you she")
   printf "  %s\n", cwd("crosses it is the whole question.")
   print ""
-  printf "  Q1  bearing %s   %s\n", cw((CG_DRIFT=="steady")?"steady":("drawing " CG_DRIFT),C_ACC),
+  printf "  Q1  bearing %s   %s\n", cw(ct_q1state(),C_ACC),
      (a1==ct_ans1()? cw("- right",C_ACC) : "- you said " toupper(a1==""?"-":a1))
-  rb = sgn180(CG_TB - CG_OC)
-  side = (rb<0) ? "port" : "starboard"
-  toward = ((rb<0 && CG_DRIFT=="right") || (rb>0 && CG_DRIFT=="left"))
-  if(CG_DRIFT=="steady")
-    printf "      She is on your %s bow and the bearing is %s,\n", side, cw("not changing",C_ACC)
-  else
-    printf "      She is on your %s bow and the bearing is drawing %s,\n", side,
-       cw((toward ? "TOWARD your bow" : "AWAY from your bow"),C_ACC)
-  if(CG_DRIFT=="steady"){
-    printf "      which is the one thing that means collision. Constant bearing,\n"
-    printf "      decreasing range. Rule 7(d)(i). Act now.\n"
-  } else if(toward){
-    printf "      so she is going to cross ahead of you. The miss is being built\n"
-    printf "      in front of your bow, and it shrinks to nothing if the drift\n"
-    printf "      stops. This is the one you keep calling out.\n"
-  } else {
-    printf "      so she cannot cross ahead of you. A contact drawing away from\n"
-    printf "      your bow passes astern - the relative track is a straight line\n"
-    printf "      and the bearing can never come back.\n"
-  }
+  printf "      %s\n", ct_q1lead()
+  n2 = split(ct_q1why(), WHY, "\n")
+  for(i2=1;i2<=n2;i2++) printf "      %s\n", WHY[i2]
   print ""
-  printf "  Q2  %s   %s\n",
-     cw((CG_AHEAD<0)?"neither - she is CBDR":((CG_AHEAD==1)?"she crosses ahead":"she passes astern"),C_ACC),
+  printf "  Q2  %s   %s\n", cw(ct_q2line(),C_ACC),
      (a2==ct_ans2()? cw("- right",C_ACC) : "- you said " toupper(a2==""?"-":a2))
   printf "  Q3  %s   %s\n",
      cw(ct_cpaline(),C_ACC),
      (a3==ct_ans3()? cw("- right",C_ACC) : "- you said " toupper(a3==""?"-":a3))
   print ""
-  rel = rel_style(ct_brg(4)-CG_OC)
-  rep = sprintf("Master 2, bearing %03d, %s%s, range %s, CPA %s at %d minutes.",
-        int(ct_brg(4)+0.5)%360,
-        (rel=="") ? "" : (rel ", "),
-        (CG_DRIFT=="steady") ? "steady" : ("drawing " CG_DRIFT),
-        ct_yd(ct_rng(4)),
-        (CG_CPA<250) ? "nil" : ct_yd(CG_CPA), int(CG_TC+0.5))
   printf "  %s\n", cw("What you would say:",C_ACC)
-  printf "  \"%s\"\n", rep
-  printf "  %s\n", cwd(sprintf("(and if he still cannot find her: she is %s.)",
-     rel_other(ct_brg(4)-CG_OC)))
-  if(CG_CPA < 3000)
-    printf "  \"%s\"\n", (CG_CPA<250) ? "Recommend coming right immediately to open the bearing." : "That is inside night orders. Recommend a course change."
+  printf "  \"%s\"\n", ct_report()
+  printf "  %s\n", cwd(ct_findher())
+  if(ct_advice()!="") printf "  \"%s\"\n", ct_advice()
   print ""
   printf "  %s\n", cw(sprintf("%d of 3.",n),C_ACC)
   print ""

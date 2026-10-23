@@ -14,4 +14,17 @@ BEGIN{
   n=split("M S P T Y A",A," ")
   for(i=1;i<=n;i++) for(t=-180;t<=180;t++)
     printf "arc\t%s\t%d\t%d\n", A[i], t, (arc_vis(A[i],t)?1:0)
+
+  #  THE FIVE REPORTING STYLES, every degree, both forms. The browser
+  #  grew rel_style() so the tracking exercise could print the relative
+  #  column and the spoken report the way the shell does; this is what
+  #  stops the two drifting. rstyle is a global the engine reads, so it
+  #  is set here rather than passed.
+  n=split("rn usn rel360 words none",A," ")
+  for(i=1;i<=n;i++){
+    rstyle = A[i]
+    for(t=-180;t<=180;t++) printf "relstyle\t%s\t%d\t%s\n", A[i], t, rel_style(t)
+    for(t=-180;t<=180;t++) printf "relother\t%s\t%d\t%s\n", A[i], t, rel_other(t)
+  }
+  for(t=-180;t<=180;t++) printf "redgreen\t%d\t%s\n", t, red_green(t)
 }

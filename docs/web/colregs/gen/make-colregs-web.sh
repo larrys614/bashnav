@@ -90,3 +90,44 @@ echo "make-colregs-web: wrote $OUT"
 
 mv "$COUT.new" "$COUT"
 echo "make-colregs-web: wrote $COUT"
+
+#  ---------------------------------------------------------------------
+#  The contacts reference card.
+#
+#  ONE VARIANT PER REPORTING STYLE, because the card prints an example
+#  report and the example reads differently under each of the five --
+#  "Red 20", "Port 20", "340 relative", "fine on the port bow", or
+#  nothing at all. Generating one variant and substituting in the
+#  browser would be a second place for the wording to live; generating
+#  all five is a few more lines of data that cannot drift.
+#  ---------------------------------------------------------------------
+{
+  echo "// the contacts reference card -- generated from bin/colregs v$VER by"
+  echo "// running ct_ref() once per reporting style and capturing what it"
+  echo "// printed. The card names a relative bearing, and which words it uses"
+  echo "// is the reader's setting, so there is a variant for each. Do not"
+  echo "// hand-edit: regenerate with docs/web/colregs/gen/make-colregs-web.sh."
+  echo "window.CONTACTS_CARD = {"
+  n=0
+  for ST in rn usn rel360 words none; do
+    n=$((n+1))
+    printf ' "%s": "' "$ST"
+    #  the terminal's furniture comes off: the rule hr() draws under the
+    #  heading and above the foot, and the heading itself, which the
+    #  screen already shows as its title. Same two chores dumpclesson.awk
+    #  does for a lesson, and for the same reason -- the first version of
+    #  that one carried a row of dashes into the page.
+    $AWK $ENG -v cmode=plain -v rstyle="$ST" -v cmd=cref </dev/null \
+      | $AWK '/^ *-+ *$/ { next }
+              /CONTACTS -- the card/ { next }
+              { gsub(/\\/,"\\\\"); gsub(/"/,"\\\""); sub(/^  /,"")
+                sub(/[ \t]+$/,""); L[++n]=$0 }
+              END{ s=1; while(s<=n && L[s]=="") s++
+                   e=n; while(e>=1 && L[e]=="") e--
+                   for(i=s;i<=e;i++) printf "%s\\n", L[i] }'
+    [ "$n" -lt 5 ] && echo '",' || echo '"'
+  done
+  echo "};"
+} > "$ROOT/docs/web/colregs/contacts-card.js.new"
+mv "$ROOT/docs/web/colregs/contacts-card.js.new" "$ROOT/docs/web/colregs/contacts-card.js"
+echo "make-colregs-web: wrote $ROOT/docs/web/colregs/contacts-card.js"

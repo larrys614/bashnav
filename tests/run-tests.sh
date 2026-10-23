@@ -890,14 +890,14 @@ WXLOG
     #  reaches a commit does fail here -- all three faults were planted
     #  and reproduced. Do not read a pass as "nobody hand-edited it".
     gw=docs/web/colregs/data.js
-    gc=docs/web/colregs/contacts-lessons.js
+    gc="docs/web/colregs/contacts-lessons.js docs/web/colregs/contacts-card.js"
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
       say "  --    the web data regenerates, but comparing it needs a git checkout"
-    elif git diff --quiet -- "$gw" "$gc" 2>/dev/null; then
-      ok "the colregs web data is what the engine dumps (tables and 7 contacts lessons)"
+    elif git diff --quiet -- "$gw" $gc 2>/dev/null; then
+      ok "the colregs web data is what the engine dumps (tables, 7 lessons, the card)"
     else
       bad "the web data is not what the engine dumps -- run docs/web/colregs/gen/make-colregs-web.sh"
-      git diff --stat -- "$gw" "$gc" | head -3
+      git diff --stat -- "$gw" $gc | head -3
     fi ;;
   esac
 

@@ -104,6 +104,35 @@ for (const les of win.CONTACTS_LESSONS) {
     }
   }
 }
+/*  THE CARD, which is generated the same way the lessons are and is
+    prone to the same two faults: carrying the terminal's rule lines
+    into the page, and losing the one line that differs per reporting
+    style. Five variants, and the example report is what separates
+    them.  */
+new Function('window', fs.readFileSync('docs/web/colregs/contacts-card.js', 'utf8'))(win);
+const CARD = win.CONTACTS_CARD;
+const STYLES = ['rn', 'usn', 'rel360', 'words', 'none'];
+const seen = {};
+for (const st of STYLES) {
+  const text = CARD[st];
+  if (!text) { console.log('FAIL  the card has no "' + st + '" variant'); bad++; continue; }
+  if (/^ *-{5,} *$/m.test(text)) {
+    console.log('FAIL  the ' + st + ' card still carries a terminal rule line'); bad++;
+  }
+  if (/CONTACTS -- the card/.test(text)) {
+    console.log('FAIL  the ' + st + ' card repeats the heading the screen already shows'); bad++;
+  }
+  const rep = text.split('\n').find(l => l.indexOf('Master 2') >= 0);
+  if (!rep) { console.log('FAIL  the ' + st + ' card has no example report'); bad++; continue; }
+  if (seen[rep] && seen[rep] !== st) {
+    console.log('FAIL  the ' + st + ' card reads identically to the ' + seen[rep] +
+                ' one -- the reporting style is not reaching it:');
+    console.log('        ' + JSON.stringify(rep.trim()));
+    bad++;
+  }
+  seen[rep] = st;
+}
+
 if (bad) { console.log('  ' + bad + ' problem(s)'); process.exit(1); }
-console.log('  ok    all ' + drawn + ' contacts figures draw, are labelled, and every class ' +
-            'they use is styled');
+console.log('  ok    all ' + drawn + ' contacts figures draw and are styled, and the card ' +
+            'reads differently in all ' + STYLES.length + ' reporting styles');

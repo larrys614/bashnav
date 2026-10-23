@@ -20,7 +20,7 @@
     at colregs-v1 since the app was written. tests/run-tests.sh now
     refuses a build and a cache that disagree, which is the same check
     the drill app got for the same reason.  */
-var BUILD = 8;
+var BUILD = 9;
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
@@ -74,6 +74,57 @@ function rel_phrase(rel, poss, ahead) {
   if (t < 145) return 'broad on ' + poss + ' ' + s + ' quarter';
   return 'fine on ' + poss + ' ' + s + ' quarter';
 }
+
+/*  Red for port, green for starboard -- the sidelights, which is the
+    whole reason the convention is remembered. Nought to 180 each side.  */
+function red_green(rel) {
+  var t = nrm180(rel);
+  if (fabs(t) <= 0.5) return 'right ahead';
+  if (fabs(t) >= 179.5) return 'right astern';
+  if (t < 0) return 'Red ' + Math.trunc(-t + 0.5);
+  return 'Green ' + Math.trunc(t + 0.5);
+}
+
+/*  FIVE WAYS OF SAYING THE SAME ANGLE, and which one is right depends
+    entirely on who is listening -- so it is a setting in the shell and
+    now here. The tracking exercise prints a relative column and a
+    spoken report, and both read differently under each style; without
+    this the browser would show one style and the shell another for the
+    same contact.
+
+    NOT YET APPLIED ON THE ENCOUNTERS SCREEN. That screen calls
+    rel_phrase() directly, so it has always shown the "words" style
+    whatever the shell was set to -- a divergence that predates this and
+    is Larry's to rule on, not mine to widen or quietly fix tonight.  */
+var RSTYLE = 'rn';
+function rel_style(rel) {
+  var t = nrm180(rel), d, sgn;
+  if (RSTYLE === 'words') return rel_phrase(rel, 'the');
+  /*  TRUNCATES, like the awk's %03d, which does not round. Written with
+      Math.round first and the diff found it: every rel360 bearing was a
+      degree high wherever the fraction was over a half.  */
+  if (RSTYLE === 'rel360') return ('00' + Math.trunc(nrm360(rel))).slice(-3) + ' relative';
+  if (RSTYLE === 'none') return '';
+  if (fabs(t) <= 0.5) return 'right ahead';
+  if (fabs(t) >= 179.5) return 'right astern';
+  d = Math.trunc(fabs(t) + 0.5); sgn = (t < 0);
+  if (RSTYLE === 'usn') return (sgn ? 'Port ' : 'Starboard ') + d;
+  return (sgn ? 'Red ' : 'Green ') + d;            /* rn, the default */
+}
+/*  the other way of saying it, for the line that follows the report when
+    he still cannot find her. Never the same form twice.  */
+function rel_other(rel) {
+  if (RSTYLE === 'words') return red_green(rel);
+  return rel_phrase(rel, 'your');
+}
+var RSTYLES = [
+  { k: 'rn',     n: 'Red / Green' },
+  { k: 'usn',    n: 'Port / Starboard' },
+  { k: 'rel360', n: '000 relative' },
+  { k: 'words',  n: 'in words' },
+  { k: 'none',   n: 'true bearing only' }
+];
+function setRstyle(k) { RSTYLE = k; remember('rstyle', k); }
 
 /*  PORTED, THIS TIME.  This had its own arc boundaries -- 8, 75, 105,
     172 -- where the awk delegates to rel_phrase with ahead=2.5, so the
@@ -1096,6 +1147,54 @@ function contactsIndex() {
   p.className = 'note';
   p.textContent = done.length + ' of ' + CONTACTS_LESSONS.length + ' read.';
   box.appendChild(p);
+
+  /*  the two exercises and the card. Separate from the lessons because
+      these are not read, they are done -- and the card is neither.  */
+  var h = document.createElement('h3');
+  h.textContent = 'Practice';
+  box.appendChild(h);
+  var g2 = document.createElement('div');
+  g2.className = 'ridx';
+  [['Tracking party', 'You have the plot. Which way, where, how close?',
+    function () { openTrack(newSeed()); }],
+   ['Ekelund', 'Range out of a course change, with bearings only',
+    function () { openEkel(newSeed()); }],
+   ['The card', 'The whole module on one screen',
+    function () { openCard(); }]].forEach(function (e) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    var t = document.createElement('span');
+    t.textContent = e[0];
+    var sub = document.createElement('span');
+    sub.className = 'sub'; sub.textContent = e[1];
+    b.appendChild(t); b.appendChild(sub);
+    b.addEventListener('click', e[2]);
+    g2.appendChild(b);
+  });
+  box.appendChild(g2);
+
+  /*  THE REPORTING STYLE, because it changes what the tracking table
+      and the card say and the shell has had it as a setting from the
+      start. Five ways of saying the same angle; which is right depends
+      on who is listening.  */
+  var h2 = document.createElement('h3');
+  h2.textContent = 'Relative bearings, said as';
+  box.appendChild(h2);
+  var row = document.createElement('div');
+  row.className = 'ct-rng';
+  row.setAttribute('role', 'group');
+  row.setAttribute('aria-label', 'Reporting style');
+  RSTYLES.forEach(function (st) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = st.n;
+    if (st.k === RSTYLE) b.setAttribute('data-on', '1');
+    b.setAttribute('aria-pressed', st.k === RSTYLE ? 'true' : 'false');
+    b.addEventListener('click', function () { setRstyle(st.k); contactsIndex(); });
+    row.appendChild(b);
+  });
+  box.appendChild(row);
+
   $('contact').hidden = true;
   box.hidden = false;
 }
@@ -1128,6 +1227,265 @@ function openContact(i) {
     body.appendChild(b.kind === 'plot' ? draw(b) : draw());
   });
   contactsMark(L.id);
+  window.scrollTo(0, 0);
+}
+
+/* ---------------------------------------------------------------------
+   the shared bits of an exercise screen
+   --------------------------------------------------------------------- */
+function exHead(title) {
+  $('contacts-index').hidden = true;
+  $('contact').hidden = false;
+  $('contact-title').textContent = title;
+  var b = $('contact-body');
+  b.textContent = '';
+  return b;
+}
+function proseBox(box, text) {
+  var d = document.createElement('div');
+  d.className = 'prose';
+  renderProse(text, d);
+  box.appendChild(d);
+  return d;
+}
+/*  a question with its options, marked the moment one is picked. The
+    same shape as the rules lessons: the right one lights whatever you
+    chose, so a wrong answer still shows you the right one.  */
+function exQuestion(box, q, opts, onPick) {
+  var wrap = document.createElement('div');
+  wrap.className = 'exq';
+  var h = document.createElement('h3');
+  h.textContent = q;
+  wrap.appendChild(h);
+  var row = document.createElement('div');
+  row.className = 'opts';
+  var answered = false, btns = [];
+  opts.forEach(function (text, i) {
+    var ltr = 'abcd'.charAt(i);
+    var b = document.createElement('button');
+    b.className = 'opt'; b.type = 'button';
+    var sp = document.createElement('span');
+    sp.className = 'ltr'; sp.textContent = ltr + ')';
+    b.appendChild(sp);
+    b.appendChild(document.createTextNode(' ' + text));
+    b.addEventListener('click', function () {
+      if (answered) return;
+      answered = true;
+      onPick(ltr, function (rightLtr) {
+        for (var k = 0; k < btns.length; k++) {
+          btns[k].disabled = true;
+          var kl = 'abcd'.charAt(k);
+          if (kl === rightLtr) btns[k].dataset.state = 'right';
+          else if (kl === ltr) btns[k].dataset.state = 'wrong';
+        }
+      });
+    });
+    btns.push(b);
+    row.appendChild(b);
+  });
+  wrap.appendChild(row);
+  box.appendChild(wrap);
+}
+function newSeed() { return 1 + Math.floor(Math.random() * 9999); }
+function seedNote(box, seed, again) {
+  var p = document.createElement('p');
+  p.className = 'note';
+  p.textContent = 'contact ' + seed + '. ';
+  var a = document.createElement('button');
+  a.type = 'button'; a.className = 'linkish';
+  a.textContent = 'another';
+  a.addEventListener('click', again);
+  p.appendChild(a);
+  box.appendChild(p);
+}
+
+/* =====================================================================
+   THE TRACKING PARTY
+
+   Five marks three minutes apart and the three questions the plot is
+   there to answer. The sentences come from contacts-ex.js, which is
+   diffed against the awk seed by seed in every reporting style -- so
+   this screen is laying out the shell's words, not its own.
+   ===================================================================== */
+function openTrack(seed) {
+  var EX = window.CONTACTS_EX;
+  var t = EX.track(seed, rel_style);
+  if (!t.ok) { openTrack(newSeed()); return; }
+  var box = exHead('Tracking party');
+  seedNote(box, seed, function () { openTrack(newSeed()); });
+
+  proseBox(box, 'Own ship steady on course ' + t.oc + ', speed ' + t.os + ' knots.\n' +
+                'Night orders: nothing is to come inside 3,000 yards.');
+
+  /*  a real table, because this one is a table: the shell draws it with
+      %-23s and a browser should not  */
+  var tab = document.createElement('table');
+  tab.className = 'ct-tab';
+  var hr = document.createElement('tr');
+  ['time', 'bearing', 'relative', 'range'].forEach(function (h) {
+    if (h === 'relative' && RSTYLE === 'none') return;
+    var th = document.createElement('th'); th.textContent = h; hr.appendChild(th);
+  });
+  tab.appendChild(hr);
+  t.rows.forEach(function (r) {
+    var tr = document.createElement('tr');
+    [('000' + r.t).slice(-4), r.brg, r.rel, r.rng].forEach(function (v, i) {
+      if (i === 2 && RSTYLE === 'none') return;
+      var td = document.createElement('td');
+      td.textContent = v;
+      if (i === 3) td.className = 'num';
+      tr.appendChild(td);
+    });
+    tab.appendChild(tr);
+  });
+  box.appendChild(tab);
+
+  var said = {}, asked = 0;
+  /*  the right answer is only revealed once all three are in, the way
+      the shell marks them together -- otherwise Q1's answer gives Q2
+      away  */
+  var pending = [];
+  function ask(which, q, opts) {
+    exQuestion(box, q, opts, function (ltr, mark) {
+      said[which] = ltr; pending.push({ which: which, mark: mark }); asked++;
+      if (asked === 3) finish();
+    });
+  }
+  function finish() {
+    var m = EX.trackMark(seed, said.q1, said.q2, said.q3, rel_style, rel_other);
+    pending.forEach(function (p) { p.mark(m[p.which].right); });
+    showTrackMark(box, m);
+  }
+  ask('q1', 'Q1  Which way is her bearing drawing?', ['left', 'right', 'steady']);
+  ask('q2', 'Q2  Where does she go?',
+      ['she will cross ahead of you', 'she will pass astern of you',
+       'neither - the bearing is steady, and she is on a collision course']);
+  ask('q3', 'Q3  Roughly what is her CPA?',
+      ['under 1,000 yards', '1,000 to 3,000 yards',
+       '3,000 to 6,000 yards', 'over 6,000 yards']);
+  window.scrollTo(0, 0);
+}
+
+function showTrackMark(box, m) {
+  var mk = document.createElement('div');
+  mk.className = 'exmark';
+  box.appendChild(mk);
+
+  var h = document.createElement('h3');
+  h.textContent = m.n + ' of 3.';
+  mk.appendChild(h);
+
+  mk.appendChild(CONTACTS_FIGS.plot(m.fig));
+  proseBox(mk, 'Y = you, head up. 1 to 5 = her, three minutes apart. * = CPA.\n' +
+               'The upright line is your own track. Which side of you she crosses ' +
+               'it is the whole question.');
+
+  /*  SINGLE SPACES, NOT THE SHELL'S COLUMNS. The shell separates the
+      answer from the verdict with three spaces so they line up under
+      each other on a terminal; renderProse reads three spaces as a
+      column and holds the paragraph, which put each verdict in a
+      scrolling box and clipped "- you said C" off the end of it. The
+      words are the shell's -- they are diffed -- but the spacing
+      between them is this screen's business.  */
+  function verdict(q) { return q.got ? '- right' : '- you said ' + (q.said || '-').toUpperCase(); }
+  proseBox(mk, 'Q1 bearing ' + m.q1.line + ' ' + verdict(m.q1) + '\n\n' +
+               m.q1.lead + '\n' + m.q1.why);
+  proseBox(mk, 'Q2 ' + m.q2.line + ' ' + verdict(m.q2) + '\n\n' +
+               'Q3 ' + m.q3.line + ' ' + verdict(m.q3));
+
+  var say = 'What you would say:\n\n"' + m.report + '"\n\n' + m.findher;
+  if (m.advice) say += '\n\n"' + m.advice + '"';
+  proseBox(mk, say);
+  mk.scrollIntoView({ block: 'start' });
+}
+
+/* =====================================================================
+   EKELUND
+   ===================================================================== */
+function openEkel(seed) {
+  var EX = window.CONTACTS_EX;
+  var k = EX.ek(seed);
+  if (!k.ok) { openEkel(newSeed()); return; }
+  var box = exHead('Ekelund');
+  seedNote(box, seed, function () { openEkel(newSeed()); });
+
+  proseBox(box, 'She bears ' + k.tb + ' and holds her course and speed throughout.\n' +
+                'You have bearings only. No range.');
+
+  var tab = document.createElement('table');
+  tab.className = 'ct-tab';
+  var hr = document.createElement('tr');
+  ['leg', 'own course', 'speed', 'bearing rate'].forEach(function (h) {
+    var th = document.createElement('th'); th.textContent = h; hr.appendChild(th);
+  });
+  tab.appendChild(hr);
+  k.legs.forEach(function (L) {
+    var tr = document.createElement('tr');
+    [String(L.n), L.co, String(L.sp), EX.rate(L.rate).replace(/^ +/, '') + ' deg/min']
+      .forEach(function (v, i) {
+        var td = document.createElement('td');
+        td.textContent = v;
+        if (i === 2 || i === 3) td.className = 'num';
+        tr.appendChild(td);
+      });
+    tab.appendChild(tr);
+  });
+  box.appendChild(tab);
+  proseBox(box, '(a bearing rate is + when the bearing is drawing right)');
+
+  exQuestion(box, 'How far off is she?',
+    ['under 8,000 yards', '8,000 to 15,000 yards',
+     '15,000 to 25,000 yards', 'over 25,000 yards'],
+    function (ltr, mark) {
+      var m = EX.ekMark(seed, ltr);
+      mark(m.right.toLowerCase());
+      var mk = document.createElement('div');
+      mk.className = 'exmark';
+      box.appendChild(mk);
+      proseBox(mk, (m.got ? '' : 'Not quite.\n\n') + m.head);
+      var w = document.createElement('div');
+      w.className = 'prose';
+      m.work.forEach(function (line) {
+        var pre = document.createElement('pre');
+        pre.className = 'lp-pre';
+        pre.textContent = line;
+        w.appendChild(pre);
+      });
+      mk.appendChild(w);
+      proseBox(mk, m.note);
+      mk.scrollIntoView({ block: 'start' });
+    });
+  window.scrollTo(0, 0);
+}
+
+/* =====================================================================
+   THE CARD
+   ===================================================================== */
+function openCard() {
+  var box = exHead('Contacts - the card');
+  /*  ONE BLOCK, NOT EIGHT. Nearly every line of the card is two columns
+      -- a thing on the left and what it means on the right -- so
+      renderProse holds almost all of it, and held blocks scroll
+      independently: on a phone that was eight separate side-scrolls
+      with the columns no longer lining up with each other. A card's
+      layout IS the card, so it is kept whole and scrolls as one.
+
+      One variant per reporting style, generated from ct_ref(): the card
+      prints an example report, and the example reads differently under
+      each.  */
+  var d = document.createElement('div');
+  d.className = 'prose';
+  var pre = document.createElement('pre');
+  pre.className = 'lp-pre card-pre';
+  pre.textContent = (window.CONTACTS_CARD[RSTYLE] || window.CONTACTS_CARD.rn)
+                      .replace(/\s+$/, '');
+  d.appendChild(pre);
+  box.appendChild(d);
+
+  var n = document.createElement('p');
+  n.className = 'note';
+  n.textContent = 'Fixed layout, so the columns stay lined up - push it sideways on a narrow screen.';
+  box.appendChild(n);
   window.scrollTo(0, 0);
 }
 
@@ -1173,6 +1531,7 @@ function setMode(m) {
 
 document.addEventListener('DOMContentLoaded', function () {
   setMode(recall('mode', 'dark'));
+  RSTYLE = recall('rstyle', 'rn');
   $('mode').addEventListener('click', function () {
     setMode(document.documentElement.getAttribute('data-mode') === 'night' ? 'dark' : 'night');
   });
@@ -1262,6 +1621,9 @@ if (typeof module !== 'undefined' && module.exports) {
     nrm180: nrm180, nrm360: nrm360, fabs: fabs,
     arc_vis: arc_vis, rel_phrase: rel_phrase,
     aspect_words: aspect_words, lt_arc: lt_arc_web, lt_note: lt_note,
+    red_green: red_green, rel_other: rel_other,
+    rel_other_as: function (rel, st) { var o = RSTYLE; RSTYLE = st; var r = rel_other(rel); RSTYLE = o; return r; },
+    rel_style: function (rel, st) { var o = RSTYLE; RSTYLE = st; var r = rel_style(rel); RSTYLE = o; return r; },
     heard: heard,
     //  tests/prose-reflow-check.js: the shell's line breaks are dropped
     //  for the browser, and this is what decides where they are kept

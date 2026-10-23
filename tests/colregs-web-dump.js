@@ -30,4 +30,9 @@ for (const v of DATA.vessels) for (let t = -180; t <= 180; t++)
   out.push('ltnote\t' + v.key + '\t' + t + '\t' + F.lt_note(v.key, t));
 for (const a of ['M','S','P','T','Y','A']) for (let t = -180; t <= 180; t++)
   out.push('arc\t' + a + '\t' + t + '\t' + (F.arc_vis(a, t) ? 1 : 0));
+for (const st of ['rn', 'usn', 'rel360', 'words', 'none']) {
+  for (let t = -180; t <= 180; t++) out.push('relstyle\t' + st + '\t' + t + '\t' + F.rel_style(t, st));
+  for (let t = -180; t <= 180; t++) out.push('relother\t' + st + '\t' + t + '\t' + F.rel_other_as(t, st));
+}
+for (let t = -180; t <= 180; t++) out.push('redgreen\t' + t + '\t' + F.red_green(t));
 console.log(out.join('\n'));

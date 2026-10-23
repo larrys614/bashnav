@@ -409,3 +409,39 @@ input[type="range"]::-moz-range-thumb {
 .ct-spoke { stroke-width: 1.5; opacity: 0.55; }
 .ct-port  { stroke: var(--lamp-r); fill: var(--lamp-r); }
 .ct-stbd  { stroke: var(--lamp-g); fill: var(--lamp-g); }
+
+/* ---------- the contacts exercises ---------------------------------
+   The tracking table and the Ekelund leg pair are genuine tables, so
+   they are tables: the shell draws them with %-23s because a terminal
+   has no other way, and that is not a reason for a browser to.      */
+.ct-tab { width: 100%; border-collapse: collapse; margin: 0 0 16px;
+          font-family: ui-monospace, Menlo, monospace; font-size: 13.5px;
+          background: var(--panel); border: 1px solid var(--line);
+          border-radius: var(--radius); overflow: hidden; }
+.ct-tab th { text-align: left; font-weight: 600; color: var(--dim);
+             font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+             padding: 10px 12px 6px; border-bottom: 1px solid var(--line); }
+.ct-tab td { padding: 7px 12px; color: var(--text);
+             font-variant-numeric: tabular-nums; }
+.ct-tab td.num, .ct-tab th:last-child { text-align: right; }
+.ct-tab tr + tr td { border-top: 1px solid var(--line); }
+
+.exq { margin: 0 0 18px; }
+.exq h3 { color: var(--accent); font-size: 14px; margin: 0 0 8px; }
+/*  scroll-margin, because the header is sticky: scrollIntoView() put
+    the score line underneath it and the first thing you saw after
+    answering was the range buttons.  */
+.exmark { border-top: 1px solid var(--line); margin-top: 22px; padding-top: 16px;
+          scroll-margin-top: 76px; }
+.exmark h3 { color: var(--accent); font-size: 15px; margin: 0 0 12px; }
+
+/*  the index's second group: a name and a line about it */
+.ridx .sub { display: block; color: var(--dim); font-size: 12px; margin-top: 2px; }
+
+/*  "another" reads as what it is -- a control, not a word */
+button.linkish { background: none; border: 0; padding: 0; cursor: pointer;
+                 color: var(--accent); font: inherit; text-decoration: underline; }
+
+/*  the card is one block and keeps its own margins: it is a card, and a
+    card whose columns have been reflowed is a list */
+.card-pre { background: none; border: 0; padding: 0; margin: 0; }
