@@ -913,6 +913,25 @@ WXLOG
     bad "the web and shell colregs disagree"; echo "$r" | head -6
   fi
 
+  #  2b. THE FIGURES DRAW, AND EVERY COLOUR THEY USE IS DEFINED. The
+  #     contacts plots and the compass rose take their colours from
+  #     classes in colregs.css instead of reading the custom properties
+  #     at draw time, so they follow the night toggle with no redraw --
+  #     and so a mistyped class is a silently unstyled element rather
+  #     than an error. Drawn the other way they came out blue and green
+  #     on the red night palette, and only rendering all three and
+  #     looking at them found it.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node tests/contacts-figs-check.js 2>&1); then
+      ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+    else
+      bad "a contacts figure does not draw, or uses a colour nothing defines"
+      echo "$r" | head -6
+    fi
+  else
+    say "  --    the contacts figure check needs node, skipped"
+  fi
+
   #  3. A CHANGED WEB APP MOVES ITS CACHE. The worker is cache-first, so a
   #     build shipped without bumping the cache reaches nobody who has
   #     opened the page before -- which is exactly what happened: Larry
@@ -956,6 +975,21 @@ WXLOG
   nsw=$(find docs/web -name sw.js | wc -l | tr -d ' ')
   if [ "$swbad" = 0 ]; then ok "all $nsw service workers evict only their own caches"
   else bad "$swbad service-worker eviction fault(s) -- tools will delete each other's offline copy"; fi
+
+  # ---- every service worker caches what its page loads ---------------
+  #  The eviction check above makes sure a tool keeps its cache. This
+  #  one makes sure the cache is worth keeping: a file the page loads
+  #  and the worker does not precache is fetched from the network on
+  #  first use, which at sea means never. It found two on the day it
+  #  was written -- celnav's calib.js and plot.js, missing since they
+  #  were added to the page, so the camera calibration and the plot
+  #  sheet were both online-only.
+  if r=$(sh tests/sw-precache-check.sh 2>&1); then
+    ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+  else
+    bad "a web tool does not precache everything its page loads"
+    echo "$r" | head -8
+  fi
 
   # ---- the drill app ------------------------------------------------
   #  1. BUILD AND THE CACHE AGREE, the same check colregs has, for the
