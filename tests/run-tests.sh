@@ -878,13 +878,20 @@ WXLOG
   case "$r" in *FAILED*) bad "the colregs web generator does not run"; echo "    $r" ;; *)
     #  the comparison is against what is COMMITTED, so it needs a checkout;
     #  outside one the generator having run at all is all that can be said
+    #  BOTH FILES THE GENERATOR WRITES. contacts-lessons.js was typed by
+    #  hand on 23 October 2026 and the prose came across verbatim -- but
+    #  it carried the row of dashes the terminal draws under a heading
+    #  into the page, and nothing could have told me: the only check on
+    #  it was reading it. It is generated now, and compared here.
+    gw=docs/web/colregs/data.js
+    gc=docs/web/colregs/contacts-lessons.js
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
-      say "  --    data.js regenerates, but comparing it needs a git checkout"
-    elif git diff --quiet -- docs/web/colregs/data.js 2>/dev/null; then
-      ok "docs/web/colregs/data.js is what the engine's tables dump to"
+      say "  --    the web data regenerates, but comparing it needs a git checkout"
+    elif git diff --quiet -- "$gw" "$gc" 2>/dev/null; then
+      ok "the colregs web data is what the engine dumps (tables and 7 contacts lessons)"
     else
-      bad "data.js is not what the engine dumps -- run docs/web/colregs/gen/make-colregs-web.sh"
-      git diff --stat -- docs/web/colregs/data.js | head -2
+      bad "the web data is not what the engine dumps -- run docs/web/colregs/gen/make-colregs-web.sh"
+      git diff --stat -- "$gw" "$gc" | head -3
     fi ;;
   esac
 

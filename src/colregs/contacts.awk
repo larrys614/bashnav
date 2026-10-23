@@ -35,6 +35,15 @@ function ct_plot(px,py,vx,vy,nobs,dt,showcpa,
   if(showcpa){ if(fabs(cpx)>mx) mx=fabs(cpx)
                if(fabs(cpy)>mx) mx=fabs(cpy) }
   if(mx<=0) mx=1
+  #  THE WEB GENERATOR NEEDS THE PARAMETERS, NOT THE PICTURE. The browser
+  #  draws these figures as SVG from the same numbers, and the only way to
+  #  get the numbers across without typing them twice is to have the awk
+  #  say what it was about to draw. Set by the generator alone; the shell
+  #  never sets it, so the tool is unaffected. Printed after the CPA is
+  #  worked out, so CT_CPA and friends are still set for the caller.
+  if(FIGDUMP){ printf "@@FIG plot px=%.10g py=%.10g vx=%.10g vy=%.10g nobs=%.10g dt=%.10g cpa=%.10g\n",
+                      px,py,vx,vy,nobs,dt,showcpa
+               return 0 }
   mx=mx*1.08
   ys=(cy-1)/mx; xs=ys*2.0
   gclear(w,h); G_NOCROP=1
@@ -243,6 +252,7 @@ function ct_trackm(seed,a1,a2,a3,   ok,n,rb,side,toward,rep,rel){
 #  laid out by hand, so it cannot disagree with rel_phrase().
 # ---------------------------------------------------------------------
 function ct_rose(   w,h,cx,cy,rx,ry,t,i,lab,c,r){
+  if(FIGDUMP){ print "@@FIG rose"; return 0 }     # see the note in ct_plot
   w=67; h=17; cx=int(w/2); cy=int(h/2); rx=cx-11; ry=cy-2
   gclear(w,h); G_NOCROP=1
   for(t=0;t<360;t+=1.2) gputwc(cy-ry*cosd(t), cx+rx*sind(t), ".", C_DIM)

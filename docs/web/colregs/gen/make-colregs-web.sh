@@ -21,6 +21,7 @@ ROOT=$(cd "$(dirname "$0")/../../../.." && pwd)
 SRC="$ROOT/src/colregs"
 GEN="$ROOT/docs/web/colregs/gen"
 OUT="$ROOT/docs/web/colregs/data.js"
+COUT="$ROOT/docs/web/colregs/contacts-lessons.js"
 
 AWK=awk
 for a in mawk gawk awk; do command -v "$a" >/dev/null 2>&1 && { AWK=$a; break; }; done
@@ -59,3 +60,33 @@ VER=$(sed -n 's/^COLREGS_VERSION=//p' "$SRC/10-head.sh" | head -1)
 
 mv "$OUT.new" "$OUT"
 echo "make-colregs-web: wrote $OUT"
+
+#  ---------------------------------------------------------------------
+#  The seven contacts lessons, into their own file.
+#
+#  Separate from data.js because the contacts screens are a separate
+#  bundle in the browser and most visitors never open them, and separate
+#  from hand-written JS because it WAS hand-written for a day and carried
+#  the terminal's underline rule into the page. The figures cross as
+#  parameters: see the long note in dumpclesson.awk.
+#  ---------------------------------------------------------------------
+{
+  echo "// the seven contacts lessons -- generated from bin/colregs v$VER by"
+  echo "// running the awk's own ct_lesson() and dumping what it printed. The"
+  echo "// figures are the parameters ct_plot() and ct_rose() were called with,"
+  echo "// not a picture of the character grid: the browser draws SVG from the"
+  echo "// same numbers. Do not hand-edit: regenerate with"
+  echo "// docs/web/colregs/gen/make-colregs-web.sh so the two cannot drift."
+  echo "window.CONTACTS_LESSONS = ["
+  n=0
+  for L in C1 C2 C3 C4 C5 C6 C7; do
+    n=$((n+1))
+    $AWK $ENG -v cmode=plain -v cmd=clesson -v les_id="$L" -v FIGDUMP=1 </dev/null \
+      | $AWK -f "$GEN/dumpclesson.awk" -v id="$L"
+    [ "$n" -lt 7 ] && echo "," || echo ""
+  done
+  echo "];"
+} > "$COUT.new"
+
+mv "$COUT.new" "$COUT"
+echo "make-colregs-web: wrote $COUT"
