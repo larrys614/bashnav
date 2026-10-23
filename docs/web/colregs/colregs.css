@@ -333,3 +333,36 @@ input[type="range"]::-moz-range-thumb {
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* ---------- the contacts figures -----------------------------------
+   The relative-motion plot and the compass rose, drawn by
+   contacts-figs.js. The colours live HERE and not in the drawing code,
+   which is the point: setMode() redraws every view that is showing,
+   because the rest of the app bakes the palette in with cssvar() at
+   draw time, and a figure drawn before the toggle keeps the old one.
+   Drawn that way these came out blue and green on the night palette.
+   Styled from the custom properties, they follow the toggle with no
+   redraw and nothing to add to setMode()'s list.                     */
+.ct-fig { width: 100%; height: auto; max-width: 440px; display: block;
+          margin: 10px auto; background: var(--panel-2);
+          border: 1px solid var(--line); border-radius: var(--radius); }
+.ct-fig text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+               font-size: 13px; }
+
+.ct-ring     { fill: none; stroke: var(--line); stroke-width: 1; }
+.ct-track    { stroke: var(--accent); stroke-width: 1.5; opacity: 0.55;
+               stroke-dasharray: 1 4; }
+.ct-cpa-line { stroke: var(--dim); stroke-width: 1; stroke-dasharray: 4 4; }
+.ct-cpa      { fill: none; stroke: var(--accent); stroke-width: 2; }
+.ct-own      { fill: var(--accent); }
+.ct-own-lab  { fill: var(--accent); }
+.ct-mark     { fill: var(--text); }
+.ct-num      { fill: var(--text); }
+.ct-lab      { fill: var(--dim); }
+
+/* the sidelights, and on the night palette both are the same red by
+   design -- the WORD in the label is what disambiguates, which is the
+   whole reason relative bearings are spoken as Red and Green */
+.ct-spoke { stroke-width: 1.5; opacity: 0.55; }
+.ct-port  { stroke: var(--lamp-r); fill: var(--lamp-r); }
+.ct-stbd  { stroke: var(--lamp-g); fill: var(--lamp-g); }
