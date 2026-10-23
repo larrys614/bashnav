@@ -995,6 +995,26 @@ WXLOG
   if [ "$swbad" = 0 ]; then ok "all $nsw service workers evict only their own caches"
   else bad "$swbad service-worker eviction fault(s) -- tools will delete each other's offline copy"; fi
 
+  # ---- a script you are told to run with ./ can be run with ./ -------
+  #  CLAUDE.md's two-line version is "./build.sh" and
+  #  "./tests/run-tests.sh", and run-tests.sh was the one file in the
+  #  repository without its execute bit -- every other script is 100755.
+  #  So the first thing the handover tells a newcomer to type answered
+  #  "permission denied", which is how Larry found it. Documentation and
+  #  file mode are two places to say the same thing, so they are checked
+  #  against each other rather than kept in step by hand.
+  xbad=0; xn=0
+  for f in $(grep -rhoE '\./[A-Za-z0-9_./-]+\.sh' CLAUDE.md docs/*.md README.md 2>/dev/null \
+             | sed 's|^\./||' | sort -u); do
+    [ -f "$f" ] || continue
+    xn=$((xn+1))
+    if [ ! -x "$f" ]; then
+      bad "$f is run as ./$f in the documentation but is not executable"
+      xbad=1
+    fi
+  done
+  [ "$xbad" = 0 ] && ok "all $xn scripts the docs tell you to run with ./ are executable"
+
   # ---- every service worker caches what its page loads ---------------
   #  The eviction check above makes sure a tool keeps its cache. This
   #  one makes sure the cache is worth keeping: a file the page loads
