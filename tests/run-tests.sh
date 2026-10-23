@@ -911,6 +911,38 @@ WXLOG
     bad "colregs web build '$cb' and cache 'colregs-v$cc' disagree -- an installed copy would keep the old app"
   fi
 
+  # ---- every service worker evicts only its own caches ---------------
+  #  caches.delete() is ORIGIN-wide, not scope-wide. Seven tools share
+  #  larrys614.github.io and every one of their workers used to activate
+  #  with "delete every cache that is not mine", so each evicted all the
+  #  others. Measured in a browser against the published layout: visit
+  #  colregs, then drill, and colregs' cache is gone -- and it does NOT
+  #  come back, because install runs once per worker version, so that
+  #  tool is silently online-only from then on. These tools exist to work
+  #  at sea with no signal; that was the whole promise, and only the
+  #  last tool visited kept it.
+  #
+  #  Each worker now deletes only its own family, derived from CACHE so
+  #  there is no second constant to drift. Both halves were confirmed in
+  #  a browser: the families coexist, and a tool's own older version is
+  #  still evicted when its CACHE moves.
+  swbad=0
+  for f in $(find docs/web -name sw.js | sort); do
+    grep -q 'k => k !== CACHE' "$f" && {
+      swbad=$((swbad+1)); echo "    $f deletes every cache on the origin, not only its own"; }
+    grep -q 'const FAMILY' "$f" || {
+      swbad=$((swbad+1)); echo "    $f declares no FAMILY to scope its eviction to"; }
+    #  and the family must be this tool's CACHE with the version stripped
+    fc=$(sed -n "s/.*const CACHE = '\([^']*\)'.*/\1/p" "$f" | head -1)
+    ff=$(sed -n "s/.*const FAMILY = '\([^']*\)'.*/\1/p" "$f" | head -1)
+    want=$(echo "$fc" | sed 's/-v[0-9][0-9]*$/-/')
+    [ "$ff" = "$want" ] || {
+      swbad=$((swbad+1)); echo "    $f: FAMILY '$ff' does not match CACHE '$fc'"; }
+  done
+  nsw=$(find docs/web -name sw.js | wc -l | tr -d ' ')
+  if [ "$swbad" = 0 ]; then ok "all $nsw service workers evict only their own caches"
+  else bad "$swbad service-worker eviction fault(s) -- tools will delete each other's offline copy"; fi
+
   # ---- the drill app ------------------------------------------------
   #  1. BUILD AND THE CACHE AGREE, the same check colregs has, for the
   #     same reason: the worker is cache-first, so a changed drill.js

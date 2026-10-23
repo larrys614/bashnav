@@ -10,7 +10,10 @@
 //  a new deploy never reaches it -- the browser only reinstalls the
 //  worker when THIS file's bytes differ.  The version here must match
 //  BUILD in drill.js, and the test harness checks that it does.
-const CACHE = 'drill-v20';
+const CACHE = 'drill-v20'
+//  this tool's family, derived from CACHE so there is no second
+//  constant to drift out of step with it
+const FAMILY = 'drill-';
 const FILES = ['./', './index.html', './drill.css', './drill.js',
                './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', e => {
@@ -18,7 +21,17 @@ self.addEventListener('install', e => {
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
-    .then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k))))
+    //  DELETE ONLY THIS TOOL'S OWN OLD CACHES.  caches.delete() is
+    //  ORIGIN-wide, not scope-wide: every tool on larrys614.github.io
+    //  shares one CacheStorage, so "delete everything that is not mine"
+    //  had each worker evicting all the others.  Visit colregs then
+    //  drill and colregs' cache is gone -- and it does not come back,
+    //  because install runs once per worker version, so from then on
+    //  that tool is silently online-only.  On a boat with no signal
+    //  that is the whole promise broken.
+    .then(ks => Promise.all(ks
+          .filter(k => k.indexOf(FAMILY) === 0 && k !== CACHE)
+          .map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', e => {
