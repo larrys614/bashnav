@@ -36,7 +36,18 @@ function node(tag) {
   made.push(n);
   return n;
 }
-global.document = { createElementNS: (ns, tag) => node(tag) };
+/*  plot() now returns its range control and the figure together, so the
+    stub needs plain elements as well as SVG ones  */
+function hnode(tag) {
+  const n = node(tag);
+  n.className = '';
+  n.addEventListener = () => {};
+  n.replaceChild = (nw, old) => { n.kids[n.kids.indexOf(old)] = nw; return old; };
+  n.removeAttribute = k => { delete n.attrs[k]; };
+  return n;
+}
+global.document = { createElementNS: (ns, tag) => node(tag),
+                    createElement: tag => hnode(tag) };
 
 const win = {};
 new Function('window', fs.readFileSync('docs/web/colregs/contacts.js', 'utf8'))(win);
@@ -55,15 +66,23 @@ for (const les of win.CONTACTS_LESSONS) {
     if (!draw) { console.log('FAIL  ' + les.id + ': nothing can draw a "' + b.kind + '"'); bad++; continue; }
 
     made.length = 0;
-    let s;
-    try { s = draw(b); }
+    try { draw(b); }
     catch (e) { console.log('FAIL  ' + les.id + ' ' + b.kind + ': ' + e.message); bad++; continue; }
     drawn++;
 
-    if (s.tag !== 'svg') { console.log('FAIL  ' + les.id + ': ' + b.kind + ' is not an svg'); bad++; }
-    if (!s.attrs['aria-label']) { console.log('FAIL  ' + les.id + ': the ' + b.kind + ' has no aria-label'); bad++; }
+    const svgs = made.filter(n => n.tag === 'svg');
+    if (!svgs.length) { console.log('FAIL  ' + les.id + ': the ' + b.kind + ' drew no svg'); bad++; continue; }
+    for (const s of svgs) {
+      if (!s.attrs['aria-label']) {
+        console.log('FAIL  ' + les.id + ': a ' + b.kind + ' svg has no aria-label'); bad++;
+      }
+    }
+    /*  the class check below must not trip over the plain elements the
+        range control is built from, so they are excluded by tag  */
 
+    const HTML = new Set(['div', 'span', 'button']);
     for (const n of made) {
+      if (HTML.has(n.tag)) continue;
       for (const c of (n.attrs['class'] || '').split(/\s+/)) {
         if (c && !defined.has(c)) {
           console.log('FAIL  ' + les.id + ': class "' + c + '" on a <' + n.tag +

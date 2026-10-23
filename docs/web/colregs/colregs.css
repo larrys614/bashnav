@@ -349,7 +349,23 @@ input[type="range"]::-moz-range-thumb {
 .ct-fig text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
                font-size: 13px; }
 
+/* the range control: the figure only answers C1's question if you can
+   change down the scale, so the buttons are part of the figure */
+.ct-wrap   { margin: 10px auto; max-width: 440px; }
+.ct-rng    { display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+             justify-content: center; margin-bottom: 6px; }
+.ct-rng-lab { color: var(--dim); font-family: ui-monospace, Menlo, monospace;
+              font-size: 11px; letter-spacing: 0.08em; }
+.ct-rng button {
+  font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+  min-width: 38px; min-height: 34px; padding: 4px 6px;
+  color: var(--dim); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
+}
+.ct-rng button[data-on] { color: var(--accent); border-color: var(--accent); }
+
 .ct-ring     { fill: none; stroke: var(--line); stroke-width: 1; }
+.ct-edge     { fill: none; stroke: var(--dim); stroke-width: 1.5; }
 .ct-track    { stroke: var(--accent); stroke-width: 1.5; opacity: 0.55;
                stroke-dasharray: 1 4; }
 .ct-cpa-line { stroke: var(--dim); stroke-width: 1; stroke-dasharray: 4 4; }
