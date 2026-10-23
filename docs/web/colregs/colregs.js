@@ -954,6 +954,88 @@ function openLesson(i) {
 }
 
 /* =====================================================================
+   CONTACT MANAGEMENT
+
+   Seven reading lessons, carried across from the shell by the generator
+   in gen/. A lesson is a list of BLOCKS rather than one lump of text,
+   because two of them carry a relative-motion plot and one a compass
+   rose, and those are drawn as SVG by contacts-figs.js rather than
+   pasted in as a picture of a terminal.
+
+   No question at the end, unlike the fifteen rules lessons: these are
+   read, and the drilling for them is the tracking exercise in the shell,
+   which is not ported yet.
+   ===================================================================== */
+function contactsDone() {
+  var raw = recall('contacts', '');
+  return raw ? raw.split(',') : [];
+}
+function contactsMark(id) {
+  var d = contactsDone();
+  if (d.indexOf(id) < 0) { d.push(id); remember('contacts', d.join(',')); }
+}
+function contactsIndex() {
+  var box = $('contacts-index');
+  box.textContent = '';
+  var done = contactsDone();
+  var wrap = document.createElement('div');
+  wrap.className = 'ridx';
+  CONTACTS_LESSONS.forEach(function (L, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    var m = document.createElement('span');
+    var isDone = done.indexOf(L.id) >= 0;
+    m.className = isDone ? 'done' : 'todo';
+    m.textContent = isDone ? '[x]' : '[ ]';
+    var t = document.createElement('span');
+    t.textContent = L.id + '  ' + L.title;
+    b.appendChild(m); b.appendChild(t);
+    b.addEventListener('click', function () { openContact(i); });
+    wrap.appendChild(b);
+  });
+  box.appendChild(wrap);
+  var p = document.createElement('p');
+  p.className = 'note';
+  p.textContent = done.length + ' of ' + CONTACTS_LESSONS.length + ' read.';
+  box.appendChild(p);
+  $('contact').hidden = true;
+  box.hidden = false;
+}
+function openContact(i) {
+  var L = CONTACTS_LESSONS[i];
+  $('contacts-index').hidden = true;
+  $('contact').hidden = false;
+  $('contact-title').textContent = L.id + '  ' + L.title;
+  var body = $('contact-body');
+  body.textContent = '';
+  L.blocks.forEach(function (b) {
+    if (b.t === 'p') {
+      /*  a pre, like the rules lessons: the prose is laid out in columns
+          in places -- C4's anatomy of a report, C6's formula -- and the
+          shell's alignment is the only layout it has  */
+      var pre = document.createElement('pre');
+      pre.textContent = b.s;
+      body.appendChild(pre);
+      return;
+    }
+    var draw = CONTACTS_FIGS[b.kind];
+    /*  a figure kind nothing can draw is a hole in the page, not a
+        crash: say so rather than leaving a gap where the plot was.
+        tests/contacts-figs-check.js makes sure this never fires.  */
+    if (!draw) {
+      var n = document.createElement('p');
+      n.className = 'note';
+      n.textContent = '[a ' + b.kind + ' figure belongs here]';
+      body.appendChild(n);
+      return;
+    }
+    body.appendChild(b.kind === 'plot' ? draw(b) : draw());
+  });
+  contactsMark(L.id);
+  window.scrollTo(0, 0);
+}
+
+/* =====================================================================
    ROUTER
    ===================================================================== */
 var views = {
@@ -962,7 +1044,8 @@ var views = {
   shapes:     { el: 'v-shapes',     title: 'Day shapes' },
   sounds:     { el: 'v-sounds',     title: 'Sound signals' },
   encounters: { el: 'v-encounters', title: 'Encounters' },
-  rules:      { el: 'v-rules',      title: 'The rules' }
+  rules:      { el: 'v-rules',      title: 'The rules' },
+  contacts:   { el: 'v-contacts',   title: 'Contact management' }
 };
 function go(name) {
   for (var k in views) if (views.hasOwnProperty(k)) $(views[k].el).hidden = (k !== name);
@@ -974,6 +1057,7 @@ function go(name) {
   if (name === 'sounds' && !$('sound-stage').firstChild) soundsNext();
   if (name === 'encounters') { if (!$('enc-stage').firstChild) encNext(); }
   if (name === 'rules') rulesIndex();
+  if (name === 'contacts') contactsIndex();
 }
 
 /* =====================================================================
@@ -998,6 +1082,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   $('back').addEventListener('click', function () {
     if (!$('lesson').hidden) { rulesIndex(); return; }
+    if (!$('contact').hidden) { contactsIndex(); return; }
     go('home');
   });
   Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function (b) {

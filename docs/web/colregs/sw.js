@@ -1,11 +1,12 @@
 // Service worker: the whole point is that this works with no network at sea.
 // Cache-first, because none of these files change while you are offshore and
 // a network lookup you cannot satisfy is just latency you did not need.
-const CACHE = 'colregs-v5'
+const CACHE = 'colregs-v6'
 const FAMILY = 'colregs-';
 const FILES = [
   './', './index.html', './colregs.css', './colregs.js',
-  './data.js', './manifest.webmanifest', './icon.svg'
+  './data.js', './contacts.js', './contacts-lessons.js', './contacts-figs.js',
+  './manifest.webmanifest', './icon.svg'
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

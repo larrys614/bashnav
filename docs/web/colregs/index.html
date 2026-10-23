@@ -48,6 +48,10 @@
         <span class="t-name">The rules</span>
         <span class="t-sub">Fifteen lessons</span>
       </button>
+      <button class="tile" data-go="contacts">
+        <span class="t-name">Contact management</span>
+        <span class="t-sub">Does she pass ahead of you, or astern?</span>
+      </button>
     </nav>
     <p class="note" id="offline-note">Checking offline cache&hellip;</p>
   </section>
@@ -202,6 +206,15 @@
     </article>
   </section>
 
+  <!-- ---------- contact management ---------- -->
+  <section class="view" id="v-contacts" hidden>
+    <div id="contacts-index"></div>
+    <article class="lesson" id="contact" hidden>
+      <h2 id="contact-title"></h2>
+      <div id="contact-body"></div>
+    </article>
+  </section>
+
 </main>
 
 <footer class="foot">
@@ -214,6 +227,9 @@
 </footer>
 
 <script src="data.js"></script>
+<script src="contacts.js"></script>
+<script src="contacts-lessons.js"></script>
+<script src="contacts-figs.js"></script>
 <script src="colregs.js"></script>
 </body>
 </html>
