@@ -3,6 +3,9 @@ BEGIN{
   for(b=0;b<360;b++)  printf "relpthe\t%d\t%s\n", b, rel_phrase(b,"the")
   for(t=-180;t<=180;t++) printf "aspect\t%d\t%s\n", t, aspect_words(t)
   for(t=-180;t<=180;t++) printf "ltarc\t%d\t%s\n", t, lt_arc(t)
+  enc_init()
+  for(i=1;i<=NENC;i++){ split(EC[i],EA,"|")
+    printf "heard\t%d\t%d\n", i, (heard(EA[2])?1:0) }
   ves_init()
   for(v=1;v<=NVES;v++){
     split(VT[v],K,"|")

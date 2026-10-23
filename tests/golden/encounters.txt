@@ -772,7 +772,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel under way in fog, hearing but not seeing her.
-  You see a fog signal of one prolonged blast followed by two short, forward of your beam, broad on your starboard bow, heading as drawn.
+  You hear a fog signal of one prolonged blast followed by two short, forward of your beam, broad on your starboard bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: the signal tells you she will keep clear.
    b) Reduce to bare steerage way - she may be a vessel restricted in her ability to manoeuvre, fishing, towing or under sail.
@@ -1000,7 +1000,7 @@
   
   ----------------------------------------------------------------------
   You are a power-driven vessel in thick fog, hearing but not seeing her.
-  You see two prolonged blasts, about two seconds apart, from fine on the port bow, fine on your starboard bow, heading as drawn.
+  You hear two prolonged blasts, about two seconds apart, from fine on the port bow, fine on your starboard bow, heading as drawn.
   ----------------------------------------------------------------------
    a) Stand on: two prolonged means she is stopped, so she is no danger.
    b) Reduce to the least speed at which you can be kept on course, and be ready to take all way off.

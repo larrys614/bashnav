@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003562582
+BASHNAV_BYTES=003563504
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -7092,6 +7092,12 @@ function draw_plan(bg,rng,thdg,tlab,wnd,   w,h,cx,cy,rx,ry,t,r,tr,tc,i,dr,dc,m,c
   gputsc(0,cx-6,"HEAD  UP",C_DIM)
   return 0
 }
+#  A SOUND SIGNAL IS HEARD, NOT SEEN.  One predicate, used by the stem
+#  and by the lights view, so the two cannot disagree about whether she
+#  is visible -- they did, and the stem was the one that was wrong.
+#  Checked against all twenty-eight targets: it matches the two fog
+#  signals and nothing else.
+function heard(t){ return (t ~ /blast|fog signal/) }
 function enc_init(){
   if(ENC_READY) return
   # own | target label | brglo | brghi | target heading | answer | options | why | rule | wind | vessel
@@ -7251,7 +7257,16 @@ function enc_show(i,seed,   a,o,bg,rng,thdg,n,wnd){
   #  figure to look up. The exact bearing is printed with the ANSWER
   #  instead, where it is a check on your plot rather than the thing being
   #  tested.
-  printf "  You see %s, %s, heading as drawn.\n", a[2], rel_phrase(bg,"your")
+  #  AND YOU DO NOT SEE A SOUND SIGNAL.  Larry, reviewing the claims:
+  #  '"You see a fog signal of one prolonged blast followed by two
+  #  short, forward of your beam." should be "You hear".'  Two of the
+  #  twenty-eight scenarios are sound signals in fog, and both of them
+  #  opened by telling the reader he could see one. The whole point of
+  #  those two is that you CANNOT see her -- it is why neither gets a
+  #  light picture, and the lights view says so in as many words, above
+  #  a stem that contradicted it.
+  printf "  You %s %s, %s, heading as drawn.\n",
+     (heard(a[2]) ? "hear" : "see"), a[2], rel_phrase(bg,"your")
   #  In words as well as in the drawing: the figure can be read wrongly,
   #  and on a phone the dim characters are easy to miss.
   if(wnd!="")

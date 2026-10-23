@@ -20,7 +20,7 @@
     at colregs-v1 since the app was written. tests/run-tests.sh now
     refuses a build and a cache that disagree, which is the same check
     the drill app got for the same reason.  */
-var BUILD = 4;
+var BUILD = 5;
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
@@ -741,7 +741,11 @@ function encShow(i) {
   var thdg = nrm360(e.thdg + (Math.random() * 30 - 15));
   drawEncounter(e, brg, rng, thdg);
   $('enc-own').textContent = e.own;
-  $('enc-target').textContent = 'You see ' + e.target + ', ' +
+  /*  heard(), ported name for name from the awk and checked against it
+      in the web/shell diff: you do not SEE a fog signal, and two of the
+      twenty-eight scenarios are sound signals.  */
+  $('enc-target').textContent = 'You ' + (heard(e.target) ? 'hear' : 'see') +
+    ' ' + e.target + ', ' +
     rel_phrase(brg, 'your') + ', heading as drawn.' +
     (e.wind === undefined ? '' :
       ' The wind is from ' + ('00' + nrm360(e.wind)).slice(-3) +
@@ -771,6 +775,7 @@ function encShow(i) {
     from: a bar above the plan, which was his suggestion.
     The arcs still come from the same rule as the shell's lt_arc: the
     viewer's bearing from the subject, relative to the subject's bow.  */
+function heard(t) { return /blast|fog signal/.test(t); }
 function lt_arc_web(rel) {
   var r = nrm360(rel);
   if (r <= 1.5 || r >= 358.5) return 'both';
@@ -1075,7 +1080,8 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     nrm180: nrm180, nrm360: nrm360, fabs: fabs,
     arc_vis: arc_vis, rel_phrase: rel_phrase,
-    aspect_words: aspect_words, lt_arc: lt_arc_web, lt_note: lt_note
+    aspect_words: aspect_words, lt_arc: lt_arc_web, lt_note: lt_note,
+    heard: heard
   };
 }
 
