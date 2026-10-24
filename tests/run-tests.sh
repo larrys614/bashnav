@@ -492,6 +492,27 @@ WXLOG
   [ "${nk:-0}" -ge 10 ] || { bad "only ${nk:-0} weather lessons found, expected 10"; wx_bad=1; }
   [ "$wx_bad" = 0 ] && ok "all ${nk:-0} weather lessons render and answer their own question"
 
+  #  ---- the weather lessons read like prose in a browser -------------
+  #  They were written for a terminal: 70-column lines, each arriving as
+  #  its own pre-wrap paragraph, so 130 of the 181 lines across the ten
+  #  lessons broke a second time on a phone and the left margin
+  #  alternated in and out. They are gathered into paragraphs now, which
+  #  risks three silent faults -- a word lost at a seam, an emphasis
+  #  flattened (the accent is per span, not per line), and a figure
+  #  flowed into a sentence. The H2O/O2 diagram was ALREADY broken
+  #  before any of this, because the body font is proportional and
+  #  "O2 32" is indented to sit under "N2 28".
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node tests/weather-reflow-check.js 2>&1); then
+      ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+    else
+      bad "weather's lesson reflow loses words, emphasis, or a figure"
+      echo "$r" | head -8
+    fi
+  else
+    say "  --    the weather reflow check needs node, skipped"
+  fi
+
   #  the cloud sequence must fire - those three fields were asked for and
   #  ignored in the first build, which is how you teach somebody to stop
   #  filling in a form

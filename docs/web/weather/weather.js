@@ -14,7 +14,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '1 \u2014 20 Oct 2026';
+var BUILD = '2 \u2014 24 Oct 2026';
 
 var RECS = [];
 var OBS = [];
@@ -281,26 +281,145 @@ function drawLessonIndex() {
     box.appendChild(b);
   });
 }
+/* ---------------------------------------------------------------------
+   THE LESSONS WERE WRITTEN FOR A TERMINAL.
+
+   teach.awk wraps its prose at about 70 columns, and every one of those
+   lines arrived here as its own paragraph with white-space: pre-wrap.
+   On a phone the box is about 380px, so 130 of the 181 lines across the
+   ten lessons wrapped a second time -- and because each line carries a
+   two-space screen indent while its wrapped remainder does not, the left
+   margin alternated in and out the whole way down.
+
+   Two other things came with it:
+
+     the 24 lines that are figures or columns -- the H2O/O2 diagram, the
+       rate tables -- rendered in the body's proportional font, where
+       nothing can line up. "O2 32" is indented in the source to sit
+       under "N2 28", and it sat under "pushing out" instead. That is a
+       wrong picture, not an ugly one, and it was wrong before any of
+       this reflowing;
+
+     and the emphasis is per-SPAN, not per-line, so joining lines means
+       concatenating span runs rather than strings. Lose that and the
+       accent comes off words like "replaces", which is the one word its
+       sentence turns on.
+
+   So: consecutive lines are gathered into a paragraph, the paragraph is
+   classified, and only prose is joined. The rule is the one
+   renderProse() uses in colregs -- a column gutter is two or more
+   spaces that do not follow sentence punctuation, and a hanging indent
+   deeper than a list's is a figure -- and anything that looks like
+   either keeps its lines and gets a monospace face, because its layout
+   is its meaning.
+
+   tests/weather-reflow-check.js holds it to three things: every word
+   survives in order, every emphasised word is still emphasised, and
+   anything with a column in it comes back preformatted.
+   --------------------------------------------------------------------- */
+var WX_GUTTER = /[^.!?: ] {2,}\S/;
+var WX_MARKER = /^( *)(\d+\.|\([a-z]\)|[a-z]\))\s+\S/;
+var WX_DEEP = 6;
+
+function wxSpans(b) {                    /* a line's spans, holes dropped */
+  var out = [];
+  if (b && b.p) b.p.forEach(function (s) { if (s) out.push({ t: s.t, s: s.s }); });
+  return out;
+}
+function wxText(b) {
+  return wxSpans(b).map(function (s) { return s.t; }).join('');
+}
+function wxKind(lines) {
+  var txt = lines.map(wxText), i, ind = [], mn, mx;
+  for (i = 0; i < txt.length; i++) if (WX_GUTTER.test(txt[i])) return 'pre';
+  for (i = 0; i < txt.length; i++) ind.push(txt[i].match(/^ */)[0].length);
+  mn = Math.min.apply(null, ind); mx = Math.max.apply(null, ind);
+  if (mx - mn >= WX_DEEP) return 'pre';
+  for (i = 0; i < txt.length; i++) if (WX_MARKER.test(txt[i])) return 'list';
+  return 'flow';
+}
+/*  the spans of several lines, joined into one run of prose: each line
+    loses its screen indent and its trailing space, and a single space
+    goes in at the seam  */
+function wxJoin(lines) {
+  var out = [];
+  lines.forEach(function (b) {
+    var sp = wxSpans(b);
+    if (!sp.length) return;
+    sp[0] = { t: sp[0].t.replace(/^ +/, ''), s: sp[0].s };
+    sp[sp.length - 1] = { t: sp[sp.length - 1].t.replace(/ +$/, ''),
+                          s: sp[sp.length - 1].s };
+    sp = sp.filter(function (x) { return x.t !== ''; });
+    if (!sp.length) return;
+    if (out.length) out.push({ t: ' ', s: 'plain' });
+    out.push.apply(out, sp);
+  });
+  /*  neighbouring spans of the same style become one element  */
+  var merged = [];
+  out.forEach(function (sp) {
+    var last = merged[merged.length - 1];
+    if (last && last.s === sp.s) last.t += sp.t;
+    else merged.push({ t: sp.t, s: sp.s });
+  });
+  return merged;
+}
+function wxPut(parent, spans) {
+  spans.forEach(function (sp) {
+    if (sp.s === 'plain') parent.appendChild(document.createTextNode(sp.t));
+    else parent.appendChild(el('span', sp.s, sp.t));
+  });
+  return parent;
+}
+
 //  One renderer for the lesson and for its deeper section, so the two
 //  cannot drift apart in how they present the author's emphasis.
 function drawLines(box, lines) {
-  var firstLine = true;
+  var firstLine = true, para = [];
+
+  function flush() {
+    if (!para.length) return;
+    var kind = wxKind(para), group = para;
+    para = [];
+
+    if (kind === 'pre') {
+      /*  kept exactly, and in a monospace face, because the columns are
+          the content. Scrolls on its own rather than pushing the page.  */
+      var pre = el('pre', 'ln-pre');
+      group.forEach(function (b, i) {
+        if (i) pre.appendChild(document.createTextNode('\n'));
+        wxPut(pre, wxSpans(b));
+      });
+      box.appendChild(pre);
+      return;
+    }
+    if (kind === 'flow') {
+      box.appendChild(wxPut(el('p', 'ln'), wxJoin(group)));
+      return;
+    }
+    /*  a list: an item starts at its marker and runs on through the
+        lines indented under it, and each item flows within itself  */
+    var items = [], cur = null;
+    group.forEach(function (b) {
+      if (WX_MARKER.test(wxText(b)) || !cur) { cur = [b]; items.push(cur); }
+      else cur.push(b);
+    });
+    items.forEach(function (it) {
+      box.appendChild(wxPut(el('div', 'ln-item'), wxJoin(it)));
+    });
+  }
+
   lines.forEach(function (b) {
-    if (b.s === 'gap') { box.appendChild(el('div', 'gap')); return; }
-    if (b.s === 'rule') { box.appendChild(document.createElement('hr')); return; }
+    if (b.s === 'gap') { flush(); box.appendChild(el('div', 'gap')); return; }
+    if (b.s === 'rule') { flush(); box.appendChild(document.createElement('hr')); return; }
     //  the first printed line of a section is its heading
     if (firstLine) {
       firstLine = false;
-      box.appendChild(el('h3', null, b.p.map(function (p) { return p.t; }).join('').trim()));
+      box.appendChild(el('h3', null, wxText(b).trim()));
       return;
     }
-    var p = el('p', 'ln');
-    b.p.forEach(function (span) {
-      if (span.s === 'plain') p.appendChild(document.createTextNode(span.t));
-      else p.appendChild(el('span', span.s, span.t));
-    });
-    box.appendChild(p);
+    para.push(b);
   });
+  flush();
 }
 
 function showLesson(key) {
@@ -450,3 +569,13 @@ window.addEventListener('DOMContentLoaded', function () {
     }
   }
 });
+
+/*  The seam tests/weather-reflow-check.js loads this through. `module`
+    is undefined in a browser, so this costs the page nothing; what it
+    buys is that drawLines() can be run outside one and held to the
+    three things the reflow must not get wrong. Same seam colregs.js and
+    contacts.js carry, for the same reason.  */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { drawLines: drawLines, wxKind: wxKind, wxText: wxText,
+                     wxJoin: wxJoin, wxSpans: wxSpans };
+}

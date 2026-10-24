@@ -356,7 +356,29 @@ table.score .persist td:first-child { color: var(--persist); }
 
 /* ---- the lessons ------------------------------------------------------ */
 .lesson { font-size: 15px; line-height: 1.55; }
-.lesson .ln { margin: 0; white-space: pre-wrap; }
+/*  THE SHELL'S LINE BREAKS ARE NO LONGER THE BROWSER'S. drawLines()
+    gathers consecutive lines into a paragraph and joins the prose, so
+    .ln is an ordinary paragraph now and wraps for itself. It was
+    pre-wrap, one paragraph per terminal line, which double-broke 130 of
+    the 181 lines across the ten lessons and alternated the left margin
+    in and out as each wrapped remainder lost its indent.             */
+.lesson .ln { margin: 0 0 11px; }
+.lesson .ln:last-child { margin-bottom: 0; }
+.lesson .ln-item { margin: 0 0 6px; padding-left: 2.2em; text-indent: -2.2em; }
+
+/*  A FIGURE KEEPS ITS COLUMNS, AND NEEDS A FACE THAT CAN HOLD THEM. The
+    H2O/O2 diagram indents "O2  32" to sit under "N2  28"; in the body's
+    proportional font it sat under "pushing out" instead, and had since
+    the lessons were first rendered. Monospace, exact spacing, and its
+    own sideways scroll so a wide figure never pushes the page.       */
+.lesson .ln-pre {
+  margin: 0 0 11px; white-space: pre; overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px; line-height: 1.5; color: inherit;
+  background: var(--panel-2); border: 1px solid var(--line);
+  border-radius: 6px; padding: 10px 12px;
+}
 .lesson .gap { height: 11px; }
 .lesson hr { border: 0; border-top: 1px solid var(--line); margin: 10px 0; }
 .lesson .acc { color: var(--accent); font-weight: 600; }
