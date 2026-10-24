@@ -20,7 +20,7 @@
     at colregs-v1 since the app was written. tests/run-tests.sh now
     refuses a build and a cache that disagree, which is the same check
     the drill app got for the same reason.  */
-var BUILD = 9;
+var BUILD = 10;
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
@@ -117,6 +117,26 @@ function rel_other(rel) {
   if (RSTYLE === 'words') return red_green(rel);
   return rel_phrase(rel, 'your');
 }
+/*  THE CONFIRMING NUMBER ON THE ENCOUNTERS REVEAL. The arc asks -- "fine
+    on your port bow", always in words, because that is what a lookout
+    says -- and the number confirms, followed by the reader's own way of
+    saying it. This screen called rel_phrase() directly and left the
+    second half off entirely, so it showed one style whatever the shell
+    was set to; it is enc_bore() in the awk now, and diffed against it
+    over every bearing in all five styles.
+
+    The suffix is dropped when it says nothing and when it is the same
+    FORM as the prefix. Matching the shape rather than the string is the
+    point: the prefix rounds and rel_style's %03d truncates, so one
+    bearing gets two spellings a degree apart, and a reader set to
+    rel360 read "she bore 003 relative -- 002 relative".  */
+function enc_bore(bg) {
+  var pre = ('00' + (Math.trunc(nrm360(bg) + 0.5) % 360)).slice(-3) + ' relative';
+  var suf = rel_style(bg);
+  if (suf === '' || /^[0-9][0-9][0-9] relative$/.test(suf)) return 'she bore ' + pre;
+  return 'she bore ' + pre + ' -- ' + suf;
+}
+
 var RSTYLES = [
   { k: 'rn',     n: 'Red / Green' },
   { k: 'usn',    n: 'Port / Starboard' },
@@ -921,8 +941,7 @@ function encAnswer(ltr) {
       check against your own reading of the plan, which is where a number
       belongs. Same split as the shell build: the arc asks, the number
       confirms.  */
-  $('enc-why').textContent = e.why + '  (she bore ' +
-    ('00' + Math.round(nrm360(encBrg))).slice(-3) + ' relative.)';
+  $('enc-why').textContent = e.why + '  (' + enc_bore(encBrg) + '.)';
   $('enc-answer').hidden = false;
   /*  The lights, after the answer and not before it -- same place in the
       flow as the shell's "See her lights? [y/N]".  */
@@ -1621,7 +1640,7 @@ if (typeof module !== 'undefined' && module.exports) {
     nrm180: nrm180, nrm360: nrm360, fabs: fabs,
     arc_vis: arc_vis, rel_phrase: rel_phrase,
     aspect_words: aspect_words, lt_arc: lt_arc_web, lt_note: lt_note,
-    red_green: red_green, rel_other: rel_other,
+    red_green: red_green, rel_other: rel_other, enc_bore: function (bg, st) { var o = RSTYLE; RSTYLE = st; var r = enc_bore(bg); RSTYLE = o; return r; },
     rel_other_as: function (rel, st) { var o = RSTYLE; RSTYLE = st; var r = rel_other(rel); RSTYLE = o; return r; },
     rel_style: function (rel, st) { var o = RSTYLE; RSTYLE = st; var r = rel_style(rel); RSTYLE = o; return r; },
     heard: heard,

@@ -27,4 +27,17 @@ BEGIN{
     for(t=-180;t<=180;t++) printf "relother\t%s\t%d\t%s\n", A[i], t, rel_other(t)
   }
   for(t=-180;t<=180;t++) printf "redgreen\t%d\t%s\n", t, red_green(t)
+
+  #  THE ENCOUNTERS REVEAL CLAUSE, every bearing in every style. The
+  #  browser's version of this line showed one style whatever the
+  #  setting was, and left the reader's own wording off entirely. Half
+  #  degrees are included because the prefix rounds and rel_style
+  #  truncates, and the two only disagree there.
+  n=split("rn usn rel360 words none",A," ")
+  for(i=1;i<=n;i++){
+    rstyle = A[i]
+    for(t=-10;t<=370;t++)      printf "encbore\t%s\t%d\t%s\n", A[i], t, enc_bore(t)
+    for(t=-10;t<=370;t++)      printf "encboreh\t%s\t%d\t%s\n", A[i], t, enc_bore(t+0.5)
+    for(t=-10;t<=370;t++)      printf "encbored\t%s\t%d\t%s\n", A[i], t, enc_bore(t+0.4)
+  }
 }

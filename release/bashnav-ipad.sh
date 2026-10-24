@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003573041
+BASHNAV_BYTES=003574556
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -7455,6 +7455,34 @@ function enc_range(n){
   printf "colregs: there is no scenario %s (1 to %d)\n", n, NENC > "/dev/stderr"
   return 1
 }
+#  THE CONFIRMING NUMBER, as a function so the browser can be held to
+#  it. The arc asks and the number confirms, and the number is followed
+#  by the reader's own way of saying it -- which is the whole point of
+#  the reporting style being a setting.
+#
+#  AND NOT TWICE. The prefix is already the rel360 style, so for a
+#  reader set to rel360 the line said the same angle twice and rounded
+#  it two different ways -- "she bore 003 relative -- 002 relative" --
+#  while a reader set to "none" got a dangling "-- )" with nothing after
+#  it. Both were live until 24 October 2026, and both only became
+#  visible when this was pulled out of enc_reveal() and printed in each
+#  of the five styles. An older comment here claimed the double-rounding
+#  was already fixed; it was fixed for one style and not for that one.
+#
+#  So the suffix is dropped when it says nothing, and when it is the
+#  same FORM as the prefix -- matched on shape, not on the string and
+#  not on a style's name. Comparing the strings is not enough and that
+#  is the bug itself: the prefix rounds the angle and rel_style's %03d
+#  truncates it, so the two spellings of one bearing differ by a degree
+#  exactly when it matters, and "003 relative" != "002 relative" while
+#  being the same thing said twice. Matching the shape means a sixth
+#  style needs nothing here either.
+function enc_bore(bg,   pre,suf){
+  pre = sprintf("%03d relative", int(nrm360(bg)+0.5)%360)
+  suf = rel_style(bg)
+  if(suf=="" || suf ~ /^[0-9][0-9][0-9] relative$/) return "she bore " pre
+  return "she bore " pre " -- " suf
+}
 function enc_reveal(){
   printf "  %s -- %s\n", cw(toupper(ENC_ANS) " is right",C_ACC), ENC_RULE
   printf "  %s\n", ENC_WHY
@@ -7462,8 +7490,7 @@ function enc_reveal(){
   #  against your own plot.
   #  rounded once, not twice: %03d truncates and rel_style rounds, so the
   #  same angle printed both ways read "006 relative -- Green 7".
-  if(ENC_BRG!="") printf "  (she bore %03d relative -- %s)\n",
-     int(nrm360(ENC_BRG)+0.5)%360, rel_style(ENC_BRG)
+  if(ENC_BRG!="") printf "  (%s)\n", enc_bore(ENC_BRG)
   print ""
   return 0
 }

@@ -35,4 +35,9 @@ for (const st of ['rn', 'usn', 'rel360', 'words', 'none']) {
   for (let t = -180; t <= 180; t++) out.push('relother\t' + st + '\t' + t + '\t' + F.rel_other_as(t, st));
 }
 for (let t = -180; t <= 180; t++) out.push('redgreen\t' + t + '\t' + F.red_green(t));
+for (const st of ['rn', 'usn', 'rel360', 'words', 'none']) {
+  for (let t = -10; t <= 370; t++) out.push('encbore\t'  + st + '\t' + t + '\t' + F.enc_bore(t, st));
+  for (let t = -10; t <= 370; t++) out.push('encboreh\t' + st + '\t' + t + '\t' + F.enc_bore(t + 0.5, st));
+  for (let t = -10; t <= 370; t++) out.push('encbored\t' + st + '\t' + t + '\t' + F.enc_bore(t + 0.4, st));
+}
 console.log(out.join('\n'));
