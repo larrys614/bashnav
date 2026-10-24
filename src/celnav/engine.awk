@@ -632,6 +632,18 @@ function gputsc(r,c,s,col,   i){ for(i=1;i<=length(s);i++) gputc(r,c+i-1,substr(
 #  The plot is painted as its own panel, so it is legible whatever the
 #  terminal's own background happens to be.
 function gshow(   r,c,line,cur,last,cc){
+  #  THE WEB GENERATOR WANTS A GAP, NOT A PICTURE OF A TERMINAL. These
+  #  figures are drawn on a character grid -- the globe with its
+  #  graticule and circles of position, the celestial triangle, the LOP
+  #  zoom -- and 25 rows of 67 characters is a picture of a terminal,
+  #  not a figure, in a browser 380px wide. Under -v FIGDUMP=1 the grid
+  #  is replaced by a marker the dumper turns into a named gap, and the
+  #  prose around it still prints. Set by the generator alone; the tool
+  #  never sets it. Same move as ct_plot() in colregs.
+  #
+  #  The grid is still cleared, so a figure built and skipped cannot
+  #  leave its marks inside the next one.
+  if(FIGDUMP){ print "@@FIG grid " PW " " PH; gclear(PW,PH); return 0 }
   for(r=0;r<PH;r++){
     last=-1
     for(c=0;c<PW;c++) if(G[r,c]!=" ") last=c

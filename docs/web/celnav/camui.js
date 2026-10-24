@@ -20,7 +20,7 @@
   /* A visible build stamp.  Debugging this remotely without one meant
      guessing which version was on the device, and the guess was wrong:
      the service worker below had been serving a cached build. */
-  const BUILD = '7 \u2014 18 Oct 2026';
+  const BUILD = '8 \u2014 24 Oct 2026';
   const R2D = 180 / Math.PI;
 
   const CN = extendCelnav(makeCelnav(window.CELNAV_TABLES));

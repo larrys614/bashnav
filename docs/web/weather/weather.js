@@ -317,7 +317,16 @@ function drawLessonIndex() {
    survives in order, every emphasised word is still emphasised, and
    anything with a column in it comes back preformatted.
    --------------------------------------------------------------------- */
-var WX_GUTTER = /[^.!?: ] {2,}\S/;
+/*  A COLUMN GUTTER, AND THE DISTINCTION IS THE WIDTH. Two spaces after
+    a full stop is sentence spacing; three or more inside a line is a
+    column, whatever precedes them. The first version excluded a colon
+    from the two-space case and applied that exclusion to any width,
+    which held nothing it should not -- until celnav's Polaris lesson,
+    where "at upper transit, above the pole:   latitude = Ho - p" is a
+    label and a formula in two columns, and the colon is exactly what a
+    label ends with. Measured across all three apps, splitting the cases
+    by width moves that one paragraph and nothing else.  */
+var WX_GUTTER = /\S {3,}\S|[^.!?: ] {2}\S/;
 var WX_MARKER = /^( *)(\d+\.|\([a-z]\)|[a-z]\))\s+\S/;
 var WX_DEEP = 6;
 

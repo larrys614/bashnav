@@ -884,6 +884,63 @@ WXLOG
   if [ "$n" = 0 ]; then ok "light tables satisfy Annex I where it is checkable"
   else bad "$n Annex I violations"; echo "$r" | grep '^FAIL' | head -8; fi
 
+  # ---- the iPad installer is the build that is in the repository -----
+  #  release/bashnav-ipad.sh is the one file that reaches the iPad, and
+  #  it is assembled from src/ by release/make-ipad.sh -- which build.sh
+  #  does NOT run. tests/ipad-install-check.sh regenerates it and tests
+  #  what it regenerated, so a STALE committed bundle passed every check
+  #  there was: the suite was testing a file it had just rebuilt and
+  #  nobody compared it with the one in the repository. Commit without
+  #  running the suite and the iPad gets the previous build, on the
+  #  platform this project exists for.
+  r=$(sh release/make-ipad.sh 2>&1 >/dev/null || echo FAILED)
+  case "$r" in *FAILED*) bad "the iPad bundle does not assemble"; echo "    $r" ;; *)
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+      say "  --    the iPad bundle assembles, but comparing it needs a git checkout"
+    elif git diff --quiet -- release/bashnav-ipad.sh 2>/dev/null; then
+      ok "release/bashnav-ipad.sh is what src/ assembles to"
+    else
+      bad "the iPad bundle is stale -- run sh release/make-ipad.sh and commit it"
+      git diff --stat -- release/bashnav-ipad.sh | head -2
+    fi ;;
+  esac
+
+  # ---- celnav's teaching track in the browser ------------------------
+  #  The thirty-three lessons are generated from teach.awk the way the
+  #  contacts lessons are, so this regenerates and compares: a change to
+  #  a lesson that has not been dumped fails here. The first run of that
+  #  generator produced all thirty-three lessons with NO question,
+  #  because the rule before the question was matched with an interval
+  #  expression and mawk -- which the generator picks first -- does not
+  #  implement {n,m}. CLAUDE.md rule 1, and the suite's own check for it.
+  r=$(sh docs/web/celnav/gen/make-celnav-web.sh 2>&1 >/dev/null || echo FAILED)
+  case "$r" in *FAILED*) bad "the celnav web generator does not run"; echo "    $r" ;; *)
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+      say "  --    celnav's lessons regenerate, but comparing them needs a git checkout"
+    elif git diff --quiet -- docs/web/celnav/lessons.js 2>/dev/null; then
+      ok "docs/web/celnav/lessons.js is what teach.awk prints (33 lessons, 9 modules)"
+    else
+      bad "celnav's lessons.js is not what teach.awk prints -- run docs/web/celnav/gen/make-celnav-web.sh"
+      git diff --stat -- docs/web/celnav/lessons.js | head -2
+    fi ;;
+  esac
+
+  #  and the three things generation cannot check: the words surviving
+  #  the reflow, the figures that are tables keeping their columns, and
+  #  every one of the ten figure gaps saying what belongs in it. That
+  #  last one fails when a lesson gains a figure and nobody names it,
+  #  which is what happens as the drawings land module by module.
+  if command -v node >/dev/null 2>&1; then
+    if r=$(node tests/celnav-lessons-check.js 2>&1); then
+      ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+    else
+      bad "celnav's lessons lose words, flow a table, or have an unnamed figure gap"
+      echo "$r" | head -8
+    fi
+  else
+    say "  --    the celnav lesson check needs node, skipped"
+  fi
+
   # ---- the web build is the same build ------------------------------
   #  Larry, drilling the browser app after the shell fixes were pushed:
   #  "Souldint it be the same? No more half measures please."

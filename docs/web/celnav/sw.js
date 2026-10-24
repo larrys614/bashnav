@@ -1,6 +1,6 @@
 // celnav's own cache, scoped to this folder so it and the other tools
 // update independently.
-const CACHE = 'celnav-v2'
+const CACHE = 'celnav-v3'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'celnav-';
@@ -10,7 +10,7 @@ const FAMILY = 'celnav-';
 //  tests/sw-precache-check.sh found it and now keeps it found.
 const FILES = ['./', './celnav.css', './camui.js', './engine.js', './engine2.js',
                './camsight.js', './refine.js', './exif.js', './tables.js',
-               './calib.js', './plot.js',
+               './calib.js', './plot.js', './lessons.js', './celnav-app.js',
                './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

@@ -16,11 +16,58 @@
 <body>
 
 <header class="bar">
-  <h1 id="title">Camera sight</h1>
+  <!-- nav-back, NOT back: camera sight already has a #back button for
+       stepping back through the sight, and two elements with one id is
+       invalid and silently broken. camui.js disabled mine on load,
+       because to getElementById they were the same button. -->
+  <button class="mode" id="nav-back" aria-label="Back" hidden>&#8249;</button>
+  <h1 id="title">celnav</h1>
   <button class="mode" id="mode" aria-label="Night mode">NIGHT</button>
 </header>
 
 <main>
+
+  <!-- ---------- home ----------
+       celnav was the camera-sight page and nothing else. The shell tool
+       has always been one celnav containing both the sights and the
+       teaching track, and colregs keeps its lessons inside the tool, so
+       the browser now matches: camera sight is a section here rather
+       than the whole of it. -->
+  <section class="view" id="v-home">
+    <p class="lede">An altitude from a photograph, and the thirty-three
+      lessons behind it.</p>
+    <nav class="tiles">
+      <button class="tile" data-go="camera">
+        <span class="t-name">Camera sight</span>
+        <span class="t-sub">An altitude from a photograph</span>
+      </button>
+      <button class="tile" data-go="learn">
+        <span class="t-name">Learn</span>
+        <span class="t-sub">Thirty-three lessons, nine modules</span>
+      </button>
+    </nav>
+    <p class="note" id="offline-note">Checking offline cache&hellip;</p>
+  </section>
+
+  <!-- ---------- learn ---------- -->
+  <section class="view" id="v-learn" hidden>
+    <div id="syl-index"></div>
+    <article class="lesson" id="les" hidden>
+      <h2 id="les-title"></h2>
+      <div id="les-body"></div>
+      <div class="check" id="les-check" hidden>
+        <div class="prose" id="les-q"></div>
+        <div class="opts" id="les-opts"></div>
+        <div class="answer" id="les-answer" hidden>
+          <h3 id="les-verdict"></h3>
+          <p id="les-why"></p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ---------- camera sight ---------- -->
+  <section class="view" id="v-camera" hidden>
 
   <!-- The steps, because a sight is a sequence and the first version of
        this page was a wall of controls with no order to them.  Larry took
@@ -177,6 +224,8 @@
       and must be treated as one.</p>
     <p class="note" id="build"></p>
   </details>
+
+  </section><!-- /v-camera -->
 </main>
 
 <!-- OUTSIDE main, so it is pinned and cannot be scrolled away.  In a narrow
@@ -215,5 +264,7 @@
 <script src="calib.js"></script>
 <script src="plot.js"></script>
 <script src="camui.js"></script>
+<script src="lessons.js"></script>
+<script src="celnav-app.js"></script>
 </body>
 </html>

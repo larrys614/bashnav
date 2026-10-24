@@ -986,7 +986,16 @@ function encNext() { encShow(Math.floor(Math.random() * D.encounters.length)); }
    shell's layout, because a table flowed into a paragraph is unreadable
    and a paragraph left hard-wrapped is merely ugly.
    ===================================================================== */
-var PR_GUTTER = /[^.!?: ] {2,}\S/;
+/*  A COLUMN GUTTER, AND THE DISTINCTION IS THE WIDTH. Two spaces after
+    a full stop is sentence spacing; three or more inside a line is a
+    column, whatever precedes them. The first version excluded a colon
+    from the two-space case and applied that exclusion to any width,
+    which held nothing it should not -- until celnav's Polaris lesson,
+    where "at upper transit, above the pole:   latitude = Ho - p" is a
+    label and a formula in two columns, and the colon is exactly what a
+    label ends with. Measured across all three apps, splitting the cases
+    by width moves that one paragraph and nothing else.  */
+var PR_GUTTER = /\S {3,}\S|[^.!?: ] {2}\S/;
 var PR_MARKER = /^( *)(\d+\.|\([a-z]\)|[a-z]\))\s+\S/;
 var PR_DEEP = 6;
 

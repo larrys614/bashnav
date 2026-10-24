@@ -1972,6 +1972,26 @@ function cmd_t_ques(){
   tb()
   return 0
 }
+#  THE QUESTION'S ANSWER AND REASON, for the web generator.
+#
+#  ques() holds both, but only sets them on the branch that does NOT
+#  print -- so the shell gets them by asking the question again with
+#  show=0. The browser needs them as data, and digging them out by
+#  running cmd=t_check with a deliberately wrong answer and scraping the
+#  verdict would be a second way of reading one fact. Same seam colregs
+#  has as cmd=lessonmeta.
+function cmd_t_qmeta(){
+  ques(les,0)
+  printf "%s\t%s\n", Q_ANS, Q_WHY
+  return 0
+}
+#  THE SYLLABUS AS DATA, so the browser's module headings and their order
+#  come from syl_init() rather than from being typed again.
+function cmd_t_syldump(   i,a){
+  syl_init()
+  for(i=1;i<=NSYL;i++){ split(SYLROW[i],a,"|"); printf "%s\t%s\t%s\n", a[1], a[2], a[3] }
+  return 0
+}
 function cmd_t_check(){
   ques(les,0)
   tb()
@@ -2385,6 +2405,8 @@ BEGIN{
   else if(cmd=="t_syllabus")  cmd_t_syllabus()
   else if(cmd=="t_lesson")    cmd_t_lesson()
   else if(cmd=="t_check")     cmd_t_check()
+  else if(cmd=="t_qmeta")     cmd_t_qmeta()
+  else if(cmd=="t_syldump")   cmd_t_syldump()
   else if(cmd=="t_ques")      cmd_t_ques()
   else if(cmd=="t_walk")      cmd_t_walk()
   else if(cmd=="t_sandbox")   cmd_t_sandbox()
