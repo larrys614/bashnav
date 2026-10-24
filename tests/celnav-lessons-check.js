@@ -83,14 +83,47 @@ for (const les of LESSONS) {
     console.log('FAIL  ' + les.id + ': answer is ' + JSON.stringify(les.answer)); bad++;
   }
   if (!les.why) { console.log('FAIL  ' + les.id + ': no reason given for the answer'); bad++; }
-  const letters = (les.question || '').match(/\b([a-d])\)/g) || [];
-  if (letters.length < 2) {
-    console.log('FAIL  ' + les.id + ': the question offers ' + letters.length + ' options');
+  /*  THE QUESTION SPLITS INTO A STEM AND OPTIONS WITH TEXT. The options
+      are columns on one line in the shell; the browser puts them on the
+      buttons, which means reading a shape the awk never promised to
+      keep. All 33 read cleanly today -- this is what says so, and what
+      will say so when a question is reworded.  */
+  const sp = m.exports.splitQuestion(les.question || '');
+  if (!sp) {
+    console.log('FAIL  ' + les.id + ': the question does not split into a stem and options,' +
+                ' so the browser falls back to bare letters:');
+    console.log('        ' + JSON.stringify((les.question || '').slice(0, 72)));
     bad++;
-  } else if (letters.indexOf(les.answer + ')') < 0) {
-    console.log('FAIL  ' + les.id + ': the answer "' + les.answer +
-                '" is not among the options ' + letters.join(' '));
-    bad++;
+  } else {
+    if (sp.opts.length < 2) {
+      console.log('FAIL  ' + les.id + ': ' + sp.opts.length + ' option(s) parsed'); bad++;
+    }
+    if (!sp.opts.some(o => o.ltr === les.answer)) {
+      console.log('FAIL  ' + les.id + ': the answer "' + les.answer + '" is not among ' +
+                  sp.opts.map(o => o.ltr).join(' '));
+      bad++;
+    }
+    /*  EVERY WORD OF THE QUESTION IS ACCOUNTED FOR, in order, between
+        the stem and the options -- the same test the prose gets.
+
+        Asking instead whether each option's text is a SUBSTRING of the
+        question was the first version and it was useless: slicing one
+        character off "30 miles" gives "0 miles", which is still a
+        substring, and an empty stem passed because nothing looked at
+        the stem at all. Both were planted and both got through. This
+        catches a character dropped at either end, a stem swallowed into
+        the options, and an option invented from nothing.  */
+    const qwords = (les.question || '').replace(/^Q\.\s*/, '')
+      .replace(/\b[a-d]\)/g, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+    const got = (sp.stem + ' ' + sp.opts.map(o => o.text).join(' '))
+      .replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+    if (qwords.length !== got.length || qwords.some((w, i) => w !== got[i])) {
+      let at = 0; while (at < qwords.length && qwords[at] === got[at]) at++;
+      console.log('FAIL  ' + les.id + ': splitting the question changed it at word #' + at);
+      console.log('        question: ' + JSON.stringify(qwords.slice(at, at + 5).join(' ')));
+      console.log('        split:    ' + JSON.stringify(got.slice(at, at + 5).join(' ')));
+      bad++;
+    }
   }
 
   /*  the figure gaps  */

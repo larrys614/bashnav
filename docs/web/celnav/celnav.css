@@ -329,13 +329,20 @@ main {
 
 .lesson h2 { font-size: 19px; line-height: 1.3; margin: 0 0 14px; }
 .check { border-top: 1px solid var(--line); padding-top: 14px; }
-.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+/*  one option per row, with its text: in the shell they are columns on
+    one line, which on a phone is a sideways scroll and a row of bare
+    letters to press  */
+.opts { display: grid; gap: 8px; }
 .opts .opt {
-  min-width: 56px; min-height: var(--tap, 56px); cursor: pointer;
+  display: flex; gap: 10px; align-items: baseline; text-align: left;
+  width: 100%; padding: 12px; min-height: var(--tap, 56px); cursor: pointer;
   background: var(--panel); color: var(--text);
   border: 1px solid var(--line); border-radius: var(--radius, 10px);
-  font-family: ui-monospace, Menlo, monospace; font-size: 15px;
+  font-size: 15px; line-height: 1.45;
 }
+.opts .ltr { font-family: ui-monospace, Menlo, monospace; color: var(--dim); }
+.opts .opt[data-state] .ltr { color: inherit; }
+.opts .otext { flex: 1; }
 .opts .opt[data-state="right"] { border-color: var(--ok, #2fd45f); color: var(--ok, #2fd45f); }
 .opts .opt[data-state="wrong"] { border-color: var(--bad, #ff4438); color: var(--bad, #ff4438); }
 .answer { margin-top: 14px; }

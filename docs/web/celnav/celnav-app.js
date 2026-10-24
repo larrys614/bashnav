@@ -184,6 +184,26 @@ var FIG_NAMES = {
   C1: 'the cut between two bodies, and the band of altitudes'
 };
 
+/*  "Q. stem?  a) one  b) two  c) three" -> the stem, and the options
+    with their text. Null when it does not read that way, so the caller
+    can fall back rather than show something wrong.  */
+function splitQuestion(q) {
+  var t = String(q).replace(/^Q\.\s*/, '');
+  var i = t.search(/(^|\n)\s*a\)/);
+  if (i < 0) return null;
+  var stem = t.slice(0, i).replace(/\s+$/, '');
+  var parts = t.slice(i).split(/\s(?=[a-d]\))/);
+  var opts = [], k, s;
+  for (k = 0; k < parts.length; k++) {
+    s = parts[k].replace(/^\s+/, '').replace(/\s+$/, '');
+    if (!/^[a-d]\)/.test(s)) continue;
+    opts.push({ ltr: s.charAt(0), text: s.slice(2).replace(/^\s+/, '').replace(/\s+/g, ' ') });
+  }
+  if (!stem || opts.length < 2) return null;
+  for (k = 0; k < opts.length; k++) if (!opts[k].text) return null;
+  return { stem: stem, opts: opts };
+}
+
 function openLesson(id) {
   var L = lessonById(id);
   if (!L) return;
@@ -209,22 +229,37 @@ function openLesson(id) {
   chk.hidden = false;
   var qbox = $('les-q');
   qbox.textContent = '';
-  renderProse(L.question.replace(/^Q\.\s*/, ''), qbox);
 
   var opts = $('les-opts');
   opts.textContent = '';
   $('les-answer').hidden = true;
 
-  /*  the options are inside the question's own text in the shell -- "a)
-      30 miles   b) 300 miles   c) 1800 miles" on one line -- so the
-      buttons are letters, and the text above them is what they refer
-      to. Pulling the options apart would mean parsing prose the awk
-      never promised to shape, and getting it wrong silently.  */
-  var letters = (L.question.match(/\b([a-d])\)/g) || []).map(function (x) { return x.charAt(0); });
+  /*  THE OPTIONS GO ON THE BUTTONS. In the shell they are part of the
+      question's own text -- "a) 30 miles   b) 300 miles   c) 1800
+      miles", set in columns on one line -- and shown that way the line
+      is held as a table, scrolls sideways on a phone, and takes the
+      question stem with it: rendered, "A sight gives a zenith distance
+      of 30 degrees" was clipped mid-sentence and the options were off
+      the edge with only bare letters to press.
+
+      So the stem is flowed and the options are split onto the buttons.
+      That means parsing prose the awk never promised to shape, which is
+      a thing to be careful with rather than a thing to avoid: all 33
+      split cleanly, the check proves each one has a stem, two or more
+      options, text on every one and the answer among them, and if a
+      question ever arrives in a shape this cannot read it falls back to
+      showing the question whole with lettered buttons.  */
+  var parsed = splitQuestion(L.question);
+  renderProse(parsed ? parsed.stem : L.question.replace(/^Q\.\s*/, ''), qbox);
+  var letters = parsed
+    ? parsed.opts.map(function (o) { return o.ltr; })
+    : (L.question.match(/\b([a-d])\)/g) || []).map(function (x) { return x.charAt(0); });
+
   var answered = false, btns = [];
-  letters.forEach(function (ltr) {
+  letters.forEach(function (ltr, oi) {
     var b = mk('button', 'opt'); b.type = 'button';
     b.appendChild(mk('span', 'ltr', ltr + ')'));
+    if (parsed) b.appendChild(mk('span', 'otext', parsed.opts[oi].text));
     b.addEventListener('click', function () {
       if (answered) return;
       answered = true;
@@ -294,7 +329,8 @@ document.addEventListener('DOMContentLoaded', function () {
     that the reflow and the figure-gap names can be held to something
     outside one. Same seam colregs.js, contacts.js and weather.js carry.  */
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { renderProse: renderProse, proseKind: proseKind, FIG_NAMES: FIG_NAMES };
+  module.exports = { renderProse: renderProse, proseKind: proseKind,
+                     FIG_NAMES: FIG_NAMES, splitQuestion: splitQuestion };
 }
 
 })();
