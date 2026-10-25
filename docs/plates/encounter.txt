@@ -27,7 +27,7 @@ WHAT DO YOU DO?
 
 ----------------------------------------------------------------------
 You are a power-driven vessel under way.
-You see a power-driven vessel showing her red sidelight, bearing 073 relative, heading as drawn.
+You see a power-driven vessel showing her red sidelight, on your starboard beam, heading as drawn.
 ----------------------------------------------------------------------
  a) Stand on: she must keep clear of you.
  b) Give way: alter to starboard and pass under her stern.

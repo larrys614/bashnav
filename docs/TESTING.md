@@ -54,8 +54,9 @@ content changes.
 | `fields-check.awk` | a table field containing its own separator (a `;` in an option cut an answer in half) |
 | `svg-check.awk` | an SVG that is not an exact character grid |
 | `readme-check.awk` | unclosed fences, unbalanced `<details>`, `<img>` inside a fence or pointing at nothing |
+| `plates-check.sh` | every plate and picture the site shows, against what the program produces &mdash; per awk, so awk-dependent site output fails |
 | `count-check.awk` | counts quoted in prose against what the program actually has |
-| `toolrow-check.awk` | a tool in `bin/` with no row in the README's table, or no section, or a row whose anchor leads nowhere |
+| `toolrow-check.awk` | a tool in `bin/` with no table row or no section, and any README link &mdash; anchor, published app or file &mdash; that leads nowhere |
 | `install-check.awk` | an install section that has fallen behind what exists |
 | `ipad-install-check.sh` | the iPad installer must install, prove the tools run, set the PATH, and survive being run twice &mdash; plus the write-probe regression at shell level |
 | `ashell-check.sh` | constructs a-Shell cannot run: a heredoc feeding a command that prints, and a compound command redirected to a file |
@@ -70,6 +71,69 @@ The network lint matches a **command at a command position**, not a substring:
 switched off, which is worse than no lint. A URL printed for a person to
 *read* is fine — the licence text and the review link are both just words on a
 screen. What is banned is fetching one.
+
+### Three of these changed shape when the README did
+
+The browser-first README broke four checks, and the useful part was telling
+apart the ones that encoded the old *shape* from the ones that were protecting
+*content the rewrite had dropped*. Only three were shape.
+
+1. **`toolrow-check.awk`** assumed rows of the form `| **[name](#name)** |` and
+   headings at exactly `## name`. The new README has two tables — the browser
+   apps linking to the published builds, the six shell scripts linking to their
+   own `###` sections. Worse, its anchor was extracted with
+   `sub(/^[^(]*\(#/)`, which on a row whose link is a URL with no `#` in it did
+   nothing at all, so it reported *"the row for celnav links to
+   #celnav](https://..."*. It now checks the property instead: every tool has a
+   row and a heading, every `#anchor` lands on a heading, every link to
+   `…/bashnav/web/<name>/` lands on a build that is in `docs/web/`, and every
+   relative link lands on a file in the repository.
+
+2. **`readme-check.awk`** was given `-v WANT=6`. A number typed in two places
+   is the trap that left three site plates silently empty when `make-site.sh`
+   named engine versions by hand, and the rewrite took the README from six
+   pictures to two, so it went red for something that was not a fault. It now
+   counts every `<img>` in the file, fenced or not, and requires that all of
+   them render — which is precisely the bug it exists for, since a fence
+   swallowing a picture leaves the tag in the raw count and out of the rendered
+   one. What that no longer guards is a picture deleted outright; deleting one
+   is an edit rather than a fault, and the typed number had started costing
+   more than it saved.
+
+3. **`plates-check.sh`** diffed two ASCII blocks pasted into the README. Those
+   blocks are gone — the README shows the SVGs `make-site.sh` renders from the
+   same output. The property is unchanged, the target moved: it now rebuilds
+   the whole site with a given awk and diffs `docs/plates/` and `docs/img/`
+   against what is committed, covering all eight plates and fifteen pictures.
+
+The two that were *not* shape — the launcher's menu block and the install
+section's "no app to install" and `~/Documents` — went back into the README,
+because an iPad reader still needs all three and the launcher menu still
+drifts. `launcher-check.sh` matches the `bashnav` heading at any depth now, so
+it does not have to move again the next time the README is reorganised.
+
+### What running the site build per awk found immediately
+
+`plates-check.sh` builds the site with each awk in the matrix, so **site output
+that depends on which awk produced it is a failure**. On the first run it found
+one: `encounter.txt` and `scenario.txt` were generated from the colregs engine
+alone, with `contacts` assigned to a shell variable and never used. gawk and
+one-true-awk resolve a function at the call and never reach `rv_keys()`, which
+lives in `review.awk`; mawk resolves at parse time and refuses the file
+outright. And the awk sat at the **head of a pipeline**, where `set -e` cannot
+see it — a pipeline's status is the last command's, `sed` succeeds on empty
+input, and the script wrote a zero-byte plate and carried on. Rebuilding the
+site on a machine whose `awk` is mawk blanked two front-page plates silently.
+
+`make-site.sh` now checks its text plates for emptiness the way it already
+checked its pictures, which is what should have caught it. It also no longer
+exits 1 on success: the last statement in the script was
+`grep -c '{{' docs/index.html >/dev/null && { … }`, and `grep -c` returns 1
+when the count is zero, so under `set -e` a clean build always reported
+failure. Nothing was reading that status, which is the only reason it survived.
+
+> Running a build under every awk costs a second a time. Both of these had been
+> in the repository for weeks, and neither was findable any other way.
 
 ---
 

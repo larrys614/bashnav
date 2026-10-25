@@ -384,10 +384,13 @@ for SH in $SHELLS; do
   #  and without the note that explains why a sidelight is drawn aft of
   #  the masts - the one thing a reader of that picture needs.
   if o=$(sh tests/plates-check.sh "$AW" 2>&1); then
-    ok "the README's plates still match what the program prints"
+    case "$o" in
+      *"PLATES SKIP"*) say "  --    comparing the site artefacts needs a git checkout" ;;
+      *) ok "every site plate and picture is what the program produces under $AW" ;;
+    esac
   else
     printf '%s\n' "$o" | grep -v '^PLATES OK'
-    bad "a README plate has drifted from the program"
+    bad "a site plate or picture has drifted from the program"
   fi
 
   #  every built tool must have BOTH a row in the table at the top and a
@@ -412,9 +415,11 @@ for SH in $SHELLS; do
     *) printf '%s\n' "$r" | grep -v INSTALL; bad "the install instructions are stale" ;;
   esac
 
-  r=$($AW -f tests/readme-check.awk -v WANT=6 README.md)
+  #  no -v WANT: readme-check.awk derives the expected number of pictures
+  #  from the file itself.  See the note at the top of it.
+  r=$($AW -f tests/readme-check.awk README.md)
   case "$r" in
-    *"READMERESULT 0 "*) ok "the README's fences close and all six pictures render" ;;
+    *"READMERESULT 0 "*) ok "the README's fences close and every picture in it renders" ;;
     *) printf '%s\n' "$r" | grep -v READMERESULT
        bad "the README's markup is broken - see the lines above" ;;
   esac

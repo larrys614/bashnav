@@ -50,9 +50,17 @@ case "$o" in "GOT [learn tide]") ;; *) say "arguments were not passed through: [
 #     Every plate in this README has drifted at least once; a hand-copied
 #     block with a version number in it will drift the day the version
 #     changes.  The block is the one inside the "## bashnav" section.
+#     The heading is matched at EITHER level.  It was '## bashnav' while
+#     the README had a section per tool at that level; the browser-first
+#     rewrite put the launcher under '## The shell build', so it is now
+#     '### bashnav'.  Matching both means this check does not have to move
+#     again the next time the README is reorganised - what it cares about
+#     is the block, not its depth.  The section ends at the next heading of
+#     the same depth OR shallower, which is why the close pattern is
+#     computed from the one that opened it.
 awk '
-  /^## bashnav$/ { sec=1; next }
-  sec && /^## / { sec=0 }
+  /^##+ bashnav$/ && !sec { sec=1; depth=length($1); next }
+  sec && /^##+ / && length($1) <= depth { sec=0 }
   sec && /^```/ { inb = !inb; next }
   sec && inb    { print }
 ' README.md > "$d/readme-menu"

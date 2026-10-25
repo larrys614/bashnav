@@ -385,6 +385,27 @@ for any future one.
 silently empty since a version bump. Version numbers must be derived, never
 typed twice.
 
+**An awk at the head of a pipeline cannot fail.** Two site plates were built
+with `$AW -f engine.awk … | sed … | sed … > plate.txt`, missing the two other
+colregs files. gawk and one-true-awk resolve a function at the call and never
+reach `rv_keys()`; mawk resolves at parse time and refuses the whole file. The
+awk exited 2 with a message — and `set -e` never saw it, because a pipeline's
+status is its **last** command's, `sed` succeeds on empty input, and the script
+wrote a zero-byte plate and carried on. On a machine whose `awk` is mawk,
+rebuilding the site blanked two front-page plates and said nothing.
+
+> Generating a file through a pipeline means checking the FILE, not the exit
+> status. `make-site.sh` already did that for its pictures and that is why only
+> the text plates broke. Where the status matters, `set -o pipefail` is not
+> available in POSIX `sh`, so write the intermediate to a temporary file and
+> check it.
+
+**`grep -c` returns 1 when the count is zero**, and the last statement of
+`make-site.sh` was `grep -c '{{' docs/index.html >/dev/null && { … }`. Under
+`set -e` that made a clean site build exit 1, every time, on success. It
+survived for weeks because nothing was checking the status — which is the only
+reason a build script can be wrong about whether it worked.
+
 **A stray 45-byte `bashnav.tar.gz` was committed by accident.** `*.tar.gz` is
 in `.gitignore` now.
 

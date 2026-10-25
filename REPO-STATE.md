@@ -355,6 +355,30 @@ store. A service worker's *scope* is per-path, though, which is why
 loaded from `../deck-log/` — out of scope they would not be cached and the tool
 would not work offline, which is the entire point.
 
+### The README and the site, browser-first
+
+The README was rewritten to lead with the browser apps rather than the shell
+build, and `docs/site-template.html` with it. Four suite checks broke, and
+sorting them was the useful part: three encoded the README's old *shape* and
+were reshaped to check the property instead; two were protecting *content the
+rewrite had dropped* — the launcher's pasted menu, and the install section's
+"no app to install" and `~/Documents` — and that content went back in, because
+an iPad reader still needs it. `docs/TESTING.md` has the detail on each.
+
+Reshaping `plates-check.sh` to rebuild the whole site under each awk found two
+faults the same afternoon, both weeks old:
+
+1. **Two front-page plates blanked silently under mawk.** They were generated
+   from the colregs engine alone; gawk and one-true-awk resolve a function at
+   the call and never reach `rv_keys()`, mawk refuses the file at parse time.
+   The awk was at the head of a pipeline, so `set -e` could not see it fail.
+2. **`make-site.sh` exited 1 on success.** `grep -c` returns 1 for a zero
+   count, and that `grep` was the script's last statement under `set -e`.
+
+`make-site.sh` now checks its text plates for emptiness the way it already
+checked its pictures, and threads an `AWK` setting through every invocation so
+the site can be rebuilt under a named awk.
+
 ### How the browser builds are verified
 
 `tests/run-tests.sh` stays POSIX `sh` and `awk` so it runs on the boat. The

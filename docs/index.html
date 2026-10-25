@@ -184,8 +184,8 @@ footer p{max-width:70ch}
 
 <header>
   <p class="eyebrow">Bash Navigation Software</p>
-  <h1>Navigation tools that need<br><em>nothing but a shell</em></h1>
-  <p class="lede">Celestial navigation and the rules of the road, written in POSIX <strong>sh</strong> and <strong>awk</strong>. No dependencies, no network, no almanac that expires. Each tool is <strong>one file</strong> you can copy onto anything with a terminal. For an iPad there is a <a href="#web">browser build</a> — same engines, same answers, no terminal needed.</p>
+  <h1>Navigation tools that work<br><em>with no signal at all</em></h1>
+  <p class="lede">Six marine tools you open in a browser and use at sea: celestial navigation, the rules of the road, tides, the boat&rsquo;s log, the weather, and a study machine that ships empty. They install to a home screen, cache themselves, and keep working with the aircraft mode on. No account, no server, and nothing leaves the device. Underneath, every one is generated from and checked against a POSIX <strong>sh</strong> and <strong>awk</strong> implementation of the same thing &mdash; which is <a href="#web">why the two agree</a>.</p>
   <pre class="cmd"><span class="c"># three star sights, taken at morning twilight</span>
 celnav sight "2026-08-29 07:30:00" Dubhe     C "19 32.1"
 celnav sight "2026-08-29 07:34:00" Bellatrix C "49 37.2"
@@ -255,16 +255,22 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
 </header>
 
 <section id="web">
-  <p class="eyebrow">On an iPad, or anything with a browser</p>
-  <h2>The browser build <span class="rule">&mdash; same engines, no terminal</span></h2>
-  <p>The shell tools need a POSIX shell, and on iOS that turned out to be a dead end: a-Shell cannot give them colour (<code>[&nbsp;-t&nbsp;1&nbsp;]</code> is false even printing straight to the screen), will not execute a script by path, and treats a compound redirect as a parse error. Those are platform faults, not bugs that can be fixed. So the shell suite is a <strong>Mac and Linux</strong> tool, and the iPad gets its own build.</p>
-  <p>It is not a port in the loose sense. The data was produced by <em>running the awk engine&rsquo;s own table initialisers</em> rather than transcribed, and the geometry was checked against that engine over every integer bearing. The celestial engine was diffed against it over 20,568 reference values and reproduces the shell tool&rsquo;s own self-test, against an independent reference ephemeris, to 0.151&prime;.</p>
+  <p class="eyebrow">Open them on a phone, an iPad, or a laptop</p>
+  <h2>The six tools <span class="rule">&mdash; offline, installable, no account</span></h2>
+  <p>Each is its own page with its own manifest and service worker, so each installs as a <strong>separate home-screen icon</strong> and caches itself on first load. Each one tells you on its own screen whether it is cached yet, rather than leaving you to guess.</p>
   <ul>
     <li><a href="https://larrys614.github.io/bashnav/web/"><b>The launcher</b></a> &mdash; a tile per tool.</li>
-    <li><a href="https://larrys614.github.io/bashnav/web/colregs/"><b>colregs</b></a> &mdash; complete. Lights, day shapes, sound signals that actually sound, encounters and the rules.</li>
-    <li><a href="https://larrys614.github.io/bashnav/web/celnav/"><b>celnav</b></a> &mdash; the camera sight so far: measure an altitude from a photograph, reduce it, and plot the line of position.</li>
+    <li><a href="https://larrys614.github.io/bashnav/web/celnav/"><b>celnav</b></a> &mdash; an altitude from a photograph of the sun or moon, and <b>thirty-three lessons in nine modules</b> that teach celestial navigation from first principles.</li>
+    <li><a href="https://larrys614.github.io/bashnav/web/colregs/"><b>colregs</b></a> &mdash; lights and day shapes for 22 vessel types from any bearing, 28 encounter scenarios, sound signals that actually sound, fifteen lessons on the rules and seven on contact management, with the tracking party and Ekelund as exercises.</li>
+    <li><a href="https://larrys614.github.io/bashnav/web/tides/"><b>tides</b></a> &mdash; harmonic prediction for 8,334 stations: the day&rsquo;s table, the curve, the moon and sun, and whether there is enough water.</li>
+    <li><a href="https://larrys614.github.io/bashnav/web/deck-log/"><b>deck-log</b></a> &mdash; the boat&rsquo;s records, append-only in UTC, with the spares replayed from the log rather than stored.</li>
+    <li><a href="https://larrys614.github.io/bashnav/web/weather/"><b>weather</b></a> &mdash; your own barometer, reasoned over and shown working. It will not show you its forecast until yours is written down.</li>
+    <li><a href="https://larrys614.github.io/bashnav/web/drill/"><b>drill</b></a> &mdash; a study machine with no material in it. You load a pack from your own device; it is read in the browser and never leaves it.</li>
   </ul>
-  <p>Each is its own page with its own manifest and service worker, so each installs as a <strong>separate home-screen icon</strong> &mdash; in Safari, Share then Add to Home Screen; on a Mac, Add to Dock &mdash; and each caches itself on first load and then works with no signal at all. <span class="small dim">Prove that once at the dock rather than at sea: open every screen, turn the network off, relaunch from the icon.</span></p>
+  <p>They are not ports in the loose sense. Every lesson file and every data table is produced by <em>running the awk engine&rsquo;s own functions and capturing what they print</em> rather than transcribed, and the test suite regenerates all of them on every run and compares them with what is committed &mdash; so a change to the shell that has not reached the browser fails at the desk rather than at sea. The shared arithmetic is held to the same standard: <strong>21,264 comparisons</strong> for the rules of the road and <strong>4,099</strong> for contact management, against every awk on the machine.</p>
+  <p class="small dim">The celestial engine was additionally diffed against the awk over 20,568 reference values when it was ported, and reproduces the shell tool&rsquo;s own self-test against an independent reference ephemeris to 0.151&prime;. The self-test runs on every suite run; that 20,568-row comparison was a one-off and its harness is not yet in the repository, which is a gap and is recorded as one.</p>
+  <p><strong>On iOS the shell route was a dead end</strong> and the apps are the answer: a-Shell cannot give the shell tools colour (<code>[&nbsp;-t&nbsp;1&nbsp;]</code> is false even printing straight to the screen), will not execute a script by path, and treats a compound redirect as a parse error. Those are platform faults, not bugs that can be fixed. The shell suite is a <strong>Mac, Linux and BSD</strong> tool; the phone and the iPad get these.</p>
+  <p>To install one: in Safari, Share then <b>Add to Home Screen</b>; on a Mac, <b>Add to Dock</b>. <span class="small dim">Prove it once at the dock rather than at sea: open every screen, turn the network off, relaunch from the icon.</span></p>
 
   <h3>Where the browser version is better, and where it is not</h3>
   <p>Better, because a terminal could not do it: the sound signals are <em>sounded</em> rather than drawn; night mode puts every lamp red while the letters <span class="r">R</span> <span class="g">G</span> <span class="w">W</span> <span class="y">Y</span> keep the pattern unambiguous; and a camera can measure a sextant altitude, which no shell tool was ever going to manage.</p>
@@ -438,7 +444,7 @@ Letters are the colours: W white  R red  G green  Y yellow</pre></div>
 
 ----------------------------------------------------------------------
 You are a power-driven vessel under way.
-You see a power-driven vessel showing her red sidelight, bearing 073 relative, heading as drawn.
+You see a power-driven vessel showing her red sidelight, on your starboard beam, heading as drawn.
 ----------------------------------------------------------------------
  a) Stand on: she must keep clear of you.
  b) Give way: alter to starboard and pass under her stern.
