@@ -74,6 +74,20 @@ for a in $AWKS; do
   node docs/web/tests/fmt-check.js "$WORK/fmt.tsv"
 done
 
+echo
+echo "1c. the drill generator, seed for seed"
+#  A SEED IS THE PROBLEM'S NAME. "drill red 4821" has to be the same sight
+#  in the shell and in the browser, or a drill worked on deck and checked
+#  at a terminal has two different right answers - so the pseudo-random
+#  sequence is part of the specification, not an implementation detail.
+#  No browser: the engine is required and called.
+for a in $AWKS; do
+  printf '   %s\n' "$a"
+  $a -v N=200 -f src/celnav/engine.awk -f src/celnav/teach.awk \
+     -f docs/web/tests/drill-ref.awk </dev/null > "$WORK/drill.tsv"
+  node docs/web/tests/drill-check.js "$WORK/drill.tsv"
+done
+
 #  Stage 2 drives a headless Chromium.  Playwright is not something to make
 #  anyone install to reduce a sight, so if it is absent the stage is
 #  SKIPPED and said to be skipped - not silently passed.  Stage 1 is the
@@ -250,6 +264,29 @@ MK
     WKF="$WKF $WORK/walk-$W.txt"
   done
   PORT="$PORT" node docs/web/tests/celnav-walk.js $WKF
+
+  echo
+  echo "9. the drills: six kinds, put and marked"
+  #  Stage 1c has already held the GENERATOR to the awk seed for seed. What
+  #  this adds is the question as it is put, and the MARKING - which is the
+  #  drill. Each kind is marked three times: with the shell's own correct
+  #  answer, with one placed just outside the shell's tolerance, and for the
+  #  two intercept drills with the right distance plotted the wrong way.
+  #  A widened tolerance is the one fault a drill cannot survive and the
+  #  one nothing on screen would show.
+  DSEED=7
+  DF=
+  for k in corr alm red int full fix; do
+    $AWK1 -f src/celnav/engine.awk -f src/celnav/teach.awk -v cmode=plain \
+          -v cmd=t_drill -v kind="$k" -v seed="$DSEED" </dev/null > "$WORK/dq-$k.txt"
+    #  t_mark prints the correct values whatever answer it is given, which
+    #  is where the harness gets the right answer from
+    $AWK1 -f src/celnav/engine.awk -f src/celnav/teach.awk -v cmode=plain -v FIGDUMP=1 \
+          -v cmd=t_mark -v kind="$k" -v seed="$DSEED" -v a1=0 -v a2=0 \
+          </dev/null > "$WORK/dm-$k.txt" || true
+    DF="$DF $WORK/dq-$k.txt $WORK/dm-$k.txt"
+  done
+  PORT="$PORT" node docs/web/tests/celnav-drill.js "$DSEED" $DF
 
   echo
   echo "CELNAV WEB: all stages passed"

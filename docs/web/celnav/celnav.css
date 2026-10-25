@@ -468,3 +468,20 @@ p.good { color: var(--good); font-size: 13px; margin: 10px 0 0; line-height: 1.5
 .walknav .btn[disabled] { opacity: .35; }
 .walkpos { flex: 1 1 auto; text-align: center; color: var(--dim); font-size: 13px;
            font-variant-numeric: tabular-nums; }
+
+/*  the drills: the question, the answer boxes, and the marking  */
+#d-q h3, #d-out h3 { margin: 18px 0 8px; font-size: 15px; letter-spacing: .02em; }
+#d-q, #d-out { padding: 0 2px; }
+#d-q .kv, #d-out .kv { margin-top: 14px; }
+#d-q .ct-tab { width: 100%; border-collapse: collapse; font-size: 13px;
+               font-family: ui-monospace, Menlo, monospace; margin-top: 12px; }
+#d-q .ct-tab th { text-align: left; color: var(--dim); font-size: 11px;
+                  letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px 4px 0; }
+#d-q .ct-tab td { padding: 3px 8px 3px 0; color: var(--text);
+                  font-variant-numeric: tabular-nums; }
+#d-q .ct-tab .num { text-align: right; }
+#d-out .kv tr.good td { color: var(--good); }
+#d-out .kv tr.bad td { color: var(--warn); }
+#d-out h3.good { color: var(--good); }
+#d-out h3.warn { color: var(--warn); }
+#d-out .walkfig svg { display: block; width: 100%; max-width: 400px; margin: 8px auto 0; }

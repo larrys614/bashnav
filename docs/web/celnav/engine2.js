@@ -306,6 +306,130 @@ function extendCelnav(C) {
              best: best > 0 ? [bi, bj, bk] : null };
   }
 
+  /* ---- the drills --------------------------------------------------
+     drill_gen() and fix_gen() in src/celnav/teach.awk. A drill is a
+     generated problem with a known answer, and the generator is where it
+     matters that both implementations agree EXACTLY: a seed is the
+     problem's name, so "drill red 4821" has to be the same sight in the
+     shell and in the browser or the two are not the same study machine.
+
+     That makes the pseudo-random generator part of the specification
+     rather than an implementation detail. It is Lehmer's, 16807 modulo
+     2^31 - 1, with eight warm-up steps; 16807 x 2147483646 is about
+     3.6e13, comfortably inside a double's exact integers, so it is exact
+     in both languages and not merely close.
+     ------------------------------------------------------------------ */
+  let RS_ = 1;
+  function xsrand(seed) {
+    RS_ = Math.trunc(seed) % 2147483647;
+    if (RS_ <= 0) RS_ += 2147483646;
+    for (let i = 0; i < 8; i++) RS_ = (16807 * RS_) % 2147483647;
+    return 0;
+  }
+  function xrand() { RS_ = (16807 * RS_) % 2147483647; return RS_ / 2147483647.0; }
+
+  const DRILL_BODIES = ['sun', 'moon', 'venus', 'mars', 'jupiter', 'saturn', 'Sirius',
+                        'Vega', 'Dubhe', 'Arcturus', 'Capella', 'Antares', 'Rigel',
+                        'Spica', 'Altair', 'Polaris'];
+  function drill_body(k) { return DRILL_BODIES[int(k * DRILL_BODIES.length)]; }
+
+  /*  Hs from Ho, by iterating the correction chain backwards. Twelve
+      passes, not until it converges: the awk does twelve.  */
+  function invert_corr(ho, D) {
+    const f = (D.P / 1010.0) * (283.0 / (273.0 + D.T));
+    let ha = ho;
+    for (let i = 0; i < 12; i++) {
+      const refr = f / tand(ha + 7.31 / (ha + 4.4));
+      const par = D.HP * cosd(ha);
+      let sd = D.SD;
+      if (D.NAME === 'Moon' && sd > 0) sd = sd * (1.0 + sind(ha) * D.HP / 3437.75);
+      const lim = (D.LIMB === 'L' ? sd : (D.LIMB === 'U' ? -sd : 0));
+      ha = ho - (par - refr + lim) / 60.0;
+    }
+    return ha + D.IE / 60.0 + 1.7594 * Math.sqrt(D.HE) / 60.0;
+  }
+
+  /*  one drill problem. Returns null when eighty tries failed to find a
+      body between 12 and 72 degrees, which is what the awk's `return 0`
+      means and is a real outcome for an unlucky seed.  */
+  function drill_gen(kind, seed) {
+    xsrand(seed);
+    for (let i = 0; i < 3; i++) xrand();
+    const D = {};
+    D.LAT = int((xrand() * 110 - 55) * 10) / 10.0;
+    D.LON = int((xrand() * 360 - 180) * 10) / 10.0;
+    D.IE = int((xrand() * 6 - 3) * 10) / 10.0;
+    D.HE = int((2 + xrand() * 10) * 10) / 10.0;
+    D.T = int(xrand() * 30 - 5);
+    D.P = 990 + int(xrand() * 40);
+    let ok = 0;
+    for (let tries = 0; tries < 80 && !ok; tries++) {
+      const y = 2026 + int(xrand() * 7), mo = 1 + int(xrand() * 12), d = 1 + int(xrand() * 28);
+      const hh = xrand() * 24;
+      D.JD = C.jdate(y, mo, d) + hh / 24.0;
+      D.BODY = drill_body(xrand());
+      if (C.body_at(D.BODY, D.JD) === 'ERR') continue;
+      C.reduce_sight(D.LAT, D.LON, E.B_GHA, E.B_DEC);
+      if (E.R_HC < 12 || E.R_HC > 72) continue;
+      ok = 1;
+    }
+    if (!ok) return null;
+    C.jd2cal(D.JD);
+    D.UTC = pad(E.CAL_Y, 4) + '-' + pad(E.CAL_M, 2) + '-' + pad(E.CAL_D, 2) + ' ' +
+            fmt_hms(E.CAL_FRAC * 24);
+    D.JD = parse_utc(D.UTC);
+    C.body_at(D.BODY, D.JD);
+    D.GHA = E.B_GHA; D.DEC = E.B_DEC; D.SD = E.B_SD; D.HP = E.B_HP; D.NAME = E.B_NAME;
+    D.LIMB = (D.NAME === 'Sun' || D.NAME === 'Moon') ? ((xrand() < 0.7) ? 'L' : 'U') : 'C';
+    C.reduce_sight(D.LAT, D.LON, D.GHA, D.DEC);
+    D.HC = E.R_HC; D.ZN = E.R_ZN; D.LHA = E.R_LHA;
+    D.OFF = int((xrand() * 24 - 12) * 10) / 10.0;      /* the intercept, nm */
+    D.HO = D.HC + D.OFF / 60.0;
+    D.HS = invert_corr(D.HO, D);
+    D.kind = kind;
+    return D;
+  }
+
+  /*  the three-star fix drill: three azimuths spread around a random
+      base, intercepts ROUNDED to a tenth the way a plotted sheet is, and
+      the fix solved back out of the rounded numbers - so the answer is
+      what a navigator would actually get, not what the generator started
+      from.  */
+  function solve3(F) {
+    let A = 0, B = 0, Cc = 0, Dd = 0, E2 = 0;
+    for (let i = 0; i < 3; i++) {
+      A += Math.pow(cosd(F.Z[i]), 2);
+      B += cosd(F.Z[i]) * sind(F.Z[i]);
+      Cc += Math.pow(sind(F.Z[i]), 2);
+      Dd += F.P[i] * cosd(F.Z[i]);
+      E2 += F.P[i] * sind(F.Z[i]);
+    }
+    const det = A * Cc - B * B;
+    F.SOL_N = (Dd * Cc - E2 * B) / det;
+    F.SOL_E = (A * E2 - B * Dd) / det;
+    return 0;
+  }
+  function fix_gen(seed) {
+    xsrand(seed);
+    for (let i = 0; i < 5; i++) xrand();
+    const F = { Z: [], P: [], N: [] };
+    F.LAT = int((xrand() * 100 - 50) * 10) / 10.0;
+    F.LON = int((xrand() * 360 - 180) * 10) / 10.0;
+    const base = xrand() * 360, sp = 90 + xrand() * 60;
+    const dn = int((xrand() * 30 - 15) * 10) / 10.0;
+    const de = int((xrand() * 30 - 15) * 10) / 10.0;
+    for (let i = 0; i < 3; i++) {
+      F.Z[i] = nrm360(base + i * sp + xrand() * 10 - 5);
+      F.P[i] = int((dn * cosd(F.Z[i]) + de * sind(F.Z[i])) * 10) / 10.0;
+      F.N[i] = drill_body(xrand() * 0.4 + 0.4);
+    }
+    solve3(F);
+    let cl = cosd(F.LAT); if (fabs(cl) < 0.02) cl = 0.02;
+    F.FIXLAT = F.LAT + F.SOL_N / 60.0;
+    F.FIXLON = F.LON + F.SOL_E / (60.0 * cl);
+    return F;
+  }
+
   /* ---- Pub. 249, generated rather than shipped ---------------------
      Every entry in the tables is the navigational triangle solved for
      whole degrees of latitude, declination and LHA, which is what
@@ -371,7 +495,8 @@ function extendCelnav(C) {
   Object.assign(C, {
     parse_ang, fmt_dm, fmt_lat, fmt_lon, fmt_hms, parse_utc, fx,
     solve_fix, fix_geometry, sun_alt, find_cross, moon_ill, angsep,
-    lan_jd, pol_lat, plan_sky, amplitude, tab_Z, tab_entry, tab_args
+    lan_jd, pol_lat, plan_sky, amplitude, tab_Z, tab_entry, tab_args,
+    xsrand, xrand, drill_body, invert_corr, drill_gen, fix_gen
   });
   return C;
 }

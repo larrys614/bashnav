@@ -265,10 +265,54 @@ immediately. So:
 | `celnav-diff.js` | the arithmetic, at full precision, over generated cases |
 | `celnav-ui.js`, `celnav-tables.js`, `celnav-latitude.js`, `celnav-plan.js`, `celnav-tables249.js`, `celnav-sandbox.js` | what the page *shows*, against the shell's own printed working |
 | `fmt-check.js` | one-decimal formatting, against awk's `printf` |
+| `drill-check.js` | the drill generator, seed for seed, body for body |
+| `celnav-drill.js` | the drills as put, and the marking tolerances |
 
 Neither is the belt and neither is the braces. Each is the only thing that sees
 its own class of fault, and every fault above was planted and watched to go red
 before the check was believed.
+
+#### A seed is the problem's name, so the generator is a specification
+
+`drill red 4821` has to be the same sight in the shell and in the browser, or a
+drill worked on deck and checked at a terminal has two different right answers.
+That makes the pseudo-random sequence part of what is being ported — not an
+implementation detail — so `drill-check.js` compares every value the generator
+produces over 200 seeds: the position, the instant, **which body it picked, by
+name**, and which seeds it refused for want of a body between 12° and 72°.
+Worst disagreement 6e-14, under every awk on the machine.
+
+It bites on exactly the things it should: seven warm-up steps instead of eight,
+two throwaway draws instead of three, the altitude window widened, the moon's
+semi-diameter not grown with altitude, the fix's intercepts not rounded to a
+tenth the way a plotted sheet rounds them. It does *not* bite on cutting
+`invert_corr`'s twelve passes to eleven, and that is worth recording beside the
+`lan_jd` note above: twelve was chosen with margin and eleven has already
+converged below the tolerance. A fixed iteration count is a specification only
+where the count is observable.
+
+#### The marking tolerances are the drill
+
+Half a mile on an intercept, 0.3′ on an Ho, 1.0′ on a GHA, 0.6° on a Zn in the
+reduction drill and 1.0° in the full one, two miles on a fix. A drill that marks
+to a different standard than the tool is a different drill, and **nothing on
+screen would show it** — the numbers, the working and the plot would all be
+right.
+
+So `celnav-drill.js` marks each kind three times: with the shell's own correct
+answer, with one placed just outside the shell's tolerance, and — for the two
+intercept drills — with the right distance plotted the wrong way. The second
+catches a widened tolerance; the third catches a dropped sign check, which the
+second cannot, because it keeps the sign. "Computed greater, away" is the rule a
+navigator gets backwards, and a reversed intercept is the same number of miles on
+the wrong side of the assumed position with nothing on the sheet to say so.
+
+Writing that check found a fault that was not about marking at all: the answer
+boxes were **rebuilt** on every change of kind or seed. Focusing a box blurs the
+seed field, the blur fires that field's change handler, the handler rebuilds the
+boxes, and the keystrokes land on an element no longer in the page. Every answer
+the harness typed came back empty. A reader who edits the seed and then types an
+answer loses the answer; the boxes are relabelled now, not rebuilt.
 
 #### A drawing has to be checked, not just the numbers beside it
 

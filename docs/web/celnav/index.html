@@ -82,6 +82,10 @@
         <span class="t-name">Walkthrough</span>
         <span class="t-sub">One real sight, worked in eight annotated steps</span>
       </button>
+      <button class="tile" data-go="drill">
+        <span class="t-name">Drills</span>
+        <span class="t-sub">Six kinds of problem, generated from the real almanac and marked</span>
+      </button>
       <button class="tile" data-go="camera">
         <span class="t-name">Camera sight</span>
         <span class="t-sub">An altitude from a photograph</span>
@@ -413,6 +417,49 @@
       <span class="walkpos" id="walk-pos"></span>
       <button class="btn go" id="walk-next" type="button">Next &rarr;</button>
     </div>
+  </section>
+
+  <!-- ---------- the drills ----------
+       Six kinds of generated problem with known answers. A SEED IS THE
+       PROBLEM'S NAME: "red 4821" is the same sight here and in the shell,
+       which is what makes a drill worked on deck and checked at a
+       terminal the same drill. The generator is in the engine and
+       docs/web/tests/drill-check.js holds it to the awk seed for seed,
+       down to which body each one picks. -->
+  <section class="view" id="v-drill" hidden>
+    <div class="card">
+      <h3>Pick a drill</h3>
+      <div class="grid1">
+        <label>Kind
+          <select id="d-kind">
+            <option value="corr">Sextant corrections &mdash; work out Ho</option>
+            <option value="alm">The almanac &mdash; GHA and declination</option>
+            <option value="red">Sight reduction &mdash; Hc and Zn</option>
+            <option value="int">The intercept &mdash; how far, and which way</option>
+            <option value="full">A complete sight &mdash; Hs to the intercept</option>
+            <option value="fix">A three-star fix</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid2">
+        <label>Seed<input id="d-seed" type="text" inputmode="numeric" placeholder="1" autocomplete="off"></label>
+        <label>&nbsp;<button class="btn" id="d-new" type="button">Another problem</button></label>
+      </div>
+      <p class="note">The seed is the problem&rsquo;s name. Give the same kind and seed to
+        <code>celnav drill</code> at a terminal and you get the same sight, so a drill worked on
+        deck can be checked anywhere.</p>
+    </div>
+    <p class="note" id="d-note"></p>
+    <div id="d-q"></div>
+    <div class="card" id="d-answer" hidden>
+      <h3>Your answer</h3>
+      <div class="grid2" id="d-fields">
+        <label id="d-l1">Answer<input id="d-a1" type="text" autocomplete="off"></label>
+        <label id="d-l2">Answer<input id="d-a2" type="text" autocomplete="off"></label>
+      </div>
+      <button class="btn go" id="d-mark" type="button">Mark it</button>
+    </div>
+    <div id="d-out"></div>
   </section>
 
   <!-- ---------- learn ---------- -->

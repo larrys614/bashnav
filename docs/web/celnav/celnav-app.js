@@ -1621,6 +1621,307 @@ function walkInit() {
   walkShow();
 }
 
+/* =====================================================================
+   THE DRILLS
+
+   drill_gen(), drill_show() and drill_mark() in src/celnav/teach.awk. Six
+   kinds of generated problem with known answers.
+
+   A SEED IS THE PROBLEM'S NAME. "red 4821" has to be the same sight here
+   and at a terminal, so a drill worked on deck can be checked anywhere -
+   which makes the pseudo-random sequence part of the specification. The
+   generator is in the engine for that reason and
+   docs/web/tests/drill-check.js holds it to the awk seed for seed, down
+   to which body each one picks and which seeds it refuses.
+
+   The MARKING tolerances are the shell's, to the value: 0.3' on Ho, 1.0'
+   on a GHA, 0.5' on a declination, 0.6 degrees on Zn in the reduction
+   drill and 1.0 in the full one, half a mile on an intercept and eight
+   tenths in the full one, and two miles on a fix. They are not rounded
+   off or tidied here, because a drill that marks to a different standard
+   than the tool is a different drill.
+   ===================================================================== */
+
+var DRILL = null;     /* the problem on screen */
+
+/*  the fields each kind asks for: id, label, placeholder  */
+var DRILL_FIELDS = {
+  corr: [['d-a1', 'Observed altitude Ho', '19 24.8']],
+  alm:  [['d-a1', 'GHA', '283 41.6'], ['d-a2', 'Declination (S negative)', '61 36.5 N']],
+  red:  [['d-a1', 'Computed altitude Hc', '19 23.3'], ['d-a2', 'Azimuth Zn, degrees', '26.9']],
+  int:  [['d-a1', 'Intercept, nm (+ toward, − away)', '1.6']],
+  full: [['d-a1', 'Intercept, nm (+ toward, − away)', '1.6'],
+         ['d-a2', 'Azimuth Zn, degrees', '26.9']],
+  fix:  [['d-a1', 'Fix latitude', '35 10.0 N'], ['d-a2', 'Fix longitude', '040 16.0 W']]
+};
+
+function drillInit() {
+  if (!$('d-seed').value) $('d-seed').value = String(1 + Math.floor(Math.random() * 9000));
+  drillNew();
+}
+function drillNew() {
+  var C = CNe(), kind = $('d-kind').value, note = $('d-note');
+  var seed = parseInt($('d-seed').value, 10);
+  $('d-out').textContent = ''; $('d-q').textContent = ''; note.textContent = '';
+  $('d-answer').hidden = true;
+  if (isNaN(seed)) { note.textContent = 'A seed: any whole number.'; return; }
+  DRILL = null;
+
+  if (kind === 'fix') {
+    DRILL = { kind: kind, seed: seed, F: C.fix_gen(seed) };
+  } else {
+    var D = C.drill_gen(kind, seed);
+    /*  THE GENERATOR CAN REFUSE A SEED, and it is not an error: eighty
+        tries without a body between 12 and 72 degrees happens. Say so and
+        offer the next seed rather than pretending to have a problem.  */
+    if (!D) {
+      note.textContent = 'Seed ' + seed + ' has no body between 12° and 72° ' +
+        'to build a problem from. Try the next one.';
+      return;
+    }
+    DRILL = { kind: kind, seed: seed, D: D };
+  }
+  drillQuestion();
+  /*  THE ANSWER BOXES ARE RELABELLED, NOT REBUILT. Recreated on every
+      change of kind or seed, the box was replaced out from under whatever
+      was being typed into it: focusing it blurs the seed field, the blur
+      fires that field's change handler, the handler rebuilds the boxes,
+      and the keystrokes land on an element that is no longer in the page.
+      Found by docs/web/tests/celnav-drill.js, whose every answer came
+      back as an empty box - and it is a real fault, not a harness
+      artefact: a reader who edits the seed and then types an answer loses
+      the answer.  */
+  var spec = DRILL_FIELDS[kind];
+  [1, 2].forEach(function (i) {
+    var lab = $('d-l' + i), inp = $('d-a' + i), f = spec[i - 1];
+    if (!f) { lab.hidden = true; inp.value = ''; return; }
+    lab.hidden = false;
+    lab.firstChild.nodeValue = f[1];
+    inp.placeholder = f[2];
+    inp.value = '';
+  });
+  $('d-answer').hidden = false;
+}
+
+function drillQuestion() {
+  var C = CNe(), q = $('d-q'), k = DRILL.kind;
+  q.textContent = '';
+  if (k === 'fix') {
+    var F = DRILL.F;
+    q.appendChild(mk('h3', null, 'Drill — a three-star fix'));
+    q.appendChild(kvTable([['DR position', ddm(F.LAT, true) + '   ' + ddm(F.LON, false)]]));
+    var t = mk('table', 'ct-tab');
+    var hr = mk('tr');
+    ['sight', 'Zn', 'intercept'].forEach(function (h) { hr.appendChild(mk('th', null, h)); });
+    t.appendChild(hr);
+    for (var i = 0; i < 3; i++) {
+      var tr = mk('tr');
+      tr.appendChild(mk('td', null, F.N[i]));
+      tr.appendChild(mk('td', 'num', ('00' + Math.trunc(F.Z[i] + 0.5)).slice(-3) + ' T'));
+      tr.appendChild(mk('td', 'num', f1(C.fabs(F.P[i])) + ' nm ' + (F.P[i] >= 0 ? 'toward' : 'away')));
+      t.appendChild(tr);
+    }
+    q.appendChild(t);
+    q.appendChild(mk('p', 'note', 'Where is the fix?'));
+    return;
+  }
+
+  var D = DRILL.D, rows, limb =
+    (D.LIMB === 'L' ? ', lower limb' : (D.LIMB === 'U' ? ', upper limb' : ''));
+  if (k === 'corr') {
+    q.appendChild(mk('h3', null, 'Drill — sextant corrections'));
+    rows = [
+      ['Body', D.NAME + (D.LIMB === 'C' ? '  (a point source)' : limb)],
+      ['Sextant reading Hs', C.fmt_dm(D.HS, 2)],
+      ['Index error', mins(D.IE) + '  (positive = on the arc)'],
+      ['Height of eye', f1(D.HE) + ' m'],
+      ['Air temperature', D.T + ' °C Pressure ' + D.P + ' mb']
+    ];
+    if (D.SD > 0) rows.push(['Semi-diameter', f1(D.SD) + "' Horizontal parallax " + f1(D.HP) + "'"]);
+    q.appendChild(kvTable(rows));
+    q.appendChild(mk('p', 'note', 'Work out Ho, the observed altitude.'));
+  } else if (k === 'alm') {
+    q.appendChild(mk('h3', null, 'Drill — the almanac'));
+    q.appendChild(kvTable([['Body', D.NAME], ['Time', D.UTC + ' UT']]));
+    q.appendChild(mk('p', 'note', 'Look up — or work out — the GHA and declination.'));
+  } else if (k === 'red') {
+    q.appendChild(mk('h3', null, 'Drill — sight reduction'));
+    q.appendChild(kvTable([
+      ['Assumed position', ddm(D.LAT, true) + '   ' + ddm(D.LON, false)],
+      ['GHA of the body', dm3(D.GHA)],
+      ['Declination', ddm(D.DEC, true)]
+    ]));
+    q.appendChild(mk('p', 'note', 'Work out LHA, then Hc and Zn.'));
+  } else if (k === 'int') {
+    q.appendChild(mk('h3', null, 'Drill — the intercept'));
+    q.appendChild(kvTable([
+      ['Observed altitude Ho', C.fmt_dm(D.HO, 2)],
+      ['Computed altitude Hc', C.fmt_dm(D.HC, 2)],
+      ['Azimuth Zn', ('00' + Math.trunc(D.ZN + 0.5)).slice(-3) + ' T']
+    ]));
+    q.appendChild(mk('p', 'note', 'How far, and which way do you plot it?'));
+  } else if (k === 'full') {
+    q.appendChild(mk('h3', null, 'Drill — a complete sight'));
+    q.appendChild(kvTable([
+      ['Body', D.NAME + limb + ', at ' + D.UTC + ' UT'],
+      ['Sextant reading Hs', C.fmt_dm(D.HS, 2) + ' index error ' + mins(D.IE)],
+      ['Height of eye', f1(D.HE) + ' m ' + D.T + ' °C, ' + D.P + ' mb'],
+      ['DR position', ddm(D.LAT, true) + '   ' + ddm(D.LON, false)]
+    ]));
+    q.appendChild(mk('p', 'note', 'Work it through to the intercept and the azimuth.'));
+  }
+}
+
+/*  the correction chain as the shell's corr_bars() prints it: the parts
+    shown rather than summed, because the size of each part is the lesson  */
+function drillChain(C, D) {
+  var ho = C.corrections(D.HS, D.IE, D.HE, D.T, D.P, D.LIMB), E = C.E;
+  var rows = [
+    ['Hs  sextant reading', C.fmt_dm(D.HS, 2)],
+    ['index error', mins(-D.IE)],
+    ['dip (height of eye)', mins(-E.C_DIP)],
+    ['Ha  apparent altitude', C.fmt_dm(E.C_HA, 2)],
+    ['refraction', mins(-E.C_REF)]
+  ];
+  if (E.C_PAR > 0.02) rows.push(['parallax', mins(E.C_PAR)]);
+  if (E.C_LIMB !== 0) rows.push(['semi-diameter', mins(E.C_LIMB)]);
+  rows.push(['Ho  observed altitude', C.fmt_dm(ho, 2), 'tot']);
+  return { rows: rows, ho: ho };
+}
+
+function drillMark() {
+  var C = CNe(), box = $('d-out'), note = $('d-note');
+  box.textContent = ''; note.textContent = '';
+  if (!DRILL) { note.textContent = 'Pick a drill first.'; return; }
+  var k = DRILL.kind, D = DRILL.D, F = DRILL.F, E = C.E;
+  var near = function (a, b, tol) { return C.fabs(a - b) <= tol; };
+  var v = function (ok) { return ok ? 'CORRECT' : 'not right'; };
+  var vrow = function (label, shown, ok) { return [label, shown + ' ' + v(ok), ok ? 'good' : 'bad']; };
+  var ang = function (id) { var x = C.parse_ang($(id).value); return (x === 'ERR' ? NaN : x); };
+  var num = function (id) { return parseFloat($(id).value); };
+  var css = function (n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
+  };
+  /*  AN EMPTY BOX IS NOT A WRONG ANSWER. Marked as one it came out as
+      "Your Ho  NaN 0NaN'  not right", which is a formatter's reply to a
+      question nobody asked. Every field this kind wants is checked for a
+      number first, and the drill says which one is missing.  */
+  var missing = [];
+  DRILL_FIELDS[k].forEach(function (fl) {
+    var raw = ($(fl[0]) || { value: '' }).value.trim();
+    var val = /^(d-a1|d-a2)$/.test(fl[0]) ? raw : raw;
+    if (val === '') { missing.push(fl[1]); return; }
+    var parsed = (k === 'int' || (k === 'full' && fl[0] === 'd-a1') ||
+                  (k === 'red' && fl[0] === 'd-a2') || (k === 'full' && fl[0] === 'd-a2'))
+                 ? parseFloat(val) : C.parse_ang(val);
+    if (parsed === 'ERR' || isNaN(parsed)) missing.push(fl[1]);
+  });
+  if (missing.length) {
+    note.textContent = (missing.length === 1 ? 'That is not a number I can read: '
+                                             : 'Those are not numbers I can read: ') +
+      missing.join(', ') + '.';
+    return;
+  }
+
+  var ok = true, rows, g1, g2, n1, n2;
+
+  if (k === 'corr') {
+    var ch = drillChain(C, D);
+    g1 = ang('d-a1');
+    ok = near(g1, ch.ho, 0.3 / 60.0);
+    box.appendChild(kvTable([vrow('Your Ho', C.fmt_dm(g1, 2), ok)]));
+    box.appendChild(mk('h3', null, 'The chain, part by part'));
+    box.appendChild(kvTable(ch.rows));
+    box.appendChild(mk('p', 'note', 'The correct Ho is ' + C.fmt_dm(ch.ho, 2) + '.'));
+  } else if (k === 'alm') {
+    g1 = ang('d-a1'); g2 = ang('d-a2');
+    n1 = near(C.nrm180(g1 - D.GHA), 0, 1.0 / 60.0);
+    n2 = near(g2, D.DEC, 0.5 / 60.0);
+    ok = n1 && n2;
+    box.appendChild(kvTable([vrow('Your GHA', dm3(g1), n1), vrow('Your Dec', ddm(g2, true), n2)]));
+    rows = [['GHA', dm3(D.GHA)], ['Declination', ddm(D.DEC, true)]];
+    if (D.SD > 0) rows.push(['SD', f1(D.SD) + "' HP " + f1(D.HP) + "'"]);
+    box.appendChild(mk('h3', null, D.NAME + ' at ' + D.UTC + ' UT'));
+    box.appendChild(kvTable(rows));
+  } else if (k === 'red') {
+    g1 = ang('d-a1'); g2 = num('d-a2');
+    n1 = near(g1, D.HC, 0.3 / 60.0);
+    n2 = near(C.nrm180(g2 - D.ZN), 0, 0.6);
+    ok = n1 && n2;
+    box.appendChild(kvTable([vrow('Your Hc', C.fmt_dm(g1, 2), n1),
+                             vrow('Your Zn', f1(g2) + ' T', n2)]));
+    box.appendChild(mk('h3', null, 'The working'));
+    box.appendChild(kvTable([
+      ['LHA = GHA + longitude', dm3(D.GHA) + ' + (' + ddm(D.LON, false) + ') = ' + dm3(D.LHA)],
+      ['Hc', C.fmt_dm(D.HC, 2)],
+      ['Zn', f1(D.ZN) + ' T', 'tot']
+    ]));
+    box.appendChild(mk('pre', 'lp-pre', 'sin Hc = sin(' + f(D.LAT, 4) + ') sin(' + f(D.DEC, 4) +
+      ')\n       + cos(' + f(D.LAT, 4) + ') cos(' + f(D.DEC, 4) + ') cos(' + f(D.LHA, 4) + ')'));
+  } else if (k === 'int') {
+    g1 = num('d-a1');
+    n1 = near(C.fabs(g1), C.fabs(D.OFF), 0.5);
+    n2 = ((g1 >= 0) === (D.OFF >= 0));
+    ok = n1 && n2;
+    box.appendChild(kvTable([vrow('Your intercept',
+      f1(C.fabs(g1)) + ' nm ' + (g1 >= 0 ? 'toward' : 'away'), ok)]));
+    box.appendChild(kvTable([
+      ['Ho − Hc', C.fmt_dm(D.HO, 2) + ' − ' + C.fmt_dm(D.HC, 2)],
+      ['which is', f1(C.fabs(D.OFF)) + "' = " + f1(C.fabs(D.OFF)) + ' nm ' +
+         (D.OFF >= 0 ? 'TOWARD' : 'AWAY'), 'tot']
+    ]));
+    box.appendChild(mk('p', 'note', 'Ho the greater means you are nearer the body: plot toward it.'));
+  } else if (k === 'full') {
+    var ch2 = drillChain(C, D);
+    g1 = num('d-a1'); g2 = num('d-a2');
+    n1 = near(C.fabs(g1), C.fabs(D.OFF), 0.8) && ((g1 >= 0) === (D.OFF >= 0));
+    n2 = near(C.nrm180(g2 - D.ZN), 0, 1.0);
+    ok = n1 && n2;
+    box.appendChild(kvTable([
+      vrow('Your intercept', f1(C.fabs(g1)) + ' nm ' + (g1 >= 0 ? 'toward' : 'away'), n1),
+      vrow('Your azimuth', f1(g2) + ' T', n2)
+    ]));
+    box.appendChild(mk('h3', null, 'The chain, part by part'));
+    box.appendChild(kvTable(ch2.rows));
+    box.appendChild(kvTable([
+      ['GHA', dm3(D.GHA) + ' Dec ' + ddm(D.DEC, true) + ' LHA ' + dm3(D.LHA)],
+      ['Hc', C.fmt_dm(D.HC, 2) + ' Zn ' + f1(D.ZN) + ' T'],
+      ['Intercept = Ho − Hc', f1(C.fabs(D.OFF)) + ' nm ' +
+         (D.OFF >= 0 ? 'TOWARD' : 'AWAY'), 'tot']
+    ]));
+    box.appendChild(mk('h3', null, 'Your line of position'));
+    var host = mk('div', 'walkfig');
+    box.appendChild(host);
+    window.CELPLOT.draw('http://www.w3.org/2000/svg', host,
+      { ok: false, n: 1, N: 0, E: 0,
+        lops: [{ zn: D.ZN, intercept: D.OFF, name: 'a' }] }, { css: css });
+  } else if (k === 'fix') {
+    var la = ang('d-a1'), lo = ang('d-a2');
+    var d = Math.sqrt(Math.pow((la - F.FIXLAT) * 60, 2) +
+                      Math.pow(C.nrm180(lo - F.FIXLON) * 60 * C.cosd(F.LAT), 2));
+    ok = (d <= 2.0);
+    box.appendChild(kvTable([vrow('Your fix',
+      ddm(la, true) + '  ' + ddm(lo, false) + ' out by ' + f1(d) + ' nm', ok)]));
+    box.appendChild(kvTable([
+      ['Fix', ddm(F.FIXLAT, true) + '   ' + ddm(F.FIXLON, false), 'tot'],
+      ['from the DR', f1(C.fabs(F.SOL_N)) + ' nm ' + (F.SOL_N >= 0 ? 'N' : 'S') + ', ' +
+         f1(C.fabs(F.SOL_E)) + ' nm ' + (F.SOL_E >= 0 ? 'E' : 'W')]
+    ]));
+    box.appendChild(mk('h3', null, 'The plot'));
+    var host2 = mk('div', 'walkfig');
+    box.appendChild(host2);
+    window.CELPLOT.draw('http://www.w3.org/2000/svg', host2,
+      { ok: true, n: 3, N: F.SOL_N, E: F.SOL_E,
+        lops: F.Z.map(function (z, i) {
+          return { zn: z, intercept: F.P[i], name: 'abc'.charAt(i) };
+        }) }, { css: css });
+  }
+
+  /*  the verdict last and plainly, because that is what the reader came
+      for, and in the colour the shell uses  */
+  box.insertBefore(mk('h3', ok ? 'good' : 'warn', ok ? 'Correct.' : 'Not right.'), box.firstChild);
+}
+
 var views = {
   home:    { el: 'v-home',    title: 'celnav' },
   camera:  { el: 'v-camera',  title: 'Camera sight' },
@@ -1634,6 +1935,7 @@ var views = {
   tables:  { el: 'v-tables',  title: 'Pub. 249' },
   sandbox: { el: 'v-sandbox', title: 'The navigational triangle' },
   walk:    { el: 'v-walk',    title: 'Walkthrough' },
+  drill:   { el: 'v-drill',   title: 'Drills' },
   learn:   { el: 'v-learn',   title: 'Learn' }
 };
 function go(name) {
@@ -1652,6 +1954,7 @@ function go(name) {
   if (name === 'tables') tablesInit();
   if (name === 'sandbox') sandboxInit();
   if (name === 'walk') walkInit();
+  if (name === 'drill') drillInit();
   remember('view', name);
 }
 
@@ -1694,6 +1997,13 @@ document.addEventListener('DOMContentLoaded', function () {
   $('c-go').addEventListener('click', compassShow);
   ['c-lat', 'c-lon', 'c-date', 'c-time', 'c-body', 'c-brg', 'c-var']
     .forEach(function (id) { $(id).addEventListener('change', compassShow); });
+  $('d-new').addEventListener('click', function () {
+    $('d-seed').value = String(1 + Math.floor(Math.random() * 9000));
+    drillNew();
+  });
+  $('d-kind').addEventListener('change', drillNew);
+  $('d-seed').addEventListener('change', drillNew);
+  $('d-mark').addEventListener('click', drillMark);
   $('walk-prev').addEventListener('click', function () { WALK_AT--; walkShow(); });
   $('walk-next').addEventListener('click', function () { WALK_AT++; walkShow(); });
   ['sb-lat', 'sb-dec', 'sb-lha'].forEach(function (id) {
