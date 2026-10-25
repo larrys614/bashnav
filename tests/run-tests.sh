@@ -1095,12 +1095,47 @@ WXLOG
   #     build shipped without bumping the cache reaches nobody who has
   #     opened the page before -- which is exactly what happened: Larry
   #     reloaded repeatedly against colregs-v1, which had never moved.
-  cb=$(sed -n 's/.*var BUILD = \([0-9][0-9]*\).*/\1/p' docs/web/colregs/colregs.js | head -1)
-  cc=$(sed -n "s/.*CACHE = 'colregs-v\([0-9][0-9]*\)'.*/\1/p" docs/web/colregs/sw.js | head -1)
-  if [ -n "$cb" ] && [ "$cb" = "$cc" ]; then
-    ok "colregs web build $cb and cache colregs-v$cc agree"
+  #
+  #     THIS WAS WRITTEN FOR COLREGS ALONE, and drill later got its own
+  #     copy of it, and the fault then happened twice more in the two
+  #     apps that had neither: celnav shipped a sight-reduction screen and
+  #     two arithmetic fixes at celnav-v3 while displaying "build 8", and
+  #     weather shipped at weather-v3 displaying "build 2". Larry found
+  #     both the only way they can be found - by opening the app and
+  #     seeing the old one. So it runs over EVERY app now. A check written
+  #     for one tool, when the fault class belongs to all of them, is a
+  #     check that will be needed again somewhere it is not.
+  bc=0
+  for swf in docs/web/*/sw.js; do
+    ad=$(dirname "$swf"); an=$(basename "$ad")
+    ac=$(sed -n "s/.*CACHE = '$an-v\([0-9][0-9]*\)'.*/\1/p" "$swf" | head -1)
+    af=$(grep -l 'BUILD *=' "$ad"/*.js 2>/dev/null | head -1)
+    if [ -z "$ac" ]; then bad "$an: no $an-v<n> cache version in sw.js"; bc=1; continue; fi
+    if [ -z "$af" ]; then bad "$an: no BUILD constant to compare with $an-v$ac"; bc=1; continue; fi
+    ab=$(sed -n "s/.*BUILD *= *'*\([0-9][0-9]*\).*/\1/p" "$af" | head -1)
+    if [ -z "$ab" ] || [ "$ab" != "$ac" ]; then
+      bad "$an build '$ab' and cache '$an-v$ac' disagree -- an installed copy would keep the old app"
+      bc=1
+    fi
+  done
+  [ "$bc" = 0 ] && ok "every web app's displayed build matches its cache version (6 apps)"
+
+  #  and the version agreeing with the BUILD label is not enough: the
+  #  label can be bumped while a served file is left out of the bump, or
+  #  a file can change in a later commit that touches nothing else. This
+  #  compares the files each worker PRECACHES against the commit that set
+  #  its current cache value - sh and git only, so once per run.
+  if [ "$AW" != "$FIRSTAWK" ]; then :
   else
-    bad "colregs web build '$cb' and cache 'colregs-v$cc' disagree -- an installed copy would keep the old app"
+    if o=$(sh tests/sw-cache-check.sh 2>&1); then
+      case "$o" in
+        *"SWCACHE SKIP"*) say "  --    comparing served files to the cache bump needs a git checkout" ;;
+        *) ok "every served file has reached its app's cache since the last bump" ;;
+      esac
+    else
+      printf '%s\n' "$o" | grep -v '^SWCACHE'
+      bad "a served file changed without its app's cache version moving"
+    fi
   fi
 
   # ---- every service worker evicts only its own caches ---------------
@@ -1171,19 +1206,10 @@ WXLOG
   fi
 
   # ---- the drill app ------------------------------------------------
-  #  1. BUILD AND THE CACHE AGREE, the same check colregs has, for the
-  #     same reason: the worker is cache-first, so a changed drill.js
-  #     reaches nobody unless the cache version moves. drill had no such
-  #     check at all.
-  db=$(sed -n "s/.*var BUILD = '\([0-9][0-9]*\).*/\1/p" docs/web/drill/drill.js | head -1)
-  dc=$(sed -n "s/.*CACHE = 'drill-v\([0-9][0-9]*\)'.*/\1/p" docs/web/drill/sw.js | head -1)
-  if [ -n "$db" ] && [ "$db" = "$dc" ]; then
-    ok "drill web build $db and cache drill-v$dc agree"
-  else
-    bad "drill web build '$db' and cache 'drill-v$dc' disagree -- an installed copy would keep the old app"
-  fi
-
-  #  2. EVERY MARK THE CODE SETS HAS A COLOUR.  Larry, after putting the
+  #  drill's BUILD-and-cache check has gone: it was a second copy of the
+  #  colregs one, and both are now the loop over every app above.
+  #
+  #  1. EVERY MARK THE CODE SETS HAS A COLOUR.  Larry, after putting the
   #     last two steps of the hoist the wrong way round: "I got the order
   #     wrong, but it gave me all green." He had, and it was scored
   #     wrong -- but the rows he placed carried no mark and there was no

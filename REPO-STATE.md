@@ -355,6 +355,27 @@ store. A service worker's *scope* is per-path, though, which is why
 loaded from `../deck-log/` — out of scope they would not be cached and the tool
 would not work offline, which is the entire point.
 
+### Three apps were shipping to nobody
+
+Every app's worker is cache-first with no revalidation, so bumping `CACHE` is
+the only way an installed copy ever sees new files. Three had not been bumped:
+
+| app | was | served files that never reached an install |
+|---|---|---|
+| `celnav` | `celnav-v3`, displaying "build 8" | the sight-reduction screen, the 43 nm fix, the planets' parallax |
+| `colregs` | `colregs-v10` | `colregs.js` |
+| `weather` | `weather-v3`, displaying "build 2" | `weather.js`, `lessons.js` |
+
+All three are bumped, and every app's displayed build now equals its cache
+version so the number you read answers the question you are asking.
+
+The check for this existed — for `colregs` only, written after Larry reloaded
+against `colregs-v1` for an afternoon, and later copied for `drill`. It is one
+loop over all six apps now, plus `tests/sw-cache-check.sh`, which compares the
+files each worker precaches against the commit that set its cache value. A
+`BUILD` label can be bumped while a served file is left out of the bump; the
+label check cannot see that and this one can.
+
 ### One escaper for every generator
 
 Nine generators — celnav, four colregs files, three weather, deck-log, plus

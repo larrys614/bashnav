@@ -53,6 +53,7 @@ content changes.
 | `fnparam-check.awk` | a function parameter shadowing a function name (mawk will not parse it) |
 | `fields-check.awk` | a table field containing its own separator (a `;` in an option cut an answer in half) |
 | `jsonesc-check.awk` | the generators' JS/JSON escaper, held to a literal answer per awk &mdash; one mawk build emitted one backslash where the rest emit two |
+| `sw-cache-check.sh` | a served file that changed without its app's service-worker cache version moving &mdash; an installed copy would never receive it |
 | `svg-check.awk` | an SVG that is not an exact character grid |
 | `readme-check.awk` | unclosed fences, unbalanced `<details>`, `<img>` inside a fence or pointing at nothing |
 | `plates-check.sh` | every plate and picture the site shows, against what the program produces &mdash; per awk, so awk-dependent site output fails |
@@ -170,6 +171,37 @@ The same sweep found two more gaps of the ordinary kind: `weather`'s and
 `deck-log`'s generators had no regenerate-and-compare at all, and
 `docs/web/weather/lessons.js` had gone stale — the committed file was missing a
 passage of the Coriolis lesson that `src/weather` prints. Both are compared now.
+
+### A check written for one tool, when the fault belongs to all of them
+
+Every app's service worker is cache-first with no revalidation, so a file
+already in the cache is served from it for ever. The cache is only refilled
+when `install` runs, and `install` only runs when the worker changes — in
+practice when `CACHE` is bumped. **An app on somebody's home screen therefore
+keeps the old version indefinitely, with no error and nothing to see.**
+
+This happened to `colregs` first — Larry reloaded repeatedly against
+`colregs-v1`, which had never moved — and a check was added comparing
+`colregs.js`'s `BUILD` to the cache version. `drill` later got a second copy of
+that check. Then it happened twice more, in the two apps that had neither:
+`celnav` shipped a sight-reduction screen and two arithmetic fixes at
+`celnav-v3` while displaying "build 8", and `weather` shipped at `weather-v3`
+displaying "build 2". Larry found both the only way they can be found — by
+opening the app and seeing the old one.
+
+Two checks now, because the first does not imply the second:
+
+1. **Every app's displayed build matches its cache version**, as one loop over
+   all six rather than a copy per tool.
+2. **`sw-cache-check.sh`** compares the files each worker *precaches* against
+   the commit that set its current cache value. A `BUILD` label can be bumped
+   while a served file is left out of the bump, or a file can change in a later
+   commit that touches nothing else, and the first check sees neither.
+
+The second treats a cache value with no commit in history as an *uncommitted
+bump* and passes it: nothing can have changed since a bump that is happening
+now. Its first draft failed there, which would have meant a red suite for every
+correct bump until it was committed.
 
 ---
 
