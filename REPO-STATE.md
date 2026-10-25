@@ -364,6 +364,8 @@ browser suites need `node`, `python3` and a headless Chromium, so they live in
     sh docs/web/tests/run-tides-web.sh [--full]
     sh docs/web/tests/run-decklog-web.sh
     sh docs/web/tests/run-weather-web.sh
+    sh docs/web/tests/run-drill-web.sh
+    sh docs/web/tests/run-celnav-web.sh [--full]
 
 Nothing in them is checked against a number somebody typed. Every reference
 value is **emitted by running the awk engine**, and the harnesses load the
@@ -388,13 +390,42 @@ Both sides of a module diff happily used UT midnight.
    the submarine took the tables to 22, and the give-way calls to 73. That one
    `run-tests.sh` was already reporting.
 
-### And two in the harnesses, the same mistake twice
+### Two faults in the browser celnav, found the day its harness was written
+
+Both were in the port, not in the shell, and both had survived because the
+port had only ever been checked a function at a time.
+
+1. **The fix was `solve_fix()`'s first pass.** `solve_fix()` linearises the
+   reduction about the position it is handed. From a live DR the first pass is
+   right to 0.02 nm; from a DR five degrees stale it is **43 nm out**, and the
+   camera flow had been reading it since it was written. `cmd_fix()` in the
+   shell never had the bug — it re-reduces from its own answer until the
+   correction falls under 0.02 nm. Every per-sight number the page showed was
+   correct, so nothing looked wrong.
+2. **The planets' horizontal parallax was zero**, under a comment claiming the
+   awk multiplied it by zero. It does not. 0.08' on a Venus sight at 14°.
+
+The convergence loop is now `converge_fix()` in `engine.awk`, called by both
+`cmd_reduce()` and the harness, so the test cannot agree with a second copy of
+itself. `docs/web/tests/run-celnav-web.sh` runs 21,468 comparisons per 400
+generated cases under every awk on the machine, then types five scenarios into
+the real page and checks the fix it *shows* against the shell's own working.
+
+### And three in the harnesses, the same mistake three times
 
 A generated corpus can throw itself away and still pass, because both readers
 reject the same bad input. The 100,000-record deck-log run reported *22,176
 good, 77,824 bad* and passed; the valid-time check reported 276 round-trip
 failures, which is exactly the number of impossible dates in 2000–2040.
 **Check the counts, not only the agreement.**
+
+The third was the same error one level up. `celnav-ui.js` exists to catch a
+fix displayed as `35 010.0' N`; the fault was planted and the check passed,
+twice, because the zero-pad only goes wrong for minutes in **[9.95, 10)** and
+no angle in the scenario was in that window. The window is invisible in the
+output, so the harness now reads it off the input sights and **refuses to pass
+a scenario without one**. *Break it and watch it go red* is only evidence when
+the break is the one that ships.
 
 ---
 

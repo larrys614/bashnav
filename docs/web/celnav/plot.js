@@ -6,8 +6,8 @@
    intercept, and a line drawn on a plotting sheet.
 
    NOTHING IS RECOMPUTED HERE.  The arithmetic is engine2.js's solve_fix()
-   and fix_geometry(), which were diffed against the awk engine over 700
-   cases.  This file stores sights, scales a plot and draws it.  A second
+   and fix_geometry().  This file stores sights, drives the solver the way
+   cmd_fix() in engine.awk drives it, scales a plot and draws it.  A second
    implementation of the sight reduction would be a second thing to get
    wrong.
 
@@ -43,15 +43,74 @@
   function solve(CN, aLat, aLon, speed, course) {
     if (!SIGHTS.length) return null;
     var fixjd = SIGHTS[SIGHTS.length - 1].jd;
-    var r = CN.solve_fix(SIGHTS, fixjd, speed || 0, course || 0, aLat, aLon, 1);
+    speed = speed || 0; course = course || 0;
+    var cl = function (la) {
+      var c = CN.cosd(la);
+      return (CN.fabs(c) < 0.02) ? 0.02 : c;
+    };
+
+    /* First pass, from the navigator's own DR.  This is the working that
+       gets shown - each sight's assumed position, Hc, Zn and intercept are
+       measured from the DR, which is what a paper sight form holds. */
+    var r = CN.solve_fix(SIGHTS, fixjd, speed, course, aLat, aLon, 1);
     var out = { lops: r.sights, ok: r.ok, N: r.N, E: r.E, n: SIGHTS.length };
-    if (r.ok && SIGHTS.length >= 2) {
-      out.geom = CN.fix_geometry(1.0);
-      var cosl = Math.cos(aLat * Math.PI / 180);
-      if (Math.abs(cosl) < 0.02) cosl = 0.02;
-      out.lat = aLat + r.N / 60.0;
-      out.lon = aLon + r.E / (60.0 * cosl);
+    if (!r.ok || SIGHTS.length < 2) return out;
+
+    /* ---- THE FIX IS NOT THE FIRST PASS ------------------------------
+       solve_fix() linearises the sight reduction about the position it is
+       handed, so its offset is only as good as that position.  A DR close
+       to the truth gives an answer good to a few hundredths of a mile; a
+       DR that is hours stale does not.  Measured against the shell with
+       the three-star example at 35 00 N 040 00 W: from that DR the first
+       pass is 0.02 nm out, from 34 00 N 042 00 W it is 2.4 nm out, and
+       from 30 00 N 048 00 W it is 43.2 nm out - while the converged
+       answer is 35 10.3'N 040 19.7'W from all three.
+
+       So the fix is the converged answer, re-reduced from each result
+       until it stops moving.  This mirrors cmd_fix() in engine.awk line
+       for line, including the 0.02 nm stop and the cap of six passes.
+
+       This file shipped with the first pass as the fix, and the camera
+       flow has been reading sol.lat/sol.N from it since it was written.
+       The per-sight numbers were right the whole time, which is why
+       nothing looked wrong: the error lives only in the fix, and only
+       grows when the DR is poor - exactly when a navigator needs it.
+       ------------------------------------------------------------------ */
+    var latf = aLat + r.N / 60.0, lonf = aLon + r.E / (60.0 * cl(aLat));
+    var lat1 = latf, lon1 = lonf, f = r, it;
+    for (it = 0; it < 6; it++) {
+      f = CN.solve_fix(SIGHTS, fixjd, speed, course, latf, lonf, 0);
+      if (!f.ok) break;
+      /*  cosl comes off latf BEFORE it is advanced, which is the order
+          cmd_fix uses.  Taking it after costs about 0.02 nm, and the diff
+          harness caught exactly that when this was first written.  */
+      var ck = cl(latf);
+      latf = latf + f.N / 60.0;
+      lonf = lonf + f.E / (60.0 * ck);
+      if (Math.sqrt(f.N * f.N + f.E * f.E) < 0.02) break;
     }
+    out.shift = Math.sqrt(Math.pow(latf - lat1, 2) +
+                          Math.pow((lonf - lon1) * CN.cosd(aLat), 2)) * 60;
+    out.N = (latf - aLat) * 60.0;
+    out.E = CN.nrm180(lonf - aLon) * 60.0 * CN.cosd(aLat);
+    out.lat = latf;
+    out.lon = (lonf > 180) ? lonf - 360 : (lonf < -180) ? lonf + 360 : lonf;
+
+    /* One more reduction AT the fix, which is where the residuals and the
+       error ellipse belong: how far each LOP misses the answer, not how
+       far it missed the DR.  The shell does the same, and takes its
+       normal matrix from this pass too. */
+    var fin = CN.solve_fix(SIGHTS, fixjd, speed, course, latf, lonf, 0);
+    out.geom = CN.fix_geometry(1.0);
+    out.resid = [];
+    var rms = 0, i;
+    for (i = 0; i < fin.pp.length; i++) {
+      var res = fin.pp[i] - (fin.N * CN.cosd(fin.zn[i]) +
+                             fin.E * CN.sind(fin.zn[i]));
+      out.resid.push(res);
+      rms += res * res;
+    }
+    out.rms = Math.sqrt(rms / fin.pp.length);
     return out;
   }
 

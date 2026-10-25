@@ -350,6 +350,19 @@ the network lint was silently overwritten, because `run-tests.sh` rebuilds
 > test was disabled. The ranking test used Boston, where alphabetical order
 > already gives the right answer; it uses Falmouth now, where it does not.
 
+**And the probe has to reach the fault's actual window.** `celnav-ui.js`
+compares the fix the page shows against the fix the shell prints, to catch a
+zero-pad that was decided from the minutes *before* `toFixed(1)` rounded them —
+`35 010.0' N`. Planted the fault; the check passed. The scenario's angles were
+`01.3'` and `10.3'`, and the buggy code is right at both: it only goes wrong
+for minutes in **[9.95, 10)**, which print as `10.0` but are below 10 before
+rounding. Widening the scenario was not enough either, because the window is
+invisible in the output — `10.0` is `10.0` whichever side it came from. So the
+harness now reads it off the **input** sights, where it is knowable, and
+*refuses to pass* a scenario that does not contain one. A check whose
+triggering condition you cannot demonstrate is not a check, and "I broke it and
+it went red" is only evidence if the break was the one that ships.
+
 ### Do not put working files in `/tmp` on iOS
 
 `deck-log` and `weather` built each record in `${TMPDIR:-/tmp}`. iOS gives an app
@@ -374,6 +387,35 @@ typed twice.
 
 **A stray 45-byte `bashnav.tar.gz` was committed by accident.** `*.tar.gz` is
 in `.gitignore` now.
+
+### A port can get every piece right and still be wrong
+
+**The browser's fix used `solve_fix()`'s first pass.** `solve_fix()` linearises
+the sight reduction about the position it is handed, so its offset is only as
+good as that position. From a live DR it is right to 0.02 nm; from a DR five
+degrees stale it is **43 nm out**. The shell never had this — `cmd_fix()`
+re-reduces from its own answer until the correction falls under 0.02 nm — and
+`plot.js` carried a header saying nothing was recomputed there, which was true
+and beside the point: what it got wrong was the *driving* of the solver, not the
+arithmetic. `body_at()`, `corrections()` and `reduce_sight()` agreed with the
+awk to nine decimals the whole time, so every number on the screen was right
+except the one a navigator plots, and only when the DR was poor — which is when
+you take sights.
+
+> A module diff proves the arithmetic. Only a whole case, from a spread of
+> starting positions, proves the answer. And the loop that drives the solver
+> belongs in **one** place: `converge_fix()` now lives in `engine.awk` and both
+> `cmd_reduce()` and the harness call it, because a convergence retyped into a
+> test agrees with itself.
+
+**The planets' horizontal parallax was zero in the JS**, under a comment
+claiming the awk multiplied it by zero. The awk does not — `planet_pos()` sets
+`P_HP = 0.14656667/d`, with a paragraph above it arguing for applying it to all
+four planets rather than to the two the almanac tabulates. 0.08' on a Venus
+sight at 14°, more when she is close. The rule for this port is *data lifted,
+never retyped*; this was retyped, got it wrong, and then wrote the mistake down
+as if it were the source. **A comment asserting what the other implementation
+does is worth nothing — go and read it.**
 
 ---
 

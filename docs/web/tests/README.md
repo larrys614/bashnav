@@ -24,7 +24,39 @@ cannot pass.
 | `tides-diff.js`  | the same quantities out of the JS engine, compared |
 | `tides-ui.js`    | drives the page and checks what it *shows* against `tides today` |
 | `tides-moon.js`  | re-draws the moon path into a canvas and counts the lit pixels |
+| `celnav-ref.awk` | generates whole sight cases and dumps the awk's reduction and fix |
+| `celnav-diff.js` | the same cases through the shipped browser engine, compared |
+| `celnav-ui.js`   | types sights into the page and checks the fix it *shows* |
 | `serve.py`       | a static server that honours `Range`, which Python's own does not |
+
+## Why celnav's cases are whole and not pieces
+
+Every piece of celnav's browser reduction had been diffed and every piece
+agreed: `body_at()`, `corrections()` and `reduce_sight()` match the awk to
+nine decimals and did before `celnav-ref.awk` existed. Two faults shipped
+anyway, and neither lived in a piece.
+
+`plot.js` used `solve_fix()`'s **first pass** as the fix. `solve_fix()`
+linearises the sight reduction about the position it is handed, so its
+offset is only as good as that position: right to 0.02 nm from a live DR,
+**43 nm out** from a DR five degrees away. The shell never had the bug —
+`cmd_fix()` re-reduces from its own answer until it stops moving — and
+every per-sight number the browser showed was correct, which is exactly
+why nothing looked wrong. The one number a navigator plots was the one
+that was wrong, and only in the circumstance where it matters.
+
+`engine.js` set the planets' horizontal parallax to zero, with a comment
+claiming the awk multiplied it by zero. The awk does not: `planet_pos()`
+sets `P_HP = 0.14656667/d` and argues at length for applying it to all
+four planets. 0.08' on a Venus sight at 14 degrees, more when she is close.
+
+So the reference is a whole case — a position, a time, two to five bodies,
+a DR anywhere from a mile to several hundred off — run the whole way
+through the shell's own `cmd_reduce()` path. The sights are **inverted out
+of `corrections()`** rather than invented, so each `Hs` is a reading a
+sextant would have produced, and `converge_fix()` was lifted out of
+`cmd_reduce()` so the harness compares against the shell's convergence
+instead of a second copy typed into the test.
 
 ## Why the page is tested and not only the engine
 

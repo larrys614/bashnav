@@ -285,7 +285,14 @@ function makeCelnav(T) {           // T = the dumped tables object
     aberrate();
     const ra = nrm360(atan2d(E.QY, E.QX)), dec = asind(E.QZ);
     precess_nutate(ra, dec, jdtt);
-    E.P_DIST = d; E.P_SD = 0; E.P_HP = 0;      /* awk: 0.14657/d*0 */
+    /*  The planets' horizontal parallax.  This read E.P_HP = 0 with a
+        comment claiming the awk multiplied by zero.  The awk does not:
+        planet_pos() sets P_HP = 0.14656667/d, and argues at length for
+        applying it to all four rather than only to Venus and Mars, since
+        the geometry is one formula that scales itself.  Zeroing it cost
+        0.08' on a Venus sight at 14 degrees and more when she is close -
+        found by docs/web/tests/celnav-diff.js, not by reading this.  */
+    E.P_DIST = d; E.P_SD = 0; E.P_HP = 0.14656667 / d;
     return 0;
   }
 

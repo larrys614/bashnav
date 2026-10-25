@@ -71,7 +71,7 @@ function extendCelnav(C) {
      ------------------------------------------------------------------ */
   function solve_fix(sights, fixjd, speed, course, tlat, tlon, keep) {
     let A = 0, B = 0, Cc = 0, D = 0, E2 = 0;
-    const det1 = [];
+    const det1 = [], zns = [], pps = [];
     for (const s of sights) {
       const dt = (fixjd - s.jd) * 24.0;
       const runN = speed * dt * cosd(course), runE = speed * dt * sind(course);
@@ -90,7 +90,11 @@ function extendCelnav(C) {
         run: Math.sqrt(runN * runN + runE * runE)
       };
       if (keep) det1.push(rec);
+      /*  ZN[] and PP[] in the awk are set whether or not keep is on - the
+          residual pass at the converged position asks for keep=0 and then
+          reads them.  Same here, so the two agree.  */
       const pp = (ho - E.R_HC) * 60.0;
+      zns.push(E.R_ZN); pps.push(pp);
       A += cosd(E.R_ZN) ** 2;
       B += cosd(E.R_ZN) * sind(E.R_ZN);
       Cc += sind(E.R_ZN) ** 2;
@@ -99,12 +103,13 @@ function extendCelnav(C) {
     }
     const det = A * Cc - B * B;
     E.NM_A = A; E.NM_B = B; E.NM_C = Cc; E.NM_DET = det;
-    if (fabs(det) < 1e-9) return { ok: 0, N: 0, E: 0, A, B, C: Cc, det, sights: det1 };
+    if (fabs(det) < 1e-9)
+      return { ok: 0, N: 0, E: 0, A, B, C: Cc, det, sights: det1, zn: zns, pp: pps };
     return {
       ok: 1,
       N: (D * Cc - E2 * B) / det,
       E: (A * E2 - B * D) / det,
-      A, B, C: Cc, det, sights: det1
+      A, B, C: Cc, det, sights: det1, zn: zns, pp: pps
     };
   }
 

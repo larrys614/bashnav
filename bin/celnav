@@ -2022,6 +2022,38 @@ function solve_fix(ns,tlat,tlon,keep,   i,dt,runN,runE,cosl,la,lo,ho,A,B,C,D,E2,
   return 1
 }
 
+# ---------------- the fix, converged --------------------------------
+#  solve_fix() linearises the reduction about the position it is handed,
+#  so its offset is only as good as that position: good to hundredths of
+#  a mile from a live DR, 43 nm out from one five degrees away.  So the
+#  fix is the converged answer - re-reduced from each result until it
+#  stops moving.
+#
+#  This lived inline in cmd_reduce() until the browser port needed to be
+#  held to it.  docs/web/tests/celnav-ref.awk calls THIS, so the harness
+#  compares plot.js against the shell's own convergence rather than
+#  against a second copy of it typed into the test - which is how the
+#  browser shipped with the first pass as its fix and nothing noticed.
+#
+#  Sets FIXLAT, FIXLON, FIX_N, FIX_E, FIX_SHIFT.
+function converge_fix(ns,alat,alon,dN,dE,   it,cosl,latf,lonf){
+  cosl=cosd(alat); if(fabs(cosl)<0.02) cosl=0.02
+  latf=alat+dN/60.0; lonf=alon+dE/(60.0*cosl)
+  for(it=0; it<6; it++){
+    solve_fix(ns,latf,lonf,0)
+    if(!SOL_OK) break
+    cosl=cosd(latf); if(fabs(cosl)<0.02) cosl=0.02
+    latf=latf+SOL_N/60.0; lonf=lonf+SOL_E/(60.0*cosl)
+    if(sqrt(SOL_N*SOL_N+SOL_E*SOL_E)<0.02) break
+  }
+  FIX_SHIFT = sqrt((latf-(alat+dN/60.0))^2 + ((lonf-(alon+dE/(60.0*cosd(alat))))*cosd(alat))^2)*60
+  FIX_N=(latf-alat)*60.0
+  FIX_E=nrm180(lonf-alon)*60.0*cosd(alat)
+  if(lonf>180) lonf-=360; if(lonf<-180) lonf+=360
+  FIXLAT=latf; FIXLON=lonf
+  return 1
+}
+
 # ---------------- reduce: full sight reduction and fix ---------------
 function cmd_reduce(   line,n,f,i,jd,jdf,alat,alon,dN,dE,res,rms,latf,lonf,cosl,ns,it,shift){
   ns=0
@@ -2071,19 +2103,8 @@ function cmd_reduce(   line,n,f,i,jd,jdf,alat,alon,dN,dE,res,rms,latf,lonf,cosl,
   hr()
   # ---- fix, refined by re-reducing from the first answer -------------
   if(ns>=2 && SOL_OK){
-    cosl=cosd(alat); if(fabs(cosl)<0.02) cosl=0.02
-    latf=alat+dN/60.0; lonf=alon+dE/(60.0*cosl)
-    for(it=0; it<6; it++){
-      solve_fix(ns,latf,lonf,0)
-      if(!SOL_OK) break
-      cosl=cosd(latf); if(fabs(cosl)<0.02) cosl=0.02
-      latf=latf+SOL_N/60.0; lonf=lonf+SOL_E/(60.0*cosl)
-      if(sqrt(SOL_N*SOL_N+SOL_E*SOL_E)<0.02) break
-    }
-    shift = sqrt((latf-(alat+dN/60.0))^2 + ((lonf-(alon+dE/(60.0*cosd(alat))))*cosd(alat))^2)*60
-    FIX_N=(latf-alat)*60.0
-    FIX_E=nrm180(lonf-alon)*60.0*cosd(alat)
-    if(lonf>180) lonf-=360; if(lonf<-180) lonf+=360
+    converge_fix(ns,alat,alon,dN,dE)
+    latf=FIXLAT; lonf=FIXLON; shift=FIX_SHIFT
     printf "\n%s\n", cw(sprintf("  FIX   %s   %s", fmt_lat(latf), fmt_lon(lonf)), C_ACC)
     printf "  Offset from DR: %.1f nm %s, %.1f nm %s   (%.1f nm on %03d T)\n",
       fabs(FIX_N),(FIX_N>=0?"N":"S"), fabs(FIX_E),(FIX_E>=0?"E":"W"),

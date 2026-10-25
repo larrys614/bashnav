@@ -41,12 +41,74 @@
         <span class="t-name">Camera sight</span>
         <span class="t-sub">An altitude from a photograph</span>
       </button>
+      <button class="tile" data-go="sight">
+        <span class="t-name">Sight reduction</span>
+        <span class="t-sub">Work a sight from any sextant, and cross them for a fix</span>
+      </button>
       <button class="tile" data-go="learn">
         <span class="t-name">Learn</span>
         <span class="t-sub">Thirty-three lessons, nine modules</span>
       </button>
     </nav>
     <p class="note" id="offline-note">Checking offline cache&hellip;</p>
+  </section>
+
+  <!-- ---------- sight reduction ----------
+       The tool's first purpose, and it was missing from the browser
+       entirely: an altitude could only arrive from a photograph. Every
+       piece of the arithmetic was already here and diffed -- corrections,
+       reduce_sight, solve_fix, fix_geometry -- so what this adds is the
+       way in. A sight from a metal sextant, a plastic one, or the camera
+       all become the same record. -->
+  <section class="view" id="v-sight" hidden>
+
+    <div class="card">
+      <h3>A sight</h3>
+      <div class="grid2">
+        <label>UT date<input id="s-date" type="text" inputmode="numeric" placeholder="2026-08-29"></label>
+        <label>UT time<input id="s-time" type="text" inputmode="numeric" placeholder="07:30:00"></label>
+        <label>Body<input id="s-body" type="text" list="s-bodies" placeholder="Dubhe"></label>
+        <label>Limb
+          <select id="s-limb">
+            <option value="C">centre</option>
+            <option value="L">lower</option>
+            <option value="U">upper</option>
+          </select>
+        </label>
+        <label>Hs sextant altitude<input id="s-hs" type="text" inputmode="decimal" placeholder="19 32.1"></label>
+        <label>Index error, &prime; (+ on the arc)<input id="s-ie" type="text" inputmode="decimal" placeholder="0"></label>
+        <label>Height of eye, m<input id="s-he" type="text" inputmode="decimal" placeholder="3"></label>
+        <label>Temp &deg;C<input id="s-tm" type="text" inputmode="decimal" placeholder="10"></label>
+        <label>Pressure hPa<input id="s-pr" type="text" inputmode="decimal" placeholder="1010"></label>
+      </div>
+      <datalist id="s-bodies"></datalist>
+      <button class="btn btn-big" id="s-add">Work this sight</button>
+      <p class="note" id="s-note"></p>
+      <div id="s-corr"></div>
+    </div>
+
+    <div class="card">
+      <h3>Assumed position</h3>
+      <div class="grid2">
+        <label>Latitude<input id="s-alat" type="text" placeholder="35 00 N"></label>
+        <label>Longitude<input id="s-alon" type="text" placeholder="040 00 W"></label>
+        <label>Course made good<input id="s-crs" type="text" inputmode="decimal" placeholder="0"></label>
+        <label>Speed, knots<input id="s-spd" type="text" inputmode="decimal" placeholder="0"></label>
+      </div>
+      <p class="note">A running fix advances each earlier sight for the run between it and the last.</p>
+    </div>
+
+    <div class="card">
+      <h3>Sights kept</h3>
+      <div id="s-list"></div>
+      <button class="btn" id="s-clear">Clear them all</button>
+    </div>
+
+    <div class="card">
+      <h3>The fix</h3>
+      <div id="s-fix"></div>
+      <div id="s-sheet"></div>
+    </div>
   </section>
 
   <!-- ---------- learn ---------- -->

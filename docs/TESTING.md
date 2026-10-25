@@ -94,6 +94,24 @@ The fixture is committed, so the check runs offline like everything else.
 > **Invented reference data in a validation test is worse than no test.** If
 > you cannot fetch the reference, do not write the check.
 
+### The exception: a port, where the awk *is* the published answer
+
+`docs/web/tests/` compares the browser builds against the awk engines, which is
+a comparison against another implementation and would be worthless for the
+physics — so it is never used for the physics. It is used for *sameness*: the
+awk tool is the thing that was validated against NOAA and against the
+Convention, the browser is a port of it, and the only question is whether the
+port says the same thing.
+
+That question is answered on **whole cases**, not on functions. celnav's
+browser fix was 43 nm wrong from a stale DR while every function in it agreed
+with the awk to nine decimals, because what it got wrong was the loop that
+drives them. `docs/web/tests/celnav-ref.awk` therefore generates a position, a
+time, two to five bodies and a DR up to several hundred miles off, inverts each
+`Hs` out of `corrections()` so the sights are readings rather than inventions,
+and runs the shell's own `cmd_reduce()` path over them — 21,468 comparisons per
+400 cases, under every awk on the machine.
+
 ---
 
 ## Golden files
