@@ -149,8 +149,15 @@ const FIGURES = [
         [['Dubhe', '07:30:00', '19 32.1'], ['Bellatrix', '07:34:00', '49 37.2'],
          ['Markab', '07:38:00', '29 01.3']].forEach(([body, t, hs]) => {
           const utc = '2026-08-29 ' + t;
+          /*  THE PROJECT'S WORKED EXAMPLE, index error and height of eye
+              included: 1.5' on the arc and 3.0 m, which is what README.md
+              and docs/make-site.sh both use. Captured with ie 0 and he
+              2.5 the picture was right but disagreed with the shell
+              output printed beside it in the README - intercepts of
+              3.3, 17.2 and 18.0 against the text's 1.5, -19.0 and 16.2.
+              A figure and the words next to it have to be the same run.  */
           window.CELPLOT.add({ body, utc, jd: C.parse_utc(utc), hs: C.parse_ang(hs),
-                               ie: 0, he: 2.5, tm: 10, pr: 1010, limb: 'C' });
+                               ie: 1.5, he: 3.0, tm: 10, pr: 1010, limb: 'C' });
         });
       });
       await p.fill('#s-alat', '35 00 N');
@@ -243,15 +250,23 @@ const FIGURES = [
       await p.fill('#s-time', '07:30:00');
       await p.fill('#s-body', 'Dubhe');
       await p.fill('#s-hs', '19 32.1');
-      await p.fill('#s-he', '2.5');
+      await p.fill('#s-ie', '1.5');
+      await p.fill('#s-he', '3.0');
       await p.evaluate(() => {
         const C = extendCelnav(makeCelnav(window.CELNAV_TABLES));
         window.CELPLOT.clear();
         [['Dubhe', '07:30:00', '19 32.1'], ['Bellatrix', '07:34:00', '49 37.2'],
          ['Markab', '07:38:00', '29 01.3']].forEach(([body, t, hs]) => {
           const utc = '2026-08-29 ' + t;
+          /*  THE PROJECT'S WORKED EXAMPLE, index error and height of eye
+              included: 1.5' on the arc and 3.0 m, which is what README.md
+              and docs/make-site.sh both use. Captured with ie 0 and he
+              2.5 the picture was right but disagreed with the shell
+              output printed beside it in the README - intercepts of
+              3.3, 17.2 and 18.0 against the text's 1.5, -19.0 and 16.2.
+              A figure and the words next to it have to be the same run.  */
           window.CELPLOT.add({ body, utc, jd: C.parse_utc(utc), hs: C.parse_ang(hs),
-                               ie: 0, he: 2.5, tm: 10, pr: 1010, limb: 'C' });
+                               ie: 1.5, he: 3.0, tm: 10, pr: 1010, limb: 'C' });
         });
       });
       await p.fill('#s-alat', '35 00 N');

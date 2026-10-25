@@ -63,7 +63,7 @@ and decide whether to believe it.
     c Markab     Zn 269 T   intercept from DR   16.2   residual  +0.01
 ```
 
-<img src="docs/img/celnav-plot.svg" alt="The intercept plot: three star sights, their lines of position, the fix and its error ellipse" width="675">
+<img src="docs/img/app/celnav-plot.svg" alt="The plotting sheet the app draws: the assumed position at the centre, a labelled line of position for each of the three sights, and the fix where they cross" width="675">
 
 ### An encounter, and what you do about it
 
@@ -72,14 +72,20 @@ which rule decided it — and only then gives you the bearing as a number, so th
 number cannot give the answer away.
 
 ```
-  A is right -- Rule 18
-  She is a power-driven vessel and you are under sail, so she keeps clear.
-  Stand on - but keep watching, and be ready to act under Rule 17 if she
-  does nothing.
-  (she bore 340 relative -- Red 20)
+  You are a 12 m yacht under sail, crossing a traffic separation scheme.
+  You see a container ship following the lane, broad on your starboard bow,
+  heading as drawn.
+
+  Right - the answer is B.   Rule 10.
+  Rule 10(j): a vessel under 20 metres or a sailing vessel shall not impede
+  the safe passage of a power-driven vessel following a traffic lane. And
+  Rule 10(c) says cross on a heading as nearly as practicable at right
+  angles to the flow - heading, not ground track, because a beam-on aspect
+  is what makes you visible and predictable.
+  (she bore 051 relative -- Green 51.)
 ```
 
-<img src="docs/img/colregs-scenario.svg" alt="An encounter scenario drawn head-up, with the contact's heading and the wind" width="675">
+<img src="docs/img/app/colregs-encounter.svg" alt="The encounter drawn head-up: your own vessel at the centre, the container ship on her bearing with her heading shown, and the range rings between you" width="675">
 
 ### Does she pass ahead of you, or astern?
 
@@ -107,6 +113,13 @@ only readable once you have changed down.
   "Master 2, bearing 186, Red 58, drawing left, range 4,700,
    CPA 2,500 at 18 minutes."
 ```
+
+<img src="docs/img/app/colregs-contacts.svg" alt="A relative-motion plot on the twelve mile radar scale: five marks three minutes apart running in toward own ship, with the closest point of approach marked" width="560">
+
+That plot is a different contact from the report above — five marks closing to a
+hundred yards astern, on the 12 mile scale, which is the smallest scale that
+still holds her. Changing down is the whole point: on a 24 mile picture those
+five marks sit on top of one another and the CPA cannot be read at all.
 
 How a relative bearing is spoken is a setting — Red/Green, Port/Starboard,
 `340 relative`, in words, or the true bearing alone. Which one is right
