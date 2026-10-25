@@ -381,7 +381,7 @@ window.CELNAV_LESSONS = [
    "blocks": [
     {
      "t": "p",
-     "s": "Three steps, and they are the same whether you use paper or the screen.\n\n  1. Mark the assumed position.\n  2. Draw the azimuth line from it, in the direction Zn.\n  3. Measure the intercept along that line - toward the body or away from\n     it - and mark the point. That point is on your circle of position.\n  4. Through that point draw a line at right angles to the azimuth. That\n     is the line of position. You are somewhere on it.\n\nWhy at right angles: the azimuth points at the GP, and the circle of\nposition is centred on the GP, so the circle - and the straight line we\nuse in its place - must cross the azimuth square on.\n\nOn CELNAV's plot the assumed position is the + at the centre, the dotted\nline is the azimuth, the letter marks the end of the intercept, and the\nlettered line through it is the LOP.\n\n\nONE SIGHT PLOTTED, AND A SECOND CROSSING IT"
+     "s": "Three steps, and they are the same whether you use paper or the screen.\n\n  1. Mark the assumed position.\n  2. Draw the azimuth line from it, in the direction Zn.\n  3. Measure the intercept along that line - toward the body or away from\n     it - and mark the point. That point is on your circle of position.\n  4. Through that point draw a line at right angles to the azimuth. That\n     is the line of position. You are somewhere on it.\n\nWhy at right angles: the azimuth points at the GP, and the circle of\nposition is centred on the GP, so the circle - and the straight line we\nuse in its place - must cross the azimuth square on.\n\nOn CELNAV's plot the assumed position is the + at the centre, the dotted\nline is the azimuth, the letter marks the end of the intercept, and the\nlettered line through it is the LOP.\n\n\nONE SIGHT PLOTTED, AND A SECOND CROSSING IT\n@@PLOT 2 0.000000 0.000000 0\n@@LOP 1 27.000000 1.500000 a\n@@LOP 2 128.000000 -19.000000 b"
     },
     {
      "t": "fig",
@@ -574,5 +574,134 @@ window.CELNAV_LESSONS = [
    "question": "Q. What is the one argument for the tables that the calculator cannot\n   answer?\n     a) they are more accurate\n     b) they need no power\n     c) they are faster",
    "answer": "b",
    "why": "They are less accurate and much slower. They work when nothing else does, which is the only argument that matters and is sufficient on its own."
+  }
+];
+
+window.CELNAV_WALK_CASE = { "utc": "2026-08-29 07:30:00", "body": "Dubhe",
+  "lat": 35.0000000000, "lon": -40.0000000000, "dec": 61.6081060649, "lha": 243.6930148132,
+  "hs": 19.5350000000, "ie": 1.5000, "he": 3.0000, "temp": 18.0000, "press": 1013.0000,
+  "ho": 19.4139707696, "hc": 19.3879384923, "zn": 26.8642543170, "intercept": 1.5619366376 };
+
+window.CELNAV_WALK = [
+  {
+   "step": 1,
+   "title": "The situation.",
+   "blocks": [
+    {
+     "t": "p",
+     "s": "  Morning twilight in the North Atlantic. You believe you are near\n35 00.0'N  040 00.0'W, and you have no way on.\n\n  You put the sextant on Dubhe, bring it to the horizon, and at\n2026-08-29 07:30:00 UT you read 19 32.1' off the arc.\n\n  Your index error is +1.5' on the arc and your eye is 3 m above the\n  water. It is 18 C and 1013 mb.\n\n  That is everything the reduction will use. Nothing else is needed,\n  and nothing else is allowed to creep in."
+    }
+   ]
+  },
+  {
+   "step": 2,
+   "title": "What we are trying to do.",
+   "blocks": [
+    {
+     "t": "p",
+     "s": "  The sight puts you somewhere on a circle centred on Dubhe's\n  geographical position. We cannot draw a circle two thousand miles\n  across, so instead we ask a smaller question:\n\n     if I really were at my DR, what altitude would Dubhe have had?\n\n  Compare that with what you actually measured, and the difference\n  tells you how far your DR is from the circle - and the azimuth\n  tells you in which direction. That is the whole method."
+    }
+   ]
+  },
+  {
+   "step": 3,
+   "title": "Step 1 - the almanac. Where is Dubhe's GP?",
+   "blocks": [
+    {
+     "t": "p",
+     "s": "   GHA  283 41.6'        the longitude of the GP, measured west\n   Dec  N61 36.5'        the latitude of the GP\n\n  So at that instant Dubhe was directly overhead a point in the far\nnorth, latitude 61 36.5'N, longitude 076 18.4'E.\n\n  Nothing about you enters here. Two navigators anywhere on earth\n  would use the same two numbers for this instant."
+    }
+   ]
+  },
+  {
+   "step": 4,
+   "title": "Step 2 - LHA. Bring it round to your own meridian.",
+   "blocks": [
+    {
+     "t": "p",
+     "s": "   LHA = GHA + longitude = 283 41.6' + (040 00.0'W)\n       = 243 41.6'\n\n  Longitude west counts as negative. LHA is measured westward from\n  you, so 243 degrees west is the same as 117 degrees to the east of\n  you - which fits: this is a morning sight and the star is in the\n  northern sky, well round to the east."
+    }
+   ]
+  },
+  {
+   "step": 5,
+   "title": "Step 3 - correct the sextant reading.",
+   "blocks": [
+    {
+     "t": "p",
+     "s": "  Hs  sextant reading       19 32.1'\n  index error                -1.5'  =\n  dip (height of eye)        -3.0'  ==\n  Ha  apparent altitude     19 27.6'\n  refraction                 -2.7'  =\n  Ho  observed altitude     19 24.8'\n\n  A star is a point of light, so there is no semi-diameter, and it is\n  far enough away that parallax does not arise. Only index error, dip\n  and refraction apply.\nHo = 19 24.8'. That is the sight, cleaned up."
+    }
+   ]
+  },
+  {
+   "step": 6,
+   "title": "Step 4 - the triangle. This is the geometry the arithmetic solves.",
+   "blocks": [
+    {
+     "t": "fig",
+     "kind": "grid",
+     "title": ""
+    },
+    {
+     "t": "p",
+     "s": "  Z is your zenith, P the north pole, * is Dubhe. You know the side\n  Z-P (90 minus your latitude), the side P-* (90 minus declination),\n  and the angle between them at P (that is LHA). Everything else\n  follows."
+    }
+   ]
+  },
+  {
+   "step": 7,
+   "title": "Step 5 - solve it for Hc and Zn.",
+   "blocks": [
+    {
+     "t": "p",
+     "s": "   sin Hc = sin(35.000) sin(61.608) + cos(35.000) cos(61.608) cos(243.693)\n   Hc = 19 23.3'          Zn = 026 51.9'\n\n  Hc is the altitude Dubhe would have had if you really were at your\n  DR. Zn is the bearing it would have had from there. Note that your\n  sextant has played no part at all in these two numbers."
+    }
+   ]
+  },
+  {
+   "step": 8,
+   "title": "Step 6 - compare, and get the intercept.",
+   "blocks": [
+    {
+     "t": "p",
+     "s": "   Ho (measured)  19 24.8'\n   Hc (computed)  19 23.3'\n   difference     1.6 minutes of arc = 1.6 nautical miles\n\nHo is the greater, so you are nearer to the star than the DR was:\n1.6 miles TOWARD, along Zn 026 51.9'.\n\n  A bigger altitude means a smaller zenith distance, and a smaller\n  zenith distance means you are closer to the GP. That is the whole\n  reason the rule runs that way."
+    }
+   ]
+  },
+  {
+   "step": 9,
+   "title": "Step 7 - plot it.",
+   "blocks": [
+    {
+     "t": "plot",
+     "title": "ONE SIGHT, PLOTTED",
+     "fixN": 0.000000,
+     "fixE": 0.000000,
+     "fix": false,
+     "lops": [{ "zn": 26.864254, "p": 1.561937, "label": "a" }]
+    },
+    {
+     "t": "p",
+     "s": "  From the AP, go along the azimuth by the intercept, and draw the\n  line of position square across it. You are somewhere on that line.\n  One sight can do no more than this - and it is already worth having,\n  because it is a hard constraint on where you can be."
+    }
+   ]
+  },
+  {
+   "step": 10,
+   "title": "Step 8 - cross it with two more.",
+   "blocks": [
+    {
+     "t": "plot",
+     "title": "THREE SIGHTS: THE FIX",
+     "fixN": 9.900000,
+     "fixE": -16.400000,
+     "fix": true,
+     "lops": [{ "zn": 26.864254, "p": 1.561937, "label": "a" }, { "zn": 128.300000, "p": -19.000000, "label": "b" }, { "zn": 269.200000, "p": 16.200000, "label": "c" }]
+    },
+    {
+     "t": "p",
+     "s": "  Bellatrix and Markab were shot in the same few minutes. Three lines,\n  one crossing point, and the fix is about 10 miles north and 16 west\n  of where you thought you were.\n\n  That is a complete reduction. Everything else CELNAV does - the\n  running fix, the geometry warning, the planning list - is built on\n  exactly these eight steps."
+    }
+   ]
   }
 ];

@@ -78,6 +78,10 @@
         <span class="t-name">Sandbox</span>
         <span class="t-sub">Move one number and watch the navigational triangle move</span>
       </button>
+      <button class="tile" data-go="walk">
+        <span class="t-name">Walkthrough</span>
+        <span class="t-sub">One real sight, worked in eight annotated steps</span>
+      </button>
       <button class="tile" data-go="camera">
         <span class="t-name">Camera sight</span>
         <span class="t-sub">An altitude from a photograph</span>
@@ -393,6 +397,22 @@
         angle of the body, measured west from your meridian.</p>
     </div>
     <div id="sb-out"></div>
+  </section>
+
+  <!-- ---------- the walkthrough ----------
+       Ten steps through one real sight, generated from teach.awk the way
+       the lessons are. Three of the steps draw, and all three are the
+       app's own drawings: the navigational triangle at step 4 is the
+       sandbox's, and the plotting sheets at steps 7 and 8 are the sight
+       screen's. The shell draws those on a character grid; here they are
+       the same pictures the rest of the app makes. -->
+  <section class="view" id="v-walk" hidden>
+    <div id="walk-body"></div>
+    <div class="walknav">
+      <button class="btn" id="walk-prev" type="button">&larr; Back</button>
+      <span class="walkpos" id="walk-pos"></span>
+      <button class="btn go" id="walk-next" type="button">Next &rarr;</button>
+    </div>
   </section>
 
   <!-- ---------- learn ---------- -->

@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003577875
+BASHNAV_BYTES=003578665
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -2031,6 +2031,20 @@ function plot_sheet(n,fixN,fixE,haveFix,title,   i,maxr,r,sc,xs,ys,cx,cy,fr,fc,d
   gputs(h-1,w-length(tk)-1,tk)
   print ""
   print "  " title
+  #  THE WEB GENERATOR WANTS THE LINES, NOT A PICTURE OF THEM. gshow()
+  #  already replaces the grid with a marker under -v FIGDUMP=1, but a
+  #  marker saying "grid 73 27" is only good for a named gap: the browser
+  #  can draw this sheet properly if it is told what is on it. So the
+  #  plot's own data goes out with it - one line per LOP, and the fix -
+  #  and the generator turns the pair into a figure block the page draws
+  #  with the same code that draws the sight screen's plotting sheet.
+  #
+  #  Set by the generator alone; the tool never sets it, and a reader at
+  #  a terminal sees the grid exactly as before.
+  if(FIGDUMP){
+    printf "@@PLOT %d %.6f %.6f %d\n", n, fixN, fixE, haveFix
+    for(i=1;i<=n;i++) printf "@@LOP %d %.6f %.6f %s\n", i, LZN[i], LP[i], LLBL[i]
+  }
   gshow()
   printf "  AP = %s    LOP = lettered line    fix = %s    1 row = %g nm, 1 column = %g nm\n",
          cw("+",C_ACC), cw("@",C_ACC), sc, xs

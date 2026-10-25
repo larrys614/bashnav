@@ -959,7 +959,7 @@ WXLOG
     if ! git rev-parse --git-dir >/dev/null 2>&1; then
       say "  --    celnav's lessons regenerate, but comparing them needs a git checkout"
     elif git diff --quiet -- docs/web/celnav/lessons.js 2>/dev/null; then
-      ok "docs/web/celnav/lessons.js is what teach.awk prints (33 lessons, 9 modules)"
+      ok "docs/web/celnav/lessons.js is what teach.awk prints (33 lessons, 9 modules, 10 walkthrough steps)"
     else
       bad "celnav's lessons.js is not what teach.awk prints -- run docs/web/celnav/gen/make-celnav-web.sh"
       git diff --stat -- docs/web/celnav/lessons.js | head -2

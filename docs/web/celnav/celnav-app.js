@@ -1528,6 +1528,99 @@ function sandboxShow() {
 
 function sandboxInit() { sandboxShow(); }
 
+/* =====================================================================
+   THE ANNOTATED WALKTHROUGH
+
+   cmd_t_walk() in src/celnav/teach.awk: one real sight, worked in eight
+   steps with two of framing either side. Generated, not retyped -
+   docs/web/celnav/gen/make-celnav-web.sh runs each step and dumps what it
+   printed, the same way the thirty-three lessons are done, so the two
+   cannot drift.
+
+   THE THREE FIGURES ARE REAL DRAWINGS. The lessons' grid figures are
+   named gaps because a picture of a terminal is the wrong thing in a
+   browser; these three are not, because the app already draws all of
+   them. The triangle at step 4 is the sandbox's triangleView(); the
+   plotting sheets at steps 7 and 8 are the sight screen's CELPLOT.draw(),
+   handed the azimuths and intercepts plot_sheet() dumped under FIGDUMP.
+   ===================================================================== */
+
+var WALK_AT = 1;
+
+function walkShow() {
+  var box = $('walk-body'), W = window.CELNAV_WALK || [], C = CNe();
+  box.textContent = '';
+  if (!W.length) {
+    box.appendChild(mk('p', 'note', 'The walkthrough did not load.'));
+    return;
+  }
+  if (WALK_AT < 1) WALK_AT = 1;
+  if (WALK_AT > W.length) WALK_AT = W.length;
+  var S = W[WALK_AT - 1];
+
+  box.appendChild(mk('h2', null, S.title));
+  var css = function (n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
+  };
+
+  S.blocks.forEach(function (b) {
+    if (b.t === 'p') { proseBox(box, b.s); return; }
+
+    if (b.t === 'plot') {
+      /*  the sheet the sight screen draws, from the shell's own lines.
+          `name` is what the label under each LOP reads, and the shell
+          letters them a, b, c - so the letters are kept rather than
+          invented, because the prose beside the figure refers to them.  */
+      if (b.title) box.appendChild(mk('h3', null, b.title));
+      var host = mk('div', 'walkfig');
+      box.appendChild(host);
+      window.CELPLOT.draw('http://www.w3.org/2000/svg', host, {
+        ok: !!b.fix, n: b.lops.length, N: b.fixN, E: b.fixE,
+        lops: b.lops.map(function (L) {
+          return { zn: L.zn, intercept: L.p, name: L.label };
+        })
+      }, { css: css });
+      box.appendChild(mk('p', 'note', b.lops.length === 1
+        ? 'The dashed line is the azimuth out of the assumed position; the solid one is the line of position, square across it.'
+        : 'Three lines, and the fix where they cross. The ellipse is what one minute of sight error does to it.'));
+      return;
+    }
+
+    if (b.t === 'fig') {
+      /*  step 4's triangle, for this walkthrough's own sight: the
+          latitude, declination and LHA come from W_setup() through the
+          generator rather than being typed in here.  */
+      var K = window.CELNAV_WALK_CASE;
+      if (!K) { box.appendChild(mk('p', 'note', '(figure)')); return; }
+      var t = triangleView(C, K.lat, K.dec, K.lha, css);
+      var host2 = mk('div', 'walkfig');
+      host2.appendChild(t.svg);
+      box.appendChild(host2);
+      box.appendChild(kvTable([
+        ['Latitude', ddm(K.lat, true)],
+        ['Declination', ddm(K.dec, true)],
+        ['LHA', f1(K.lha) + '°'],
+        ['Computed altitude Hc', f(t.hc, 2) + '° Zn ' + f1(t.zn) + '° T', 'tot']
+      ]));
+      return;
+    }
+  });
+
+  $('walk-pos').textContent = 'Step ' + WALK_AT + ' of ' + W.length;
+  $('walk-prev').disabled = (WALK_AT === 1);
+  $('walk-next').disabled = (WALK_AT === W.length);
+  window.scrollTo(0, 0);
+  remember('walkstep', String(WALK_AT));
+}
+
+function walkInit() {
+  /*  come back to the step you left, the way the lessons do: ten steps is
+      more than one sitting on a phone at sea  */
+  var k = parseInt(recall('walkstep', '1'), 10);
+  WALK_AT = isNaN(k) ? 1 : k;
+  walkShow();
+}
+
 var views = {
   home:    { el: 'v-home',    title: 'celnav' },
   camera:  { el: 'v-camera',  title: 'Camera sight' },
@@ -1540,6 +1633,7 @@ var views = {
   compass: { el: 'v-compass', title: 'Compass check' },
   tables:  { el: 'v-tables',  title: 'Pub. 249' },
   sandbox: { el: 'v-sandbox', title: 'The navigational triangle' },
+  walk:    { el: 'v-walk',    title: 'Walkthrough' },
   learn:   { el: 'v-learn',   title: 'Learn' }
 };
 function go(name) {
@@ -1557,6 +1651,7 @@ function go(name) {
   if (name === 'compass') compassInit();
   if (name === 'tables') tablesInit();
   if (name === 'sandbox') sandboxInit();
+  if (name === 'walk') walkInit();
   remember('view', name);
 }
 
@@ -1599,6 +1694,8 @@ document.addEventListener('DOMContentLoaded', function () {
   $('c-go').addEventListener('click', compassShow);
   ['c-lat', 'c-lon', 'c-date', 'c-time', 'c-body', 'c-brg', 'c-var']
     .forEach(function (id) { $(id).addEventListener('change', compassShow); });
+  $('walk-prev').addEventListener('click', function () { WALK_AT--; walkShow(); });
+  $('walk-next').addEventListener('click', function () { WALK_AT++; walkShow(); });
   ['sb-lat', 'sb-dec', 'sb-lha'].forEach(function (id) {
     $(id).addEventListener('input', sandboxShow);
   });

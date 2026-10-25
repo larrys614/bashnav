@@ -456,3 +456,15 @@ p.good { color: var(--good); font-size: 13px; margin: 10px 0 0; line-height: 1.5
 #sb-out svg { display: block; width: 100%; max-width: 380px; margin: 10px auto 0; }
 #sb-out { padding: 0 2px; }
 #sb-out .kv { margin-top: 14px; }
+
+/*  the walkthrough: ten steps, with the app's own drawings in three of them  */
+#walk-body h2 { font-size: 17px; margin: 18px 0 6px; line-height: 1.35; }
+#walk-body h3 { margin: 18px 0 6px; font-size: 13px; letter-spacing: .06em;
+                text-transform: uppercase; color: var(--dim); }
+#walk-body .walkfig svg { display: block; width: 100%; max-width: 400px; margin: 8px auto 0; }
+#walk-body .kv { margin-top: 12px; }
+.walknav { display: flex; align-items: center; gap: 12px; margin: 22px 0 8px; }
+.walknav .btn { flex: 0 0 auto; }
+.walknav .btn[disabled] { opacity: .35; }
+.walkpos { flex: 1 1 auto; text-align: center; color: var(--dim); font-size: 13px;
+           font-variant-numeric: tabular-nums; }

@@ -1,5 +1,7 @@
 #!/bin/sh
-# Regenerate docs/web/celnav/lessons.js from src/celnav/teach.awk.
+# Regenerate docs/web/celnav/lessons.js from src/celnav/teach.awk --
+# the thirty-three lessons, the syllabus, and the ten-step annotated
+# walkthrough.
 #
 # The lessons are PRINTED, not stored: les_F3() and the rest call
 # thead/tp/tb, and the figures are drawn onto a character grid, so the
@@ -63,6 +65,24 @@ IDS=$($AWK $ENG -v cmode=plain -v cmd=t_syldump </dev/null | cut -f1 | tr '\n' '
     $AWK $ENG -v cmode=plain -v FIGDUMP=1 -v cmd=t_lesson -v les="$L" </dev/null \
       | $AWK -f "$ESC" -f "$GEN/dumptlesson.awk" -v id="$L" -v ans="$ans" -v why="$why"
     [ "$n" -lt "$tot" ] && echo "," || echo ""
+  done
+  echo "];"
+  #  THE ANNOTATED WALKTHROUGH, ten steps, generated the same way and for
+  #  the same reason. Three of them draw, and all three can be REAL
+  #  drawings in a browser rather than named gaps: the triangle is the
+  #  sandbox's code and the plotting sheet is the sight screen's. So
+  #  plot_sheet() dumps its own lines under FIGDUMP and dumpwalk.awk
+  #  carries the azimuths and intercepts through.
+  echo ""
+  $AWK $ENG -v cmode=plain -f "$GEN/dumpwalkcase.awk" </dev/null
+  echo ""
+  echo "window.CELNAV_WALK = ["
+  n=0
+  for W in 1 2 3 4 5 6 7 8 9 10; do
+    n=$((n+1))
+    $AWK $ENG -v cmode=plain -v FIGDUMP=1 -v cmd=t_walk -v step="$W" </dev/null \
+      | $AWK -f "$ESC" -f "$GEN/dumpwalk.awk" -v step="$W"
+    [ "$n" -lt 10 ] && echo "," || echo ""
   done
   echo "];"
 } > "$OUT.new"

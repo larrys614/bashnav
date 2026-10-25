@@ -238,6 +238,20 @@ MK
   PORT="$PORT" node docs/web/tests/celnav-sandbox.js $SBF
 
   echo
+  echo "8. the annotated walkthrough, step by step"
+  #  Generated from teach.awk, so the words cannot drift - what can is the
+  #  order, the splitting and the figures. Every word of every step is
+  #  compared; so is which of them has a drawing, which comes first, and
+  #  for the three that draw, the actual lines on the sheet.
+  WKF=
+  for W in 1 2 3 4 5 6 7 8 9 10; do
+    $AWK1 -f src/celnav/engine.awk -f src/celnav/teach.awk -v cmode=plain \
+          -v FIGDUMP=1 -v cmd=t_walk -v step="$W" </dev/null > "$WORK/walk-$W.txt"
+    WKF="$WKF $WORK/walk-$W.txt"
+  done
+  PORT="$PORT" node docs/web/tests/celnav-walk.js $WKF
+
+  echo
   echo "CELNAV WEB: all stages passed"
 else
   echo
