@@ -1346,6 +1346,188 @@ function tablesMark() {
   }
 }
 
+/* =====================================================================
+   THE SANDBOX: ONE SPHERICAL TRIANGLE, AND THREE SLIDERS
+
+   cmd_t_sandbox() in src/celnav/teach.awk. The whole of celestial
+   navigation is the triangle zenith - elevated pole - body, and its three
+   given parts are the three sliders: co-latitude, polar distance and the
+   LHA between them. Move one and the computed altitude and azimuth follow.
+
+   There is no new arithmetic. Hc and Zn are reduce_sight(), which is
+   already diffed against the awk at full precision over 400 cases; what is
+   here is the projection and the drawing. The shell draws this in
+   characters on a 61 x 25 grid and the arcs come out as dotted lines
+   because that is what a terminal can do. A browser can draw the great
+   circles, so it does: each arc is the actual great circle between its two
+   endpoints, sampled and drawn as a polyline rather than approximated.
+   ===================================================================== */
+
+/*  a great-circle arc between two points given as altitude and azimuth,
+    sampled. Slerp on the unit vectors - interpolating the altitude and
+    azimuth separately would give a curve that is not a great circle, and
+    the three sides of this triangle ARE great circles.  */
+function skyArc(C, a1, z1, a2, z2, n) {
+  var v1 = [C.cosd(a1) * C.cosd(z1), C.cosd(a1) * C.sind(z1), C.sind(a1)];
+  var v2 = [C.cosd(a2) * C.cosd(z2), C.cosd(a2) * C.sind(z2), C.sind(a2)];
+  var dot = v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+  if (dot > 1) dot = 1; if (dot < -1) dot = -1;
+  var w = Math.acos(dot), out = [], i;
+  for (i = 0; i <= n; i++) {
+    var t = i / n, s1, s2;
+    if (w < 1e-9) { s1 = 1 - t; s2 = t; }
+    else { s1 = Math.sin((1 - t) * w) / Math.sin(w); s2 = Math.sin(t * w) / Math.sin(w); }
+    var x = v1[0]*s1 + v2[0]*s2, y = v1[1]*s1 + v2[1]*s2, z = v1[2]*s1 + v2[2]*s2;
+    var nn = Math.sqrt(x*x + y*y + z*z);
+    out.push([C.asind(z / nn), C.nrm360(C.atan2d(y / nn, x / nn))]);
+  }
+  return out;
+}
+/*  the midpoint of an arc, for its label - the awk's arc_mid()  */
+function arcMid(C, a1, z1, a2, z2) {
+  var x = (C.cosd(a1)*C.cosd(z1) + C.cosd(a2)*C.cosd(z2)) / 2;
+  var y = (C.cosd(a1)*C.sind(z1) + C.cosd(a2)*C.sind(z2)) / 2;
+  var z = (C.sind(a1) + C.sind(a2)) / 2;
+  var n = Math.sqrt(x*x + y*y + z*z);
+  if (n < 1e-9) return null;
+  return [C.asind(z / n), C.nrm360(C.atan2d(y / n, x / n))];
+}
+
+function triangleView(C, lat, dec, lha, css) {
+  var NS = 'http://www.w3.org/2000/svg', W = 340, H = 340;
+  var cx = W / 2, cy = H / 2, R = cx - 28;
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.setAttribute('role', 'img');
+  function e(n, a, p) {
+    var x = document.createElementNS(NS, n), q;
+    for (q in a) if (a.hasOwnProperty(q)) x.setAttribute(q, a[q]);
+    (p || svg).appendChild(x);
+    return x;
+  }
+  var line = css('--line'), dim = css('--dim'), text = css('--text'),
+      accent = css('--accent'), warn = css('--warn'), good = css('--good');
+
+  var hc = C.asind(C.sind(lat)*C.sind(dec) + C.cosd(lat)*C.cosd(dec)*C.cosd(lha));
+  var zn = C.nrm360(C.atan2d(-C.cosd(dec)*C.sind(lha),
+             C.cosd(lat)*C.sind(dec) - C.sind(lat)*C.cosd(dec)*C.cosd(lha)));
+  var palt = lat >= 0 ? lat : -lat, paz = lat >= 0 ? 0 : 180;
+
+  svg.setAttribute('aria-label', 'The navigational triangle: zenith at the centre, the ' +
+    (lat >= 0 ? 'north' : 'south') + ' celestial pole at altitude ' + f1(palt) +
+    ' degrees, and the body at altitude ' + f1(hc) + ' degrees, azimuth ' + f1(zn));
+
+  e('circle', { cx: cx, cy: cy, r: R, fill: 'none', stroke: dim, 'stroke-width': 1.2 });
+  [0.3333, 0.6667].forEach(function (fr) {
+    e('circle', { cx: cx, cy: cy, r: R * fr, fill: 'none', stroke: line,
+                  'stroke-width': 1, 'stroke-dasharray': '2 3' });
+  });
+  [0, 90, 180, 270].forEach(function (a) {
+    e('line', { x1: cx, y1: cy, x2: cx + R * C.sind(a), y2: cy - R * C.cosd(a),
+                stroke: line, 'stroke-width': 1, opacity: 0.5 });
+  });
+
+  var P = function (alt, az) {
+    var r = (90 - alt) / 90.0;
+    return [cx + R * r * C.sind(az), cy - R * r * C.cosd(az)];
+  };
+  /*  BELOW THE HORIZON IS OUTSIDE THE RIM. An arc to a body with a
+      negative altitude runs off the plot, so the polyline is broken where
+      it leaves the horizon rather than drawn into the margin - and the
+      prose below says the body is not visible, which is the honest
+      version of a picture that cannot show it.  */
+  var arc = function (pts, colour, width) {
+    var run = [];
+    var flush = function () {
+      if (run.length > 1)
+        e('polyline', { points: run.join(' '), fill: 'none', stroke: colour,
+                        'stroke-width': width, 'stroke-linecap': 'round' });
+      run = [];
+    };
+    pts.forEach(function (q) {
+      if (q[0] < 0) { flush(); return; }
+      var xy = P(q[0], q[1]);
+      run.push(xy[0].toFixed(2) + ',' + xy[1].toFixed(2));
+    });
+    flush();
+  };
+
+  arc(skyArc(C, 90, 0, palt, paz, 48), dim, 1.6);          /* co-latitude  */
+  arc(skyArc(C, 90, 0, hc, zn, 48), accent, 1.8);          /* zenith dist  */
+  arc(skyArc(C, palt, paz, hc, zn, 48), good, 1.8);        /* polar dist   */
+
+  /*  the labels on the arc midpoints, the way the shell puts 90-L, 90-Hc
+      and 90-d on its three sides  */
+  [[arcMid(C, 90, 0, palt, paz), '90 − L', dim],
+   [arcMid(C, 90, 0, hc, zn), '90 − Hc', accent],
+   [arcMid(C, palt, paz, hc, zn), '90 − d', good]].forEach(function (L) {
+    if (!L[0] || L[0][0] < 0) return;
+    var xy = P(L[0][0], L[0][1]);
+    e('text', { x: xy[0], y: xy[1] - 6, fill: L[2], 'font-size': 11,
+                'text-anchor': 'middle' }).textContent = L[1];
+  });
+
+  /*  THE ZENITH LABEL GOES BELOW ITS DOT. Above it, at the centre of the
+      plot, it collided with whichever arc label happened to fall there -
+      and two of the three arcs always meet at the zenith, so something
+      always falls there. Below is the one direction nothing points.  */
+  var mark = function (alt, az, label, colour, below, what) {
+    if (alt < 0) return;
+    var xy = P(alt, az);
+    e('circle', { cx: xy[0], cy: xy[1], r: 4.5, fill: colour, 'data-pt': what });
+    e('text', { x: xy[0], y: xy[1] + (below ? 17 : -9), fill: colour, 'font-size': 12,
+                'text-anchor': 'middle', 'font-weight': '700' }).textContent = label;
+  };
+  mark(90, 0, 'Z', text, true, 'zenith');
+  mark(palt, paz, lat >= 0 ? 'P (N)' : 'P (S)', dim, false, 'pole');
+  mark(hc, zn, '★', accent, false, 'body');
+
+  [['N', cx, 15], ['S', cx, H - 6], ['W', 12, cy + 4], ['E', W - 12, cy + 4]].forEach(function (c) {
+    e('text', { x: c[1], y: c[2], fill: dim, 'font-size': 12, 'text-anchor': 'middle' })
+      .textContent = c[0];
+  });
+  return { svg: svg, hc: hc, zn: zn };
+}
+
+function sandboxShow() {
+  var C = CNe(), box = $('sb-out');
+  var lat = parseFloat($('sb-lat').value), dec = parseFloat($('sb-dec').value),
+      lha = C.nrm360(parseFloat($('sb-lha').value));
+  $('sb-lat-v').textContent = f1(Math.abs(lat)) + '° ' + (lat >= 0 ? 'N' : 'S');
+  $('sb-dec-v').textContent = f1(Math.abs(dec)) + '° ' + (dec >= 0 ? 'N' : 'S');
+  $('sb-lha-v').textContent = f1(lha) + '°';
+  box.textContent = '';
+
+  var t = triangleView(C, lat, dec, lha, function (n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
+  });
+  box.appendChild(t.svg);
+  box.appendChild(kvTable([
+    ['Computed altitude Hc', f(t.hc, 2) + '°'],
+    ['Azimuth Zn', f1(t.zn) + '° T', 'tot']
+  ]));
+
+  /*  the same four things the shell says, under the same conditions  */
+  if (t.hc < 0)
+    box.appendChild(mk('p', 'warn', 'The body is below the horizon from here — no sight is ' +
+      'possible, and the two arcs that reach it leave the plot.'));
+  else if (t.hc > 80)
+    box.appendChild(mk('p', 'warn', 'Very high: the azimuth swings fast, so a small position ' +
+      'error moves Zn a lot.'));
+  else if (t.hc < 15)
+    box.appendChild(mk('p', 'warn', 'Low: refraction is uncertain down here.'));
+  if (C.fabs(C.nrm180(lha)) < 3)
+    box.appendChild(mk('p', 'good', 'LHA near zero: the body is on your meridian — this is the ' +
+      'noon sight, where altitude alone gives latitude and the azimuth is due north or south.'));
+
+  box.appendChild(mk('p', 'note', 'Z is your zenith, P the elevated pole and ★ the body. The ' +
+    'three sides are the three parts a sight reduction is given: 90 − L from the zenith to the ' +
+    'pole, 90 − d from the pole to the body, and the LHA between them at P. Solving the ' +
+    'triangle for the remaining side gives 90 − Hc, and for the remaining angle, Zn.'));
+}
+
+function sandboxInit() { sandboxShow(); }
+
 var views = {
   home:    { el: 'v-home',    title: 'celnav' },
   camera:  { el: 'v-camera',  title: 'Camera sight' },
@@ -1357,6 +1539,7 @@ var views = {
   plan:    { el: 'v-plan',    title: 'Sight planning' },
   compass: { el: 'v-compass', title: 'Compass check' },
   tables:  { el: 'v-tables',  title: 'Pub. 249' },
+  sandbox: { el: 'v-sandbox', title: 'The navigational triangle' },
   learn:   { el: 'v-learn',   title: 'Learn' }
 };
 function go(name) {
@@ -1373,6 +1556,7 @@ function go(name) {
   if (name === 'plan') planInit();
   if (name === 'compass') compassInit();
   if (name === 'tables') tablesInit();
+  if (name === 'sandbox') sandboxInit();
   remember('view', name);
 }
 
@@ -1415,6 +1599,9 @@ document.addEventListener('DOMContentLoaded', function () {
   $('c-go').addEventListener('click', compassShow);
   ['c-lat', 'c-lon', 'c-date', 'c-time', 'c-body', 'c-brg', 'c-var']
     .forEach(function (id) { $(id).addEventListener('change', compassShow); });
+  ['sb-lat', 'sb-dec', 'sb-lha'].forEach(function (id) {
+    $(id).addEventListener('input', sandboxShow);
+  });
   $('t-go').addEventListener('click', tablesShow);
   $('t-mark').addEventListener('click', tablesMark);
   $('p-go').addEventListener('click', polarisShow);

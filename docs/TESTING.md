@@ -263,12 +263,40 @@ immediately. So:
 | | |
 |---|---|
 | `celnav-diff.js` | the arithmetic, at full precision, over generated cases |
-| `celnav-ui.js`, `celnav-tables.js`, `celnav-latitude.js`, `celnav-plan.js`, `celnav-tables249.js` | what the page *shows*, against the shell's own printed working |
+| `celnav-ui.js`, `celnav-tables.js`, `celnav-latitude.js`, `celnav-plan.js`, `celnav-tables249.js`, `celnav-sandbox.js` | what the page *shows*, against the shell's own printed working |
 | `fmt-check.js` | one-decimal formatting, against awk's `printf` |
 
 Neither is the belt and neither is the braces. Each is the only thing that sees
 its own class of fault, and every fault above was planted and watched to go red
 before the check was believed.
+
+#### A drawing has to be checked, not just the numbers beside it
+
+The sandbox draws the navigational triangle, and its arithmetic is
+`reduce_sight()` — already diffed to twelve decimals. Everything that can go
+wrong in it is in the picture, and four planted faults show how little the
+numbers would notice:
+
+- the elevated pole drawn at the **north** point in both hemispheres
+- the pole drawn at the **signed** latitude, so it sinks below the horizon in
+  the south
+- the projection **mirrored**, east for west
+- the radius taken from the altitude instead of the zenith distance
+
+Every one leaves Hc, Zn and all the prose on the screen correct. So the three
+marks carry a `data-pt` attribute saying what they are, and `celnav-sandbox.js`
+reads their drawn coordinates back and checks each against the projection —
+radius `(90 − alt) / 90`, azimuth from the centre — plus that **nothing is drawn
+outside the horizon circle**, which is what makes "the body is below the horizon"
+honest rather than merely written.
+
+Two of the seven positions are southern for exactly this reason. With only
+northern cases, two of those four faults pass.
+
+One plant that *was* harmless is worth recording too: replacing the arcs' slerp
+with linear interpolation of the unit vectors. The points are renormalised onto
+the sphere afterwards, so they still lie on the same great circle — only spaced
+unevenly. The check reports no difference because there is none to see.
 
 #### A screenshot is not byte-stable, so do not compare its bytes
 

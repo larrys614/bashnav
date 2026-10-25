@@ -182,6 +182,17 @@ const FIGURES = [
     }
   },
   {
+    file: 'celnav-triangle.svg', app: 'celnav', sel: '#sb-out svg',
+    title: 'celnav: the navigational triangle - zenith, elevated pole and body, with three sliders',
+    async drive(p) {
+      await p.click('[data-go="sandbox"]');
+      await p.waitForTimeout(400);
+      /*  the sliders are left where the page opens them - 35 N, 20 N, LHA
+          45 - which is an ordinary sight with no caveat, so the picture
+          is the triangle itself rather than a warning about one.  */
+    }
+  },
+  {
     file: 'colregs-lights.svg', app: 'colregs', sel: '#light-stage svg',
     title: 'colregs: a vessel’s lights drawn from the bearing you see her on',
     async drive(p) {

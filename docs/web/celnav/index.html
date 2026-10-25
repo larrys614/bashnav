@@ -74,6 +74,10 @@
         <span class="t-name">Pub. 249</span>
         <span class="t-sub">The sight reduction tables, generated, and a tutor that marks your working</span>
       </button>
+      <button class="tile" data-go="sandbox">
+        <span class="t-name">Sandbox</span>
+        <span class="t-sub">Move one number and watch the navigational triangle move</span>
+      </button>
       <button class="tile" data-go="camera">
         <span class="t-name">Camera sight</span>
         <span class="t-sub">An altitude from a photograph</span>
@@ -364,6 +368,31 @@
       <button class="btn go" id="t-mark" type="button">Mark it</button>
     </div>
     <div id="t-check"></div>
+  </section>
+
+  <!-- ---------- the sandbox ----------
+       The whole of celestial navigation is one spherical triangle: zenith,
+       elevated pole, body. Three sliders move its three given parts and
+       the drawing follows, which is a thing a terminal could only do by
+       redrawing a grid of characters and a browser can do properly.
+
+       The arithmetic is reduce_sight() and nothing else, so there is no
+       new engine code here - only the projection, which is the one the
+       shell's sky view uses: zenith at the centre, horizon at the rim,
+       north up and east right. -->
+  <section class="view" id="v-sandbox" hidden>
+    <div class="card">
+      <h3>The navigational triangle</h3>
+      <label>Latitude <span class="val" id="sb-lat-v">35.0</span>
+        <input id="sb-lat" type="range" min="-80" max="80" step="0.5" value="35"></label>
+      <label>Declination <span class="val" id="sb-dec-v">20.0</span>
+        <input id="sb-dec" type="range" min="-80" max="80" step="0.5" value="20"></label>
+      <label>LHA <span class="val" id="sb-lha-v">45.0</span>
+        <input id="sb-lha" type="range" min="0" max="359.5" step="0.5" value="45"></label>
+      <p class="note">Latitude and declination in degrees, north positive. LHA is the local hour
+        angle of the body, measured west from your meridian.</p>
+    </div>
+    <div id="sb-out"></div>
   </section>
 
   <!-- ---------- learn ---------- -->

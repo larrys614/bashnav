@@ -447,3 +447,12 @@ p.good { color: var(--good); font-size: 13px; margin: 10px 0 0; line-height: 1.5
                      font-variant-numeric: tabular-nums; }
 #t-page .ct-tab .num { text-align: right; }
 #t-page tr.picked td { color: var(--accent); font-weight: 700; }
+
+/*  the sandbox: three sliders and a drawing that follows them  */
+#v-sandbox label { display: block; margin: 12px 0 0; color: var(--dim); font-size: 13px; }
+#v-sandbox input[type=range] { display: block; width: 100%; margin: 6px 0 0; accent-color: var(--accent); }
+#v-sandbox .val { color: var(--accent); font-family: ui-monospace, Menlo, monospace;
+                  font-variant-numeric: tabular-nums; }
+#sb-out svg { display: block; width: 100%; max-width: 380px; margin: 10px auto 0; }
+#sb-out { padding: 0 2px; }
+#sb-out .kv { margin-top: 14px; }

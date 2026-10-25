@@ -218,6 +218,26 @@ MK
        "$WORK/t249-args.txt" "$WORK/t249-page.txt" $CHECKS
 
   echo
+  echo "7. the sandbox: the navigational triangle, drawn"
+  #  No new arithmetic - Hc and Zn are reduce_sight(), held to the awk in
+  #  stage 1. What this checks is the DRAWING, which is the teaching: where
+  #  the three marks actually sit, that nothing is drawn outside the
+  #  horizon, and which of the shell's four caveats the screen says.
+  #
+  #  Two of the seven positions are southern, because the elevated pole is
+  #  a teaching point in its own right and a port that puts it at the north
+  #  point in both hemispheres leaves every number on the screen correct.
+  SBF=
+  for c in "35 20 45" "35 20 170" "20 19 1" "35 20 100" "35 35 0" "-35 -20 45" "-48 20 300"; do
+    set -- $c
+    n=$(printf '%s' "$1$2$3" | tr -d ' -')
+    $AWK1 -f src/celnav/engine.awk -f src/celnav/teach.awk -v cmd=t_sandbox \
+          -v slat="$1" -v sdec="$2" -v slha="$3" </dev/null > "$WORK/sb-$n.txt"
+    SBF="$SBF $WORK/sb-$n.txt"
+  done
+  PORT="$PORT" node docs/web/tests/celnav-sandbox.js $SBF
+
+  echo
   echo "CELNAV WEB: all stages passed"
 else
   echo
