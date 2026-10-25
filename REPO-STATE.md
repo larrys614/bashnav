@@ -14,12 +14,17 @@ New here? Start with [`CLAUDE.md`](CLAUDE.md), then
 
 | tool | version | size | what it is |
 |---|---|---|---|
-| `bin/celnav` | 1.6 | 153 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
-| `bin/colregs` | 1.15 | 175 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
-| `bin/tides` | 1.1 | 2.9 MB | harmonic tide prediction, 8,334 stations worldwide |
-| `bin/deck-log` | 1.1 | 42 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
-| `bin/weather` | 1.0 | 67 KB | reasons over the log's observations and shows its working; ten lessons; forecast scoring |
+| `bin/celnav` | 1.6 | 256 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
+| `bin/colregs` | 1.15 | 222 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
+| `bin/tides` | 1.1 | 2.8 MB | harmonic tide prediction, 8,334 stations worldwide |
+| `bin/deck-log` | 1.1 | 48 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
+| `bin/weather` | 1.0 | 80 KB | reasons over the log's observations and shows its working; ten lessons; forecast scoring |
 | `bin/bashnav` | 1.0 | 3.4 KB | the launcher: a menu in front of the other five, and one home-screen icon on an iPad |
+
+Those sizes are measured, not remembered: the table had carried 153 KB for
+`celnav` and 175 KB for `colregs` since before several months of additions, and
+nothing checks them, so they drift silently. Re-measure them when you touch this
+table rather than editing the one row your change affected.
 
 Licence **Apache 2.0** (`LICENSE`, canonical text). `NOTICE` carries the
 copyright plus the data terms: NOAA harmonics public domain, TICON-4 harmonics
@@ -383,6 +388,51 @@ in a table is not the arithmetic. Two things did:
 The home screen also led with camera sight and a lede reading "an altitude from
 a photograph" — the same framing corrected on the launcher tile. Sight reduction
 is first now, with the almanac and the star list beside it.
+
+### celnav: the noon sight, Polaris, planning and the compass check
+
+*Tasks 24 and 25.* The four screens that completed the browser port of the
+celnav command set, all following their `cmd_*()` in `src/celnav/engine.awk`.
+
+- **Noon sight** — when the sun crosses your meridian, the equation of time, the
+  altitude to expect, and after a reading, the latitude. In two halves because
+  the command is: what to take on deck, and what the reading gave.
+- **Polaris** — latitude from one star, all night. Both corrections are printed
+  every time, the first-order `-p cos LHA` and the exact solution, because the
+  gap between them is why the almanac's Polaris table needs three columns.
+- **Sight planning** — twilight in UT and local mean time, the moon, everything
+  above five degrees by azimuth, the best three, and a sky view drawn as SVG.
+- **Compass check** — the true azimuth of any body against what your compass
+  says, giving compass error and, with the chart variation, the deviation of
+  your own compass.
+
+**Three shared functions were extracted or written in both implementations
+rather than read twice.** `lan_jd()` and `pol_lat()` did not exist in the JS
+engine at all; `plan_sky()` was sixty lines inside `cmd_plan()`, which would
+have made the port a second reading of its prose — and the selection of three
+bodies is exactly where a second reading goes quietly wrong. The extraction was
+proved output-identical first, fifteen position/date/awk combinations byte for
+byte, and `celnav-diff.js` now holds all three to the awk at full precision,
+with the planner's recommendation compared **by name**.
+
+Eighteen faults were planted across the four screens and watched go red. Two of
+them are worth keeping:
+
+1. **Letting the last triple win a tie, instead of the first.** Ties in the
+   azimuth-spread search are not hypothetical; this changed the recommendation
+   on four cases in sixty.
+2. **`printf`'s `%.1f` is not `toFixed(1)`.** C rounds a tie to the even last
+   digit and JavaScript rounds it up. Deneb's catalogue magnitude is exactly
+   1.25, so the shell's planning table printed `1.2` and the page printed `1.3`
+   — one star in 58, and invisible to anything numerical because both are the
+   same number. `celnav-app.js` has `f(v, dec)` now and everything the shell
+   also prints goes through it.
+
+The two halves of the browser verification caught disjoint faults here, cleanly
+enough to be worth stating: cutting `lan_jd()`'s five iterations to one is 3e-5
+of a day out on every case and leaves `16:46:29 UT` on the screen unchanged,
+while printing Polaris's GHA with the latitude formatter leaves every function
+in the engine agreeing to twelve decimals. See `docs/TESTING.md`.
 
 ### The site's pictures are the apps' own drawings
 
@@ -780,6 +830,24 @@ claims, and nothing on the boat would say so.
    so people who only want the tools do not have to clone 2.9 MB of station
    data through git. The README's iPad instructions already point at
    `releases/latest/download/bashnav-ipad.sh`, so this is now load bearing.
+9. **The `ansi2svg` pipeline is now dead weight, and nobody has ruled on it.**
+   The site's pictures are the apps' own drawings, so all fifteen
+   `docs/img/*.svg` terminal renderings are unreferenced; only the `{{PLOT}}`
+   and `{{ENCOUNTER}}` plates are still used, and those are the collapsed "the
+   same thing, as your terminal prints it" blocks under each figure. The
+   generator, its tests and the fifteen files are still carried. Flagged three
+   times now without a decision: retiring it is a real deletion of a working
+   piece of the build, and keeping it means `make-site.sh` renders fifteen
+   pictures nothing looks at. **Larry's call.**
+
+10. **celnav's browser port is four screens from complete.** The commands with
+    no browser screen are the drills, the annotated walkthrough, the sandbox and
+    the generated Pub. 249 tables. The first three are teaching surfaces rather
+    than arithmetic; the tables generator is `tab_page()` and already a
+    function, so it ports the way `plan_sky()` did. `drill` also still has only
+    one figure on the site, and a second needs a synthetic demo pack — which
+    must not be Clipper material.
+
 8. **`seamanship` is held**, on the local `seamanship-hold` tag and not in this
    repository, pending Clipper's answer. Larry has a personal binary. See the
    note above: if Clipper objects even to the generic build, it stays on his
