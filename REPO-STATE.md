@@ -434,6 +434,39 @@ of a day out on every case and leaves `16:46:29 UT` on the screen unchanged,
 while printing Polaris's GHA with the latitude formatter leaves every function
 in the engine agreeing to twelve decimals. See `docs/TESTING.md`.
 
+### And then the other four, which completed the port
+
+*Task 26.* **Pub. 249**, generated rather than shipped &mdash; every entry is the
+navigational triangle solved for whole degrees, so the engine *is* the table and
+the exact page a sight needs is printed instead of the handful an extract would
+carry &mdash; with the tutor that marks what you read off it and **attributes**
+the difference: the table's rounding is small and bounded, while each common slip
+has a size of its own. **The sandbox**, where three sliders move the triangle's
+three given parts and the sides are drawn as the actual great circles.
+**The walkthrough**, ten steps generated from `teach.awk`, with all three of its
+figures drawn by the app rather than left as named gaps. And **the drills**, six
+kinds, generated from the real almanac and marked.
+
+With those, **every celnav command that computes anything has a browser screen.**
+`sh docs/web/tests/run-celnav-web.sh` is nine stages.
+
+Four things found while proving them, all in `docs/TESTING.md`:
+
+1. **`printf`'s `%.1f` is not `toFixed(1)`.** C rounds a tie to the even last
+   digit; JavaScript rounds it up. Deneb's magnitude is exactly 1.25, so the
+   shell printed `1.2` and the page `1.3`.
+2. **A screenshot is not byte-stable.** Two consecutive captures of an unchanged
+   page differ by tens of pixels. The figure check compares pixels now, and the
+   put-back belongs to the capture rather than to the check.
+3. **A seed is the problem's name**, so the drill generator's pseudo-random
+   sequence is part of the specification and is diffed seed for seed.
+4. **The reference emitter is code too.** Porting Pub. 249 produced 91
+   disagreements, every one of them in the harness and none in the browser.
+
+And a shape change worth knowing about: celnav's home screen reached thirteen
+tiles, which on a phone is a scroll and not a menu. They are grouped now &mdash;
+working a sight, what the almanac gives you, learning it.
+
 ### The site's pictures are the apps' own drawings
 
 The front page showed thirteen `ansi2svg` renderings — the terminal's

@@ -485,3 +485,10 @@ p.good { color: var(--good); font-size: 13px; margin: 10px 0 0; line-height: 1.5
 #d-out h3.good { color: var(--good); }
 #d-out h3.warn { color: var(--warn); }
 #d-out .walkfig svg { display: block; width: 100%; max-width: 400px; margin: 8px auto 0; }
+
+/*  THIRTEEN TILES IN ONE LIST IS A SCROLL, NOT A MENU, and on a phone at
+    sea the first tap has to be readable at a glance. Grouped by what you
+    are doing: working a sight, looking something up, learning it.  */
+.tilegroup { margin: 22px 2px 8px; font-size: 11px; letter-spacing: .08em;
+             text-transform: uppercase; color: var(--dim); font-weight: 600; }
+.tilegroup:first-of-type { margin-top: 14px; }
