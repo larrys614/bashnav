@@ -290,6 +290,25 @@ const FIGURES = [
     }
   },
   {
+    file: 'celnav-noon.png', app: 'celnav', shot: '#v-noon', height: 1500,
+    title: 'celnav: the noon sight - when the sun crosses, how high to expect it, and the latitude it gives',
+    async drive(p) {
+      await p.click('[data-go="noon"]');
+      await p.waitForTimeout(300);
+      /*  Hs filled in, so the picture shows the whole screen: what to
+          expect on deck AND the latitude that came back. The planning
+          half alone is half a feature.  */
+      await p.fill('#n-lat', '41 49.0 N');
+      await p.fill('#n-lon', '071 24.0 W');
+      await p.fill('#n-date', '2026-08-29');
+      await p.fill('#n-hs', '60 03.2');
+      await p.fill('#n-ie', '1.5');
+      await p.fill('#n-he', '2');
+      await p.click('#n-go');
+      await p.waitForTimeout(600);
+    }
+  },
+  {
     file: 'decklog-entry.png', app: 'deck-log', shot: '#v-entry',
     title: 'deck-log: an entry, with the position, course and speed the next one carries forward',
     async drive(p) { await p.click('text=New entry'); await p.waitForTimeout(600); }

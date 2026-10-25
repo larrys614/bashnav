@@ -34,8 +34,23 @@ if git diff --quiet -- docs/img/app; then
 else
   echo
   echo "  these pictures are no longer what the apps draw:"
-  git diff --name-only -- docs/img/app | sed 's/^/    /'
+  #  SAY HOW BIG THE CHANGE IS, because a screenshot diff has two very
+  #  different meanings and `git diff --name-only` cannot tell them apart.
+  #  A changed screen moves a picture by kilobytes. A re-render of the
+  #  same screen can move it by a few dozen bytes: the launcher came back
+  #  69 pixels different out of 773,140, maximum channel delta 71, which
+  #  is font antialiasing and nothing else - it went away on the next
+  #  three captures and was visually identical under a crop. Both read as
+  #  "no longer what the apps draw" without these two numbers.
+  git diff --name-only -- docs/img/app | while read -r f; do
+    new=$(wc -c < "$f" | tr -d ' ')
+    old=$(git show "HEAD:$f" 2>/dev/null | wc -c | tr -d ' ')
+    [ -n "$old" ] && [ "$old" != 0 ] || old='-'
+    printf '    %-34s committed %8s bytes, now %8s\n' "$f" "$old" "$new"
+  done
   echo "  (if the change is intended, commit them; if not, the app changed"
-  echo "   under you and the page is advertising something else)"
+  echo "   under you and the page is advertising something else. A difference"
+  echo "   of a few dozen bytes in a .png is antialiasing - look at the two"
+  echo "   pictures before believing the app changed.)"
   exit 1
 fi

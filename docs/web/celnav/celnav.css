@@ -395,3 +395,17 @@ main {
 #s-list td.num { text-align: right; font-variant-numeric: tabular-nums; }
 #s-list tr + tr td { border-top: 1px solid var(--line); }
 #s-sheet svg { width: 100%; height: auto; max-width: 420px; display: block; margin: 12px auto 0; }
+
+/*  the two latitude screens. `tot` is the answer line - the one row in a
+    correction chain that is not a correction - and `warn` carries the
+    things the shell prints in its accent colour: a sun within a degree of
+    the zenith, and a Polaris sight that has come out southern.  */
+.kv tr.tot th, .kv tr.tot td { font-weight: 700; border-top: 1px solid var(--line);
+                               padding-top: 7px; }
+.kv tr.tot td { color: var(--accent); }
+p.warn { color: var(--warn); font-size: 13px; margin: 10px 0 0; line-height: 1.5; }
+#n-out h3, #p-out h3 { margin: 18px 0 8px; font-size: 15px; letter-spacing: .02em; }
+#n-out, #p-out { padding: 0 2px; }
+/*  the shell draws a rule between the planning half and the working half;
+    this is that rule's job, done with space  */
+#n-out .kv, #p-out .kv { margin-top: 14px; }

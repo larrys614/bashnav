@@ -663,12 +663,232 @@ function starsShow() {
   if (!shown) box.appendChild(mk('p', 'note', 'No star of that name or number.'));
 }
 
+/* =====================================================================
+   THE TWO LATITUDES THAT NEED NO FIX
+
+   A noon sight and a Polaris sight each give one line - a parallel of
+   latitude - and neither needs crossing to be true. They are here because
+   they are the two sights a navigator can work with the least gear: the
+   noon sight needs almost no clock, and Polaris needs no reduction at all.
+
+   Both follow cmd_noon() and cmd_polaris() in src/celnav/engine.awk field
+   for field. docs/web/tests/celnav-latitude.js diffs the rendered tables
+   against the shell's own printed working, the way celnav-tables.js does
+   for the almanac.
+   ===================================================================== */
+
+/*  the correction rows, in the order and with the signs the shell's
+    working shows. Shared by both screens because the chain is the same
+    one; the shell omits semi-diameter and parallax for a star, and
+    corrections() leaves C_LIMB and C_PAR at zero there, so the same
+    filter does both.  */
+function corrRows(C, hs, ie, star) {
+  var E = C.E, rows = [['index error', mins(-ie)], ['dip', mins(-E.C_DIP)],
+                       ['refraction', mins(-E.C_REF)]];
+  if (!star) {
+    rows.push(['semi-diameter', mins(E.C_LIMB)]);
+    rows.push(['parallax', mins(E.C_PAR)]);
+  }
+  return rows;
+}
+function kvTable(rows, cls) {
+  var t = mk('table', cls || 'kv');
+  rows.forEach(function (r) {
+    var tr = mk('tr', r[2] || null);
+    tr.appendChild(mk('th', null, r[0]));
+    tr.appendChild(mk('td', 'num', r[1]));
+    t.appendChild(tr);
+  });
+  return t;
+}
+function numOf(id, dflt) {
+  var v = parseFloat($(id).value);
+  return isNaN(v) ? dflt : v;
+}
+
+function noonInit() {
+  if (!$('n-date').value) $('n-date').value = utcToday();
+  noonShow();
+}
+function polarisInit() {
+  if (!$('p-date').value) $('p-date').value = utcToday();
+  if (!$('p-time').value) $('p-time').value = utcClock();
+  polarisShow();
+}
+
+function noonShow() {
+  var C = CNe(), box = $('n-out'), note = $('n-note');
+  box.textContent = ''; note.textContent = '';
+  var lat = C.parse_ang($('n-lat').value), lon = C.parse_ang($('n-lon').value);
+  if (lat === 'ERR' || lon === 'ERR' || isNaN(lat) || isNaN(lon)) {
+    note.textContent = 'A DR latitude and longitude — 41 49.0 N and 071 24.0 W.'; return;
+  }
+  var d = $('n-date').value.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { note.textContent = 'A UT date as 2026-08-29.'; return; }
+
+  /*  midnight of the date, exactly as the awk takes it: int(jd+0.5)-0.5,
+      so any time of day on that date gives the same starting point  */
+  var jd0 = Math.floor(C.parse_utc(d) + 0.5) - 0.5;
+  var jd = C.lan_jd(lon, jd0);
+  C.body_at('Sun', jd);
+  var dec = C.E.B_DEC;
+  var h1 = C.reduce_sight(lat, lon, C.E.B_GHA, dec);
+  var gha = C.E.B_GHA;
+  C.jd2cal(jd);
+  var cy = C.E.CAL_Y, cm = C.E.CAL_M, cd = C.E.CAL_D;
+  var ut = C.E.CAL_FRAC * 24.0;
+  var lmt = ut + lon / 15.0;
+  if (lmt < 0) lmt += 24; if (lmt >= 24) lmt -= 24;
+  var eot = C.nrm180(gha - (15.0 * ut - 180.0)) * 4.0;
+  var mer = 90.0 - C.fabs(lat - dec);
+  var sth = (lat > dec);
+
+  /*  how fast the altitude falls two minutes either side. The altitude is
+      at a stationary point, so it changes as the SQUARE of the time - which
+      makes the clock nearly irrelevant at a workaday altitude and quite
+      relevant near the zenith. The shell says which case it is rather than
+      asserting the reassuring one, and so does this.  */
+  C.body_at('Sun', jd + 120.0 / 86400.0);
+  var h2 = C.reduce_sight(lat, lon, C.E.B_GHA, C.E.B_DEC);
+  var fall = (h1 - h2) * 60.0;
+
+  box.appendChild(mk('h3', null, 'Local apparent noon — ' +
+    cy + '-' + ('0' + cm).slice(-2) + '-' + ('0' + cd).slice(-2)));
+  box.appendChild(kvTable([
+    ['Position', ddm(lat, true) + '   ' + ddm(lon, false)],
+    ['Sun on your meridian at', C.fmt_hms(ut) + ' UT'],
+    [' in local mean time', C.fmt_hms(lmt)],
+    ['Equation of time', (eot >= 0 ? '+' : '−') + Math.abs(eot).toFixed(1) +
+       ' min — the sundial is ' + (eot >= 0 ? 'ahead of' : 'behind') + ' the clock'],
+    ["Sun's declination then", ddm(dec, true)],
+    ['Meridian altitude to expect', mer.toFixed(1) + '°, bearing ' +
+       (sth ? 'SOUTH (180)' : 'NORTH (000)')]
+  ]));
+
+  /*  A SUN THAT PASSES OVERHEAD HAS NO SIDE. Within a degree of the zenith
+      the azimuth swings through 180 degrees as it crosses, so "bearing
+      south" above is a statement the DR cannot support - and the sign of
+      the latitude below turns on it.  */
+  if (C.fabs(lat - dec) < 1.0)
+    box.appendChild(mk('p', 'warn', 'The sun passes within a degree of your zenith today, ' +
+      'so which side of you it stands is not decidable from the DR, and its azimuth swings ' +
+      'through 180° as it crosses. Note which way it bore.'));
+
+  box.appendChild(mk('p', 'note', fall <= 1.0
+    ? 'Two minutes either side of it the altitude is only ' + fall.toFixed(1) +
+      "' lower, so catch the maximum by watching it — the clock is not the point."
+    : 'Two minutes either side of it the altitude is ' + fall.toFixed(1) +
+      "' lower: the sun passes close to your zenith and crosses fast, so the maximum is " +
+      'sharp and a careless moment here costs real altitude.'));
+
+  var hsv = $('n-hs').value.trim();
+  if (!hsv) {
+    box.appendChild(mk('p', 'note',
+      'Follow the sun up, catch the highest reading, and give it back in the Hs field.'));
+    return;
+  }
+  var hs = C.parse_ang(hsv);
+  if (hs === 'ERR' || isNaN(hs)) { note.textContent = 'Hs as degrees and minutes, like 68 14.2.'; return; }
+
+  var lim = $('n-limb').value || 'L';
+  var ie = numOf('n-ie', 0);
+  var ho = C.corrections(hs, ie, numOf('n-he', 0), numOf('n-tm', 10), numOf('n-pr', 1010), lim);
+  var zd = 90.0 - ho;
+  var la = sth ? dec + zd : dec - zd;
+
+  var rows = [['Hs (sextant, ' + (lim === 'U' ? 'upper' : 'lower') + ' limb)', dm(hs)]]
+    .concat(corrRows(C, hs, ie, false));
+  rows.push(['Ho (observed altitude)', dm(ho)]);
+  rows.push(['Zenith distance  90 − Ho', dm(zd)]);
+  rows.push(['Declination', ddm(dec, true)]);
+  rows.push(['LATITUDE   dec ' + (sth ? '+' : '−') + ' ZD', ddm(la, true), 'tot']);
+  box.appendChild(kvTable(rows));
+
+  box.appendChild(mk('p', 'note', 'The sun was taken as bearing ' + (sth ? 'south' : 'north') +
+    ' of you, from the DR.'));
+  if (C.fabs(lat - dec) < 1.0)
+    box.appendChild(mk('p', 'warn', 'CAREFUL: the sun passes within a degree of your zenith, ' +
+      'so which side it stood is not obvious from the DR. Your own note of whether it bore ' +
+      'north or south is what decides the sign here.'));
+  box.appendChild(mk('p', 'note', 'One line only: a parallel of latitude. It needs no crossing ' +
+    'to be true, and tells you nothing at all about your longitude.'));
+}
+
+function polarisShow() {
+  var C = CNe(), box = $('p-out'), note = $('p-note');
+  box.textContent = ''; note.textContent = '';
+  var lon = C.parse_ang($('p-lon').value);
+  if (lon === 'ERR' || isNaN(lon)) { note.textContent = 'A DR longitude — 071 24.0 W.'; return; }
+  var d = $('p-date').value.trim(), t = $('p-time').value.trim();
+  if (!d || !t) { note.textContent = 'Give the UT date and time.'; return; }
+  var utc = d + ' ' + t;
+  if (!/^\d{4}-\d{2}-\d{2}[ T]\d{1,2}:\d{2}/.test(utc)) {
+    note.textContent = 'UT as 2026-08-29 and 23:12:00.'; return;
+  }
+  var jd = C.parse_utc(utc);
+  if (C.body_at('Polaris', jd) === 'ERR') {
+    note.textContent = 'Polaris is not in the catalogue.'; return;
+  }
+  var E = C.E, lha = C.nrm360(E.B_GHA + lon), p = 90.0 - E.B_DEC;
+
+  box.appendChild(mk('h3', null, 'Polaris — ' + utc + ' UT'));
+  box.appendChild(kvTable([
+    ['Longitude', ddm(lon, false) + '   (latitude is what this sight gives you)'],
+    ['Polaris GHA', dm3(E.B_GHA)],
+    ['LHA   GHA + longitude', dm3(lha)],
+    ['Declination', ddm(E.B_DEC, true)],
+    ['Polar distance  90 − dec', (p * 60.0).toFixed(1) + "'"]
+  ]));
+
+  var hsv = $('p-hs').value.trim();
+  if (!hsv) {
+    box.appendChild(kvTable([
+      ['Correction to Ho at this LHA', mins(-p * C.cosd(lha) * 60.0) +
+         '   (it swings ±' + (p * 60.0).toFixed(1) + "' in a day)"]
+    ]));
+    box.appendChild(mk('p', 'note', 'Take Polaris and give the reading back in the Hs field.'));
+    return;
+  }
+  var hs = C.parse_ang(hsv);
+  if (hs === 'ERR' || isNaN(hs)) { note.textContent = 'Hs as degrees and minutes, like 42 18.4.'; return; }
+
+  var ie = numOf('p-ie', 0);
+  var ho = C.corrections(hs, ie, numOf('p-he', 0), 10, 1010, '');
+  var first = -p * C.cosd(lha);
+  var la = C.pol_lat(ho, E.B_DEC, lha);
+  var exact = la - ho;
+
+  var rows = [['Hs (sextant)', dm(hs)]].concat(corrRows(C, hs, ie, true));
+  rows.push(['Ho (observed altitude)', dm(ho)]);
+  rows.push(['Correction, first order  −p cos LHA',
+             (first * 60.0 >= 0 ? '+' : '−') + Math.abs(first * 60.0).toFixed(2) + "'"]);
+  rows.push(['Correction, solved exactly',
+             (exact * 60.0 >= 0 ? '+' : '−') + Math.abs(exact * 60.0).toFixed(2) + "'"]);
+  rows.push(['LATITUDE', ddm(la, true), 'tot']);
+  box.appendChild(kvTable(rows));
+
+  /*  Printing both corrections every time is what makes the almanac's
+      three columns make sense, rather than being asserted.  */
+  box.appendChild(mk('p', 'note', 'The two corrections differ by ' +
+    (C.fabs(exact - first) * 60.0).toFixed(2) + "'. That gap is what the a1 and a2 columns of " +
+    "the almanac's Polaris table exist to supply — they are the next terms of a series " +
+    'for the line above them.'));
+  if (la < 0)
+    box.appendChild(mk('p', 'warn', 'WARNING: that is a southern latitude, which cannot be ' +
+      'right — Polaris is not visible from the southern hemisphere at all.'));
+  box.appendChild(mk('p', 'note', 'One line again, and a parallel of latitude: it says nothing ' +
+    'about your longitude. But it is available all night, not for the few minutes either side ' +
+    'of noon.'));
+}
+
 var views = {
   home:    { el: 'v-home',    title: 'celnav' },
   camera:  { el: 'v-camera',  title: 'Camera sight' },
   sight:   { el: 'v-sight',   title: 'Sight reduction' },
   almanac: { el: 'v-almanac', title: 'Almanac' },
   stars:   { el: 'v-stars',   title: 'The star list' },
+  noon:    { el: 'v-noon',    title: 'Noon sight' },
+  polaris: { el: 'v-polaris', title: 'Polaris' },
   learn:   { el: 'v-learn',   title: 'Learn' }
 };
 function go(name) {
@@ -680,6 +900,8 @@ function go(name) {
   if (name === 'sight') sightInit();
   if (name === 'almanac') almanacInit();
   if (name === 'stars') starsInit();
+  if (name === 'noon') noonInit();
+  if (name === 'polaris') polarisInit();
   remember('view', name);
 }
 
@@ -712,6 +934,13 @@ document.addEventListener('DOMContentLoaded', function () {
   ['st-date', 'st-find'].forEach(function (id) {
     $(id).addEventListener('input', starsShow);
   });
+
+  $('n-go').addEventListener('click', noonShow);
+  ['n-lat', 'n-lon', 'n-date', 'n-hs', 'n-limb', 'n-ie', 'n-he', 'n-tm', 'n-pr']
+    .forEach(function (id) { $(id).addEventListener('change', noonShow); });
+  $('p-go').addEventListener('click', polarisShow);
+  ['p-lon', 'p-date', 'p-time', 'p-hs', 'p-ie', 'p-he']
+    .forEach(function (id) { $(id).addEventListener('change', polarisShow); });
 
   $('nav-back').addEventListener('click', function () {
     if (!$('les').hidden) { syllabus(); return; }

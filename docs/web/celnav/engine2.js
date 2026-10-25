@@ -131,6 +131,48 @@ function extendCelnav(C) {
     };
   }
 
+  /* ---- local apparent noon, and latitude from Polaris -----------------
+     Both are engine functions in the awk - lan_jd() and pol_lat() - and
+     both are ported here rather than reimplemented in the screens, so the
+     diff harness can hold them to the awk's values at full precision.  */
+
+  /*  LAN is the instant the sun's GHA equals your longitude measured west
+      of Greenwich. Solved by iteration rather than from a formula, because
+      the sun's GHA is not linear in time - that non-linearity IS the
+      equation of time - and five passes settle it to far under a second.
+      Five, not "until it converges": the awk does five, and a loop that
+      stops on a tolerance would agree with it only by luck.  */
+  function lan_jd(lon, jd0) {
+    const tgt = nrm360(-lon);
+    let jd = jd0 + (12.0 - lon / 15.0) / 24.0;
+    for (let i = 0; i < 5; i++) {
+      C.body_at('Sun', jd);
+      const d = nrm180(tgt - E.B_GHA);
+      jd = jd + d / 360.9856;
+    }
+    return jd;
+  }
+
+  /*  Latitude from a star near a pole, in closed form. If Polaris sat on
+      the pole its altitude would BE the latitude; it lies a little over
+      half a degree off and circles the pole once a day, so the correction
+      is "where on that circle is it now", which its LHA says.
+
+          sin Ho = sin L sin d + cos L cos d cos LHA
+
+      rearranges, with A = sin d and B = cos d cos LHA, to
+
+          L = asin( sin Ho / sqrt(A^2 + B^2) ) - atan2(B, A)
+
+      which is what the almanac's a0, a1 and a2 columns approximate with a
+      series. The tool solves it instead, and prints both so the gap is
+      visible rather than asserted.  */
+  function pol_lat(ho, dec, lha) {
+    const a = sind(dec), b = cosd(dec) * cosd(lha);
+    const r = Math.sqrt(a * a + b * b);
+    return asind(sind(ho) / r) - atan2d(b, a);
+  }
+
   /* ---- planning ----------------------------------------------------- */
   function sun_alt(jd, lat, lon) {
     C.body_at('sun', jd);
@@ -172,7 +214,8 @@ function extendCelnav(C) {
 
   Object.assign(C, {
     parse_ang, fmt_dm, fmt_lat, fmt_lon, fmt_hms, parse_utc,
-    solve_fix, fix_geometry, sun_alt, find_cross, moon_ill, angsep
+    solve_fix, fix_geometry, sun_alt, find_cross, moon_ill, angsep,
+    lan_jd, pol_lat
   });
   return C;
 }

@@ -54,6 +54,14 @@
         <span class="t-name">The star list</span>
         <span class="t-sub">The 57 navigational stars, by number</span>
       </button>
+      <button class="tile" data-go="noon">
+        <span class="t-name">Noon sight</span>
+        <span class="t-sub">Latitude from the sun at its highest, with no clock to speak of</span>
+      </button>
+      <button class="tile" data-go="polaris">
+        <span class="t-name">Polaris</span>
+        <span class="t-sub">Latitude from one star, available all night</span>
+      </button>
       <button class="tile" data-go="camera">
         <span class="t-name">Camera sight</span>
         <span class="t-sub">An altitude from a photograph</span>
@@ -159,6 +167,77 @@
       <p class="note">SHA and declination are computed for the date, with proper motion and precession applied — not copied from a catalogue.</p>
     </div>
     <div id="st-out"></div>
+  </section>
+
+  <!-- ---------- the noon sight ----------
+       The oldest latitude there is, and the one that needs no almanac
+       page and almost no clock: the altitude sits at a stationary point,
+       so it changes as the SQUARE of the time either side of it. The
+       screen is in two halves on purpose, the way cmd_noon() is: what to
+       expect before you go on deck, and the latitude after you come back
+       with a reading. -->
+  <section class="view" id="v-noon" hidden>
+    <div class="card">
+      <h3>For a date and a DR</h3>
+      <div class="grid2">
+        <label>DR latitude<input id="n-lat" type="text" placeholder="41 49.0 N" autocomplete="off"></label>
+        <label>DR longitude<input id="n-lon" type="text" placeholder="071 24.0 W" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>UT date<input id="n-date" type="text" inputmode="numeric" placeholder="2026-08-29" autocomplete="off"></label>
+        <label>Limb
+          <select id="n-limb">
+            <option value="L">lower</option>
+            <option value="U">upper</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid2">
+        <label>Hs at the maximum<input id="n-hs" type="text" inputmode="decimal" placeholder="leave empty to plan" autocomplete="off"></label>
+        <label>Index error, &prime; (+ on the arc)<input id="n-ie" type="text" inputmode="decimal" placeholder="0"></label>
+      </div>
+      <div class="grid2">
+        <label>Height of eye, m<input id="n-he" type="text" inputmode="decimal" placeholder="2"></label>
+        <label>Temp &deg;C<input id="n-tm" type="text" inputmode="decimal" placeholder="10"></label>
+      </div>
+      <div class="grid1">
+        <label>Pressure, mb<input id="n-pr" type="text" inputmode="decimal" placeholder="1010"></label>
+      </div>
+      <p class="note">Leave Hs empty and this tells you when the sun crosses and how high to
+        expect it. Fill it in afterwards and it gives you the latitude.</p>
+      <button class="btn go" id="n-go" type="button">Work it out</button>
+    </div>
+    <p class="note" id="n-note"></p>
+    <div id="n-out"></div>
+  </section>
+
+  <!-- ---------- Polaris ----------
+       The other latitude that needs no reduction. Both corrections are
+       printed every time -- the first-order -p cos LHA and the exact
+       solution -- because the gap between them is the whole reason the
+       almanac's Polaris table needs three columns instead of one, and
+       that is a thing to show rather than assert. -->
+  <section class="view" id="v-polaris" hidden>
+    <div class="card">
+      <h3>For an instant and a longitude</h3>
+      <div class="grid2">
+        <label>DR longitude<input id="p-lon" type="text" placeholder="071 24.0 W" autocomplete="off"></label>
+        <label>Hs<input id="p-hs" type="text" inputmode="decimal" placeholder="leave empty to plan" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>UT date<input id="p-date" type="text" inputmode="numeric" placeholder="2026-08-29" autocomplete="off"></label>
+        <label>UT time<input id="p-time" type="text" inputmode="numeric" placeholder="23:12:00" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>Index error, &prime; (+ on the arc)<input id="p-ie" type="text" inputmode="decimal" placeholder="0"></label>
+        <label>Height of eye, m<input id="p-he" type="text" inputmode="decimal" placeholder="2"></label>
+      </div>
+      <p class="note">Longitude is what this needs and latitude is what it gives. No limb and no
+        parallax: a star is a point at an infinite distance.</p>
+      <button class="btn go" id="p-go" type="button">Work it out</button>
+    </div>
+    <p class="note" id="p-note"></p>
+    <div id="p-out"></div>
   </section>
 
   <!-- ---------- learn ---------- -->

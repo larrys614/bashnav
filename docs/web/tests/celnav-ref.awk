@@ -184,4 +184,16 @@ function gencase(cid,   tlat,tlon,y,mo,da,hh,mi,se,utc,jd,i,nb,b,hc,hs,ie,he,tm,
   }
   printf "FIX\t%d\t1\t%.17g\t%.17g\t%.17g\t%.17g\t%.17g\t%.17g\n",
     cid,FIXLAT,FIXLON,FIX_N,FIX_E,FIX_SHIFT,sqrt(rms/ns)
+
+  #  ---- the two engine functions the noon and Polaris screens rest on.
+  #  lan_jd() iterates FIVE times - not to a tolerance - so a port that
+  #  stops when it thinks it has converged agrees only by luck; and
+  #  pol_lat() is the closed form the almanac's a0/a1/a2 columns
+  #  approximate. Both emitted per case so they are covered over the same
+  #  spread of positions and dates as everything else.
+  printf "LAN\t%d\t%.17g\n", cid, lan_jd(alon, int(FIXJD+0.5)-0.5)
+  printf "POL\t%d\t%.17g\t%.17g\t%.17g\n", cid,
+    pol_lat(48.2, 89.37, nrm360(343.0 + alon)),
+    pol_lat(fabs(alat), 89.37, nrm360(S_JD[1]*13.0 + alon)),
+    pol_lat(fabs(alat)/2 + 10, 89.0, nrm360(alon*3))
 }

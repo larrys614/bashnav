@@ -61,6 +61,8 @@ for (const line of fs.readFileSync(refFile, 'utf8').split('\n')) {
   else if (f[0] === 'NRM') k.nrm = { a: n(2), b: n(3), c: n(4), det: n(5) };
   else if (f[0] === 'FIX') k.fix = { ok: n(2), lat: n(3), lon: n(4), N: n(5), E: n(6),
                                      shift: n(7), rms: n(8) };
+  else if (f[0] === 'LAN') k.lan = n(2);
+  else if (f[0] === 'POL') k.pol = [n(2), n(3), n(4)];
 }
 
 /* ---- compare ------------------------------------------------------- */
@@ -109,6 +111,17 @@ for (const [id, k] of cases) {
     cmp(id, 'sight ' + (i + 1) + ' run', g.run, L.run, TOL.nm);
   });
 
+  /*  the two engine functions the noon and Polaris screens rest on.
+      lan_jd is a julian date, so it is held to the jd tolerance - a
+      millisecond is 1.2e-8 of a day and this is far tighter than that.  */
+  if (k.lan !== undefined)
+    cmp(id, 'lan_jd', CN.lan_jd(k.dr.lon, Math.floor(k.dr.fixjd + 0.5) - 0.5), k.lan, TOL.jd);
+  if (k.pol) {
+    const n360 = CN.nrm360;
+    cmp(id, 'pol_lat a', CN.pol_lat(48.2, 89.37, n360(343.0 + k.dr.lon)), k.pol[0], TOL.ang);
+    cmp(id, 'pol_lat b', CN.pol_lat(Math.abs(k.dr.lat), 89.37, n360(k.sgt[0].jd * 13.0 + k.dr.lon)), k.pol[1], TOL.ang);
+    cmp(id, 'pol_lat c', CN.pol_lat(Math.abs(k.dr.lat) / 2 + 10, 89.0, n360(k.dr.lon * 3)), k.pol[2], TOL.ang);
+  }
   cmp(id, 'FIX lat', sol.lat, k.fix.lat, TOL.ang);
   cmp(id, 'FIX lon', sol.lon, k.fix.lon, TOL.ang);
   cmp(id, 'offset N', sol.N, k.fix.N, TOL.nm);

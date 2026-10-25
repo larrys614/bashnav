@@ -245,6 +245,41 @@ time, two to five bodies and a DR up to several hundred miles off, inverts each
 and runs the shell's own `cmd_reduce()` path over them — 21,468 comparisons per
 400 cases, under every awk on the machine.
 
+#### And then the other half, because the two halves catch different faults
+
+A module diff and a rendered page catch disjoint sets of faults, and the
+noon-sight port made the division unusually clean. Cutting `lan_jd()`'s five
+iterations down to one is a real fault: the awk does five, and the port's own
+comment says why the count is fixed rather than a tolerance. `celnav-diff.js`
+catches it on all 120 cases, 3e-5 of a day out. `celnav-latitude.js`, which
+reads the rendered screen, does **not** — the iteration converges fast enough
+that `Sun on your meridian at 16:46:29 UT` is unchanged to the second.
+
+It runs the other way too. Flipping which side of you the sun bore, or printing
+Polaris's GHA with the formatter that appends a hemisphere, leaves every
+function in the engine agreeing to twelve decimals; the rendered table goes red
+immediately. So:
+
+| | |
+|---|---|
+| `celnav-diff.js` | the arithmetic, at full precision, over generated cases |
+| `celnav-ui.js`, `celnav-tables.js`, `celnav-latitude.js` | what the page *shows*, against the shell's own printed working |
+
+Neither is the belt and neither is the braces. Each is the only thing that sees
+its own class of fault, and every fault above was planted and watched to go red
+before the check was believed.
+
+#### A screenshot diff needs its magnitude printed
+
+`run-figures-web.sh` recaptures the site's pictures and diffs them against what
+is committed, and `git diff --name-only` cannot tell a changed screen from a
+re-render of the same one. The launcher came back 69 pixels different out of
+773,140, maximum channel delta 71 — font antialiasing, visually identical under
+a crop, and gone on the next three captures. A genuinely changed screen moves a
+`.png` by kilobytes. The harness now prints committed and current byte sizes per
+file, because without them both read as "no longer what the apps draw" and the
+check that cries wolf is the check nobody reads.
+
 ---
 
 ## Golden files

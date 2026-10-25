@@ -118,6 +118,30 @@ SCN
        "$WORK/almanac.txt" "$WORK/stars.txt" "2026-08-29 07:34:00" "2026-01-01"
 
   echo
+  echo "4. the noon sight and Polaris, against what the shell prints"
+  #  The two latitudes that need no fix. Their arithmetic - lan_jd() and
+  #  pol_lat() - is already held to the awk at full precision in stage 1;
+  #  what this adds is what the PAGE does with it, which is where this
+  #  repository's shipped faults have actually lived.
+  #
+  #  Worth knowing, because it decides which stage you trust for what:
+  #  cutting lan_jd's five iterations down to one leaves the rendered
+  #  "Sun on your meridian at 16:46:29 UT" unchanged to the second, and
+  #  stage 1 catches it at 3e-5 of a day on every case. The page check
+  #  cannot see it, and is not meant to.
+  NLAT="41 49.0 N"; NLON="071 24.0 W"; NDATE=2026-08-29
+  $AWK1 -f src/celnav/engine.awk -v cmd=noon -v drlat="$NLAT" -v drlon="$NLON" \
+        -v utc="$NDATE" </dev/null > "$WORK/noon-plan.txt"
+  $AWK1 -f src/celnav/engine.awk -v cmd=noon -v drlat="$NLAT" -v drlon="$NLON" \
+        -v utc="$NDATE" -v hs="60 03.2" -v ie=1.5 -v heye=2 </dev/null > "$WORK/noon-work.txt"
+  $AWK1 -f src/celnav/engine.awk -v cmd=polaris -v drlon="$NLON" \
+        -v utc="$NDATE 23:12:00" </dev/null > "$WORK/pol-plan.txt"
+  $AWK1 -f src/celnav/engine.awk -v cmd=polaris -v drlon="$NLON" \
+        -v utc="$NDATE 23:12:00" -v hs="42 18.4" -v heye=2 </dev/null > "$WORK/pol-work.txt"
+  PORT="$PORT" node docs/web/tests/celnav-latitude.js \
+       "$WORK/noon-plan.txt" "$WORK/noon-work.txt" "$WORK/pol-plan.txt" "$WORK/pol-work.txt"
+
+  echo
   echo "CELNAV WEB: all stages passed"
 else
   echo
