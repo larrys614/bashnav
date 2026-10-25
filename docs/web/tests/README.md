@@ -27,7 +27,42 @@ cannot pass.
 | `celnav-ref.awk` | generates whole sight cases and dumps the awk's reduction and fix |
 | `celnav-diff.js` | the same cases through the shipped browser engine, compared |
 | `celnav-ui.js`   | types sights into the page and checks the fix it *shows* |
+| `run-figures-web.sh` | recaptures the site's pictures from the apps and diffs them |
 | `serve.py`       | a static server that honours `Range`, which Python's own does not |
+
+## The site's pictures are the apps' own drawings
+
+The front page showed thirteen `ansi2svg` renderings — the *terminal's*
+characters drawn as SVG. That was right while the shell build was the product.
+The page leads with the browser apps now, so the pictures are the apps' own
+`<svg>`, lifted out of the running page by
+`docs/web/gen/make-app-figures.sh`. Nothing is redrawn and no geometry is
+recomputed, which is why a picture cannot drift from what a reader sees.
+
+Two things make a capture reproducible, and the committed files are diffed
+against a fresh one:
+
+1. **`Math.random` is seeded** before any app code runs, with the same LCG the
+   awk harnesses use. The lights and day-shape screens are quizzes that pick a
+   vessel at random and the encounter screen picks a scenario; unseeded, every
+   capture would differ and the comparison would be noise. Seeded, *"the second
+   question on the lights screen"* is a stable address for a figure.
+2. **The styles are inlined.** The celnav plot resolves its colours at draw time
+   and arrives with `fill` and `stroke` on every element, but the colregs
+   figures take theirs from CSS *classes* so they follow the night palette — and
+   a class means nothing in a standalone file. The first version skipped any
+   computed value of `none`, which is the one value that matters: SVG's default
+   fill is black, so every ring of the contacts radar filled in and the figure
+   came out as a solid black disc.
+
+Capturing them found a COLREGs fault the suite could not have: the browser drew
+a mine clearance vessel with **four** balls, where Rule 27(f) gives three — one
+at the foremast head and one at each end of the fore yard. The port had read
+the shell glyph `(O)---+---(O)` as a picture and turned the `+`, which marks
+where the yard crosses the mast, into a shape. `tests/app-figures-check.sh`
+asserts that arrangement in the committed figure, with no browser, the way
+`run-tests.sh` has asserted it for her *lights* at sixteen angles ever since
+Larry found it wrong there.
 
 ## Why celnav's cases are whole and not pieces
 

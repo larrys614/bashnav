@@ -454,6 +454,30 @@ reason a build script can be wrong about whether it worked.
 **A stray 45-byte `bashnav.tar.gz` was committed by accident.** `*.tar.gz` is
 in `.gitignore` now.
 
+### Reading a glyph as a picture
+
+The shell draws a mine clearance vessel's day shapes as
+
+    (O)---+---(O)
+
+Two balls on the fore yard, and a `+` where the yard crosses the mast. The
+browser port drew a **circle** at the `+`, so she showed four balls where Rule
+27(f) gives three — one at the foremast head and one at each end of the fore
+yard — and three balls is the whole of how she is identified. In SVG the mast
+line already passes through the yard, so the crossing needs nothing drawn for
+it at all.
+
+> A character drawing contains glyphs that are STRUCTURE and glyphs that are
+> SUBJECT, and the difference is not in the file. `+`, `|` and `\=====/` are
+> the spar, the mast and the hull; `(O)` is the shape the Convention names.
+> Port the data, never the drawing.
+
+This is the second time this vessel's arrangement has been wrong, and both
+times the Convention was the thing that settled it. `tests/run-tests.sh` has
+checked her three greens hang on one yard with the mast between them, at
+sixteen angles, since the first time; `tests/app-figures-check.sh` now asserts
+the same property for her day shapes.
+
 ### A port can get every piece right and still be wrong
 
 **The browser's fix used `solve_fix()`'s first pass.** `solve_fix()` linearises

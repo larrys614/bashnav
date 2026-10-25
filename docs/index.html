@@ -192,7 +192,7 @@ celnav sight "2026-08-29 07:34:00" Bellatrix C "49 37.2"
 celnav sight "2026-08-29 07:38:00" Markab    C "29 01.3"
 celnav fix</pre>
   <figure>
-    <img class="shot" src="img/celnav-plot.svg" alt="The intercept plot: dead reckoning at the centre, three lettered lines of position, and the fix where they cross with its error ellipse" loading="lazy">
+    <img class="shot" src="img/app/celnav-plot.svg" alt="The intercept plot: dead reckoning at the centre, three lettered lines of position, and the fix where they cross with its error ellipse" loading="lazy">
     <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
       <div class="plate"><pre>INTERCEPT PLOT  (AP at centre, N up)
                              |    N :          //
@@ -224,7 +224,7 @@ W                           /|  ----:                                   E
      ///                      |   S :                       5 nm per row
 AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre></div>
     </details>
-    <figcaption><b>A plotting sheet, drawn in characters.</b> Your dead reckoning at the centre, one lettered line of position for each sight, and the fix where they cross — about ten miles north and sixteen west of where you thought you were.</figcaption>
+    <figcaption><b>The plotting sheet the app draws.</b> Your assumed position at the centre, one lettered line of position for each sight, and the fix where they cross — about ten miles north and sixteen west of where you thought you were.</figcaption>
   </figure>
   <div class="tools">
     <div class="tool">
@@ -300,24 +300,7 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
     <li><b>Sight planning:</b> twilight times in UT and local, what is above the horizon, and the best three bodies to shoot.</li>
     <li><b>Fix geometry in miles,</b> so a weak cut is named as weak before you steer on it.</li>
   </ul>
-  <figure>
-    <img class="shot" src="img/celnav-working.svg" alt="One sight reduced in full: the sextant correction chain, the almanac values, and the navigational triangle solved at the assumed position" loading="lazy">
-    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
-      <div class="plate"><pre>Sight a: Dubhe      2026-08-29 07:30:00 UT   limb centre
-  Hs     19 32.1'     GHA   283 41.6'     assumed pos 35 00.0'N 040 00.0'W
-  IE         -1.5'    Dec   N61 36.5'     LHA 243 41.6'
-  Dip        -3.0'    SD         -       Hc     19 23.3'
-  Ha     19 27.6'     HP         -       Zn    026 51.9'
-  Ref        -2.8'
-  Ho     19 24.8'                          Intercept    1.5 nm TOWARD</pre></div>
-    </details>
-    <figcaption><b>Nothing is hidden.</b> The left column is the sextant chain, the middle is the almanac, the right is the navigational triangle solved at the assumed position.</figcaption>
-  </figure>
 
-  <figure>
-    <img class="shot" src="img/celnav-sky.svg" alt="The sky at morning twilight: the horizon at the rim, overhead at the centre, every body above the horizon placed by altitude and azimuth, with the best three for a fix marked" loading="lazy">
-    <figcaption><b>What is up there, and which three to shoot.</b> The rim is your horizon and the centre is straight overhead. A good fix wants bodies spread around the compass, so it names the three that cut best rather than the three that are brightest.</figcaption>
-  </figure>
 
   <h3>Accuracy, measured rather than claimed</h3>
   <p>Checked against an independent high-precision ephemeris over 1990–2076, sampling every 11 days. The figures are total angular error in apparent position.</p>
@@ -335,50 +318,14 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
 
   <h3>It teaches, as well as computes</h3>
   <p>Twenty lessons from first principles, an annotated walkthrough of one real sight, six kinds of drill generated from the real almanac and marked, and a sandbox where you change one number and watch the navigational triangle move.</p>
-  <figure>
-    <img class="shot" src="img/celnav-triangle.svg" alt="The navigational triangle drawn on the observer’s own sky, overhead at the centre and the horizon at the rim" loading="lazy">
-    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
-      <div class="plate"><pre>SANDBOX -- the navigational triangle
-----------------------------------------------------------------------
-                             N
-                      .................
-                ......                 .......
-            ....                             ....
-         ....                N                  ....
-       ...                    P+                   ...
-     ...                      '++++                  ...
-    ..                        '   ++++                 ..
-   ..                         '      +++90-d            ..
-  .                           '90-L    +++                .
- ..                           '          ++               ..
- .                            '           +++              .
-W.                            Z``````````````+             .E
- .                                 90-Hc    `*             .
- ..                                                       ..
-  .                                                       .
-   ..                                                   ..
-    ..                                                 ..
-     ...                                             ...
-       ...                                         ...
-         ....                                   ....
-            ....                             ....
-                ......                 .......
-                      .................
-                             S
-----------------------------------------------------------------------
-latitude    35.0    declination    20.0    LHA   310.0
-  computed altitude Hc 43.71      azimuth Zn 95.3 T</pre></div>
-    </details>
-    <figcaption><b>The navigational triangle, on your own sky.</b> Centre is straight overhead, the rim is your horizon. Change your latitude, the declination or the hour angle and the shape moves with it.</figcaption>
-  </figure>
 </section>
 
 <section id="colregs">
   <p class="eyebrow">Tool two</p>
-  <h2>colregs <span class="rule">— the rules of the road, in characters</span></h2>
+  <h2>colregs <span class="rule">— the rules of the road</span></h2>
   <p>The lights are not drawings. Each one is described by its position on the vessel, its height, and its arc of visibility, and the program works out what you can see from where you are standing. Shoot her from astern and the masthead lights correctly disappear.</p>
   <figure>
-    <img class="shot" src="img/colregs-lights.svg" alt="A vessel restricted in her ability to manoeuvre seen from 040 degrees: red over white over red, with her sidelights" loading="lazy">
+    <img class="shot" src="img/app/colregs-lights.svg" alt="A vessel restricted in her ability to manoeuvre seen from 040 degrees: red over white over red, with her sidelights" loading="lazy">
     <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
       <div class="plate"><pre>WHAT DO YOU SEE?
 ----------------------------------------------------------------------
@@ -403,8 +350,12 @@ deck                           :    ::
 You are broad on her starboard bow.
 Letters are the colours: W white  R red  G green  Y yellow</pre></div>
     </details>
-    <figcaption><b>Red over white over red, and a sternlight:</b> a vessel restricted in her ability to manoeuvre, seen from her starboard bow. Every light also carries its colour as a letter, so the pattern is unambiguous in night mode, in plain text, and for anyone who does not see red and green.</figcaption>
+    <figcaption><b>Red over white over red:</b> a vessel restricted in her ability to manoeuvre, and you are broad on her port bow &mdash; which is why the sidelight showing is the red one. She is making way, so she carries her ordinary lights as well. Every light also carries its colour as a letter, so the pattern is unambiguous in night mode, in plain text, and for anyone who does not see red and green.</figcaption>
   </figure>
+    <figure>
+      <img class="shot" src="img/app/colregs-shapes.svg" alt="Day shapes against a daylight sky: one black ball at the foremast head and one at each end of the fore yard" loading="lazy">
+      <figcaption><b>Three balls, and where they are matters.</b> One at the foremast head and one at each end of the fore yard: a vessel engaged in mine clearance, and you keep a thousand metres clear of her. The screen is drawn against a bright sky because day shapes are seen by day &mdash; except in night mode, where a bright panel would cost a dark-adapted eye twenty minutes and that outranks fidelity.</figcaption>
+    </figure>
   <ul>
     <li><b>Lights</b> — twenty vessel types, drawable from any bearing.</li>
     <li><b>Day shapes</b> — ball, diamond, cone, cylinder, and what each of them means.</li>
@@ -413,7 +364,7 @@ Letters are the colours: W white  R red  G green  Y yellow</pre></div>
     <li><b>Fifteen lessons</b> on the rules themselves, each ending with a question.</li>
   </ul>
   <figure>
-    <img class="shot" src="img/colregs-encounter.svg" alt="An encounter laid out with the lights seen, the bearing, and four courses of action to choose between" loading="lazy">
+    <img class="shot" src="img/app/colregs-encounter.svg" alt="An encounter laid out with the lights seen, the bearing, and four courses of action to choose between" loading="lazy">
     <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
       <div class="plate"><pre>WHAT DO YOU DO?
 ----------------------------------------------------------------------
@@ -451,82 +402,14 @@ You see a power-driven vessel showing her red sidelight, on your starboard beam,
  c) Give way: alter to port to cut across ahead of her.
  d) Slow down and let her decide.</pre></div>
     </details>
-    <figcaption><b>Head up, you in the middle.</b> She is crossing from your starboard side, so you are the give-way vessel — and Rule 15 says avoid crossing ahead of her, which means altering to starboard and passing under her stern.</figcaption>
+    <figcaption><b>Head up, you in the middle.</b> You are a 12 m yacht under sail, crossing a traffic separation scheme; she is a container ship following the lane, broad on your starboard bow. Being under sail does not help you here — Rule 10(j) says a sailing vessel shall not impede a power-driven vessel following a lane, and Rule 10(c) says cross on a <em>heading</em> as nearly as practicable at right angles to the flow.</figcaption>
   </figure>
   <h3>Plotting a developing situation</h3>
   <p>The snapshot asks who gives way. This asks the harder question: is there a risk at all, how close will she come, and does your action actually open the distance? Three observations six minutes apart, with the scatter a hand bearing compass really gives you.</p>
-  <figure>
-    <img class="shot" src="img/colregs-scenario.svg" alt="A collision avoidance scenario: own vessel, a contact, and the question of what the rules require" loading="lazy">
-    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
-      <div class="plate"><pre>COLLISION AVOIDANCE -- a radar plot
-----------------------------------------------------------------------
-You are a power-driven vessel, steering 162 T at 8 knots.
-Visibility is good and you have her in sight.
-----------------------------------------------------------------------
-Three observations, six minutes apart:
-
-    time     bearing      range
-    00 min   133 T        6.8 nm
-    06 min   131 T        5.6 nm
-    12 min   131 T        4.4 nm
-
-She shows red over white over red: restricted in her ability to manoeuvre.
-----------------------------------------------------------------------
-                             N
-                      .................
-                ......                 .......
-            ....                             ....
-         ...                                     ...
-       ...                                         ...
-     ...                                             ...
-    ..                .................                ..
-   ..              ....               ....               .
-  .              ...                     ...              .
- ..             ..                         ..             ..
- .              .                           .              .
-W.              .             +             .              .E
- .              .            YOU            .              .
- ..             ..                         ..             ..
-  .              ...                     ...              .
-   .               ....               ....3             ..
-    ..                .................      2         ..
-     ...                                         1   ...
-       ...                                         ...
-         ...                                     ...
-            ....                             ....
-                ......                 .......
-                      .................
-                             S
-----------------------------------------------------------------------
-The marks are where she was, relative to you, at each observation.
-
-Q1  Is there a risk of collision?</pre></div>
-    </details>
-    <figcaption><b>A steady bearing and a closing range.</b> Answer the three questions and it works the solution: the CPA, the time to it, and her true course and speed from the vector triangle — then replays both tracks under the action <em>you</em> chose, and tells you the CPA that action actually produced.</figcaption>
-  </figure>
-  <figure>
-    <img class="shot" src="img/colregs-sound.svg" alt="The sound signals used in sight of one another, each blast pattern against its meaning" loading="lazy">
-    <details class="asterm"><summary>The same thing, as your terminal prints it</summary>
-      <div class="plate"><pre>In sight of one another (Rule 34)
-  #                  I am altering my course to starboard
-  # #                I am altering my course to port
-  # # #              I am operating astern propulsion
-  # # # # #          I do not understand your intentions, or I doubt you are taking sufficient action
-  #### #### #        I intend to overtake you on your starboard side
-  #### #### # #      I intend to overtake you on your port side
-  #### # #### #      I agree: go ahead and overtake
-  ####               I am approaching a bend where other vessels may be hidden
-
-In or near an area of restricted visibility (Rule 35)
-  ####               Power-driven vessel making way through the water
-  #### ####          Power-driven vessel under way but stopped and making no way
-  #### # #           Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  #### # # #         A vessel being towed, and manned
-  *****              At anchor
-  * * * ***** * * *  Aground</pre></div>
-    </details>
-    <figcaption><b>A short blast is about a second; a prolonged blast four to six.</b> The distinction that matters is not the pattern but the context: Rule 34 signals are for vessels in sight of one another and say what you are doing; Rule 35 signals are for restricted visibility and say what kind of vessel you are.</figcaption>
-  </figure>
+    <figure>
+      <img class="shot" src="img/app/colregs-contacts.svg" alt="A relative-motion plot on the twelve mile radar scale: five marks three minutes apart running in toward own ship, with the closest point of approach marked at 100 yards" loading="lazy">
+      <figcaption><b>A steady bearing and a closing range.</b> Five marks, three minutes apart, on the smallest radar range scale that still holds her &mdash; and the closest point of approach she will make if neither of you alters: a hundred yards astern. Answer the three questions and the app works the solution, then replays both tracks under the action <em>you</em> chose and tells you the CPA it actually produced.</figcaption>
+    </figure>
 </section>
 
 <section id="tides">
@@ -538,14 +421,6 @@ In or near an area of restricted visibility (Rule 35)
     <li><b>Loose search.</b> Type part of a name in any order &mdash; <code>new lon</code> finds New London &mdash; because nobody remembers a station&rsquo;s full official name at 0400.</li>
     <li><b>The curve as well as the table,</b> with the turns marked, so the shape of the day is visible rather than four numbers to interpolate between.</li>
   </ul>
-  <figure>
-    <img class="shot" src="img/tides-day.svg" alt="A day&rsquo;s tide table and curve for New London: four turns, the curve drawn across twenty-four hours with the highs and lows marked" loading="lazy">
-    <figcaption><b>A day at New London.</b> The table, and the curve with its turns &mdash; drawn in characters, because that is what a terminal has.</figcaption>
-  </figure>
-  <figure>
-    <img class="shot" src="img/tides-find.svg" alt="Searching for a tide station by part of its name: four matches for &lsquo;new lon&rsquo;, numbered for picking" loading="lazy">
-    <figcaption><b>Finding a station.</b> Part of the name, in any order, and the matches numbered for picking.</figcaption>
-  </figure>
   <p class="small dim">No tidal <em>current</em> data. NOAA has 4,430 current stations but United States waters only, and worldwide coverage is the point of the thing &mdash; so it is left out rather than offered for a quarter of the planet.</p>
 </section>
 
@@ -559,10 +434,6 @@ In or near an area of restricted visibility (Rule 35)
     <li><b>Told at the moment of use.</b> &ldquo;That was your last one, one short of your minimum&rdquo; &mdash; while you are still standing at the engine, not in a report afterwards.</li>
     <li><b>Four states, not two.</b> A reading, a zero (which is a reading), asked-and-not-taken, and asked-and-not-observable. A form that punishes blanks gets invented numbers.</li>
   </ul>
-  <figure>
-    <img class="shot" src="img/decklog-menu.svg" alt="The deck-log menu: log an entry, weather, engine inspection, work done, spares, shopping list, the log, and what is outstanding" loading="lazy">
-    <figcaption><b>One book, several tabs.</b> Including the question that matters on passage: what is still outstanding.</figcaption>
-  </figure>
 </section>
 
 <section id="weather">
@@ -575,20 +446,12 @@ In or near an area of restricted visibility (Rule 35)
     <li><b>You forecast first.</b> It shows nothing of its reasoning until your call is committed &mdash; otherwise you have not forecast anything, you have read an answer and agreed with it.</li>
     <li><b>Three scorers:</b> you, the rules, and persistence. Persistence is the honest floor: a forecast that cannot beat &ldquo;much as it is now&rdquo; has shown no skill.</li>
   </ul>
-  <figure>
-    <img class="shot" src="img/weather-menu.svg" alt="The weather menu: what the log says, a lesson, from a 500 millibar chart, make a forecast, and the score" loading="lazy">
-    <figcaption><b>Observe, predict, compare, score.</b> The app&rsquo;s misses go on the record alongside yours.</figcaption>
-  </figure>
 </section>
 
 <section id="bashnav">
   <p class="eyebrow">And a launcher</p>
   <h2>bashnav <span class="rule">&mdash; one command in front of five</span></h2>
   <p>Pure <code>sh</code>, no awk, no network. It finds the tools next to itself, on the path, or in the place the operating system actually lets an app write, and puts a numbered list in front of them.</p>
-  <figure>
-    <img class="shot" src="img/bashnav-menu.svg" alt="The bashnav launcher menu listing celnav, colregs, tides, deck-log and weather" loading="lazy">
-    <figcaption><b>Five names is four too many</b> when you are cold and the screen is wet.</figcaption>
-  </figure>
 </section>
 
 <section id="colour">

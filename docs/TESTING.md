@@ -54,6 +54,7 @@ content changes.
 | `fields-check.awk` | a table field containing its own separator (a `;` in an option cut an answer in half) |
 | `jsonesc-check.awk` | the generators' JS/JSON escaper, held to a literal answer per awk &mdash; one mawk build emitted one backslash where the rest emit two |
 | `sw-cache-check.sh` | a served file that changed without its app's service-worker cache version moving &mdash; an installed copy would never receive it |
+| `app-figures-check.sh` | a site picture missing, unreferenced, or drawing the wrong thing &mdash; including Rule 27(f) in the day-shape figure |
 | `svg-check.awk` | an SVG that is not an exact character grid |
 | `readme-check.awk` | unclosed fences, unbalanced `<details>`, `<img>` inside a fence or pointing at nothing |
 | `plates-check.sh` | every plate and picture the site shows, against what the program produces &mdash; per awk, so awk-dependent site output fails |

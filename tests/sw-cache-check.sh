@@ -72,7 +72,12 @@ for sw in docs/web/*/sw.js; do
     bad=$((bad+1)); continue
   fi
 
-  changed=$(git diff --name-only "$at..HEAD" -- $paths 2>/dev/null || true)
+  #  "$at" and not "$at..HEAD": that compares the bump against the WORKING
+  #  TREE, so an edit to a served file is reported while it is still
+  #  uncommitted - which is when the warning is worth having. With
+  #  $at..HEAD it only ever saw committed changes, and passed on a tree
+  #  where colregs.js had just been edited and the cache had not moved.
+  changed=$(git diff --name-only "$at" -- $paths 2>/dev/null || true)
   if [ -n "$changed" ]; then
     echo "  $name: $cache was set in $(git log -1 --format=%h "$at"), and these"
     echo "    served files have changed since -- an existing install will never"

@@ -606,6 +606,22 @@ WXLOG
   done
   [ "$fp" = 0 ] && ok "no parameter shadows a function name"
 
+  #  ---- the site's pictures, which are the apps' own drawings -------
+  #  docs/img/app/*.svg are captured from the running browser apps by
+  #  docs/web/gen/make-app-figures.sh. That needs a headless Chromium and
+  #  cannot run here, so this checks the COMMITTED files - and asserts
+  #  Rule 27(f) in the one figure that states it, because the browser drew
+  #  a mine clearance vessel with four balls where the Convention gives
+  #  three. run-tests.sh has checked that arrangement in her LIGHTS at
+  #  sixteen angles since Larry found it wrong there; nothing checked her
+  #  day shapes until it was wrong there too.
+  if o=$(sh tests/app-figures-check.sh "$AW" 2>&1); then
+    ok "every site picture is a real app drawing, and mine clearance shows three balls"
+  else
+    printf '%s\n' "$o" | grep -v '^APPFIG'
+    bad "a site picture is missing, unreferenced, or draws the wrong thing"
+  fi
+
   #  ---- the generators' JS/JSON escaper gives one answer ------------
   #  Every generated browser file is escaped by docs/web/gen/jsonesc.awk,
   #  and the nine copies it replaced did the doubling inside gsub's

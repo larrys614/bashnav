@@ -355,6 +355,31 @@ store. A service worker's *scope* is per-path, though, which is why
 loaded from `../deck-log/` — out of scope they would not be cached and the tool
 would not work offline, which is the entire point.
 
+### The site's pictures are the apps' own drawings
+
+The front page showed thirteen `ansi2svg` renderings — the terminal's
+characters drawn as SVG — on a page that now leads with the browser apps. They
+are the apps' own `<svg>` now, captured out of the running page by
+`docs/web/gen/make-app-figures.sh`: the celnav plotting sheet, a vessel's
+lights, her day shapes, an encounter, and the tracking party's relative-motion
+plot. Captures are reproducible because `Math.random` is seeded before any app
+code runs, and `docs/web/tests/run-figures-web.sh` recaptures and diffs.
+
+Ten pictures were retired rather than replaced, because the screens behind them
+either do not exist in the browser yet (the sky view and the navigational
+triangle, which are the planner — task 25) or are text rather than drawings
+(the menus, the sound-signal table, the station search). `tides`, `deck-log`,
+`weather` and `bashnav` therefore have no picture in their sections at present.
+The tides curve is the one real loss: it is a canvas, so it could come back as
+SVG if the app drew it that way.
+
+**Capturing them found a COLREGs fault**: the browser drew a mine clearance
+vessel with four balls, where Rule 27(f) gives three. The port had read the
+shell glyph `(O)---+---(O)` as a picture and turned the `+` — which marks where
+the yard crosses the mast — into a shape. Her *lights* have been checked at
+sixteen angles since Larry found that same arrangement wrong there;
+`tests/app-figures-check.sh` now asserts it for her shapes too.
+
 ### Three apps were shipping to nobody
 
 Every app's worker is cache-first with no revalidation, so bumping `CACHE` is

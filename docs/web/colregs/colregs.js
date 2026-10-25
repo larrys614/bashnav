@@ -20,7 +20,7 @@
     at colregs-v1 since the app was written. tests/run-tests.sh now
     refuses a build and a cache that disagree, which is the same check
     the drill app got for the same reason.  */
-var BUILD = 11;
+var BUILD = 12;
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
@@ -418,12 +418,22 @@ function glyph(kind, cx, y, scale, s, c, bg) {
     el('rect', { x: cx - fw / 2, y: y - fh, width: fw * 0.3, height: fh, fill: bg }, s);
     h = fh;
   } else if (kind === 'ballpair') {
+    /*  TWO balls, one at each end of the fore yard, and NOTHING between
+        them. A third circle sat at cx, and it made mine clearance show
+        FOUR balls where Rule 27(f) gives three - "one at the foremast
+        head and one at each end of the fore yard" - which is the whole
+        of how she is identified, and it is the same arrangement Larry
+        had already caught this program getting wrong once.
+
+        It came of reading the shell's glyph as a picture rather than as
+        characters: shp_glyph() draws "(O)---+---(O)", and the + marks
+        where the yard crosses the mast, not a shape. Here the mast line
+        already passes through, so the crossing needs nothing drawn.  */
     var sp = 70 * scale, rr = 20 * scale;
     el('line', { x1: cx - sp, y1: y - rr, x2: cx + sp, y2: y - rr,
                  stroke: c, 'stroke-width': 4 }, s);
     el('circle', { cx: cx - sp, cy: y - rr, r: rr, fill: c }, s);
     el('circle', { cx: cx + sp, cy: y - rr, r: rr, fill: c }, s);
-    el('circle', { cx: cx, cy: y - rr, r: rr, fill: c }, s);
     h = rr * 2;
   }
   return h;
