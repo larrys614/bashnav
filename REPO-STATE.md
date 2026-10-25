@@ -355,6 +355,35 @@ store. A service worker's *scope* is per-path, though, which is why
 loaded from `../deck-log/` — out of scope they would not be cached and the tool
 would not work offline, which is the entire point.
 
+### celnav: the almanac and the star list
+
+*Task 23.* Two screens the browser did not have, both following
+`cmd_almanac()` and `cmd_stars()` field for field:
+
+- **Almanac** — Greenwich hour angle and declination for any instant, with
+  semi-diameter and horizontal parallax, and sidereal hour angle and magnitude
+  for the stars and planets. Aries is always shown, because every star sight is
+  worked from it. Nothing is looked up: the same series the sight reduction
+  uses computes it, so there is no year to run out.
+- **The star list** — all 58 by number, with proper motion and precession
+  applied to the date rather than reprinted from a catalogue.
+
+`docs/web/tests/celnav-tables.js` compares both rendered tables against what the
+shell prints — 389 checks over 6 bodies and 58 stars — because what goes wrong
+in a table is not the arithmetic. Two things did:
+
+1. **The star list opened at Ankaa.** The awk indexes its star arrays from 1 and
+   the port indexes them from 0, so star 1 was absent and the loop ran one past
+   the end. Every value in the list was right; the list was wrong. `engine.js`
+   says `// i is 0-based here` on `star_pos`, which is exactly the comment that
+   exists because this is easy to get wrong.
+2. **A GHA has no hemisphere.** Rendered with the latitude formatter, Aries came
+   out as `091 01.8' E`, which is not a thing. `dm3()` is awk's `fmt_dm(x, 3)`.
+
+The home screen also led with camera sight and a lede reading "an altitude from
+a photograph" — the same framing corrected on the launcher tile. Sight reduction
+is first now, with the almanac and the star list beside it.
+
 ### The site's pictures are the apps' own drawings
 
 The front page showed thirteen `ansi2svg` renderings — the terminal's

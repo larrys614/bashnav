@@ -34,16 +34,29 @@
        the browser now matches: camera sight is a section here rather
        than the whole of it. -->
   <section class="view" id="v-home">
-    <p class="lede">An altitude from a photograph, and the thirty-three
-      lessons behind it.</p>
+    <!--  SIGHT REDUCTION FIRST. This screen led with camera sight, and the
+          lede said "an altitude from a photograph", which was the whole of
+          the app when it was written. celnav is a sight reduction calculator
+          first, a teaching track second, and the camera is the third way of
+          getting an altitude into it. -->
+    <p class="lede">Sight reduction and the fix, the almanac behind them, and
+      thirty-three lessons that teach the subject from first principles.</p>
     <nav class="tiles">
-      <button class="tile" data-go="camera">
-        <span class="t-name">Camera sight</span>
-        <span class="t-sub">An altitude from a photograph</span>
-      </button>
       <button class="tile" data-go="sight">
         <span class="t-name">Sight reduction</span>
         <span class="t-sub">Work a sight from any sextant, and cross them for a fix</span>
+      </button>
+      <button class="tile" data-go="almanac">
+        <span class="t-name">Almanac</span>
+        <span class="t-sub">GHA and declination for any instant, with nothing aboard but this</span>
+      </button>
+      <button class="tile" data-go="stars">
+        <span class="t-name">The star list</span>
+        <span class="t-sub">The 57 navigational stars, by number</span>
+      </button>
+      <button class="tile" data-go="camera">
+        <span class="t-name">Camera sight</span>
+        <span class="t-sub">An altitude from a photograph</span>
       </button>
       <button class="tile" data-go="learn">
         <span class="t-name">Learn</span>
@@ -109,6 +122,43 @@
       <div id="s-fix"></div>
       <div id="s-sheet"></div>
     </div>
+  </section>
+
+  <!-- ---------- almanac ----------
+       GHA and declination for an instant, which is the thing a paper
+       almanac is carried for. The engine computes it rather than looking it
+       up, so there is no year to run out and no table to leave ashore. -->
+  <section class="view" id="v-almanac" hidden>
+    <div class="card">
+      <h3>For an instant</h3>
+      <div class="grid2">
+        <label>UT date<input id="a-date" type="text" inputmode="numeric" placeholder="2026-08-29" autocomplete="off"></label>
+        <label>UT time<input id="a-time" type="text" inputmode="numeric" placeholder="07:34:00" autocomplete="off"></label>
+      </div>
+      <div class="grid1">
+        <label>Bodies<input id="a-bodies" type="text" placeholder="sun,moon,venus,mars,jupiter,saturn" autocomplete="off"></label>
+      </div>
+      <p class="note">A name, a star number, or several separated by commas. Aries is always shown, because every star sight is worked from it.</p>
+      <button class="btn go" id="a-go" type="button">Work it out</button>
+    </div>
+    <p class="note" id="a-note"></p>
+    <div id="a-out"></div>
+  </section>
+
+  <!-- ---------- the star list ----------
+       The 57 navigational stars by number, which is how a sight form and a
+       star finder name them. Proper motion and precession are applied to the
+       date, so this is not a reprint of a catalogue. -->
+  <section class="view" id="v-stars" hidden>
+    <div class="card">
+      <h3>The navigational stars</h3>
+      <div class="grid2">
+        <label>UT date<input id="st-date" type="text" inputmode="numeric" placeholder="2026-08-29" autocomplete="off"></label>
+        <label>Find<input id="st-find" type="text" placeholder="name or number" autocomplete="off"></label>
+      </div>
+      <p class="note">SHA and declination are computed for the date, with proper motion and precession applied — not copied from a catalogue.</p>
+    </div>
+    <div id="st-out"></div>
   </section>
 
   <!-- ---------- learn ---------- -->

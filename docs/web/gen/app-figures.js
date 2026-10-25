@@ -221,6 +221,21 @@ const FIGURES = [
       prose. There is no SVG to lift, so these are pictures of the real
       screen.  */
   {
+    file: 'celnav-almanac.png', app: 'celnav', shot: '#v-almanac', height: 1100,
+    title: 'celnav: the almanac for an instant - GHA and declination computed, not looked up',
+    async drive(p) {
+      await p.click('[data-go="almanac"]');
+      await p.waitForTimeout(300);
+      /*  the same instant as the worked example's middle sight, so the
+          page's figures and its prose are one run  */
+      await p.fill('#a-date', '2026-08-29');
+      await p.fill('#a-time', '07:34:00');
+      await p.fill('#a-bodies', 'sun,moon,venus,mars,jupiter,saturn');
+      await p.click('#a-go');
+      await p.waitForTimeout(600);
+    }
+  },
+  {
     file: 'tides-day.png', app: 'tides', shot: '#v-day', height: 1700,
     title: 'tides: a day at New London - the curve, the turns, and what is under the keel',
     async drive(p) {

@@ -357,6 +357,13 @@ function dm(v) {
   var p = dmparts(v);
   return (p.neg ? '-' : '') + p.d + '\u00b0 ' + p.m + "'";
 }
+/*  A GHA HAS NO HEMISPHERE. ddm() appends N/S or E/W, which is right for a
+    latitude or a longitude and wrong for an hour angle: Aries at 091 01.8'
+    is not 091 01.8' east of anything. This is awk's fmt_dm(x, 3).  */
+function dm3(v) {
+  var p = dmparts(v);
+  return ('00' + p.d).slice(-3) + '\u00b0 ' + p.m + "'";
+}
 function ddm(v, lat) {
   var h = (v < 0) ? (lat ? 'S' : 'W') : (lat ? 'N' : 'E');
   var p = dmparts(v);
@@ -505,6 +512,22 @@ function sightFix() {
 
 function sightRefresh() { sightList(); sightFix(); }
 
+/*  both screens default to now, for the same reason the sight screen does:
+    the overwhelmingly common case is "what is it doing at this moment",
+    and a blank date field asks a question the device can answer itself  */
+function utcToday() { return new Date().toISOString().slice(0, 10); }
+function utcClock() { return new Date().toISOString().slice(11, 19); }
+
+function almanacInit() {
+  if (!$('a-date').value) $('a-date').value = utcToday();
+  if (!$('a-time').value) $('a-time').value = utcClock();
+  almanacShow();
+}
+function starsInit() {
+  if (!$('st-date').value) $('st-date').value = utcToday();
+  starsShow();
+}
+
 function sightInit() {
   /*  the body list the shell offers: the sun, moon, the four planets it
       carries and the 57 navigational stars, by name  */
@@ -527,11 +550,126 @@ function sightInit() {
 /* =====================================================================
    ROUTER
    ===================================================================== */
+/* =====================================================================
+   THE ALMANAC, AND THE STAR LIST
+
+   The two screens a paper almanac is carried for. Nothing here is looked
+   up: body_at() computes GHA and declination for the instant from the
+   same series the sight reduction uses, so there is no year to run out
+   and no volume to leave ashore.
+
+   Both follow cmd_almanac() and cmd_stars() in src/celnav/engine.awk
+   field for field, because the shell is the reference implementation and
+   docs/web/tests/run-celnav-web.sh diffs the two.
+   ===================================================================== */
+
+/*  Aries is always shown. Every star sight is worked from the Greenwich
+    hour angle of the First Point of Aries plus the star's SHA, so an
+    almanac page without it is of no use for the thing stars are for.  */
+function almanacShow() {
+  var C = CNe(), box = $('a-out'), note = $('a-note');
+  box.textContent = ''; note.textContent = '';
+  var d = $('a-date').value.trim(), t = $('a-time').value.trim();
+  if (!d || !t) { note.textContent = 'Give the UT date and time \u2014 the clock is what rules.'; return; }
+  var utc = d + ' ' + t;
+  if (!/^\d{4}-\d{2}-\d{2}[ T]\d{1,2}:\d{2}/.test(utc)) {
+    note.textContent = 'UT as 2026-08-29 and 07:34:00.'; return;
+  }
+  var jd = C.parse_utc(utc);
+  var list = ($('a-bodies').value.trim() || 'sun,moon,venus,mars,jupiter,saturn')
+               .split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+
+  var head = mk('p', 'note', 'JD ' + jd.toFixed(5) + '   \u0394T ' +
+                C.deltaT(C.E.UT_Y).toFixed(1) + ' s');
+  box.appendChild(head);
+
+  var t2 = mk('table', 'ct-tab');
+  var hr = mk('tr');
+  ['body', 'GHA', 'Dec', 'SD', 'HP'].forEach(function (h) { hr.appendChild(mk('th', null, h)); });
+  t2.appendChild(hr);
+
+  var tr = mk('tr');
+  tr.appendChild(mk('td', null, 'Aries'));
+  tr.appendChild(mk('td', 'num', dm3(C.gast(jd))));
+  tr.appendChild(mk('td', 'num', '\u2014'));
+  tr.appendChild(mk('td', 'num', '\u2014'));
+  tr.appendChild(mk('td', 'num', '\u2014'));
+  t2.appendChild(tr);
+
+  var unknown = [];
+  list.forEach(function (b) {
+    if (C.body_at(b, jd) === 'ERR') { unknown.push(b); return; }
+    var E = C.E, r = mk('tr');
+    r.appendChild(mk('td', null, E.B_NAME));
+    r.appendChild(mk('td', 'num', dm3(E.B_GHA)));
+    r.appendChild(mk('td', 'num', ddm(E.B_DEC, true)));
+    r.appendChild(mk('td', 'num', E.B_SD > 0 ? E.B_SD.toFixed(1) + "'" : '\u2014'));
+    r.appendChild(mk('td', 'num', E.B_HP > 0 ? E.B_HP.toFixed(1) + "'" : '\u2014'));
+    t2.appendChild(r);
+    /*  a star or planet also gets its SHA and magnitude, the way the
+        shell prints a second line for it  */
+    if (E.B_SHA !== '' && E.B_MAG !== '' && E.B_SD === 0) {
+      var r2 = mk('tr', 'sub');
+      r2.appendChild(mk('td', null, ''));
+      r2.appendChild(mk('td', 'num', 'SHA ' + dm3(E.B_SHA)));
+      r2.appendChild(mk('td', 'num', 'mag ' + (+E.B_MAG).toFixed(1)));
+      r2.appendChild(mk('td', null, ''));
+      r2.appendChild(mk('td', null, ''));
+      t2.appendChild(r2);
+    }
+  });
+  box.appendChild(t2);
+  if (unknown.length)
+    note.textContent = 'I do not know: ' + unknown.join(', ') +
+      '. A name, or a star number from the list.';
+}
+
+/*  The 57 stars, computed for the date rather than reprinted. star_pos()
+    applies proper motion and precession, so Alpheratz is not where a 2000
+    catalogue puts it. SHA is 360 minus the right ascension, which is the
+    form a sight form and a star finder use.  */
+function starsShow() {
+  var C = CNe(), box = $('st-out');
+  box.textContent = '';
+  var d = $('st-date').value.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { box.appendChild(mk('p', 'note', 'A UT date as 2026-08-29.')); return; }
+  var p = d.split('-');
+  var jd = C.jdate(+p[0], +p[1], +p[2]) + C.deltaT(+p[0]) / 86400.0;
+  var find = $('st-find').value.trim().toLowerCase();
+  var S = C.stars, E = C.E, shown = 0;
+
+  var t2 = mk('table', 'ct-tab');
+  var hr = mk('tr');
+  ['no', 'name', 'SHA', 'Dec', 'mag'].forEach(function (h) { hr.appendChild(mk('th', null, h)); });
+  t2.appendChild(hr);
+  /*  ZERO-BASED. The awk's SNUM[1]..SNUM[NSTAR] became SNUM[0]..SNUM[NSTAR-1]
+      in the port, and engine.js says so on star_pos: "i is 0-based here".
+      Written as the awk writes it, this list opened at Ankaa - Alpheratz,
+      star 1, was simply absent - and ran one past the end.  */
+  for (var i = 0; i < S.NSTAR; i++) {
+    var name = S.SNAME[i];
+    if (find && String(S.SNUM[i]) !== find && name.toLowerCase().indexOf(find) < 0) continue;
+    C.star_pos(i, jd);
+    shown++;
+    var r = mk('tr');
+    r.appendChild(mk('td', 'num', String(S.SNUM[i])));
+    r.appendChild(mk('td', null, name));
+    r.appendChild(mk('td', 'num', dm3(C.nrm360(360 - E.P_RA))));
+    r.appendChild(mk('td', 'num', ddm(E.P_DEC, true)));
+    r.appendChild(mk('td', 'num', (+S.SMAG[i]).toFixed(2)));
+    t2.appendChild(r);
+  }
+  box.appendChild(t2);
+  if (!shown) box.appendChild(mk('p', 'note', 'No star of that name or number.'));
+}
+
 var views = {
-  home:   { el: 'v-home',   title: 'celnav' },
-  camera: { el: 'v-camera', title: 'Camera sight' },
-  sight:  { el: 'v-sight',  title: 'Sight reduction' },
-  learn:  { el: 'v-learn',  title: 'Learn' }
+  home:    { el: 'v-home',    title: 'celnav' },
+  camera:  { el: 'v-camera',  title: 'Camera sight' },
+  sight:   { el: 'v-sight',   title: 'Sight reduction' },
+  almanac: { el: 'v-almanac', title: 'Almanac' },
+  stars:   { el: 'v-stars',   title: 'The star list' },
+  learn:   { el: 'v-learn',   title: 'Learn' }
 };
 function go(name) {
   for (var k in views) if (views.hasOwnProperty(k)) $(views[k].el).hidden = (k !== name);
@@ -540,6 +678,8 @@ function go(name) {
   window.scrollTo(0, 0);
   if (name === 'learn') syllabus();
   if (name === 'sight') sightInit();
+  if (name === 'almanac') almanacInit();
+  if (name === 'stars') starsInit();
   remember('view', name);
 }
 
@@ -563,6 +703,14 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   ['s-alat', 's-alon', 's-crs', 's-spd'].forEach(function (id) {
     $(id).addEventListener('input', sightRefresh);
+  });
+
+  $('a-go').addEventListener('click', almanacShow);
+  ['a-date', 'a-time', 'a-bodies'].forEach(function (id) {
+    $(id).addEventListener('change', almanacShow);
+  });
+  ['st-date', 'st-find'].forEach(function (id) {
+    $(id).addEventListener('input', starsShow);
   });
 
   $('nav-back').addEventListener('click', function () {

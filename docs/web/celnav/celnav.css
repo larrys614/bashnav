@@ -361,16 +361,22 @@ main {
   text-transform: uppercase; color: var(--accent);
 }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+/*  ONE COLUMN, SAME FIELD. A bare <label> in a card puts its text beside a
+    narrow input instead of above a full-width one - the almanac's body list
+    rendered as "Bodies [sun,moon,venus,mars,jupiter,s" with the value cut
+    off, where every field around it stacked. Only .grid2 carried the
+    stacking rules; .grid1 is the single-column form of the same thing.  */
+.grid1 { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
 @media (max-width: 420px) { .grid2 { grid-template-columns: 1fr; } }
-.grid2 label { display: flex; flex-direction: column; gap: 4px;
+.grid2 label, .grid1 label { display: flex; flex-direction: column; gap: 4px;
                font-size: 12px; color: var(--dim); }
-.grid2 input, .grid2 select {
+.grid2 input, .grid2 select, .grid1 input, .grid1 select {
   min-height: 44px; padding: 8px 10px; font-size: 16px;   /* 16px: iOS zooms below it */
   color: var(--text); background: var(--panel-2, var(--panel));
   border: 1px solid var(--line); border-radius: 8px;
   font-family: ui-monospace, Menlo, monospace;
 }
-.grid2 input:focus, .grid2 select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.grid2 input:focus, .grid2 select:focus, .grid1 input:focus, .grid1 select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /*  the correction chain and the fix, as label and value: lesson S5 is
     about the size of each part, so the parts are shown and not summed  */

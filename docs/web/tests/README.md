@@ -27,6 +27,7 @@ cannot pass.
 | `celnav-ref.awk` | generates whole sight cases and dumps the awk's reduction and fix |
 | `celnav-diff.js` | the same cases through the shipped browser engine, compared |
 | `celnav-ui.js`   | types sights into the page and checks the fix it *shows* |
+| `celnav-tables.js` | the almanac and the star list as the page shows them, against the shell |
 | `run-figures-web.sh` | recaptures the site's pictures from the apps and diffs them |
 | `serve.py`       | a static server that honours `Range`, which Python's own does not |
 

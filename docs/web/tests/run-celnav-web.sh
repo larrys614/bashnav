@@ -104,6 +104,20 @@ SCN
   done < "$WORK/scn"
 
   echo
+  echo "3. the almanac and the star list, against what the shell prints"
+  #  The two screens whose faults are not arithmetic: the star list opened
+  #  at Ankaa because the awk indexes its star arrays from 1 and the port
+  #  from 0, and a GHA rendered with the latitude formatter acquires a
+  #  hemisphere it cannot have. Both are invisible to a module diff and
+  #  obvious in the rendered table.
+  $AWK1 -v CELNAV_HOME="$WORK/ch" -f src/celnav/engine.awk \
+        -v cmd=almanac -v utc="2026-08-29 07:34:00" \
+        -v bodies="sun,moon,venus,mars,jupiter,saturn" </dev/null > "$WORK/almanac.txt"
+  $AWK1 -f src/celnav/engine.awk -v cmd=stars </dev/null > "$WORK/stars.txt"
+  PORT="$PORT" node docs/web/tests/celnav-tables.js \
+       "$WORK/almanac.txt" "$WORK/stars.txt" "2026-08-29 07:34:00" "2026-01-01"
+
+  echo
   echo "CELNAV WEB: all stages passed"
 else
   echo
