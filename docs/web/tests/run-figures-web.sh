@@ -28,29 +28,53 @@ fi
 
 sh docs/web/gen/make-app-figures.sh
 
-if git diff --quiet -- docs/img/app; then
+#  ---- what counts as "changed" ------------------------------------
+#  An SVG is the app's own drawing serialised, and it is byte-stable: any
+#  difference at all is a real difference.
+#
+#  A PNG is a screenshot, and a screenshot of an UNCHANGED page is not
+#  byte-stable. Two consecutive captures of the celnav noon screen came
+#  back 97 pixels different out of 1,083,600, maximum channel delta 6 -
+#  font antialiasing, invisible under a crop, and gone on the next run.
+#  Byte-comparing them made this check go red on pictures that were
+#  correct, and a check that cries wolf is a check nobody reads.
+#
+#  So PNGs are compared by PIXELS, with the headless Chromium that just
+#  took them doing the decoding - no image library to install. Under the
+#  threshold the picture is put back, so the working tree stays clean;
+#  over it, the run fails and says by how much.
+NOISE_PX=400          # out of a million-odd: 0.04 per cent
+NOISE_DELTA=24        # one channel, out of 255
+
+changed=$(git diff --name-only -- docs/img/app)
+real=
+for f in $changed; do
+  case "$f" in
+    *.png)
+      git show "HEAD:$f" > "$f.committed.png" 2>/dev/null || { real="$real $f"; continue; }
+      d=$(node docs/web/tests/figures-diff.js "$f.committed.png" "$f")
+      rm -f "$f.committed.png"
+      set -- $d
+      if [ "$1" = differ ] && [ "$2" -le "$NOISE_PX" ] && [ "$4" -le "$NOISE_DELTA" ]; then
+        printf '  %-34s %s of %s pixels differ, max %s - antialiasing, put back\n' "$f" "$2" "$3" "$4"
+        git checkout -- "$f"
+      else
+        printf '  %-34s %s\n' "$f" "$d"
+        real="$real $f"
+      fi
+      ;;
+    *) real="$real $f" ;;
+  esac
+done
+
+if [ -z "$real" ]; then
   echo
   echo "FIGURES: every picture is what the apps draw"
 else
   echo
   echo "  these pictures are no longer what the apps draw:"
-  #  SAY HOW BIG THE CHANGE IS, because a screenshot diff has two very
-  #  different meanings and `git diff --name-only` cannot tell them apart.
-  #  A changed screen moves a picture by kilobytes. A re-render of the
-  #  same screen can move it by a few dozen bytes: the launcher came back
-  #  69 pixels different out of 773,140, maximum channel delta 71, which
-  #  is font antialiasing and nothing else - it went away on the next
-  #  three captures and was visually identical under a crop. Both read as
-  #  "no longer what the apps draw" without these two numbers.
-  git diff --name-only -- docs/img/app | while read -r f; do
-    new=$(wc -c < "$f" | tr -d ' ')
-    old=$(git show "HEAD:$f" 2>/dev/null | wc -c | tr -d ' ')
-    [ -n "$old" ] && [ "$old" != 0 ] || old='-'
-    printf '    %-34s committed %8s bytes, now %8s\n' "$f" "$old" "$new"
-  done
+  for f in $real; do printf '    %s\n' "$f"; done
   echo "  (if the change is intended, commit them; if not, the app changed"
-  echo "   under you and the page is advertising something else. A difference"
-  echo "   of a few dozen bytes in a .png is antialiasing - look at the two"
-  echo "   pictures before believing the app changed.)"
+  echo "   under you and the page is advertising something else)"
   exit 1
 fi

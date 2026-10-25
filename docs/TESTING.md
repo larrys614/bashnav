@@ -263,22 +263,65 @@ immediately. So:
 | | |
 |---|---|
 | `celnav-diff.js` | the arithmetic, at full precision, over generated cases |
-| `celnav-ui.js`, `celnav-tables.js`, `celnav-latitude.js` | what the page *shows*, against the shell's own printed working |
+| `celnav-ui.js`, `celnav-tables.js`, `celnav-latitude.js`, `celnav-plan.js` | what the page *shows*, against the shell's own printed working |
+| `fmt-check.js` | one-decimal formatting, against awk's `printf` |
 
 Neither is the belt and neither is the braces. Each is the only thing that sees
 its own class of fault, and every fault above was planted and watched to go red
 before the check was believed.
 
-#### A screenshot diff needs its magnitude printed
+#### A screenshot is not byte-stable, so do not compare its bytes
 
 `run-figures-web.sh` recaptures the site's pictures and diffs them against what
-is committed, and `git diff --name-only` cannot tell a changed screen from a
-re-render of the same one. The launcher came back 69 pixels different out of
-773,140, maximum channel delta 71 — font antialiasing, visually identical under
-a crop, and gone on the next three captures. A genuinely changed screen moves a
-`.png` by kilobytes. The harness now prints committed and current byte sizes per
-file, because without them both read as "no longer what the apps draw" and the
-check that cries wolf is the check nobody reads.
+is committed. It compared bytes, and went red on pictures that were correct: the
+launcher came back 69 pixels different out of 773,140 and the celnav noon screen
+97 out of 1,083,600, maximum channel delta 6 — font antialiasing, invisible
+under a crop, and gone on the next capture. **Two consecutive captures of an
+unchanged page differ.** A check that cries wolf is a check nobody reads.
+
+It compares *pixels* now, with a threshold of 400 differing pixels and a maximum
+channel delta of 24. Decoding a PNG needs an image library, and the one thing
+the harness can be sure of is the headless Chromium it has just driven, so the
+browser does the decoding: both files go in as data URLs, onto a canvas, and out
+as a pixel count (`docs/web/tests/figures-diff.js`). Under the threshold the
+picture is put back, so the working tree stays clean; over it, the run fails and
+prints the numbers.
+
+Both thresholds earn their place, and a planted fault shows why each is there.
+Deleting the latitude row from the noon screen changes the picture's *height*,
+which never reaches a pixel comparison at all. Printing the meridian altitude
+ten degrees high changes two glyphs: **128 pixels, which is under the count
+threshold, at a channel delta of 225, which is nowhere near the delta
+threshold.** The count catches a large faint shift and the delta catches a small
+stark one, and antialiasing is small *and* faint.
+
+#### printf's `%.1f` is not JavaScript's `toFixed(1)`
+
+C rounds a tie to the even last digit; `toFixed` rounds it up. Deneb's catalogue
+magnitude is exactly 1.25, so the shell's planning table printed `1.2` and the
+browser printed `1.3`. Nothing numerical could see it — both are the same
+number — and `celnav-plan.js` found it by diffing that table row for row.
+
+A tie at *d* decimals needs the value to be an odd multiple of 1/2^(d+1); any
+other `x.x5` is not exactly representable and the two languages already agree
+which side of it they fall. Of the 58 star magnitudes exactly two are such a
+value, Deneb at 1.25 and Zubenelgenubi at 2.75, and only Deneb's preceding digit
+is even — one star in 58.
+
+`celnav-app.js`'s `f(v, dec)` is the fix and `tests/fmt-check.js` pins it: the
+awk prints 3,488 values, 2,108 of them exact ties, and the JavaScript has to
+agree with every one under every awk on the machine. Two things about how that
+check is built:
+
+- **It reads `f()` out of the page and evaluates it, rather than keeping a
+  copy.** Written with a copy, it needed a guard that the copy had not drifted
+  — and when a plain `toFixed()` was planted in the page to prove the check
+  worked, the *guard* fired and not one value was ever compared.
+- **The reference includes the near-ties.** `2.45` is stored as
+  2.4500000000000001776 and rounds up in both languages. A formatter that
+  multiplies by ten first sees exactly 24.5, calls it a tie, rounds to even and
+  prints `2.4`. That is the obvious implementation of this fix and it is wrong;
+  the near-ties are what fail it, 32 of them.
 
 ---
 

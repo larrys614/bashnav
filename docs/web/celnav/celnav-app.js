@@ -344,11 +344,40 @@ function sightAP() {
     "10.0" - the fix read 35 010.0' N.  And minutes rounding up to 60.0
     never carried into the degrees, so 29 59.97' printed as 29 60.0'.
     fmt_dm() in engine.awk carries at 59.95; this does the same.  */
+/*  printf's %.*f, WHICH IS NOT toFixed().
+    C rounds a tie to the EVEN last digit; JavaScript's toFixed rounds it
+    up. Deneb's catalogue magnitude is exactly 1.25, so the shell's
+    planning table printed 1.2 and this page printed 1.3 - found by
+    docs/web/tests/celnav-plan.js diffing that table row for row, and by
+    nothing numerical, because both are the same number.
+
+    A tie at `dec` decimals needs the value to be an odd multiple of
+    1/2^(dec+1); any other x.x5 is not exactly representable and the two
+    languages already agree which side of the tie it falls. That test is
+    exact, because multiplying by a power of two cannot round. Of the 58
+    star magnitudes exactly two are such a value - Deneb at 1.25 and
+    Zubenelgenubi at 2.75 - and only Deneb's digit before the tie is even,
+    which is why one star in 58 showed it.
+
+    Everything on this page that the shell also prints goes through here.
+    camui.js, plot.js and refine.js do not: they format camera-side
+    numbers the shell has no opinion about.  */
+function f(v, dec) {
+  var h = v * Math.pow(2, dec + 1);
+  if (h === Math.round(h) && Math.abs(h) % 2 === 1) {
+    var p = Math.pow(10, dec), x = v * p, t = Math.trunc(x);
+    if (Math.abs(t) % 2 === 1) t += (x > 0 ? 1 : -1);
+    return (t / p).toFixed(dec);
+  }
+  return v.toFixed(dec);
+}
+function f1(v) { return f(v, 1); }
+
 function dmparts(v) {
   var neg = v < 0; v = Math.abs(v);
   var d = Math.floor(v), m = (v - d) * 60;
   if (m >= 59.95) { m = 0; d = d + 1; }
-  var ms = m.toFixed(1);
+  var ms = f1(m);
   while (ms.length < 4) ms = '0' + ms;   /* awk's %04.1f: pad the ROUNDED
                                             string, never the value */
   return { neg: neg, d: d, m: ms };
@@ -369,7 +398,7 @@ function ddm(v, lat) {
   var p = dmparts(v);
   return ('00' + p.d).slice(lat ? -2 : -3) + '\u00b0 ' + p.m + "' " + h;
 }
-function mins(v) { return (v >= 0 ? '+' : '\u2212') + Math.abs(v).toFixed(1) + "'"; }
+function mins(v) { return (v >= 0 ? '+' : '\u2212') + f1(Math.abs(v)) + "'"; }
 
 /*  THE CORRECTION CHAIN, SHOWN RATHER THAN SUMMED, in the order and with
     the parts the shell's own working shows -- Hs, IE, dip, Ha, refraction,
@@ -441,7 +470,7 @@ function sightList() {
      dm(s.hs),
      lop ? dm(lop.hc) : '\u2014',
      lop ? ('00' + Math.round(lop.zn)).slice(-3) : '\u2014',
-     lop ? (Math.abs(lop.intercept).toFixed(1) + ' nm ' +
+     lop ? (f1(Math.abs(lop.intercept)) + ' nm ' +
             (lop.intercept >= 0 ? 'TOWARD' : 'AWAY')) : '\u2014'
     ].forEach(function (v, k) {
       var td = mk('td', (k >= 2) ? 'num' : null, v);
@@ -486,10 +515,10 @@ function sightFix() {
   } else {
     var t = mk('table', 'kv');
     [['FIX', ddm(sol.lat, true) + '   ' + ddm(sol.lon, false)],
-     ['from the AP', Math.abs(sol.N).toFixed(1) + ' nm ' + (sol.N >= 0 ? 'N' : 'S') + ', ' +
-                     Math.abs(sol.E).toFixed(1) + ' nm ' + (sol.E >= 0 ? 'E' : 'W')]
+     ['from the AP', f1(Math.abs(sol.N)) + ' nm ' + (sol.N >= 0 ? 'N' : 'S') + ', ' +
+                     f1(Math.abs(sol.E)) + ' nm ' + (sol.E >= 0 ? 'E' : 'W')]
     ].concat(sol.geom ? [['error ellipse',
-       sol.geom.major.toFixed(1) + ' x ' + sol.geom.minor.toFixed(1) + ' nm']] : [])
+       f1(sol.geom.major) + ' x ' + f1(sol.geom.minor) + ' nm']] : [])
      .forEach(function (r) {
       var tr = mk('tr');
       tr.appendChild(mk('th', null, r[0]));
@@ -580,7 +609,7 @@ function almanacShow() {
                .split(',').map(function (x) { return x.trim(); }).filter(Boolean);
 
   var head = mk('p', 'note', 'JD ' + jd.toFixed(5) + '   \u0394T ' +
-                C.deltaT(C.E.UT_Y).toFixed(1) + ' s');
+                f1(C.deltaT(C.E.UT_Y)) + ' s');
   box.appendChild(head);
 
   var t2 = mk('table', 'ct-tab');
@@ -603,8 +632,8 @@ function almanacShow() {
     r.appendChild(mk('td', null, E.B_NAME));
     r.appendChild(mk('td', 'num', dm3(E.B_GHA)));
     r.appendChild(mk('td', 'num', ddm(E.B_DEC, true)));
-    r.appendChild(mk('td', 'num', E.B_SD > 0 ? E.B_SD.toFixed(1) + "'" : '\u2014'));
-    r.appendChild(mk('td', 'num', E.B_HP > 0 ? E.B_HP.toFixed(1) + "'" : '\u2014'));
+    r.appendChild(mk('td', 'num', E.B_SD > 0 ? f1(E.B_SD) + "'" : '\u2014'));
+    r.appendChild(mk('td', 'num', E.B_HP > 0 ? f1(E.B_HP) + "'" : '\u2014'));
     t2.appendChild(r);
     /*  a star or planet also gets its SHA and magnitude, the way the
         shell prints a second line for it  */
@@ -612,7 +641,7 @@ function almanacShow() {
       var r2 = mk('tr', 'sub');
       r2.appendChild(mk('td', null, ''));
       r2.appendChild(mk('td', 'num', 'SHA ' + dm3(E.B_SHA)));
-      r2.appendChild(mk('td', 'num', 'mag ' + (+E.B_MAG).toFixed(1)));
+      r2.appendChild(mk('td', 'num', 'mag ' + f1(+E.B_MAG)));
       r2.appendChild(mk('td', null, ''));
       r2.appendChild(mk('td', null, ''));
       t2.appendChild(r2);
@@ -758,10 +787,10 @@ function noonShow() {
     ['Position', ddm(lat, true) + '   ' + ddm(lon, false)],
     ['Sun on your meridian at', C.fmt_hms(ut) + ' UT'],
     [' in local mean time', C.fmt_hms(lmt)],
-    ['Equation of time', (eot >= 0 ? '+' : '−') + Math.abs(eot).toFixed(1) +
+    ['Equation of time', (eot >= 0 ? '+' : '−') + f1(Math.abs(eot)) +
        ' min — the sundial is ' + (eot >= 0 ? 'ahead of' : 'behind') + ' the clock'],
     ["Sun's declination then", ddm(dec, true)],
-    ['Meridian altitude to expect', mer.toFixed(1) + '°, bearing ' +
+    ['Meridian altitude to expect', f1(mer) + '°, bearing ' +
        (sth ? 'SOUTH (180)' : 'NORTH (000)')]
   ]));
 
@@ -775,9 +804,9 @@ function noonShow() {
       'through 180° as it crosses. Note which way it bore.'));
 
   box.appendChild(mk('p', 'note', fall <= 1.0
-    ? 'Two minutes either side of it the altitude is only ' + fall.toFixed(1) +
+    ? 'Two minutes either side of it the altitude is only ' + f1(fall) +
       "' lower, so catch the maximum by watching it — the clock is not the point."
-    : 'Two minutes either side of it the altitude is ' + fall.toFixed(1) +
+    : 'Two minutes either side of it the altitude is ' + f1(fall) +
       "' lower: the sun passes close to your zenith and crosses fast, so the maximum is " +
       'sharp and a careless moment here costs real altitude.'));
 
@@ -837,14 +866,14 @@ function polarisShow() {
     ['Polaris GHA', dm3(E.B_GHA)],
     ['LHA   GHA + longitude', dm3(lha)],
     ['Declination', ddm(E.B_DEC, true)],
-    ['Polar distance  90 − dec', (p * 60.0).toFixed(1) + "'"]
+    ['Polar distance  90 − dec', f1(p * 60.0) + "'"]
   ]));
 
   var hsv = $('p-hs').value.trim();
   if (!hsv) {
     box.appendChild(kvTable([
       ['Correction to Ho at this LHA', mins(-p * C.cosd(lha) * 60.0) +
-         '   (it swings ±' + (p * 60.0).toFixed(1) + "' in a day)"]
+         '   (it swings ±' + f1(p * 60.0) + "' in a day)"]
     ]));
     box.appendChild(mk('p', 'note', 'Take Polaris and give the reading back in the Hs field.'));
     return;
@@ -881,6 +910,268 @@ function polarisShow() {
     'of noon.'));
 }
 
+/* =====================================================================
+   SIGHT PLANNING, AND THE COMPASS CHECK
+
+   cmd_plan() and cmd_compass() in src/celnav/engine.awk. The part that
+   decides anything - which bodies are up, in what order, and which three
+   to recommend - is plan_sky() in the engine, shared with the shell and
+   diffed against it by name over 400 generated cases. What is here is the
+   screen: the twilight table, the prose, and the sky view.
+   ===================================================================== */
+
+/*  the shell's evt2(): a twilight event as UT and local mean time, or a
+    pair of dashes where the sun never reaches that altitude at all -
+    which is not an error but a fact about high latitudes in midsummer.  */
+function evt2(C, jd, jd0, lon) {
+  if (jd < 0) return '—';
+  var u = (jd - jd0) * 24, l = u + lon / 15.0;
+  if (l < 0) l += 24; if (l >= 24) l -= 24;
+  return C.fmt_hms(u).slice(0, 5) + ' / ' + C.fmt_hms(l).slice(0, 5);
+}
+
+/*  THE SKY VIEW, as a drawing rather than as characters. Same projection
+    the shell's plot_sky() uses and for the same reason: centre overhead,
+    rim the horizon, north up and east right, so the picture matches what
+    you see when you look up rather than what a chart shows. The radius is
+    linear in zenith distance, (90 - alt) / 90, which is the projection a
+    star finder uses.  */
+function skyView(C, plan, css) {
+  var NS = 'http://www.w3.org/2000/svg', W = 320, H = 320;
+  var cx = W / 2, cy = H / 2, R = cx - 26;
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.setAttribute('role', 'img');
+  var picked = plan.best || [];
+  svg.setAttribute('aria-label', 'The sky from overhead: ' + plan.rows.length +
+    ' bodies above five degrees' + (picked.length ? ', three of them marked as the suggested set' : ''));
+  function e(n, a, p) {
+    var x = document.createElementNS(NS, n), q;
+    for (q in a) if (a.hasOwnProperty(q)) x.setAttribute(q, a[q]);
+    (p || svg).appendChild(x);
+    return x;
+  }
+  var line = css('--line'), dim = css('--dim'), text = css('--text'), accent = css('--accent');
+
+  /*  the horizon and the two altitude rings the shell draws, at 60 and
+      30 degrees - thirds of the radius, because the scale is linear  */
+  e('circle', { cx: cx, cy: cy, r: R, fill: 'none', stroke: dim, 'stroke-width': 1.2 });
+  [0.3333, 0.6667].forEach(function (f) {
+    e('circle', { cx: cx, cy: cy, r: R * f, fill: 'none', stroke: line,
+                  'stroke-width': 1, 'stroke-dasharray': '2 3' });
+  });
+  //  the four cardinal spokes, so an azimuth can be read off by eye
+  [0, 90, 180, 270].forEach(function (a) {
+    e('line', { x1: cx, y1: cy, x2: cx + R * C.sind(a), y2: cy - R * C.cosd(a),
+                stroke: line, 'stroke-width': 1, opacity: 0.6 });
+  });
+  //  the zenith
+  e('line', { x1: cx - 4, y1: cy, x2: cx + 4, y2: cy, stroke: accent, 'stroke-width': 1.4 });
+  e('line', { x1: cx, y1: cy - 4, x2: cx, y2: cy + 4, stroke: accent, 'stroke-width': 1.4 });
+
+  [['N', cx, 14], ['S', cx, H - 5], ['W', 11, cy + 4], ['E', W - 11, cy + 4]].forEach(function (c) {
+    e('text', { x: c[1], y: c[2], fill: dim, 'font-size': 12, 'text-anchor': 'middle' })
+      .textContent = c[0];
+  });
+
+  /*  a body per mark. The suggested three are labelled 1, 2 and 3 in the
+      accent colour and everything else is a small dot, which is the
+      shell's "* = usable body, 1 2 3 = the suggested set" in a picture.  */
+  plan.rows.forEach(function (r, i) {
+    var rr = (90 - r.alt) / 90.0;
+    if (rr > 1.02) return;
+    var x = cx + R * rr * C.sind(r.zn), y = cy - R * rr * C.cosd(r.zn);
+    var pick = picked.indexOf(i);
+    if (pick >= 0) {
+      e('circle', { cx: x, cy: y, r: 8, fill: 'none', stroke: accent, 'stroke-width': 1.4 });
+      e('text', { x: x, y: y + 4, fill: accent, 'font-size': 11, 'text-anchor': 'middle',
+                  'font-weight': '700' }).textContent = String(pick + 1);
+      e('text', { x: x, y: y - 12, fill: accent, 'font-size': 10, 'text-anchor': 'middle' })
+        .textContent = r.name;
+    } else {
+      e('circle', { cx: x, cy: y, r: r.mag < 1 ? 3 : 2, fill: text, opacity: 0.75 });
+    }
+  });
+  return svg;
+}
+
+function planInit() {
+  if (!$('pl-date').value) $('pl-date').value = utcToday();
+  if (!$('pl-time').value) $('pl-time').value = utcClock();
+  planShow();
+}
+function compassInit() {
+  if (!$('c-date').value) $('c-date').value = utcToday();
+  if (!$('c-time').value) $('c-time').value = utcClock();
+  if (!$('c-body').value) $('c-body').value = 'Sun';
+  sightInit();          /* the body datalist lives on the sight screen */
+  compassShow();
+}
+
+function planShow() {
+  var C = CNe(), box = $('pl-out'), sky = $('pl-sky'), list = $('pl-list'), note = $('pl-note');
+  box.textContent = ''; sky.textContent = ''; list.textContent = ''; note.textContent = '';
+  var lat = C.parse_ang($('pl-lat').value), lon = C.parse_ang($('pl-lon').value);
+  if (lat === 'ERR' || lon === 'ERR' || isNaN(lat) || isNaN(lon)) {
+    note.textContent = 'A DR latitude and longitude — 41 49.0 N and 071 24.0 W.'; return;
+  }
+  var d = $('pl-date').value.trim(), t = $('pl-time').value.trim();
+  var utc = d + ' ' + t;
+  if (!/^\d{4}-\d{2}-\d{2}[ T]\d{1,2}:\d{2}/.test(utc)) {
+    note.textContent = 'UT as 2026-08-29 and 23:30:00.'; return;
+  }
+  var jd = C.parse_utc(utc);
+  var jd0 = C.jdate(C.E.UT_Y, C.E.UT_MO, C.E.UT_D);
+
+  /*  the three horizons, morning and evening. -0.833 is the sun's upper
+      limb on the visible horizon; -6 and -12 are civil and nautical
+      twilight, and the window between them is the one you shoot stars in.  */
+  var tw = [['Sunrise / set', -0.833], ['Civil twilight', -6], ['Nautical', -12]];
+  var t2 = mk('table', 'ct-tab');
+  var hr = mk('tr');
+  ['', 'morning  UT / LMT', 'evening  UT / LMT'].forEach(function (h) { hr.appendChild(mk('th', null, h)); });
+  t2.appendChild(hr);
+  tw.forEach(function (row) {
+    var tr = mk('tr');
+    tr.appendChild(mk('td', null, row[0]));
+    tr.appendChild(mk('td', 'num', evt2(C, C.find_cross(jd0, lat, lon, row[1], 1), jd0, lon)));
+    tr.appendChild(mk('td', 'num', evt2(C, C.find_cross(jd0, lat, lon, row[1], -1), jd0, lon)));
+    t2.appendChild(tr);
+  });
+  box.appendChild(t2);
+
+  var ill = C.moon_ill(jd);
+  var plan = C.plan_sky(jd, lat, lon), sp = plan.sunalt;
+  box.appendChild(mk('p', 'note', 'Moon ' + ill.toFixed(0) + '% illuminated, ' + C.E.MOON_PH + '.'));
+  box.appendChild(mk('p', sp > -6 && sp <= -0.9 ? 'good' : 'note',
+    sp > -0.9  ? 'The sun is above the horizon: sun sights only, and possibly the moon or Venus.'
+  : sp > -6    ? 'Civil twilight — the brightest stars and planets with a sharp horizon. Prime time.'
+  : sp > -12   ? 'Nautical twilight: a good star horizon, and the fainter stars are workable.'
+               : 'Full night. The horizon is too dark for a reliable sight.'));
+
+  if (!plan.rows.length) {
+    list.appendChild(mk('p', 'note', 'Nothing usable above five degrees of altitude at this time.'));
+    return;
+  }
+
+  /*  THE PICTURE BEFORE THE TABLE. The table is sixty rows at night and
+      the thing a navigator actually wants from it - is the sky well
+      spread, and where do I point the sextant - is in the drawing.  */
+  sky.appendChild(mk('h3', null, 'The sky from overhead'));
+  sky.appendChild(skyView(C, plan, function (n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
+  }));
+  sky.appendChild(mk('p', 'note', 'Centre is overhead and the rim is the horizon, north up and ' +
+    'east right — the way a star finder is drawn, and the way the sky looks when you tip your ' +
+    'head back. The broken rings are 60° and 30° of altitude.'));
+
+  if (plan.best) {
+    var b = plan.best.map(function (i) { return plan.rows[i]; });
+    var bt = mk('table', 'kv');
+    b.forEach(function (r, i) {
+      var tr = mk('tr', 'tot');
+      tr.appendChild(mk('th', null, (i + 1) + ' ' + r.name));
+      tr.appendChild(mk('td', 'num', 'alt ' + f1(r.alt) + '° Zn ' + f1(r.zn) + '°'));
+      bt.appendChild(tr);
+    });
+    list.appendChild(mk('h3', null, 'Best three for a fix — ' +
+      plan.spread.toFixed(0) + '° of azimuth spread at the narrowest'));
+    list.appendChild(bt);
+    list.appendChild(mk('p', 'note', 'Brightest usable, chosen to make the smallest of the three ' +
+      'azimuth separations as large as it can be. A fix from three bodies in the same quarter of ' +
+      'the sky is three lines that cross at a shallow angle, and its error ellipse is long.'));
+  } else if (sp > -0.9) {
+    list.appendChild(mk('p', 'note', 'Daylight: take a sun line now and cross it with a second ' +
+      'sun line after a run of two hours or more, or with the moon if she is up.'));
+  }
+
+  var lt = mk('table', 'ct-tab');
+  var lh = mk('tr');
+  ['body', 'alt', 'Zn', 'mag', 'note'].forEach(function (h) { lh.appendChild(mk('th', null, h)); });
+  lt.appendChild(lh);
+  plan.rows.forEach(function (r, i) {
+    var tr = mk('tr', plan.best && plan.best.indexOf(i) >= 0 ? 'picked' : null);
+    tr.appendChild(mk('td', null, r.name));
+    tr.appendChild(mk('td', 'num', f1(r.alt)));
+    tr.appendChild(mk('td', 'num', f1(r.zn)));
+    tr.appendChild(mk('td', 'num', f1(r.mag)));
+    tr.appendChild(mk('td', null, r.note));
+    lt.appendChild(tr);
+  });
+  list.appendChild(mk('h3', null, 'Everything above five degrees, by azimuth'));
+  list.appendChild(lt);
+  if (sp > -0.9) list.appendChild(mk('p', 'note', 'Stars are omitted — the sun is up.'));
+}
+
+function compassShow() {
+  var C = CNe(), box = $('c-out'), note = $('c-note');
+  box.textContent = ''; note.textContent = '';
+  var lat = C.parse_ang($('c-lat').value), lon = C.parse_ang($('c-lon').value);
+  if (lat === 'ERR' || lon === 'ERR' || isNaN(lat) || isNaN(lon)) {
+    note.textContent = 'A DR latitude and longitude — 41 49.0 N and 071 24.0 W.'; return;
+  }
+  var d = $('c-date').value.trim(), t = $('c-time').value.trim(), utc = d + ' ' + t;
+  if (!/^\d{4}-\d{2}-\d{2}[ T]\d{1,2}:\d{2}/.test(utc)) {
+    note.textContent = 'UT as 2026-08-29 and 10:15:00.'; return;
+  }
+  var body = $('c-body').value.trim();
+  if (!body) { note.textContent = 'Which body? A name, or a star number.'; return; }
+  var jd = C.parse_utc(utc);
+  if (C.body_at(body, jd) === 'ERR') {
+    note.textContent = 'I do not know that body. A name, or a star number.'; return;
+  }
+  var E = C.E, name = E.B_NAME;
+  C.reduce_sight(lat, lon, E.B_GHA, E.B_DEC);
+  var zn = E.R_ZN, hc = E.R_HC;
+
+  box.appendChild(mk('h3', null, 'Compass check — ' + name + ', ' + utc + ' UT'));
+  var rows = [
+    ['Position', ddm(lat, true) + '   ' + ddm(lon, false)],
+    ['True azimuth of ' + name, f1(zn) + '° T'],
+    ['Altitude then', f1(hc) + '°']
+  ];
+  /*  THE AMPLITUDE, only on the horizon. Within two degrees of it the
+      azimuth follows from the declination and the latitude alone, with no
+      altitude and no reduction at all - which is why a sunrise bearing is
+      the classic compass check and needs nothing but the almanac.  */
+  if (C.fabs(hc) < 2) {
+    var amp = C.amplitude(E.B_DEC, lat);
+    rows.push(['Amplitude (body on the horizon)', f1(C.fabs(amp)) + '° ' +
+      (E.B_DEC >= 0 ? 'N' : 'S') + ' of ' + (zn < 180 ? 'E' : 'W')]);
+  }
+
+  var brg = $('c-brg').value.trim();
+  if (brg) {
+    var cb = C.parse_ang(brg);
+    if (cb === 'ERR' || isNaN(cb)) { note.textContent = 'A compass bearing in degrees, like 118.5.'; return; }
+    var ce = C.nrm180(zn - cb);
+    rows.push(['Compass bearing observed', f1(cb) + '° C']);
+    rows.push(['Compass error', f1(C.fabs(ce)) + '° ' + (ce >= 0 ? 'EAST' : 'WEST'), 'tot']);
+    var vr = $('c-var').value.trim();
+    if (vr) {
+      var vv = C.parse_ang(vr);
+      if (vv === 'ERR' || isNaN(vv)) { note.textContent = 'Variation in degrees, + east, like -14.0.'; return; }
+      var dev = C.nrm180(ce - vv);
+      rows.push(['Variation (chart)', f1(C.fabs(vv)) + '° ' + (vv >= 0 ? 'EAST' : 'WEST')]);
+      rows.push(['Deviation of this compass', f1(C.fabs(dev)) + '° ' +
+        (dev >= 0 ? 'EAST' : 'WEST'), 'tot']);
+    }
+  }
+  box.appendChild(kvTable(rows));
+
+  if (!brg)
+    box.appendChild(mk('p', 'note', 'Take a bearing of ' + name + ' over the compass and put it ' +
+      'in, and this becomes your compass error. Add the chart variation and the error splits into ' +
+      'variation and the deviation of your own compass.'));
+  if (hc > 25)
+    box.appendChild(mk('p', 'warn', 'The body is ' + hc.toFixed(0) + '° up. An azimuth check ' +
+      'is most reliable below about 20° — high up the azimuth changes fast and a bearing ' +
+      'over the card is hard to take honestly.'));
+  box.appendChild(mk('p', 'note', 'One azimuth check gives the deviation on the heading you are ' +
+    'on and no other. Deviation is a curve around the card, and to know the whole of it you swing ' +
+    'the ship.'));
+}
+
 var views = {
   home:    { el: 'v-home',    title: 'celnav' },
   camera:  { el: 'v-camera',  title: 'Camera sight' },
@@ -889,6 +1180,8 @@ var views = {
   stars:   { el: 'v-stars',   title: 'The star list' },
   noon:    { el: 'v-noon',    title: 'Noon sight' },
   polaris: { el: 'v-polaris', title: 'Polaris' },
+  plan:    { el: 'v-plan',    title: 'Sight planning' },
+  compass: { el: 'v-compass', title: 'Compass check' },
   learn:   { el: 'v-learn',   title: 'Learn' }
 };
 function go(name) {
@@ -902,6 +1195,8 @@ function go(name) {
   if (name === 'stars') starsInit();
   if (name === 'noon') noonInit();
   if (name === 'polaris') polarisInit();
+  if (name === 'plan') planInit();
+  if (name === 'compass') compassInit();
   remember('view', name);
 }
 
@@ -938,6 +1233,12 @@ document.addEventListener('DOMContentLoaded', function () {
   $('n-go').addEventListener('click', noonShow);
   ['n-lat', 'n-lon', 'n-date', 'n-hs', 'n-limb', 'n-ie', 'n-he', 'n-tm', 'n-pr']
     .forEach(function (id) { $(id).addEventListener('change', noonShow); });
+  $('pl-go').addEventListener('click', planShow);
+  ['pl-lat', 'pl-lon', 'pl-date', 'pl-time']
+    .forEach(function (id) { $(id).addEventListener('change', planShow); });
+  $('c-go').addEventListener('click', compassShow);
+  ['c-lat', 'c-lon', 'c-date', 'c-time', 'c-body', 'c-brg', 'c-var']
+    .forEach(function (id) { $(id).addEventListener('change', compassShow); });
   $('p-go').addEventListener('click', polarisShow);
   ['p-lon', 'p-date', 'p-time', 'p-hs', 'p-ie', 'p-he']
     .forEach(function (id) { $(id).addEventListener('change', polarisShow); });

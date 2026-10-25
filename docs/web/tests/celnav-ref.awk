@@ -116,7 +116,8 @@ function inv_corr(target,ie,he,tm,pr,limb,   hs,i,d){
 }
 
 function gencase(cid,   tlat,tlon,y,mo,da,hh,mi,se,utc,jd,i,nb,b,hc,hs,ie,he,tm,pr,limb,
-                        ns,dN,dE,alat,alon,res,rms,want,tries,sp,co,used){
+                        ns,dN,dE,alat,alon,res,rms,want,tries,sp,co,used,
+                        pi,pl_sa,pl_sz,pl_sw,amp_r){
   tlat = rrange(-70,70); tlon = rrange(-180,180)
   y  = rint(2024,2028); mo = rint(1,12); da = rint(1,28)
   hh = rint(0,23); mi = rint(0,59); se = rint(0,59)
@@ -192,6 +193,28 @@ function gencase(cid,   tlat,tlon,y,mo,da,hh,mi,se,utc,jd,i,nb,b,hc,hs,ie,he,tm,
   #  approximate. Both emitted per case so they are covered over the same
   #  spread of positions and dates as everything else.
   printf "LAN\t%d\t%.17g\n", cid, lan_jd(alon, int(FIXJD+0.5)-0.5)
+  #  ---- the planner. The TABLE is checked by its shape and by three
+  #  order-sensitive sums rather than row by row: 60-odd rows per case
+  #  over 400 cases is a quarter of a million comparisons to catch a fault
+  #  that any one of the sums catches too. The SELECTION is checked
+  #  exactly, by name, because that is the recommendation.
+  plan_sky(S_JD[1], alat, alon)
+  pl_sa=0; pl_sz=0; pl_sw=0
+  for(pi=1; pi<=PL_K; pi++){
+    pl_sa+=PL_A[pi]; pl_sz+=PL_Z[pi]; pl_sw+=pi*(PL_A[pi]+PL_Z[pi])
+  }
+  printf "PLAN\t%d\t%d\t%.17g\t%.17g\t%.17g\t%.17g\t%.17g\t%s\t%s\t%s\n",
+    cid, PL_K, PL_SP, pl_sa, pl_sz, pl_sw, PL_BEST,
+    (PL_BEST>0?PL_N[PL_BI]:"-"), (PL_BEST>0?PL_N[PL_BJ]:"-"), (PL_BEST>0?PL_N[PL_BK]:"-")
+  #  THE AMPLITUDE IS ONLY DEFINED FOR A BODY THAT CAN REACH THE HORIZON
+  #  at this latitude - sin(dec)/cos(lat) has to be inside [-1,1], and
+  #  cmd_compass only ever prints it for a body within two degrees of the
+  #  horizon, where that holds by construction. A case outside the domain
+  #  emits no line rather than an asind() of 1.4.
+  amp_r = sind(S_DEC[1])/cosd(alat)
+  if(amp_r <= 1 && amp_r >= -1)
+    printf "AMP\t%d\t%.17g\t%.17g\n", cid, S_DEC[1], asind(amp_r)
+
   printf "POL\t%d\t%.17g\t%.17g\t%.17g\n", cid,
     pol_lat(48.2, 89.37, nrm360(343.0 + alon)),
     pol_lat(fabs(alat), 89.37, nrm360(S_JD[1]*13.0 + alon)),

@@ -62,6 +62,18 @@ for a in $AWKS; do
   node docs/web/tests/celnav-diff.js "$WORK/ref.$a.tsv"
 done
 
+echo
+echo "1b. printf's %.1f against JavaScript's"
+#  C rounds a tie to the even last digit and toFixed() rounds it up, so
+#  Deneb's magnitude of exactly 1.25 printed 1.2 in the shell and 1.3 on
+#  the page. No browser needed: the page's own f(v, dec) is read out of
+#  celnav-app.js and evaluated.
+for a in $AWKS; do
+  printf '   %s\n' "$a"
+  $a -f docs/web/tests/fmt-ref.awk </dev/null > "$WORK/fmt.tsv"
+  node docs/web/tests/fmt-check.js "$WORK/fmt.tsv"
+done
+
 #  Stage 2 drives a headless Chromium.  Playwright is not something to make
 #  anyone install to reduce a sight, so if it is absent the stage is
 #  SKIPPED and said to be skipped - not silently passed.  Stage 1 is the
@@ -140,6 +152,24 @@ SCN
         -v utc="$NDATE 23:12:00" -v hs="42 18.4" -v heye=2 </dev/null > "$WORK/pol-work.txt"
   PORT="$PORT" node docs/web/tests/celnav-latitude.js \
        "$WORK/noon-plan.txt" "$WORK/noon-work.txt" "$WORK/pol-plan.txt" "$WORK/pol-work.txt"
+
+  echo
+  echo "5. sight planning and the compass check, against what the shell prints"
+  #  plan_sky() is one function shared by the shell and the browser, and
+  #  stage 1 holds its SELECTION to the awk's by name. What this adds is
+  #  the screen around it - the twilight table, which is six find_cross()
+  #  calls and two different clocks, and the compass check, which has no
+  #  engine function at all: three subtractions and a sign.
+  PLLAT="41 49.0 N"; PLLON="071 24.0 W"; PLDATE=2026-08-29
+  $AWK1 -f src/celnav/engine.awk -v cmd=plan -v drlat="$PLLAT" -v drlon="$PLLON" \
+        -v utc="$PLDATE 23:30:00" </dev/null > "$WORK/plan.txt"
+  $AWK1 -f src/celnav/engine.awk -v cmd=compass -v drlat="$PLLAT" -v drlon="$PLLON" \
+        -v utc="$PLDATE 10:15:00" -v body=Sun </dev/null > "$WORK/compass-plain.txt"
+  $AWK1 -f src/celnav/engine.awk -v cmd=compass -v drlat="$PLLAT" -v drlon="$PLLON" \
+        -v utc="$PLDATE 10:15:00" -v body=Sun -v cbrg=118.5 -v variation=-14.0 \
+        </dev/null > "$WORK/compass.txt"
+  PORT="$PORT" node docs/web/tests/celnav-plan.js \
+       "$WORK/plan.txt" "$WORK/compass.txt" "$WORK/compass-plain.txt"
 
   echo
   echo "CELNAV WEB: all stages passed"

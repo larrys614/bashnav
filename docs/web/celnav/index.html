@@ -62,6 +62,14 @@
         <span class="t-name">Polaris</span>
         <span class="t-sub">Latitude from one star, available all night</span>
       </button>
+      <button class="tile" data-go="plan">
+        <span class="t-name">Sight planning</span>
+        <span class="t-sub">Twilight, the sky overhead, and the best three to shoot</span>
+      </button>
+      <button class="tile" data-go="compass">
+        <span class="t-name">Compass check</span>
+        <span class="t-sub">Your compass error from a bearing of any body</span>
+      </button>
       <button class="tile" data-go="camera">
         <span class="t-name">Camera sight</span>
         <span class="t-sub">An altitude from a photograph</span>
@@ -238,6 +246,66 @@
     </div>
     <p class="note" id="p-note"></p>
     <div id="p-out"></div>
+  </section>
+
+  <!-- ---------- sight planning ----------
+       What is up, when the horizon is usable, and which three bodies to
+       take. The selection - brightest usable, maximising the smallest
+       azimuth separation of the three pairs - lives in the engine, where
+       docs/web/tests/celnav-diff.js holds it to the awk's own choice by
+       name over 400 generated cases. The sky view is the app's drawing of
+       what the shell draws in characters. -->
+  <section class="view" id="v-plan" hidden>
+    <div class="card">
+      <h3>For an instant and a DR</h3>
+      <div class="grid2">
+        <label>DR latitude<input id="pl-lat" type="text" placeholder="41 49.0 N" autocomplete="off"></label>
+        <label>DR longitude<input id="pl-lon" type="text" placeholder="071 24.0 W" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>UT date<input id="pl-date" type="text" inputmode="numeric" placeholder="2026-08-29" autocomplete="off"></label>
+        <label>UT time<input id="pl-time" type="text" inputmode="numeric" placeholder="23:30:00" autocomplete="off"></label>
+      </div>
+      <p class="note">The star horizon is usable between civil and nautical twilight. Before that
+        the horizon is sharp and the stars are not out; after it, the stars are out and the horizon
+        is gone.</p>
+      <button class="btn go" id="pl-go" type="button">What is up</button>
+    </div>
+    <p class="note" id="pl-note"></p>
+    <div id="pl-out"></div>
+    <div id="pl-sky"></div>
+    <div id="pl-list"></div>
+  </section>
+
+  <!-- ---------- the compass check ----------
+       The one celestial observation that needs no sextant at all: the
+       true azimuth of a body you can take a bearing of, against what your
+       compass says it bears. -->
+  <section class="view" id="v-compass" hidden>
+    <div class="card">
+      <h3>A bearing, against the truth</h3>
+      <div class="grid2">
+        <label>DR latitude<input id="c-lat" type="text" placeholder="41 49.0 N" autocomplete="off"></label>
+        <label>DR longitude<input id="c-lon" type="text" placeholder="071 24.0 W" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>UT date<input id="c-date" type="text" inputmode="numeric" placeholder="2026-08-29" autocomplete="off"></label>
+        <label>UT time<input id="c-time" type="text" inputmode="numeric" placeholder="10:15:00" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>Body<input id="c-body" type="text" list="s-bodies" placeholder="Sun" autocomplete="off"></label>
+        <label>Compass bearing<input id="c-brg" type="text" inputmode="decimal" placeholder="118.5" autocomplete="off"></label>
+      </div>
+      <div class="grid1">
+        <label>Variation from the chart, + east<input id="c-var" type="text" inputmode="decimal" placeholder="-14.0" autocomplete="off"></label>
+      </div>
+      <p class="note">Leave the bearing empty for the body's true azimuth alone. Give the bearing
+        and you get compass error; give the chart variation as well and the error splits into
+        variation and the deviation of your own compass.</p>
+      <button class="btn go" id="c-go" type="button">Work it out</button>
+    </div>
+    <p class="note" id="c-note"></p>
+    <div id="c-out"></div>
   </section>
 
   <!-- ---------- learn ---------- -->

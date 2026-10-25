@@ -62,6 +62,9 @@ for (const line of fs.readFileSync(refFile, 'utf8').split('\n')) {
   else if (f[0] === 'FIX') k.fix = { ok: n(2), lat: n(3), lon: n(4), N: n(5), E: n(6),
                                      shift: n(7), rms: n(8) };
   else if (f[0] === 'LAN') k.lan = n(2);
+  else if (f[0] === 'PLAN') k.plan = { K: n(2), sp: n(3), sa: n(4), sz: n(5), sw: n(6),
+                                       best: n(7), names: [f[8], f[9], f[10]] };
+  else if (f[0] === 'AMP') k.amp = { dec: n(2), a: n(3) };
   else if (f[0] === 'POL') k.pol = [n(2), n(3), n(4)];
 }
 
@@ -116,6 +119,30 @@ for (const [id, k] of cases) {
       millisecond is 1.2e-8 of a day and this is far tighter than that.  */
   if (k.lan !== undefined)
     cmp(id, 'lan_jd', CN.lan_jd(k.dr.lon, Math.floor(k.dr.fixjd + 0.5) - 0.5), k.lan, TOL.jd);
+  /*  THE PLANNER. The table is held by its length and by three
+      order-sensitive sums - a reordered list moves pl_sw even when the
+      two plain sums are unchanged - and the recommendation is held by
+      name, because the names are the whole output of the selection.  */
+  if (k.plan) {
+    const pl = CN.plan_sky(k.sgt[0].jd, k.dr.lat, k.dr.lon);
+    cmp(id, 'plan K', pl.rows.length, k.plan.K, 0);
+    cmp(id, 'plan sun alt', pl.sunalt, k.plan.sp, TOL.ang);
+    let sa = 0, sz = 0, sw = 0;
+    pl.rows.forEach((r, i) => { sa += r.alt; sz += r.zn; sw += (i + 1) * (r.alt + r.zn); });
+    cmp(id, 'plan sum alt', sa, k.plan.sa, TOL.ang * Math.max(1, pl.rows.length));
+    cmp(id, 'plan sum Zn', sz, k.plan.sz, TOL.ang * Math.max(1, pl.rows.length));
+    cmp(id, 'plan sum ordered', sw, k.plan.sw, TOL.ang * 4000);
+    cmp(id, 'plan spread', pl.spread, k.plan.best, TOL.ang);
+    const got = pl.best ? pl.best.map(i => pl.rows[i].name) : ['-', '-', '-'];
+    for (let i = 0; i < 3; i++)
+      if (got[i] !== k.plan.names[i]) {
+        checks++; bad++;
+        if (bad <= 20) console.log('  FAIL ' + id + ' plan pick ' + (i + 1) +
+          ': awk ' + k.plan.names[i] + ', js ' + got[i]);
+      } else checks++;
+  }
+  if (k.amp !== undefined && k.amp)
+    cmp(id, 'amplitude', CN.amplitude(k.amp.dec, k.dr.lat), k.amp.a, TOL.ang);
   if (k.pol) {
     const n360 = CN.nrm360;
     cmp(id, 'pol_lat a', CN.pol_lat(48.2, 89.37, n360(343.0 + k.dr.lon)), k.pol[0], TOL.ang);

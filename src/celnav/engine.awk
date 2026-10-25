@@ -1209,6 +1209,39 @@ function cmd_plan(   jd,lat,lon,i,k,nb,names,alt,az,mag,nm,tmp,j,jd0,best,bi,bj,
   else if(sp > -12)  print "  Nautical twilight: good star horizon, working the fainter stars."
   else               print "  Full night: horizon too dark for reliable sights."
   hr()
+  plan_sky(jd,lat,lon)
+  k=PL_K
+  printf "  %-16s %8s %8s %6s  %s\n","BODY","ALT","Zn","MAG","note"
+  for(i=1;i<=k;i++){
+    printf "  %-16s %7.1f  %6.1f  %5.1f  %s\n", PL_N[i], PL_A[i], PL_Z[i], PL_M[i], PL_NOTE[i]
+    SKYALT[i]=PL_A[i]; SKYAZ[i]=PL_Z[i]; SKYLBL[i]="*"
+  }
+  if(sp > -0.9) print "  (stars omitted - the sun is up)"
+  if(k==0){ print "  Nothing usable above 5 degrees altitude at this time."; return }
+  best=PL_BEST; bi=PL_BI; bj=PL_BJ; bk=PL_BK
+  if(best<=0 && sp>-0.9) print "\n  Daylight: take a sun line now and cross it with a second sun line\n  after a run of two hours or more, or with the moon if it is up."
+  if(best>0){
+    printf "\n  Best three for a fix (azimuth spread %.0f deg minimum):\n", best
+    printf "%s\n", cw(sprintf("    1  %-16s alt %5.1f  Zn %5.1f", PL_N[bi],PL_A[bi],PL_Z[bi]), C_ACC)
+    printf "%s\n", cw(sprintf("    2  %-16s alt %5.1f  Zn %5.1f", PL_N[bj],PL_A[bj],PL_Z[bj]), C_ACC)
+    printf "%s\n", cw(sprintf("    3  %-16s alt %5.1f  Zn %5.1f", PL_N[bk],PL_A[bk],PL_Z[bk]), C_ACC)
+    SKYLBL[bi]="1"; SKYLBL[bj]="2"; SKYLBL[bk]="3"
+  }
+  plot_sky(k)
+  printf "  * = usable body    %s = the suggested set\n", cw("1 2 3",C_ACC)
+  print ""
+}
+#  WHICH THREE BODIES TO SHOOT, separated from the screen that prints
+#  them.  The browser has the same planner and docs/web/tests/ diffs the
+#  two; before this was a function the port had to be a second reading of
+#  cmd_plan's prose, and the selection is exactly the part where a second
+#  reading goes quietly wrong.
+#
+#  Fills PL_N/A/Z/M/NOTE[1..PL_K] - the table, sorted by azimuth and
+#  filtered - and PL_BEST with PL_BI/BJ/BK, the suggested set.
+function plan_sky(jd,lat,lon,   i,j,nb,k,names,tmp,a1,a2,a3,nm,d1,d2,d3,mn,sp){
+  sp=sun_alt(jd,lat,lon)
+  PL_SP=sp
   nb=0
   split("sun,moon,venus,mars,jupiter,saturn",names,",")
   for(i=1;i<=6;i++){
@@ -1226,41 +1259,25 @@ function cmd_plan(   jd,lat,lon,i,k,nb,names,alt,az,mag,nm,tmp,j,jd0,best,bi,bj,
   for(i=2;i<=nb;i++){ tmp=PB_Z[i]; a1=PB_N[i]; a2=PB_A[i]; a3=PB_M[i]; j=i-1
     while(j>=1 && PB_Z[j]>tmp){ PB_Z[j+1]=PB_Z[j]; PB_N[j+1]=PB_N[j]; PB_A[j+1]=PB_A[j]; PB_M[j+1]=PB_M[j]; j-- }
     PB_Z[j+1]=tmp; PB_N[j+1]=a1; PB_A[j+1]=a2; PB_M[j+1]=a3 }
-  printf "  %-16s %8s %8s %6s  %s\n","BODY","ALT","Zn","MAG","note"
   k=0
   for(i=1;i<=nb;i++){
     if(PB_A[i] < 5) continue
     if(sp > -0.9 && PB_M[i] > -3.5) continue
     k++
-    printf "  %-16s %7.1f  %6.1f  %5.1f  %s\n", PB_N[i], PB_A[i], PB_Z[i], PB_M[i],
-       (PB_A[i]<15?"low - refraction uncertain":(PB_A[i]>75?"very high - Zn changes fast":""))
-    SKYALT[k]=PB_A[i]; SKYAZ[k]=PB_Z[i]; SKYLBL[k]="*"
-    TN[k]=PB_N[i]; TA[k]=PB_A[i]; TZ[k]=PB_Z[i]; TM[k]=PB_M[i]
-    TO[k]=1
-    if(sp > -0.9 && PB_M[i] > -3.5) TO[k]=0
+    PL_N[k]=PB_N[i]; PL_A[k]=PB_A[i]; PL_Z[k]=PB_Z[i]; PL_M[k]=PB_M[i]
+    PL_NOTE[k]=(PB_A[i]<15?"low - refraction uncertain":(PB_A[i]>75?"very high - Zn changes fast":""))
   }
-  if(sp > -0.9) print "  (stars omitted - the sun is up)"
-  if(k==0){ print "  Nothing usable above 5 degrees altitude at this time."; return }
+  PL_K=k
   # best three: brightest usable, maximise minimum azimuth separation
-  best=-1
-  for(i=1;i<=k;i++){ if(TM[i]>2.6||TA[i]<15||TA[i]>70||!TO[i]) continue
-   for(j=i+1;j<=k;j++){ if(TM[j]>2.6||TA[j]<15||TA[j]>70||!TO[j]) continue
-    for(nm=j+1;nm<=k;nm++){ if(TM[nm]>2.6||TA[nm]<15||TA[nm]>70||!TO[nm]) continue
-      d1=angsep(TZ[i],TZ[j]); d2=angsep(TZ[j],TZ[nm]); d3=angsep(TZ[i],TZ[nm])
+  PL_BEST=-1; PL_BI=0; PL_BJ=0; PL_BK=0
+  for(i=1;i<=k;i++){ if(PL_M[i]>2.6||PL_A[i]<15||PL_A[i]>70) continue
+   for(j=i+1;j<=k;j++){ if(PL_M[j]>2.6||PL_A[j]<15||PL_A[j]>70) continue
+    for(nm=j+1;nm<=k;nm++){ if(PL_M[nm]>2.6||PL_A[nm]<15||PL_A[nm]>70) continue
+      d1=angsep(PL_Z[i],PL_Z[j]); d2=angsep(PL_Z[j],PL_Z[nm]); d3=angsep(PL_Z[i],PL_Z[nm])
       mn=(d1<d2?d1:d2); if(d3<mn) mn=d3
-      if(mn>best){ best=mn; bi=i; bj=j; bk=nm }
+      if(mn>PL_BEST){ PL_BEST=mn; PL_BI=i; PL_BJ=j; PL_BK=nm }
     }}}
-  if(best<=0 && sp>-0.9) print "\n  Daylight: take a sun line now and cross it with a second sun line\n  after a run of two hours or more, or with the moon if it is up."
-  if(best>0){
-    printf "\n  Best three for a fix (azimuth spread %.0f deg minimum):\n", best
-    printf "%s\n", cw(sprintf("    1  %-16s alt %5.1f  Zn %5.1f", TN[bi],TA[bi],TZ[bi]), C_ACC)
-    printf "%s\n", cw(sprintf("    2  %-16s alt %5.1f  Zn %5.1f", TN[bj],TA[bj],TZ[bj]), C_ACC)
-    printf "%s\n", cw(sprintf("    3  %-16s alt %5.1f  Zn %5.1f", TN[bk],TA[bk],TZ[bk]), C_ACC)
-    SKYLBL[bi]="1"; SKYLBL[bj]="2"; SKYLBL[bk]="3"
-  }
-  plot_sky(k)
-  printf "  * = usable body    %s = the suggested set\n", cw("1 2 3",C_ACC)
-  print ""
+  return PL_K
 }
 function angsep(a,b,   d){ d=fabs(nrm180(a-b)); return d }
 

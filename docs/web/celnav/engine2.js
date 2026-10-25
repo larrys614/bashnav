@@ -212,10 +212,83 @@ function extendCelnav(C) {
   }
   function angsep(a, b) { const d = nrm180(a - b); return fabs(d); }
 
+  /* ---- sight planning ----------------------------------------------
+     cmd_plan()'s body gathering, sort and best-three selection, lifted
+     whole, because the SELECTION is the part that is easy to get subtly
+     different and impossible to eyeball. The screen's twilight times and
+     prose live in the app; everything that decides which three bodies to
+     recommend lives here, where celnav-diff.js can hold it to the awk.
+
+     The awk's TO[] array is set to 1 and then conditionally to 0 under a
+     condition that has already `continue`d the loop, so it is always 1.
+     Reproduced as always-1 rather than as the dead branch.
+     ------------------------------------------------------------------ */
+  function plan_sky(jd, lat, lon) {
+    const N = [], A = [], Z = [], M = [];
+    const sp = sun_alt(jd, lat, lon);
+    //  the sun, the moon and the four planets: gathered whatever their
+    //  altitude, and filtered when the table is built
+    for (const nm of ['sun', 'moon', 'venus', 'mars', 'jupiter', 'saturn']) {
+      C.body_at(nm, jd);
+      C.reduce_sight(lat, lon, E.B_GHA, E.B_DEC);
+      N.push(E.B_NAME); A.push(E.R_HC); Z.push(E.R_ZN); M.push(+E.B_MAG);
+    }
+    //  the stars, filtered at 5 and 82 degrees as they are gathered.
+    //  NOTE the two different times: star_pos takes TT and the hour angle
+    //  is taken from gast(jd) at UT, which is what the awk does.
+    const S = C.stars, dt = C.deltaT(E.UT_Y) / 86400.0;
+    for (let i = 0; i < S.NSTAR; i++) {
+      C.star_pos(i, jd + dt);
+      C.reduce_sight(lat, lon, nrm360(C.gast(jd) - E.P_RA), E.P_DEC);
+      if (E.R_HC < 5 || E.R_HC > 82) continue;
+      N.push(S.SNAME[i]); A.push(E.R_HC); Z.push(E.R_ZN); M.push(+S.SMAG[i]);
+    }
+    //  the awk's insertion sort by azimuth, written out rather than handed
+    //  to Array.sort: equal azimuths have to come out in the same order
+    for (let i = 1; i < Z.length; i++) {
+      const tz = Z[i], tn = N[i], ta = A[i], tm = M[i];
+      let j = i - 1;
+      while (j >= 0 && Z[j] > tz) { Z[j+1] = Z[j]; N[j+1] = N[j]; A[j+1] = A[j]; M[j+1] = M[j]; j--; }
+      Z[j+1] = tz; N[j+1] = tn; A[j+1] = ta; M[j+1] = tm;
+    }
+    //  the table: above 5 degrees, and nothing fainter than -3.5 while
+    //  the sun is up, because you will not find it
+    const rows = [];
+    for (let i = 0; i < Z.length; i++) {
+      if (A[i] < 5) continue;
+      if (sp > -0.9 && M[i] > -3.5) continue;
+      rows.push({ name: N[i], alt: A[i], zn: Z[i], mag: M[i],
+                  note: A[i] < 15 ? 'low - refraction uncertain'
+                      : A[i] > 75 ? 'very high - Zn changes fast' : '' });
+    }
+    //  the best three: brightest usable, maximising the SMALLEST azimuth
+    //  separation of the three pairs. A strict > keeps the first triple
+    //  found on a tie, as the awk's does.
+    const ok = r => !(r.mag > 2.6 || r.alt < 15 || r.alt > 70);
+    let best = -1, bi = -1, bj = -1, bk = -1;
+    for (let i = 0; i < rows.length; i++) { if (!ok(rows[i])) continue;
+      for (let j = i + 1; j < rows.length; j++) { if (!ok(rows[j])) continue;
+        for (let n = j + 1; n < rows.length; n++) { if (!ok(rows[n])) continue;
+          const d1 = angsep(rows[i].zn, rows[j].zn),
+                d2 = angsep(rows[j].zn, rows[n].zn),
+                d3 = angsep(rows[i].zn, rows[n].zn);
+          let mn = (d1 < d2 ? d1 : d2); if (d3 < mn) mn = d3;
+          if (mn > best) { best = mn; bi = i; bj = j; bk = n; }
+        } } }
+    return { rows: rows, sunalt: sp, spread: best,
+             best: best > 0 ? [bi, bj, bk] : null };
+  }
+
+  /*  THE AMPLITUDE, and it is only printed when the body is within two
+      degrees of the horizon - which is the whole point of it: on the
+      horizon the azimuth can be read off the declination and the latitude
+      alone, with no altitude and no reduction.  */
+  function amplitude(dec, lat) { return asind(sind(dec) / cosd(lat)); }
+
   Object.assign(C, {
     parse_ang, fmt_dm, fmt_lat, fmt_lon, fmt_hms, parse_utc,
     solve_fix, fix_geometry, sun_alt, find_cross, moon_ill, angsep,
-    lan_jd, pol_lat
+    lan_jd, pol_lat, plan_sky, amplitude
   });
   return C;
 }

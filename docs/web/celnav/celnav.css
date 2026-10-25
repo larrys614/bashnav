@@ -409,3 +409,27 @@ p.warn { color: var(--warn); font-size: 13px; margin: 10px 0 0; line-height: 1.5
 /*  the shell draws a rule between the planning half and the working half;
     this is that rule's job, done with space  */
 #n-out .kv, #p-out .kv { margin-top: 14px; }
+
+/*  the sky view and the planner's table. `picked` marks the three the
+    planner suggests in the long list, so the drawing and the table agree
+    about which rows they are.  */
+#pl-sky svg { display: block; width: 100%; max-width: 360px; margin: 6px auto 0; }
+#pl-sky h3, #pl-list h3 { margin: 18px 0 8px; font-size: 15px; letter-spacing: .02em; }
+#pl-out .ct-tab, #pl-list .ct-tab { width: 100%; border-collapse: collapse; font-size: 13px;
+                  font-family: ui-monospace, Menlo, monospace; }
+/*  SCOPED TO .ct-tab, not to the panel. Unscoped, the uppercase rule
+    reached the kv table beside it and printed the suggested set as
+    "1 SCHEDAR" - the body name shouted in a list where every other
+    spelling of it is "Schedar".  */
+#pl-out .ct-tab th, #pl-list .ct-tab th { text-align: left; color: var(--dim); font-size: 11px;
+                          letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px 4px 0; }
+#pl-out .ct-tab td, #pl-list .ct-tab td { padding: 3px 8px 3px 0; color: var(--text);
+                          font-variant-numeric: tabular-nums; }
+#pl-out .ct-tab .num, #pl-list .ct-tab .num { text-align: right; }
+#pl-list tr.picked td { color: var(--accent); }
+#c-out h3 { margin: 18px 0 8px; font-size: 15px; letter-spacing: .02em; }
+#c-out { padding: 0 2px; }
+#c-out .kv { margin-top: 14px; }
+/*  prime time for stars gets the good colour: it is the one line on the
+    planning screen that is an answer rather than a number  */
+p.good { color: var(--good); font-size: 13px; margin: 10px 0 0; line-height: 1.5; }

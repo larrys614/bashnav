@@ -166,6 +166,22 @@ const FIGURES = [
     }
   },
   {
+    file: 'celnav-sky.svg', app: 'celnav', sel: '#pl-sky svg',
+    title: 'celnav: the sky from overhead - everything above five degrees, and the three to shoot',
+    async drive(p) {
+      await p.click('[data-go="plan"]');
+      await p.waitForTimeout(300);
+      /*  civil twilight at Providence on the day the rest of the figures
+          use, which is the window a star round is actually shot in  */
+      await p.fill('#pl-lat', '41 49.0 N');
+      await p.fill('#pl-lon', '071 24.0 W');
+      await p.fill('#pl-date', '2026-08-29');
+      await p.fill('#pl-time', '23:30:00');
+      await p.click('#pl-go');
+      await p.waitForTimeout(700);
+    }
+  },
+  {
     file: 'colregs-lights.svg', app: 'colregs', sel: '#light-stage svg',
     title: 'colregs: a vessel’s lights drawn from the bearing you see her on',
     async drive(p) {
