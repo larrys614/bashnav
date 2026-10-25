@@ -133,6 +133,13 @@ exits 1 on success: the last statement in the script was
 when the count is zero, so under `set -e` a clean build always reported
 failure. Nothing was reading that status, which is the only reason it survived.
 
+And an **unfilled `{{PLACEHOLDER}}`** now fails the build rather than printing
+`warning:` and carrying on. It is the same class of fault as a blank plate —
+visible on the front page, and arriving the same way, a template name changed in
+one place and not the other — so it had no business being the one that only
+warned. `plates-check.sh` inherits it: a site that will not build under an awk
+is reported as a failure under that awk.
+
 > Running a build under every awk costs a second a time. Both of these had been
 > in the repository for weeks, and neither was findable any other way.
 

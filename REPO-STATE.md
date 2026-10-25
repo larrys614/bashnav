@@ -409,7 +409,9 @@ faults the same afternoon, both weeks old:
    the call and never reach `rv_keys()`, mawk refuses the file at parse time.
    The awk was at the head of a pipeline, so `set -e` could not see it fail.
 2. **`make-site.sh` exited 1 on success.** `grep -c` returns 1 for a zero
-   count, and that `grep` was the script's last statement under `set -e`.
+   count, and that `grep` was the script's last statement under `set -e`. That
+   same statement only warned about an unfilled `{{PLACEHOLDER}}`; it fails the
+   build now, like the blank-picture check beside it.
 
 `make-site.sh` now checks its text plates for emptiness the way it already
 checked its pictures, and threads an `AWK` setting through every invocation so

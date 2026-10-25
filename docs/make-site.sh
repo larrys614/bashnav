@@ -251,12 +251,21 @@ done
 [ "$bad" = 0 ] || { echo "$bad plate(s) or picture(s) came out blank"; exit 1; }
 
 echo "docs/index.html written ($(wc -l < docs/index.html) lines)"
-#  grep -c RETURNS 1 WHEN THE COUNT IS ZERO.  This was written as
-#  `grep -c '{{' docs/index.html >/dev/null && { ... }`, which is the one
-#  arrangement where that matters: on a clean build grep found nothing,
-#  returned 1, the && short-circuited, and because it was the last
-#  statement in the script under `set -e` the whole thing exited 1 - on
-#  success, always.  Anything checking the status of a site build was
-#  reading a failure that was not there.
+#  AN UNFILLED PLACEHOLDER FAILS THE BUILD.  It used to print "warning:"
+#  and carry on, which put it below the blank-picture check two lines up
+#  for no reason anybody could give: {{PLOT}} left in the page is the same
+#  class of fault as a blank plate, visible on the front page, and arrives
+#  the same way - a template name changed and its filler did not.
+#
+#  grep -c RETURNS 1 WHEN THE COUNT IS ZERO, which matters here. This was
+#  `grep -c '{{' docs/index.html >/dev/null && { ... }`, and on a clean
+#  build grep found nothing, returned 1, the && short-circuited, and
+#  because it was the last statement under `set -e` the whole script
+#  exited 1 - on success, always. Hence the `|| true`.
 n=$(grep -c '{{' docs/index.html || true)
-[ "$n" = 0 ] || echo "warning: $n unfilled placeholder(s) remain"
+[ "$n" = 0 ] || {
+  echo "$n UNFILLED PLACEHOLDER(S) in docs/index.html - a {{NAME}} in the"
+  echo "template has no filler in this script, or was renamed in one place:"
+  grep -n '{{' docs/index.html | head -5 | sed 's/^/    /'
+  exit 1
+}
