@@ -19,6 +19,10 @@ set -e
 ROOT=$(cd "$(dirname "$0")/../../../.." && pwd)
 SRC="$ROOT/src/celnav"
 GEN="$ROOT/docs/web/celnav/gen"
+#  the shared JS/JSON escaper, loaded before every dumper. Each of these
+#  files used to carry its own copy, and all of them were wrong the same
+#  way - see the note at the top of it.
+ESC="$ROOT/docs/web/gen/jsonesc.awk"
 OUT="$ROOT/docs/web/celnav/lessons.js"
 
 AWK=awk
@@ -57,7 +61,7 @@ IDS=$($AWK $ENG -v cmode=plain -v cmd=t_syldump </dev/null | cut -f1 | tr '\n' '
     ans=${meta%%	*}
     why=${meta#*	}
     $AWK $ENG -v cmode=plain -v FIGDUMP=1 -v cmd=t_lesson -v les="$L" </dev/null \
-      | $AWK -f "$GEN/dumptlesson.awk" -v id="$L" -v ans="$ans" -v why="$why"
+      | $AWK -f "$ESC" -f "$GEN/dumptlesson.awk" -v id="$L" -v ans="$ans" -v why="$why"
     [ "$n" -lt "$tot" ] && echo "," || echo ""
   done
   echo "];"

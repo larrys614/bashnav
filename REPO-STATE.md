@@ -355,6 +355,42 @@ store. A service worker's *scope* is per-path, though, which is why
 loaded from `../deck-log/` — out of scope they would not be cached and the tool
 would not work offline, which is the entire point.
 
+### One escaper for every generator
+
+Nine generators — celnav, four colregs files, three weather, deck-log, plus
+`tests/review-pack.awk` — each carried their own copy of
+
+    gsub(/\\/,"\\\\",s); gsub(/"/,"\\\"",s)
+
+and all nine were wrong the same way: the doubling happens inside gsub's
+**replacement string**, the one place POSIX leaves backslashes to the
+implementation. mawk 1.3.4 20200120, which Debian and Ubuntu shipped for years,
+emits one backslash where every other build emits two. On such a machine every
+generated browser file came out silently wrong — a celnav lesson showing a
+shell line continuation lost its backslash and rendered a literal `\n`.
+
+They now share `docs/web/gen/jsonesc.awk`, which uses `index()` and `substr()`
+only. `split` was tried first and is also unusable: one-true-awk compiles a
+single-character separator as a regex, and a lone backslash is a dangling
+escape, so it split on newlines too.
+
+`tests/jsonesc-check.awk` holds the escaper to a literal answer per awk, which
+is the check the regenerate-and-compare ones could never be — they compare the
+generator with itself, so on the broken awk they call the *committed* file stale
+and following their advice commits the broken one.
+
+Three more things fell out of the same sweep:
+
+1. `weather`'s and `deck-log`'s generators had **no regenerate-and-compare at
+   all**, and `docs/web/weather/lessons.js` had gone stale: the committed file
+   was missing a passage of the Coriolis lesson. Both are compared now.
+2. The contacts card was built by an **inline awk program**, so adding the
+   shared `-f` file silently deleted the program and the card generated as five
+   empty strings. It is `docs/web/colregs/gen/dumpcard.awk` now. `docs/HACKING.md`
+   has had that entry since a truncation test did the same thing.
+3. The container clone was committing as `Claude <noreply@anthropic.com>`
+   rather than as Larry. Its `user.name`/`user.email` are set now.
+
 ### The README and the site, browser-first
 
 The README was rewritten to lead with the browser apps rather than the shell

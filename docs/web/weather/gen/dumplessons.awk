@@ -6,7 +6,10 @@
 #
 #  cmode=day codes:  1;32 accent   90 aside   1;91 warn   1;92 ok
 #                    40m 37m      the reset
-function jq(s){ gsub(/\\/,"\\\\",s); gsub(/'/,"\\'",s); return s }
+#  js_dq/js_sq live in docs/web/gen/jsonesc.awk, loaded with -f before
+#  this file. The doubling must not happen in gsub's replacement string;
+#  see the long note there.
+function jq(s){ return js_sq(s) }
 BEGIN{ E=sprintf("%c",27); first=1 }
 {
   line = $0

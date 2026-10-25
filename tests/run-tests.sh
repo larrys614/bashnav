@@ -606,6 +606,26 @@ WXLOG
   done
   [ "$fp" = 0 ] && ok "no parameter shadows a function name"
 
+  #  ---- the generators' JS/JSON escaper gives one answer ------------
+  #  Every generated browser file is escaped by docs/web/gen/jsonesc.awk,
+  #  and the nine copies it replaced did the doubling inside gsub's
+  #  REPLACEMENT string - the one place POSIX leaves backslashes to the
+  #  implementation. mawk 1.3.4 20200120, Debian's and Ubuntu's for
+  #  years, emits one backslash where every other build emits two, so on
+  #  an ordinary machine every generator wrote a silently wrong file.
+  #
+  #  THE REGENERATE-AND-COMPARE CHECKS CANNOT SEE THIS. They run the
+  #  generator and diff the result against what is committed, so on the
+  #  broken awk they report the committed file as stale - and doing what
+  #  they advise commits the broken version. The escaper has to be held
+  #  to a literal answer, per awk, which is what this does.
+  r=$($AW -f docs/web/gen/jsonesc.awk -f tests/jsonesc-check.awk </dev/null 2>&1)
+  case "$r" in
+    *"JSONESC 0 of "*) ok "the generators' escaper agrees under $AW ($(printf '%s' "$r" | tail -1 | $AW '{print $4}') cases)" ;;
+    *) bad "the generators' JS escaper disagrees under $AW -- generated files would be wrong"
+       printf '%s\n' "$r" | grep -v '^JSONESC' | head -9 ;;
+  esac
+
   #  ---- POSIX interval expressions in a regex ----------------------
   #  mawk 1.3.3 does not implement {n,m}: it reads the braces as literal
   #  characters, so a correct POSIX ERE silently matches nothing.
@@ -981,6 +1001,43 @@ WXLOG
     else
       bad "the web data is not what the engine dumps -- run docs/web/colregs/gen/make-colregs-web.sh"
       git diff --stat -- "$gw" $gc | head -3
+    fi ;;
+  esac
+
+  #  ---- weather's and deck-log's generated files ---------------------
+  #  These two generators had no regenerate-and-compare at all, and
+  #  docs/web/weather/lessons.js had gone stale as a result: the committed
+  #  file was missing a whole passage of the Coriolis lesson that
+  #  src/weather prints. It was found only because an unrelated change
+  #  made every generator run - which is the argument for these two checks
+  #  rather than for being more careful.
+  #
+  #  The file lists are explicit, like the colregs one above, and for the
+  #  same reason: docs/web/<tool>/ also holds the hand-written app, and a
+  #  whole-directory diff would report an ordinary edit to a page as the
+  #  generator disagreeing with itself. The cost is that a generated file
+  #  added later is not covered until it is named here.
+  r=$(sh docs/web/weather/gen/make-weather-web.sh 2>&1 >/dev/null || echo FAILED)
+  case "$r" in *FAILED*) bad "the weather web generator does not run"; echo "    $r" ;; *)
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+      say "  --    weather's lessons regenerate, but comparing them needs a git checkout"
+    elif git diff --quiet -- docs/web/weather/lessons.js 2>/dev/null; then
+      ok "docs/web/weather/lessons.js is what the weather lessons print"
+    else
+      bad "weather's lessons.js is not what src/weather prints -- run docs/web/weather/gen/make-weather-web.sh"
+      git diff --stat -- docs/web/weather/lessons.js | head -2
+    fi ;;
+  esac
+
+  r=$(sh docs/web/deck-log/gen/make-decklog-web.sh 2>&1 >/dev/null || echo FAILED)
+  case "$r" in *FAILED*) bad "the deck-log web generator does not run"; echo "    $r" ;; *)
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+      say "  --    deck-log's menus regenerate, but comparing them needs a git checkout"
+    elif git diff --quiet -- docs/web/deck-log/menus.js 2>/dev/null; then
+      ok "docs/web/deck-log/menus.js is what screens.awk dumps"
+    else
+      bad "deck-log's menus.js is not what screens.awk dumps -- run docs/web/deck-log/gen/make-decklog-web.sh"
+      git diff --stat -- docs/web/deck-log/menus.js | head -2
     fi ;;
   esac
 

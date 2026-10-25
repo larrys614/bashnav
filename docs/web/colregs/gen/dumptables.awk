@@ -9,11 +9,10 @@
 #  of it.
 #
 #  Run through make-colregs-web.sh, which assembles data.js around it.
-function jq(s){
-  gsub(/\\/,"\\\\",s); gsub(/"/,"\\\"",s)
-  gsub(/\t/," ",s); gsub(/\n/,"\\n",s)
-  return s
-}
+#  js_dq/js_sq live in docs/web/gen/jsonesc.awk, loaded with -f before
+#  this file. The doubling must not happen in gsub's replacement string;
+#  see the long note there.
+function jq(s){ return js_dq(s) }
 function jstr(s){ return "\"" jq(s) "\"" }
 #  a light tuple: x,y,h,arc,col
 function light(t,   f,n){

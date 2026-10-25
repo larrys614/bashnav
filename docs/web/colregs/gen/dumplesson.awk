@@ -9,15 +9,14 @@
 #
 #  -v id=, -v ans=, -v why= come from the driver, the last two out of
 #  cmd=lessonmeta rather than out of prose.
-function jq(s){
-  gsub(/\\/,"\\\\",s); gsub(/"/,"\\\"",s); gsub(/\t/," ",s)
-  #  A LESSON BODY IS MOSTLY NEWLINES, and a real newline inside a JSON
-  #  string is an invalid control character, not a line break. The table
-  #  dumper escapes them; this one did not, and the whole file failed to
-  #  parse at the first lesson.
-  gsub(/\n/,"\\n",s)
-  return s
-}
+#  js_dq/js_sq live in docs/web/gen/jsonesc.awk, loaded with -f before
+#  this file. The doubling must not happen in gsub's replacement string;
+#  see the long note there.
+#  A LESSON BODY IS MOSTLY NEWLINES, and a real newline inside a JSON
+#  string is an invalid control character, not a line break. The table
+#  dumper escaped them; this one did not, and the whole file failed to
+#  parse at the first lesson. js_dq() does both.
+function jq(s){ return js_dq(s) }
 BEGIN{ body=""; ques=""; inq=0; nl=0; title="" }
 {
   line = $0

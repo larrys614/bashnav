@@ -30,6 +30,7 @@ for a in mawk gawk awk; do command -v "$a" >/dev/null 2>&1 && { AWK=$a; break; }
 #  dispatch, and it writes to a named file so that dispatch cannot print
 #  over the top of it.
 "$AWK" -v OUTF="$OUT" \
+   -f "$ROOT/docs/web/gen/jsonesc.awk" \
    -f "$ROOT/docs/web/deck-log/gen/dumpmenus.awk" \
    -f "$ROOT/src/common/log.awk" -f "$ROOT/src/common/colour.awk" \
    -f "$SRC/views.awk" -f "$SRC/screens.awk" \

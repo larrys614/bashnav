@@ -20,6 +20,10 @@ set -e
 ROOT=$(cd "$(dirname "$0")/../../../.." && pwd)
 SRC="$ROOT/src/colregs"
 GEN="$ROOT/docs/web/colregs/gen"
+#  the shared JS/JSON escaper, loaded before every dumper. Each of these
+#  files used to carry its own copy, and all of them were wrong the same
+#  way - see the note at the top of it.
+ESC="$ROOT/docs/web/gen/jsonesc.awk"
 OUT="$ROOT/docs/web/colregs/data.js"
 COUT="$ROOT/docs/web/colregs/contacts-lessons.js"
 
@@ -42,7 +46,7 @@ VER=$(sed -n 's/^COLREGS_VERSION=//p' "$SRC/10-head.sh" | head -1)
   echo "// the two cannot drift."
   echo "window.COLREGS_DATA = {"
   printf ' "version": "%s",\n' "$VER"
-  $AWK $ENG -f "$GEN/dumptables.awk" </dev/null
+  $AWK $ENG -f "$ESC" -f "$GEN/dumptables.awk" </dev/null
   echo ' "lessons": ['
   n=0
   for L in L1 L2 L3 L4 L5 L6 L7 L8 L9 L10 L11 L12 L13 L14 L15; do
@@ -51,7 +55,7 @@ VER=$(sed -n 's/^COLREGS_VERSION=//p' "$SRC/10-head.sh" | head -1)
     ans=${meta%%	*}
     why=${meta#*	}
     $AWK $ENG -v cmode=plain -v cmd=lesson -v les_id="$L" </dev/null \
-      | $AWK -f "$GEN/dumplesson.awk" -v id="$L" -v ans="$ans" -v why="$why"
+      | $AWK -f "$ESC" -f "$GEN/dumplesson.awk" -v id="$L" -v ans="$ans" -v why="$why"
     [ "$n" -lt 15 ] && echo "," || echo ""
   done
   echo ' ]'
@@ -82,7 +86,7 @@ echo "make-colregs-web: wrote $OUT"
   for L in C1 C2 C3 C4 C5 C6 C7; do
     n=$((n+1))
     $AWK $ENG -v cmode=plain -v cmd=clesson -v les_id="$L" -v FIGDUMP=1 </dev/null \
-      | $AWK -f "$GEN/dumpclesson.awk" -v id="$L"
+      | $AWK -f "$ESC" -f "$GEN/dumpclesson.awk" -v id="$L"
     [ "$n" -lt 7 ] && echo "," || echo ""
   done
   echo "];"
@@ -112,19 +116,11 @@ echo "make-colregs-web: wrote $COUT"
   for ST in rn usn rel360 words none; do
     n=$((n+1))
     printf ' "%s": "' "$ST"
-    #  the terminal's furniture comes off: the rule hr() draws under the
-    #  heading and above the foot, and the heading itself, which the
-    #  screen already shows as its title. Same two chores dumpclesson.awk
-    #  does for a lesson, and for the same reason -- the first version of
-    #  that one carried a row of dashes into the page.
+    #  dumpcard.awk, not an inline program: it needs js_dq_raw() from
+    #  $ESC, and `-f file` and an inline program do not mix - awk reads
+    #  the inline text as a DATA FILE and runs nothing from it.
     $AWK $ENG -v cmode=plain -v rstyle="$ST" -v cmd=cref </dev/null \
-      | $AWK '/^ *-+ *$/ { next }
-              /CONTACTS -- the card/ { next }
-              { gsub(/\\/,"\\\\"); gsub(/"/,"\\\""); sub(/^  /,"")
-                sub(/[ \t]+$/,""); L[++n]=$0 }
-              END{ s=1; while(s<=n && L[s]=="") s++
-                   e=n; while(e>=1 && L[e]=="") e--
-                   for(i=s;i<=e;i++) printf "%s\\n", L[i] }'
+      | $AWK -f "$ESC" -f "$GEN/dumpcard.awk"
     [ "$n" -lt 5 ] && echo '",' || echo '"'
   done
   echo "};"

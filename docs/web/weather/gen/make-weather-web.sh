@@ -20,6 +20,10 @@ set -e
 ROOT=$(cd "$(dirname "$0")/../../../.." && pwd)
 SRC="$ROOT/src/weather"
 GEN="$ROOT/docs/web/weather/gen"
+#  the shared JS/JSON escaper, loaded before every dumper. Each of these
+#  files used to carry its own copy, and all of them were wrong the same
+#  way - see the note at the top of it.
+ESC="$ROOT/docs/web/gen/jsonesc.awk"
 OUT="$ROOT/docs/web/weather/lessons.js"
 TMP=${TMPDIR:-/tmp}/weather-lessons.$$
 mkdir -p "$TMP"
@@ -72,15 +76,15 @@ for k in $keys; do
   printf "  { key: '%s', title: '%s', body: [\n" "$k" "$title" >> "$OUT"
   "$AWK" -v cmode=day -v cmd=lesson -v key="$k" -v LOG=/dev/null $ENG </dev/null \
     | "$AWK" -f "$GEN/trimq.awk" \
-    | "$AWK" -f "$GEN/dumplessons.awk" >> "$OUT"
+    | "$AWK" -f "$ESC" -f "$GEN/dumplessons.awk" >> "$OUT"
   printf "  ], " >> "$OUT"
   #  cmd=lesson prints the body and then the question; cmd=lessonq prints
   #  the answer on its own. Both are taken from the tool rather than
   #  parsed back out of a page.
   "$AWK" -v cmode=plain -v cmd=lesson -v key="$k" -v LOG=/dev/null $ENG </dev/null \
-    | "$AWK" -f "$GEN/dumpq.awk" >> "$OUT"
+    | "$AWK" -f "$ESC" -f "$GEN/dumpq.awk" >> "$OUT"
   "$AWK" -v cmode=plain -v cmd=lessonq -v key="$k" -v LOG=/dev/null $ENG </dev/null \
-    | "$AWK" -f "$GEN/dumpa.awk" >> "$OUT"
+    | "$AWK" -f "$ESC" -f "$GEN/dumpa.awk" >> "$OUT"
   #  the second tier, where the lesson has one. Captured the same way as
   #  the body, so the browser gets the same words with the same emphasis
   #  and the character-for-character check below covers it too.
@@ -88,7 +92,7 @@ for k in $keys; do
        $ENG </dev/null >/dev/null 2>&1; then
     printf "    more: [\n" >> "$OUT"
     "$AWK" -v cmode=day -v cmd=lessonmore -v key="$k" -v LOG=/dev/null $ENG </dev/null \
-      | "$AWK" -f "$GEN/dumplessons.awk" >> "$OUT"
+      | "$AWK" -f "$ESC" -f "$GEN/dumplessons.awk" >> "$OUT"
     printf "    ],\n" >> "$OUT"
   fi
   printf "  },\n" >> "$OUT"

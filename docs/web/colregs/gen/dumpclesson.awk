@@ -21,11 +21,10 @@
 #  So a body is a LIST OF BLOCKS: {"t":"p","s":...} for prose,
 #  {"t":"fig","kind":...} plus its parameters for a figure, in the order
 #  the lesson prints them.
-function jq(s){
-  gsub(/\\/,"\\\\",s); gsub(/"/,"\\\"",s); gsub(/\t/," ",s)
-  gsub(/\n/,"\\n",s)                       # see the note in dumplesson.awk
-  return s
-}
+#  js_dq/js_sq live in docs/web/gen/jsonesc.awk, loaded with -f before
+#  this file. The doubling must not happen in gsub's replacement string;
+#  see the long note there.
+function jq(s){ return js_dq(s) }
 function flush_p(   t){                    # the prose gathered so far
   t = buf
   gsub(/^\n+/,"",t); gsub(/\n+$/,"",t)     # the blank lines the screen adds

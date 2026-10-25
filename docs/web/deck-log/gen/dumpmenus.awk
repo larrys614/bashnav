@@ -2,7 +2,10 @@
 #  These are 0-9 codes because that is what they are in the standard, so
 #  a menu here is the standard and not a coarsening of it -- which is
 #  also why not one character of them is retyped.
-function jq(s){ gsub(/\\/,"\\\\",s); gsub(/'/,"\\'",s); return s }
+#  js_dq/js_sq live in docs/web/gen/jsonesc.awk, loaded with -f before
+#  this file. The doubling must not happen in gsub's replacement string;
+#  see the long note there.
+function jq(s){ return js_sq(s) }
 #  This dumper is loaded BEFORE screens.awk on the command line, so its
 #  BEGIN block runs first.  screens.awk carries the tool's own dispatch
 #  in a BEGIN block that would otherwise print over the dump, so the

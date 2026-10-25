@@ -131,6 +131,51 @@ there undetected until the harness was fixed.
 probe can produce no output must fail loudly on an empty result rather than
 skipping it.
 
+**It bit a generator too, long after this entry was written.** The contacts
+reference card was built by an inline program in `make-colregs-web.sh`; moving
+its escaping into a shared `-f` file turned that inline program into a filename
+and the card generated as five empty strings. Nothing failed — the generator
+exited 0, and the only sign was the committed file changing. The inline program
+is now `docs/web/colregs/gen/dumpcard.awk`. **Adding a `-f` to a command that
+carries an inline program silently deletes the program.**
+
+### Doubling a backslash: not in gsub's replacement, and not with split
+
+    gsub(/\\/, "\\\\", s)        # one backslash in, one or two out,
+                                 # depending on which awk you have
+
+POSIX defines only `&` and `\&` in a `gsub` replacement string. A backslash
+before anything else is left to the implementation, and they disagree:
+
+| | one backslash becomes |
+|---|---|
+| mawk 1.3.4 20240123, gawk 5.1, gawk 5.2, one-true-awk | `\\` |
+| **mawk 1.3.4 20200120** (Debian and Ubuntu's for years) | `\` |
+
+Nine generators escaped their output this way, so on an ordinary machine every
+generated browser file came out silently wrong — a lesson showing a shell line
+continuation lost its backslash and rendered a literal `\n` with no line break.
+
+**`split` is not the way out.** `split(s, p, "\\")` avoids the replacement
+rules, and `index`-free code looks tidier, but **one-true-awk compiles a
+single-character separator as a regex**, and a lone backslash as a regex is a
+dangling escape: it split on newlines as well, turning every line break into a
+pair of backslashes. That cost a round to find, and it is the same trap one
+level down — reaching for a different awk feature whose single-character case is
+also implementation-defined.
+
+So `docs/web/gen/jsonesc.awk` uses **`index()` and `substr()` and nothing
+else**: a plain string search, a plain cut, and a replacement built by
+concatenating string *literals*, whose escapes the lexer resolves. That is well
+defined everywhere, and `tests/jsonesc-check.awk` holds it there per awk.
+
+> The regenerate-and-compare checks could not see any of this, and that is the
+> part worth remembering. They run the generator and diff against what is
+> committed, so on the broken awk they report the *committed* file as stale —
+> and doing what they advise commits the broken version. **A check that compares
+> a generator with itself cannot catch the generator being wrong.** Hold the
+> primitive to a literal answer instead.
+
 ### Do not seed `rand()` and expect it to be reproducible
 
 **mawk re-seeds `srand()` from the clock even when handed an explicit seed.**

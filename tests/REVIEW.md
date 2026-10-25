@@ -35,6 +35,7 @@ The review pack lists every such claim, generated from the same tables the
 code runs on so it cannot drift from the program:
 
     awk -f src/colregs/engine.awk -f src/colregs/contacts.awk \
+        -f docs/web/gen/jsonesc.awk \
         -f tests/review-pack.awk -v cmode=plain </dev/null
 
 In priority order — highest consequence first:

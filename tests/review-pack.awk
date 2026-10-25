@@ -1,7 +1,10 @@
 #  Dumps every factual claim that a machine cannot check, in a form a
 #  person with the Convention open can tick or cross.  Generated from
 #  the same tables the program runs on, so it cannot drift from the code.
-function jesc(s){ gsub(/\\/,"\\\\",s); gsub(/"/,"\\\"",s); gsub(/\n/," ",s); return s }
+#  js_dq/js_sq live in docs/web/gen/jsonesc.awk, loaded with -f before
+#  this file. The doubling must not happen in gsub's replacement string;
+#  see the long note there.
+function jesc(s){ return js_dq_flat(s) }
 BEGIN{
   ves_init(); shp_init(); enc_init(); snd_init()
   print "{"

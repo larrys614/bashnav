@@ -25,8 +25,7 @@
 #  grid, so they arrive as prose and the page's hold rule keeps their
 #  columns. That is the right answer for a table and needs nothing here.
 function jq(s){
-  gsub(/\\/,"\\\\",s); gsub(/"/,"\\\"",s); gsub(/\t/," ",s)
-  gsub(/\n/,"\\n",s)
+  s = js_dq(s)
   return s
 }
 function flush_p(   t){

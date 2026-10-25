@@ -52,6 +52,7 @@ content changes.
 | `awkvars-check.awk` | a variable named after an awk built-in (`RS` broke tide loading) |
 | `fnparam-check.awk` | a function parameter shadowing a function name (mawk will not parse it) |
 | `fields-check.awk` | a table field containing its own separator (a `;` in an option cut an answer in half) |
+| `jsonesc-check.awk` | the generators' JS/JSON escaper, held to a literal answer per awk &mdash; one mawk build emitted one backslash where the rest emit two |
 | `svg-check.awk` | an SVG that is not an exact character grid |
 | `readme-check.awk` | unclosed fences, unbalanced `<details>`, `<img>` inside a fence or pointing at nothing |
 | `plates-check.sh` | every plate and picture the site shows, against what the program produces &mdash; per awk, so awk-dependent site output fails |
@@ -134,6 +135,34 @@ failure. Nothing was reading that status, which is the only reason it survived.
 
 > Running a build under every awk costs a second a time. Both of these had been
 > in the repository for weeks, and neither was findable any other way.
+
+### What regenerate-and-compare cannot see
+
+Six generated browser files are regenerated during the suite and diffed against
+what is committed, which is the check that catches a change to the shell that
+has not reached the browser. It has a blind spot, and it is not obvious: **the
+generator is compared with itself**, on whichever awk is running. If the
+generator is wrong on that awk, the check reports the *committed* file as stale
+and advises regenerating it — and following that advice commits the wrong file.
+
+That is exactly what nine generators were doing. All of them escaped their
+output with `gsub(/\\/,"\\\\",s)`, which does the doubling inside gsub's
+replacement string, where POSIX leaves backslashes to the implementation. On
+mawk 1.3.4 20200120 — Debian's and Ubuntu's for years — one backslash came out
+where two were needed, so a celnav lesson showing a shell line continuation
+rendered a literal `\n` with no line break.
+
+`tests/jsonesc-check.awk` closes it by holding the escaper to a **literal
+answer** under every awk instead of to its own output. Its expectations are
+written in a safe alphabet — `<BS>`, `<DQ>`, `<SQ>`, `<NL>`, `<TAB>` — because a
+check for escaping that spells its own expectations with backslashes is resting
+on the thing it is testing. Verified red on the broken build (3 of 8 cases) and
+green on the fix.
+
+The same sweep found two more gaps of the ordinary kind: `weather`'s and
+`deck-log`'s generators had no regenerate-and-compare at all, and
+`docs/web/weather/lessons.js` had gone stale — the committed file was missing a
+passage of the Coriolis lesson that `src/weather` prints. Both are compared now.
 
 ---
 
