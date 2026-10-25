@@ -28,7 +28,7 @@ cd "$(dirname "$0")/.."
 AW=${1:-awk}
 bad=0
 
-refs=$($AW '{ while(match($0, /img\/app\/[A-Za-z0-9._-]+\.svg/)) {
+refs=$($AW '{ while(match($0, /img\/app\/[A-Za-z0-9._-]+\.(svg|png)/)) {
                 print substr($0, RSTART, RLENGTH); $0 = substr($0, RSTART+RLENGTH) } }' \
        docs/index.html | sort -u)
 if [ -z "$refs" ]; then
@@ -42,17 +42,37 @@ for r in $refs; do
   if [ ! -s "$f" ]; then
     echo "  $r is referenced by the site and is not there"; bad=$((bad+1)); continue
   fi
-  grep -q '<svg' "$f" || { echo "  $f has no <svg> element"; bad=$((bad+1)); }
-  grep -q 'xmlns="http://www.w3.org/2000/svg"' "$f" \
-    || { echo "  $f has no xmlns, so an <img> will not render it"; bad=$((bad+1)); }
-  grep -q 'viewBox="' "$f" || { echo "  $f has no viewBox"; bad=$((bad+1)); }
-  grep -q 'width="[0-9]' "$f" \
-    || { echo "  $f has no pixel width, so it has no intrinsic size in an <img>"; bad=$((bad+1)); }
-  grep -q '<script' "$f" && { echo "  $f contains a script"; bad=$((bad+1)); }
+  case "$r" in
+  *.svg)
+    #  a standalone SVG an <img> can render: namespaced, with a viewBox and
+    #  a pixel size, and carrying no script - GitHub Pages will serve one
+    #  with a script in it and the browser will not draw it
+    grep -q '<svg' "$f" || { echo "  $f has no <svg> element"; bad=$((bad+1)); }
+    grep -q 'xmlns="http://www.w3.org/2000/svg"' "$f" \
+      || { echo "  $f has no xmlns, so an <img> will not render it"; bad=$((bad+1)); }
+    grep -q 'viewBox="' "$f" || { echo "  $f has no viewBox"; bad=$((bad+1)); }
+    grep -q 'width="[0-9]' "$f" \
+      || { echo "  $f has no pixel width, so it has no intrinsic size in an <img>"; bad=$((bad+1)); }
+    grep -q '<script' "$f" && { echo "  $f contains a script"; bad=$((bad+1)); }
+    ;;
+  *.png)
+    #  THE SCREENSHOTS. Four of the six apps draw nothing - tides,
+    #  deck-log, weather and drill are tables, logs, forms and prose - so
+    #  their figures are pictures of the real screen. These are the only
+    #  binary files in the repository and the only ones that cannot be
+    #  diffed, so what can be checked is that the file is a PNG, is not
+    #  truncated, and is not so small that the screen did not render.
+    head -c 8 "$f" | od -An -tx1 2>/dev/null | tr -d ' \n' | grep -qi '^89504e470d0a1a0a' \
+      || { echo "  $f does not start with the PNG signature"; bad=$((bad+1)); }
+    sz=$(wc -c < "$f")
+    [ "$sz" -lt 8000 ] && { echo "  $f is only $sz bytes - the screen probably did not render"; bad=$((bad+1)); }
+    [ "$sz" -gt 600000 ] && { echo "  $f is $sz bytes, which is too much of the repository for one picture"; bad=$((bad+1)); }
+    ;;
+  esac
 done
 
 #  generated and never shown
-for f in docs/img/app/*.svg; do
+for f in docs/img/app/*.svg docs/img/app/*.png; do
   [ -e "$f" ] || continue
   n=$(basename "$f")
   case "$refs" in *"img/app/$n"*) ;; *) echo "  docs/img/app/$n is generated and referenced by nothing"; bad=$((bad+1)) ;; esac

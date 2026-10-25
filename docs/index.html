@@ -275,6 +275,10 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
   <h3>Where the browser version is better, and where it is not</h3>
   <p>Better, because a terminal could not do it: the sound signals are <em>sounded</em> rather than drawn; night mode puts every lamp red while the letters <span class="r">R</span> <span class="g">G</span> <span class="w">W</span> <span class="y">Y</span> keep the pattern unambiguous; and a camera can measure a sextant altitude, which no shell tool was ever going to manage.</p>
   <p>Not better, and worth saying plainly: <strong>a phone camera is worth about two to three arcminutes once calibrated</strong> &mdash; the same order as a plastic lifeboat sextant, several times worse than a metal one in practised hands. Uncorrected lens distortion can cost tens of arcminutes, which is why the build carries a star-field calibration and says so on the page when it has not been done.</p>
+    <figure>
+      <img class="shot" src="img/app/launcher.png" alt="The launcher: six tiles, one per tool, with instructions for adding each to the home screen and an explanation of what offline means here" loading="lazy">
+      <figcaption><b>One screen, six tools.</b> Each is a separate page so each gets its own icon on the home screen, and each caches itself the first time you open it with a signal. After that they run with no network at all &mdash; which is worth proving once at the dock rather than discovering at sea: open every screen, turn the network off, and relaunch from the icon.</figcaption>
+    </figure>
 </section>
 
 <section id="why">
@@ -318,6 +322,10 @@ AP = +    LOP = lettered line    fix = @    1 row = 5 nm, 1 column = 2.5 nm</pre
 
   <h3>It teaches, as well as computes</h3>
   <p>Twenty lessons from first principles, an annotated walkthrough of one real sight, six kinds of drill generated from the real almanac and marked, and a sandbox where you change one number and watch the navigational triangle move.</p>
+    <figure>
+      <img class="shot" src="img/app/celnav-sight.png" alt="The sight reduction screen: a sight being entered, the three sights already kept with their Hc, Zn and intercept, and the fix below with its error ellipse and plotting sheet" loading="lazy">
+      <figcaption><b>A sight from any sextant.</b> Enter the UT, the body and the sextant altitude and it works the correction chain, keeps the sight, and crosses it with the others. The three here are the worked example from the manual &mdash; Dubhe, Bellatrix and Markab from 35&deg; 00&prime; N 040&deg; 00&prime; W &mdash; and the fix comes out ten miles north and sixteen west of the assumed position, with an error ellipse of 0.9 by 0.7 of a mile. The camera is the third way of getting an altitude in here, not the first.</figcaption>
+    </figure>
 </section>
 
 <section id="colregs">
@@ -410,6 +418,10 @@ You see a power-driven vessel showing her red sidelight, on your starboard beam,
       <img class="shot" src="img/app/colregs-contacts.svg" alt="A relative-motion plot on the twelve mile radar scale: five marks three minutes apart running in toward own ship, with the closest point of approach marked at 100 yards" loading="lazy">
       <figcaption><b>A steady bearing and a closing range.</b> Five marks, three minutes apart, on the smallest radar range scale that still holds her &mdash; and the closest point of approach she will make if neither of you alters: a hundred yards astern. Answer the three questions and the app works the solution, then replays both tracks under the action <em>you</em> chose and tells you the CPA it actually produced.</figcaption>
     </figure>
+    <figure>
+      <img class="shot" src="img/app/colregs-sound.svg" alt="A sound signal drawn as bars against a time axis: five short blasts in quick succession" loading="lazy">
+      <figcaption><b>Five short and rapid blasts.</b> A script cannot make a noise, so the signals are drawn against time instead &mdash; a short blast about a second, a prolonged one four to six. This is the doubt signal, Rule 34(d): I do not understand your intentions, or I doubt you are taking sufficient action to avoid collision.</figcaption>
+    </figure>
 </section>
 
 <section id="tides">
@@ -422,6 +434,14 @@ You see a power-driven vessel showing her red sidelight, on your starboard beam,
     <li><b>The curve as well as the table,</b> with the turns marked, so the shape of the day is visible rather than four numbers to interpolate between.</li>
   </ul>
   <p class="small dim">No tidal <em>current</em> data. NOAA has 4,430 current stations but United States waters only, and worldwide coverage is the point of the thing &mdash; so it is left out rather than offered for a quarter of the planet.</p>
+    <figure>
+      <img class="shot" src="img/app/tides-day.png" alt="A day at New London: the station and datum, the curve across twenty-four hours with the present height marked, the four turns in a table, a depth and clearance calculator, and the sun and moon for the day" loading="lazy">
+      <figcaption><b>A day at New London.</b> The curve, the four turns with their heights, and the question a tide table exists to answer: enter the charted depth and your draught and it tells you what is under the keel, or the charted clearance and your air draught and it tells you what is over the mast. Sun, moon and twilight for the same day underneath, because that is the other thing you want at a glance.</figcaption>
+    </figure>
+    <figure>
+      <img class="shot" src="img/app/tides-find.png" alt="Searching 8,334 stations by name: the words new and lon typed in any order, four matching stations listed with their regions" loading="lazy">
+      <figcaption><b>Finding the station.</b> Type any part of the name in any order &mdash; <em>new lon</em> finds New London &mdash; or give a latitude and longitude and it offers the nearest. It will not compute a tide from a position alone, and says why: a tide depends on the shape of the coast and the resonance of the basin, so every place needs constants somebody measured there.</figcaption>
+    </figure>
 </section>
 
 <section id="deck-log">
@@ -434,6 +454,14 @@ You see a power-driven vessel showing her red sidelight, on your starboard beam,
     <li><b>Told at the moment of use.</b> &ldquo;That was your last one, one short of your minimum&rdquo; &mdash; while you are still standing at the engine, not in a report afterwards.</li>
     <li><b>Four states, not two.</b> A reading, a zero (which is a reading), asked-and-not-taken, and asked-and-not-observable. A form that punishes blanks gets invented numbers.</li>
   </ul>
+    <figure>
+      <img class="shot" src="img/app/decklog-entry.png" alt="The deck-log entry screen: the UTC timestamp and watch slot, four tabs for deck, weather, engine and stores, and the deck fields with the sea state scale" loading="lazy">
+      <figcaption><b>An entry, in four parts.</b> Deck, weather, engine and stores, each declined or logged on its own, so a watch that saw nothing worth recording says so rather than leaving a hole. Position, course and speed are carried forward from the last entry and accepted by pressing return. Wind is <b>true</b>, not apparent &mdash; apparent changes on every tack, and backing against veering is the most useful rule at sea.</figcaption>
+    </figure>
+    <figure>
+      <img class="shot" src="img/app/decklog-boat.png" alt="The boat screen: open defects, what is in the locker, the shopping list, equipment with its parts, and the registry as text" loading="lazy">
+      <figcaption><b>The boat, replayed from the log.</b> Nothing here is stored as a state to be kept in step: the open defects, the spares aboard and the shopping list are all worked out by replaying the log. Log that you fitted an impeller and the locker count falls by one, with no second place to update and no way for the two to disagree.</figcaption>
+    </figure>
 </section>
 
 <section id="weather">
@@ -446,6 +474,29 @@ You see a power-driven vessel showing her red sidelight, on your starboard beam,
     <li><b>You forecast first.</b> It shows nothing of its reasoning until your call is committed &mdash; otherwise you have not forecast anything, you have read an answer and agreed with it.</li>
     <li><b>Three scorers:</b> you, the rules, and persistence. Persistence is the honest floor: a forecast that cannot beat &ldquo;much as it is now&rdquo; has shown no skill.</li>
   </ul>
+    <figure>
+      <img class="shot" src="img/app/weather-forecast.png" alt="The forecast screen: it will not show its own forecast until yours is entered, with fields for wind direction and speed, pressure and sea state" loading="lazy">
+      <figcaption><b>Yours first.</b> It holds its own forecast back until you have written yours down &mdash; because a forecast you read before committing is not a forecast you made, and the whole point is to turn you into your own forecaster. Then it scores both against what actually happened. There is no observation in the log it can cheat from either: it has no network at all.</figcaption>
+    </figure>
+    <figure>
+      <img class="shot" src="img/app/weather-chart.png" alt="The 500 millibar chart screen: fields for the bearing and distance of the surface low, its pressure, and the hemisphere" loading="lazy">
+      <figcaption><b>From a 500 mb chart.</b> The app cannot fetch a chart and never will, but a 500 mb chart arrives by HF radiofax, on an SSB receiver, with no connectivity at all &mdash; which is exactly the situation the rest of this is built for. Give it three numbers off the fax and it walks the rules on the steering flow above the surface weather.</figcaption>
+    </figure>
+</section>
+
+<section id="drill">
+  <p class="eyebrow">Tool six</p>
+  <h2>drill <span class="rule">&mdash; a study machine with nothing in it</span></h2>
+  <p>Sections, recall practice, and a graded test that opens the next section when you pass it. What it does not have is any material: you load a content pack from your own device, it is read by the page, and it is kept in that browser&rsquo;s own storage.</p>
+  <ul>
+    <li><b>Nothing leaves the device.</b> No upload, no account, no network call &mdash; the file is read in the browser and stays there.</li>
+    <li><b>Material somebody else owns can be studied without being published.</b> The machine is published; what you study is yours and stays yours.</li>
+    <li><b>A pack is one JSON file</b> &mdash; sections with their reference text, and questions tagged to the section they belong to. The format is documented in <a href="https://github.com/larrys614/bashnav/blob/main/docs/web/drill/README.md"><code>docs/web/drill/README.md</code></a>.</li>
+  </ul>
+    <figure>
+      <img class="shot" src="img/app/drill-home.png" alt="The drill home screen with no pack loaded: load a pack, why it works this way, and how to make one" loading="lazy">
+      <figcaption><b>A study machine that ships empty.</b> It holds no questions and no material of its own. You load a pack from your own device, it is read in the browser, and it never leaves the device &mdash; which is the point: <b>material somebody else owns can be studied without ever being published.</b> The machine is published; the material is yours and stays yours.</figcaption>
+    </figure>
 </section>
 
 <section id="bashnav">

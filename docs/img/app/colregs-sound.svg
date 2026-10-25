@@ -1,0 +1,4 @@
+<!-- colregs: a sound signal drawn against time, because a script cannot make a noise
+     Captured from the colregs app by docs/web/gen/make-app-figures.sh. Do not hand-edit:
+     it is regenerated and compared by tests/run-tests.sh. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" role="img" width="600" height="120"><rect x="20" y="38" width="70" height="32" rx="4" fill="#6fb3d9"/><rect x="167" y="38" width="70" height="32" rx="4" fill="#6fb3d9"/><rect x="314" y="38" width="70" height="32" rx="4" fill="#6fb3d9"/><rect x="461" y="38" width="70" height="32" rx="4" fill="#6fb3d9"/><rect x="608" y="38" width="70" height="32" rx="4" fill="#6fb3d9"/><line x1="20" y1="84" x2="580" y2="84" stroke="#232b34"/><text x="20" y="104" fill="#8995a3" font-size="13">time →</text><text x="580" y="104" fill="#8995a3" text-anchor="end" font-family="ui-monospace, Menlo, monospace" font-size="14"># # # # #</text></svg>

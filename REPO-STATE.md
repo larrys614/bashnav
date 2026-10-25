@@ -365,13 +365,23 @@ lights, her day shapes, an encounter, and the tracking party's relative-motion
 plot. Captures are reproducible because `Math.random` is seeded before any app
 code runs, and `docs/web/tests/run-figures-web.sh` recaptures and diffs.
 
-Ten pictures were retired rather than replaced, because the screens behind them
-either do not exist in the browser yet (the sky view and the navigational
-triangle, which are the planner — task 25) or are text rather than drawings
-(the menus, the sound-signal table, the station search). `tides`, `deck-log`,
-`weather` and `bashnav` therefore have no picture in their sections at present.
-The tides curve is the one real loss: it is a canvas, so it could come back as
-SVG if the app drew it that way.
+**Then two or more per app**, which needed screenshots: `tides`, `deck-log`,
+`weather` and `drill` draw nothing at all — they are tables, logs, forms and
+prose — so nine of the fifteen figures are pictures of the real screen. They
+are the repository's only binary files. The clock is frozen, the timezone
+pinned, day mode forced and the viewport fitted to the screen, and all fifteen
+reproduce byte for byte.
+
+Two things fell out of doing it. `drill` had **no section on the site at all**,
+only a row in the table of tools — it has one now. And the launcher's celnav
+tile still read *"Camera sight — an altitude from a photograph"*, which was the
+whole of the app when the tile was written; celnav is a sight reduction
+calculator first, a teaching track second, and the camera third.
+
+The sound-signal timeline turned out to be a real drawing too, not the text
+table it was retired as. What stayed retired are the screens that do not exist
+in the browser yet — the sky view and the navigational triangle, which are the
+planner, task 25 — and the terminal menus.
 
 **Capturing them found a COLREGs fault**: the browser drew a mine clearance
 vessel with four balls, where Rule 27(f) gives three. The port had read the

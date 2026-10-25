@@ -30,7 +30,34 @@ cannot pass.
 | `run-figures-web.sh` | recaptures the site's pictures from the apps and diffs them |
 | `serve.py`       | a static server that honours `Range`, which Python's own does not |
 
-## The site's pictures are the apps' own drawings
+## The site's pictures are the apps' own screens
+
+Fifteen figures, two or more for every app, and they are all the real thing:
+six are the apps' own `<svg>`, lifted out of the running page, and nine are
+screenshots of screens that are not drawings at all.
+
+`tides`, `deck-log`, `weather` and `drill` draw nothing — they are tables,
+logs, forms and prose — so showing what they do means photographing the
+screen. Those PNGs are the repository's only binary files and the only ones
+that cannot be diffed, so three things make them worth having:
+
+- **The clock is frozen** to 29 Aug 2026 12:00 UT, the day the celnav worked
+  example uses, and the timezone is pinned to UTC. The tides day view prints
+  the date and marks the present height on the curve; deck-log heads its screen
+  with the UTC stamp and the watch slot. Unfrozen, every capture differed and
+  the comparison was noise — the same fault the deck-log menu picture had.
+- **The viewport is fitted to the screen**, because `fullPage` takes the larger
+  of the content and the window and padded the short screens with dead space.
+  `document.documentElement.scrollHeight` is no use for measuring it: these apps
+  hold `html` and `body` at the window height and scroll an inner container, so
+  it reports the window back. The view element's own box is the screen.
+- **Day mode is forced.** The palette is remembered per browser, so a capture
+  that inherited night mode would be a different picture of the same screen.
+
+All fifteen reproduce byte for byte on a second run, which is what makes
+`run-figures-web.sh` a check rather than a ritual.
+
+## The drawings are the apps' own SVG
 
 The front page showed thirteen `ansi2svg` renderings — the *terminal's*
 characters drawn as SVG. That was right while the shell build was the product.
