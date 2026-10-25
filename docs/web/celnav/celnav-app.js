@@ -344,33 +344,11 @@ function sightAP() {
     "10.0" - the fix read 35 010.0' N.  And minutes rounding up to 60.0
     never carried into the degrees, so 29 59.97' printed as 29 60.0'.
     fmt_dm() in engine.awk carries at 59.95; this does the same.  */
-/*  printf's %.*f, WHICH IS NOT toFixed().
-    C rounds a tie to the EVEN last digit; JavaScript's toFixed rounds it
-    up. Deneb's catalogue magnitude is exactly 1.25, so the shell's
-    planning table printed 1.2 and this page printed 1.3 - found by
-    docs/web/tests/celnav-plan.js diffing that table row for row, and by
-    nothing numerical, because both are the same number.
-
-    A tie at `dec` decimals needs the value to be an odd multiple of
-    1/2^(dec+1); any other x.x5 is not exactly representable and the two
-    languages already agree which side of the tie it falls. That test is
-    exact, because multiplying by a power of two cannot round. Of the 58
-    star magnitudes exactly two are such a value - Deneb at 1.25 and
-    Zubenelgenubi at 2.75 - and only Deneb's digit before the tie is even,
-    which is why one star in 58 showed it.
-
-    Everything on this page that the shell also prints goes through here.
-    camui.js, plot.js and refine.js do not: they format camera-side
-    numbers the shell has no opinion about.  */
-function f(v, dec) {
-  var h = v * Math.pow(2, dec + 1);
-  if (h === Math.round(h) && Math.abs(h) % 2 === 1) {
-    var p = Math.pow(10, dec), x = v * p, t = Math.trunc(x);
-    if (Math.abs(t) % 2 === 1) t += (x > 0 ? 1 : -1);
-    return (t / p).toFixed(dec);
-  }
-  return v.toFixed(dec);
-}
+/*  printf's %.*f. The implementation is C.fx() in engine2.js - one of it,
+    in the engine, where tests/fmt-check.js holds it to awk's own printf.
+    It is reached through CNe() because dm(), ddm() and mins() are called
+    from a dozen places that do not carry the engine as an argument.  */
+function f(v, dec) { return CNe().fx(v, dec); }
 function f1(v) { return f(v, 1); }
 
 function dmparts(v) {
@@ -1172,6 +1150,202 @@ function compassShow() {
     'the ship.'));
 }
 
+/* =====================================================================
+   PUB. 249, GENERATED, AND THE TUTOR THAT MARKS YOUR WORKING
+
+   cmd_tabargs() and cmd_tabcheck() in src/celnav/engine.awk. tab_args(),
+   tab_entry() and tab_Z() are in the engine and diffed against the awk at
+   full precision; what is here is the page, the rule at its foot, and the
+   attribution of a difference.
+
+   THE COMPARISON ATTRIBUTES RATHER THAN REPORTS. The engine has reduced
+   the same sight from the same assumed position exactly, so a difference
+   is the reader's or the table's - and the two are distinguishable,
+   because the table's own rounding is small and bounded while every
+   common mistake has a size of its own: the interpolation applied
+   backwards is twice the interpolation, a declination one degree off is
+   d, an LHA one degree off is the gap between two rows.
+   ===================================================================== */
+
+var TAB = null;        /* the arguments the page was printed for */
+
+function tablesInit() {
+  if (!$('t-date').value) $('t-date').value = utcToday();
+  if (!$('t-time').value) $('t-time').value = utcClock();
+  sightInit();          /* the body datalist lives on the sight screen */
+}
+
+function tablesShow() {
+  var C = CNe(), args = $('t-args'), pg = $('t-page'), note = $('t-note');
+  args.textContent = ''; pg.textContent = ''; $('t-check').textContent = '';
+  $('t-work').hidden = true; note.textContent = ''; TAB = null;
+
+  var d = $('t-date').value.trim(), t = $('t-time').value.trim(), utc = d + ' ' + t;
+  if (!/^\d{4}-\d{2}-\d{2}[ T]\d{1,2}:\d{2}/.test(utc)) {
+    note.textContent = 'UT as 2026-08-29 and 07:30:00.'; return;
+  }
+  var body = $('t-body').value.trim();
+  if (!body) { note.textContent = 'Which body? A name, or a star number.'; return; }
+  var la = $('t-lat').value.trim(), lo = $('t-lon').value.trim();
+  if (C.parse_ang(la) === 'ERR' || C.parse_ang(lo) === 'ERR' || la === '' || lo === '') {
+    note.textContent = 'A DR latitude and longitude — 41 49.0 N and 071 24.0 W.'; return;
+  }
+  if (!C.tab_args(utc, body, la, lo)) {
+    note.textContent = 'I do not know that body. A name, or a star number.'; return;
+  }
+  var E = C.E;
+  TAB = { utc: utc, body: body, name: E.B_NAME, lat: la, lon: lo,
+          gha: E.TA_GHA, dec: E.TA_DEC, alat: E.TA_ALAT, alon: E.TA_ALON,
+          lha: E.TA_LHA, decd: E.TA_DECD, decm: E.TA_DECM };
+
+  /* ---- the entering arguments ------------------------------------ */
+  args.appendChild(mk('h3', null, 'Entering arguments for Pub. 249'));
+  var rows = [
+    [TAB.name + ' at ' + utc + ' UT', 'GHA ' + dm3(TAB.gha) + ' Dec ' + ddm(TAB.dec, true)],
+    ['DR', ddm(C.parse_ang(la), true) + '   ' + ddm(C.parse_ang(lo), false)],
+    ['Assumed latitude', Math.abs(TAB.alat) + '° ' + (TAB.alat >= 0 ? 'N' : 'S') +
+       ' the whole degree nearest the DR'],
+    ['Assumed longitude', ddm(TAB.alon, false) + ' chosen to make the LHA whole'],
+    ['LHA', String(TAB.lha), 'tot'],
+    ['Declination', Math.abs(TAB.decd) + '° ' + (TAB.dec >= 0 ? 'N' : 'S') + ' ' +
+       f1(TAB.decm) + "' enter at " + Math.abs(TAB.decd) + '°, interpolate the ' +
+       f1(TAB.decm) + "' with d"]
+  ];
+  var hs = $('t-hs').value.trim(), ho = null;
+  if (hs) {
+    var hsv = C.parse_ang(hs);
+    if (hsv === 'ERR' || isNaN(hsv)) { note.textContent = 'Hs as degrees and minutes, like 19 32.1.'; return; }
+    ho = C.corrections(hsv, numOf('t-ie', 0), numOf('t-he', 0), 10, 1010, 'C');
+    TAB.ho = ho;
+    rows.push(['Ho', C.fmt_dm(ho, 2) + ' from Hs ' + hs]);
+  }
+  args.appendChild(kvTable(rows));
+
+  /* ---- the page -------------------------------------------------- */
+  var same = ((TAB.alat >= 0 && TAB.decd >= 0) || (TAB.alat < 0 && TAB.decd < 0));
+  pg.appendChild(mk('h3', null, 'Pub. 249 — lat ' + Math.abs(TAB.alat) + '° ' +
+    (TAB.alat >= 0 ? 'N' : 'S') + ', declination ' + Math.abs(TAB.decd) + '° ' +
+    (TAB.dec >= 0 ? 'N' : 'S') + ', ' + (same ? 'SAME' : 'CONTRARY') + ' name'));
+  var tb = mk('table', 'ct-tab');
+  var hr = mk('tr');
+  ['LHA', 'Hc', 'd', 'Z', ''].forEach(function (h, i) {
+    hr.appendChild(mk('th', i < 4 ? 'num' : null, h));
+  });
+  tb.appendChild(hr);
+  for (var i = TAB.lha - 3; i <= TAB.lha + 3; i++) {
+    C.tab_entry(TAB.alat, TAB.decd, i);
+    var tr = mk('tr', i === TAB.lha ? 'picked' : null);
+    tr.appendChild(mk('td', 'num', String(C.nrm360(i))));
+    tr.appendChild(mk('td', 'num', C.fmt_dm(E.TB_HC, 2)));
+    tr.appendChild(mk('td', 'num', (E.TB_D >= 0 ? '+' : '−') + f1(Math.abs(E.TB_D))));
+    tr.appendChild(mk('td', 'num', f(E.TB_Z, 0)));
+    tr.appendChild(mk('td', null, i === TAB.lha ? '← your LHA' : ''));
+    tb.appendChild(tr);
+  }
+  pg.appendChild(tb);
+  /*  THE RULE AT THE FOOT OF THE PAGE, which is the step this screen
+      exists to teach: the table gives Z and the navigator converts it.  */
+  pg.appendChild(mk('p', 'note', TAB.alat >= 0
+    ? 'N. Lat. LHA greater than 180 … Zn = Z  LHA less than 180 … Zn = 360 − Z'
+    : 'S. Lat. LHA greater than 180 … Zn = 180 − Z  LHA less than 180 … Zn = 180 + Z'));
+  pg.appendChild(mk('p', 'note', 'Hc is the altitude at the whole degree of declination above. ' +
+    'd is how much it changes per whole degree, so the minutes of declination are interpolated ' +
+    "with it: Hc + d × (mins / 60)."));
+  $('t-work').hidden = false;
+}
+
+function tablesMark() {
+  var C = CNe(), box = $('t-check');
+  box.textContent = '';
+  if (!TAB) { $('t-note').textContent = 'Work out the page first.'; return; }
+  var E = C.E;
+  C.tab_entry(TAB.alat, TAB.decd, TAB.lha);
+  var hcT = E.TB_HC, dcol = E.TB_D;
+  var ex = C.reduce_sight(TAB.alat, TAB.alon, TAB.gha, TAB.dec);
+  var z = C.tab_Z(E.R_ZN, TAB.lha, TAB.alat), zn = E.R_ZN;
+
+  box.appendChild(mk('h3', null, 'Your working against the exact solution'));
+  box.appendChild(kvTable([
+    ['From the page', 'Hc ' + C.fmt_dm(hcT, 2) + ' d ' +
+       (dcol >= 0 ? '+' : '−') + f1(Math.abs(dcol)) + ' Z ' + f(z, 0)],
+    ['Interpolated', C.fmt_dm(hcT + dcol * (TAB.decm / 60) / 60, 2) +
+       ' = Hc + d × ' + f1(TAB.decm) + ' / 60']
+  ]));
+
+  var uhc = $('t-uhc').value.trim();
+  if (uhc) {
+    var u = C.parse_ang(uhc);
+    if (u === 'ERR' || isNaN(u)) { $('t-note').textContent = 'Your Hc as degrees and minutes.'; return; }
+    var diff = (u - ex) * 60;
+    var back = hcT - dcol * (TAB.decm / 60) / 60;
+    var d1 = C.reduce_sight(TAB.alat, TAB.alon, TAB.gha, TAB.dec + (TAB.dec >= 0 ? 1 : -1));
+    var d2 = C.reduce_sight(TAB.alat, TAB.alon, TAB.gha + 1, TAB.dec);
+    box.appendChild(kvTable([
+      ['Your Hc', C.fmt_dm(u, 2)],
+      ['Exact Hc', C.fmt_dm(ex, 2)],
+      ['Difference', (diff >= 0 ? '+' : '−') + f1(Math.abs(diff)) + "'", 'tot']
+    ]));
+    /*  EVERY COMMON MISTAKE HAS A SIZE OF ITS OWN, and the order matters:
+        rounding first, because it is the expected answer, then the three
+        slips in the order of how often they happen.  */
+    var note;
+    if (C.fabs(diff) <= 0.6)
+      note = 'Rounding in the table and in the interpolation, which is expected and is why ' +
+             'the tables are worked to a tenth.';
+    else if (C.fabs(u - back) * 60 < 0.6)
+      note = 'The interpolation was applied the WRONG WAY: d is ' +
+             (dcol >= 0 ? 'positive, so it is added' : 'negative, so it is subtracted') +
+             ' as declination increases.';
+    else if (C.fabs(u - d1) * 60 < 2.0)
+      note = 'That is the entry for a declination one whole degree off.';
+    else if (C.fabs(u - d2) * 60 < 2.0)
+      note = 'That is the entry for an LHA one degree off — the commonest arithmetic slip ' +
+             'in the whole method.';
+    else
+      note = 'Larger than rounding and not one of the usual slips. Check the arguments above ' +
+             'against your own working, one line at a time.';
+    box.appendChild(mk('p', C.fabs(diff) <= 0.6 ? 'good' : 'warn', note));
+  }
+
+  var uz = $('t-uz').value.trim();
+  if (uz) {
+    var zv = C.parse_ang(uz);
+    if (zv === 'ERR' || isNaN(zv)) { $('t-note').textContent = 'Your Z in whole degrees.'; return; }
+    box.appendChild(kvTable([
+      ['Your Z', f(zv, 0)],
+      ['Z from the page', f(z, 0) + ' → Zn ' + f1(zn) + ' by the rule at the foot']
+    ]));
+    if (C.fabs(C.nrm180(zv - z)) < 1.0)
+      box.appendChild(mk('p', 'good', 'Z agrees.'));
+    else if (C.fabs(C.nrm180(zv - zn)) < 1.0)
+      box.appendChild(mk('p', 'warn', 'That is Zn, not Z. The table prints the azimuth ANGLE and ' +
+        'the rule at the foot of the page converts it — which is the step to practise.'));
+    else
+      box.appendChild(mk('p', 'warn', 'Z disagrees by more than a degree. Check which pole you ' +
+        'measured from.'));
+  }
+
+  if (uhc && TAB.ho !== undefined && TAB.ho !== null) {
+    var u2 = C.parse_ang(uhc);
+    box.appendChild(kvTable([
+      ['Ho − your Hc', f1(C.fabs(TAB.ho - u2) * 60) + "' " +
+         ((TAB.ho - u2) >= 0 ? 'TOWARD' : 'AWAY')],
+      ['and exactly', f1(C.fabs(TAB.ho - ex) * 60) + "' " +
+         ((TAB.ho - ex) >= 0 ? 'TOWARD' : 'AWAY'), 'tot']
+    ]));
+    /*  AN INTERCEPT THIS LONG IS NOT A TABLE PROBLEM. The assumed position
+        is within half a degree of the DR, so the intercept can only be a
+        few tens of miles unless something upstream is wrong - the wrong
+        body, the wrong hour, or a sight from a different day. Saying so
+        saves the reader hunting for an interpolation error that is not
+        there.  */
+    if (C.fabs(TAB.ho - ex) * 60 > 60)
+      box.appendChild(mk('p', 'warn', 'An intercept of more than 60 miles is not a table error. ' +
+        'The assumed position is within half a degree of the DR, so check the body, the hour and ' +
+        'the date of the sight before looking at the working.'));
+  }
+}
+
 var views = {
   home:    { el: 'v-home',    title: 'celnav' },
   camera:  { el: 'v-camera',  title: 'Camera sight' },
@@ -1182,6 +1356,7 @@ var views = {
   polaris: { el: 'v-polaris', title: 'Polaris' },
   plan:    { el: 'v-plan',    title: 'Sight planning' },
   compass: { el: 'v-compass', title: 'Compass check' },
+  tables:  { el: 'v-tables',  title: 'Pub. 249' },
   learn:   { el: 'v-learn',   title: 'Learn' }
 };
 function go(name) {
@@ -1197,6 +1372,7 @@ function go(name) {
   if (name === 'polaris') polarisInit();
   if (name === 'plan') planInit();
   if (name === 'compass') compassInit();
+  if (name === 'tables') tablesInit();
   remember('view', name);
 }
 
@@ -1239,6 +1415,8 @@ document.addEventListener('DOMContentLoaded', function () {
   $('c-go').addEventListener('click', compassShow);
   ['c-lat', 'c-lon', 'c-date', 'c-time', 'c-body', 'c-brg', 'c-var']
     .forEach(function (id) { $(id).addEventListener('change', compassShow); });
+  $('t-go').addEventListener('click', tablesShow);
+  $('t-mark').addEventListener('click', tablesMark);
   $('p-go').addEventListener('click', polarisShow);
   ['p-lon', 'p-date', 'p-time', 'p-hs', 'p-ie', 'p-he']
     .forEach(function (id) { $(id).addEventListener('change', polarisShow); });

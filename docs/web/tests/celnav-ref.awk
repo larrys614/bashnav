@@ -115,6 +115,17 @@ function inv_corr(target,ie,he,tm,pr,limb,   hs,i,d){
   return "ERR"
 }
 
+#  tab_args() in the engine reads the globals utc, body, drlat and drlon,
+#  which is right for a command and wrong for a harness that works many
+#  cases in one run. Set them and call it: a second implementation here
+#  would be the very thing these harnesses exist to catch.
+function tab_args_ref(u,b,la,lo,   su,sb,sla,slo,r){
+  su=utc; sb=body; sla=drlat; slo=drlon
+  utc=u; body=b; drlat=sprintf("%.17g",la); drlon=sprintf("%.17g",lo)
+  r=tab_args()
+  utc=su; body=sb; drlat=sla; drlon=slo
+  return r
+}
 function gencase(cid,   tlat,tlon,y,mo,da,hh,mi,se,utc,jd,i,nb,b,hc,hs,ie,he,tm,pr,limb,
                         ns,dN,dE,alat,alon,res,rms,want,tries,sp,co,used,
                         pi,pl_sa,pl_sz,pl_sw,amp_r){
@@ -206,14 +217,41 @@ function gencase(cid,   tlat,tlon,y,mo,da,hh,mi,se,utc,jd,i,nb,b,hc,hs,ie,he,tm,
   printf "PLAN\t%d\t%d\t%.17g\t%.17g\t%.17g\t%.17g\t%.17g\t%s\t%s\t%s\n",
     cid, PL_K, PL_SP, pl_sa, pl_sz, pl_sw, PL_BEST,
     (PL_BEST>0?PL_N[PL_BI]:"-"), (PL_BEST>0?PL_N[PL_BJ]:"-"), (PL_BEST>0?PL_N[PL_BK]:"-")
+  #  ---- Pub. 249. tab_entry() is the whole table, so it is swept over a
+  #  page's worth of whole degrees rather than sampled once: three LHAs
+  #  either side of the sight's own, which is the page the tutor prints.
+  #  tab_args() goes with it, because the ENTERING ARGUMENTS are where
+  #  the method goes wrong in practice and two of the three are derived.
+  #
+  #  TA_ALON IS NOT AN INTEGER: it is int(gha+lon+0.5) - gha, and gha is
+  #  fractional, so the assumed longitude is the fraction that makes the
+  #  LHA whole. Emitted with %d it truncated, and the diff then called the
+  #  browser a degree out on six cases in forty when the reference line
+  #  was the thing that had lost the fraction.
+  tab_args_ref(S_UTC[1], S_BODY[1], alat, alon)
+  printf "TARG\t%d\t%.17g\t%.17g\t%d\t%.17g\t%d\t%d\t%.17g\n", cid,
+    TA_GHA, TA_DEC, TA_ALAT, TA_ALON, TA_LHA, TA_DECD, TA_DECM
+  for(pi=-3; pi<=3; pi++){
+    tab_entry(TA_ALAT, TA_DECD, TA_LHA+pi)
+    printf "TENT\t%d\t%d\t%.17g\t%.17g\t%.17g\n", cid, pi, TB_HC, TB_D, TB_Z
+  }
+
   #  THE AMPLITUDE IS ONLY DEFINED FOR A BODY THAT CAN REACH THE HORIZON
-  #  at this latitude - sin(dec)/cos(lat) has to be inside [-1,1], and
-  #  cmd_compass only ever prints it for a body within two degrees of the
+  #  at this latitude: sin(dec)/cos(lat) has to be inside [-1,1], and
+  #  cmd_compass only prints it for a body within two degrees of the
   #  horizon, where that holds by construction. A case outside the domain
   #  emits no line rather than an asind() of 1.4.
+  #
+  #  THE BRACES ARE NOT DECORATION. Written without them, with a comment
+  #  between the `if` and its statement, a later edit inserted the whole
+  #  Pub. 249 block as the body of this `if` - so tab_args() did not run
+  #  on the cases where the amplitude is out of domain, TARG printed the
+  #  PREVIOUS case's arguments, and the diff reported 91 disagreements in
+  #  the browser's table. Nothing was wrong with the browser.
   amp_r = sind(S_DEC[1])/cosd(alat)
-  if(amp_r <= 1 && amp_r >= -1)
+  if(amp_r <= 1 && amp_r >= -1){
     printf "AMP\t%d\t%.17g\t%.17g\n", cid, S_DEC[1], asind(amp_r)
+  }
 
   printf "POL\t%d\t%.17g\t%.17g\t%.17g\n", cid,
     pol_lat(48.2, 89.37, nrm360(343.0 + alon)),

@@ -65,6 +65,9 @@ for (const line of fs.readFileSync(refFile, 'utf8').split('\n')) {
   else if (f[0] === 'PLAN') k.plan = { K: n(2), sp: n(3), sa: n(4), sz: n(5), sw: n(6),
                                        best: n(7), names: [f[8], f[9], f[10]] };
   else if (f[0] === 'AMP') k.amp = { dec: n(2), a: n(3) };
+  else if (f[0] === 'TARG') k.targ = { gha: n(2), dec: n(3), alat: n(4), alon: n(5),
+                                       lha: n(6), decd: n(7), decm: n(8) };
+  else if (f[0] === 'TENT') (k.tent = k.tent || []).push({ off: n(2), hc: n(3), d: n(4), z: n(5) });
   else if (f[0] === 'POL') k.pol = [n(2), n(3), n(4)];
 }
 
@@ -140,6 +143,27 @@ for (const [id, k] of cases) {
         if (bad <= 20) console.log('  FAIL ' + id + ' plan pick ' + (i + 1) +
           ': awk ' + k.plan.names[i] + ', js ' + got[i]);
       } else checks++;
+  }
+  /*  PUB. 249. The entering arguments first - two of the three are
+      derived, and getting them wrong is the mistake the tables actually
+      produce - then a page's worth of entries either side of the sight's
+      own LHA, which is the page the tutor prints.  */
+  if (k.targ) {
+    const E = CN.E;
+    cmp(id, 'tab_args ok', CN.tab_args(k.sgt[0].utc, k.sgt[0].body, String(k.dr.lat), String(k.dr.lon)), 1, 0);
+    cmp(id, 'tab GHA', E.TA_GHA, k.targ.gha, TOL.ang);
+    cmp(id, 'tab dec', E.TA_DEC, k.targ.dec, TOL.ang);
+    cmp(id, 'tab assumed lat', E.TA_ALAT, k.targ.alat, 0);
+    cmp(id, 'tab assumed lon', E.TA_ALON, k.targ.alon, TOL.ang);
+    cmp(id, 'tab LHA', E.TA_LHA, k.targ.lha, 0);
+    cmp(id, 'tab dec degrees', E.TA_DECD, k.targ.decd, 0);
+    cmp(id, 'tab dec minutes', E.TA_DECM, k.targ.decm, TOL.ang * 60);
+    (k.tent || []).forEach(t => {
+      CN.tab_entry(E.TA_ALAT, E.TA_DECD, E.TA_LHA + t.off);
+      cmp(id, 'tab Hc at LHA' + (t.off >= 0 ? '+' : '') + t.off, E.TB_HC, t.hc, TOL.ang);
+      cmp(id, 'tab d at LHA' + (t.off >= 0 ? '+' : '') + t.off, E.TB_D, t.d, TOL.ang * 60);
+      cmp(id, 'tab Z at LHA' + (t.off >= 0 ? '+' : '') + t.off, E.TB_Z, t.z, TOL.ang);
+    });
   }
   if (k.amp !== undefined && k.amp)
     cmp(id, 'amplitude', CN.amplitude(k.amp.dec, k.dr.lat), k.amp.a, TOL.ang);

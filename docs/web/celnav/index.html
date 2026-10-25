@@ -70,6 +70,10 @@
         <span class="t-name">Compass check</span>
         <span class="t-sub">Your compass error from a bearing of any body</span>
       </button>
+      <button class="tile" data-go="tables">
+        <span class="t-name">Pub. 249</span>
+        <span class="t-sub">The sight reduction tables, generated, and a tutor that marks your working</span>
+      </button>
       <button class="tile" data-go="camera">
         <span class="t-name">Camera sight</span>
         <span class="t-sub">An altitude from a photograph</span>
@@ -306,6 +310,60 @@
     </div>
     <p class="note" id="c-note"></p>
     <div id="c-out"></div>
+  </section>
+
+  <!-- ---------- Pub. 249 ----------
+       THE TABLES ARE NOT SHIPPED, THEY ARE GENERATED. Every entry in
+       Pub. 249 is the navigational triangle solved for whole degrees of
+       latitude, declination and LHA, which is what the engine's
+       reduce_sight() already does for arbitrary arguments. So there is no
+       data file of any size, no copyright question, and the page a sight
+       actually needs is printed rather than the handful an extract would
+       carry.
+
+       Z IS NOT Zn. The tables print the azimuth ANGLE, measured from the
+       elevated pole, and leave the reader to apply the rule at the foot
+       of the page. That rule is half of what there is to learn, so this
+       prints Z and the rule, never Zn. -->
+  <section class="view" id="v-tables" hidden>
+    <div class="card">
+      <h3>A sight to work by the book</h3>
+      <div class="grid2">
+        <label>DR latitude<input id="t-lat" type="text" placeholder="41 49.0 N" autocomplete="off"></label>
+        <label>DR longitude<input id="t-lon" type="text" placeholder="071 24.0 W" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>UT date<input id="t-date" type="text" inputmode="numeric" placeholder="2026-08-29" autocomplete="off"></label>
+        <label>UT time<input id="t-time" type="text" inputmode="numeric" placeholder="07:30:00" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>Body<input id="t-body" type="text" list="s-bodies" placeholder="Dubhe" autocomplete="off"></label>
+        <label>Hs<input id="t-hs" type="text" inputmode="decimal" placeholder="19 32.1" autocomplete="off"></label>
+      </div>
+      <div class="grid2">
+        <label>Index error, &prime; (+ on the arc)<input id="t-ie" type="text" inputmode="decimal" placeholder="0"></label>
+        <label>Height of eye, m<input id="t-he" type="text" inputmode="decimal" placeholder="2"></label>
+      </div>
+      <p class="note">This derives the entering arguments, prints the page, and then marks what you
+        read off it. Work the page yourself first &mdash; the comparison is only worth something if
+        your Hc came from the table and not from here.</p>
+      <button class="btn go" id="t-go" type="button">Entering arguments, and the page</button>
+    </div>
+    <p class="note" id="t-note"></p>
+    <div id="t-args"></div>
+    <div id="t-page"></div>
+
+    <div class="card" id="t-work" hidden>
+      <h3>Your working</h3>
+      <div class="grid2">
+        <label>Your Hc, interpolated<input id="t-uhc" type="text" inputmode="decimal" placeholder="19 34.6" autocomplete="off"></label>
+        <label>Your Z, from the page<input id="t-uz" type="text" inputmode="decimal" placeholder="41" autocomplete="off"></label>
+      </div>
+      <p class="note">Hc as degrees and minutes; Z as whole degrees, the azimuth angle the page
+        prints &mdash; not Zn.</p>
+      <button class="btn go" id="t-mark" type="button">Mark it</button>
+    </div>
+    <div id="t-check"></div>
   </section>
 
   <!-- ---------- learn ---------- -->

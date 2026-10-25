@@ -433,3 +433,17 @@ p.warn { color: var(--warn); font-size: 13px; margin: 10px 0 0; line-height: 1.5
 /*  prime time for stars gets the good colour: it is the one line on the
     planning screen that is an answer rather than a number  */
 p.good { color: var(--good); font-size: 13px; margin: 10px 0 0; line-height: 1.5; }
+
+/*  Pub. 249: the page, and the reader's working beside it  */
+#t-args h3, #t-page h3, #t-check h3 { margin: 18px 0 8px; font-size: 15px; letter-spacing: .02em; }
+#t-args, #t-page, #t-check { padding: 0 2px; }
+#t-args .kv, #t-check .kv { margin-top: 14px; }
+#t-page .ct-tab { width: 100%; border-collapse: collapse; font-size: 13px;
+                  font-family: ui-monospace, Menlo, monospace; }
+#t-page .ct-tab th { text-align: left; color: var(--dim); font-size: 11px;
+                     letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px 4px 0; }
+#t-page .ct-tab th.num { text-align: right; }
+#t-page .ct-tab td { padding: 3px 8px 3px 0; color: var(--text);
+                     font-variant-numeric: tabular-nums; }
+#t-page .ct-tab .num { text-align: right; }
+#t-page tr.picked td { color: var(--accent); font-weight: 700; }

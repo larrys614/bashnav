@@ -16,18 +16,21 @@
 'use strict';
 const fs = require('fs');
 
-/*  THE FUNCTION UNDER TEST IS TAKEN OUT OF THE PAGE, not copied here.
-    A copy needs a guard that it has not drifted from the original, and
-    the guard then fires instead of the value comparison - which is what
-    happened when this check was first written with a copy: planting a
-    plain toFixed() in the page made it report "not the function this
-    check tests" and never compare a single value. Reading the source and
-    evaluating it means the page's own arithmetic is what agrees with the
-    awk, or does not.  */
-const src = fs.readFileSync(__dirname + '/../celnav/celnav-app.js', 'utf8');
-const m = /\nfunction f\(v, dec\) \{[\s\S]*?\n\}/.exec(src);
-if (!m) { console.log('  FAIL celnav-app.js has no f(v, dec) to test'); process.exit(1); }
-const f = new Function(m[0] + '\nreturn f;')();
+/*  THE FUNCTION UNDER TEST IS THE ENGINE'S OWN, required and called.
+
+    It used to be a copy kept here, which needed a guard that it had not
+    drifted from the original - and when a plain toFixed() was planted in
+    the page to prove the check worked, the GUARD fired and not one value
+    was ever compared. Then it was scraped out of celnav-app.js and
+    evaluated, which was better but still read the source as text. It is
+    an exported engine function now, so this calls it.  */
+const { makeCelnav } = require('../celnav/engine.js');
+const { extendCelnav } = require('../celnav/engine2.js');
+global.window = {};
+// eslint-disable-next-line no-eval
+eval(fs.readFileSync(__dirname + '/../celnav/tables.js', 'utf8'));
+const CN = extendCelnav(makeCelnav(global.window.CELNAV_TABLES));
+const f = CN.fx;
 
 let n = 0, bad = 0, ties = 0;
 for (const line of fs.readFileSync(process.argv[2] || 0, 'utf8').split('\n')) {

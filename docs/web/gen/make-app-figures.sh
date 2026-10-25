@@ -33,3 +33,8 @@ trap 'kill $SRV 2>/dev/null || true' EXIT
 sleep 1
 
 PORT="$PORT" node docs/web/gen/app-figures.js
+
+#  A recapture that differs only by font antialiasing is not a change, and
+#  leaving it in the working tree makes tests/plates-check.sh red on
+#  pictures that are correct. See figures-putback.sh for the numbers.
+sh docs/web/gen/figures-putback.sh

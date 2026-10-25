@@ -263,7 +263,7 @@ immediately. So:
 | | |
 |---|---|
 | `celnav-diff.js` | the arithmetic, at full precision, over generated cases |
-| `celnav-ui.js`, `celnav-tables.js`, `celnav-latitude.js`, `celnav-plan.js` | what the page *shows*, against the shell's own printed working |
+| `celnav-ui.js`, `celnav-tables.js`, `celnav-latitude.js`, `celnav-plan.js`, `celnav-tables249.js` | what the page *shows*, against the shell's own printed working |
 | `fmt-check.js` | one-decimal formatting, against awk's `printf` |
 
 Neither is the belt and neither is the braces. Each is the only thing that sees
@@ -283,9 +283,15 @@ It compares *pixels* now, with a threshold of 400 differing pixels and a maximum
 channel delta of 24. Decoding a PNG needs an image library, and the one thing
 the harness can be sure of is the headless Chromium it has just driven, so the
 browser does the decoding: both files go in as data URLs, onto a canvas, and out
-as a pixel count (`docs/web/tests/figures-diff.js`). Under the threshold the
-picture is put back, so the working tree stays clean; over it, the run fails and
-prints the numbers.
+as a pixel count (`docs/web/tests/figures-diff.js`).
+
+**The put-back belongs to the capture, not to the check.** `make-app-figures.sh`
+calls `docs/web/gen/figures-putback.sh` as its last step, so capturing never
+leaves sub-threshold noise in the working tree. That matters because
+`tests/plates-check.sh` is a POSIX check with no browser that only asks whether
+`docs/img` is clean — so every run of the capture used to turn the whole suite
+red on pictures that were correct, and the pixel threshold in the browser-only
+harness could do nothing about it.
 
 Both thresholds earn their place, and a planted fault shows why each is there.
 Deleting the latitude row from the noon screen changes the picture's *height*,
@@ -294,6 +300,28 @@ ten degrees high changes two glyphs: **128 pixels, which is under the count
 threshold, at a channel delta of 225, which is nowhere near the delta
 threshold.** The count catches a large faint shift and the delta catches a small
 stark one, and antialiasing is small *and* faint.
+
+#### The reference emitter is code too, and it reported 91 false failures
+
+Porting Pub. 249 produced 91 disagreements, every one of them in the reference
+and none in the browser. Two faults, both in `celnav-ref.awk`:
+
+- **`%d` on a value that is not an integer.** The assumed longitude is
+  `int(gha + lon + 0.5) - gha`, and `gha` is fractional, so the assumed longitude
+  is the *fraction* that makes the LHA whole. Printed with `%d` it truncated, and
+  the diff called the browser a degree out on six cases in forty.
+- **An insertion that landed inside an unbraced `if`.** The amplitude guard was
+  written `if(cond)` with a comment on the next line and its statement after
+  that. A later edit put the whole Pub. 249 block between the `if` and its
+  statement, so `tab_args()` never ran on the cases where the amplitude is out of
+  domain, `TARG` printed the *previous* case's arguments, and seven rows of
+  table entries were compared against the wrong page.
+
+The lesson is not "write braces" — though the braces are there now, with the
+reason beside them. It is that **a cross-implementation diff reporting a
+disagreement is not evidence about which side is wrong**, and the cheapest first
+move is to call the function directly with the case's own arguments and see which
+answer changes.
 
 #### printf's `%.1f` is not JavaScript's `toFixed(1)`
 
@@ -308,15 +336,18 @@ which side of it they fall. Of the 58 star magnitudes exactly two are such a
 value, Deneb at 1.25 and Zubenelgenubi at 2.75, and only Deneb's preceding digit
 is even — one star in 58.
 
-`celnav-app.js`'s `f(v, dec)` is the fix and `tests/fmt-check.js` pins it: the
-awk prints 3,488 values, 2,108 of them exact ties, and the JavaScript has to
-agree with every one under every awk on the machine. Two things about how that
-check is built:
+`C.fx(v, dec)` in `engine2.js` is the fix — in the engine, so there is one of
+it, and `engine2.js`'s own `pad()` and `celnav-app.js`'s `f()` both go through
+it. `tests/fmt-check.js` pins it: the awk prints 3,488 values, 2,108 of them
+exact ties, and the JavaScript has to agree with every one under every awk on the
+machine. Two things about how that check is built:
 
-- **It reads `f()` out of the page and evaluates it, rather than keeping a
-  copy.** Written with a copy, it needed a guard that the copy had not drifted
-  — and when a plain `toFixed()` was planted in the page to prove the check
-  worked, the *guard* fired and not one value was ever compared.
+- **It requires the engine and calls the exported function.** It began as a copy
+  kept in the check, which needed a guard that the copy had not drifted — and
+  when a plain `toFixed()` was planted in the page to prove the check worked, the
+  *guard* fired and not one value was ever compared. Scraping the function out of
+  the source and evaluating it was better, and putting it in the engine where it
+  belongs was better still.
 - **The reference includes the near-ties.** `2.45` is stored as
   2.4500000000000001776 and rounds up in both languages. A formatter that
   multiplies by ten first sees exactly 24.5, calls it a tie, rounds to even and

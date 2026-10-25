@@ -172,6 +172,52 @@ SCN
        "$WORK/plan.txt" "$WORK/compass.txt" "$WORK/compass-plain.txt"
 
   echo
+  echo "6. Pub. 249: the generated page, and the tutor that marks your working"
+  #  tab_args(), tab_entry() and tab_Z() are held to the awk at full
+  #  precision in stage 1, a page's worth of entries per case. This is the
+  #  screen: the entering arguments, the page, the rule at its foot - which
+  #  differs by hemisphere - and the ATTRIBUTION.
+  #
+  #  The four readings are built by the engine rather than typed: the right
+  #  one, the interpolation applied backwards, a declination one whole
+  #  degree off, and an LHA one degree off. The page has to reach the same
+  #  verdict as the shell on each, and the wording is deliberately not
+  #  compared - the two are free to word the blame differently and are not
+  #  free to blame differently.
+  TARGS='-v drlat=35 00 N -v drlon=040 00 W'
+  T_COMMON="-v utc=2026-08-29 07:30:00"
+  $AWK1 -f src/celnav/engine.awk -v cmd=tabargs -v drlat="35 00 N" -v drlon="040 00 W" \
+        -v utc="2026-08-29 07:30:00" -v body=Dubhe -v hs="19 32.1" -v ie=1.5 -v heye=3.0 \
+        -v temp=10 -v press=1010 -v limb=C </dev/null > "$WORK/t249-args.txt"
+  LHA=$(sed -n 's/^  LHA  *\([0-9][0-9]*\) *$/\1/p' "$WORK/t249-args.txt")
+  $AWK1 -f src/celnav/engine.awk -v cmd=table -v tlat=35 -v tdec=61 -v tlha="$LHA" \
+        </dev/null > "$WORK/t249-page.txt"
+  #  the readings themselves, from the engine
+  cat > "$WORK/mk249.awk" <<'MK'
+BEGIN{
+  star_init()
+  utc="2026-08-29 07:30:00"; body="Dubhe"; drlat="35 00 N"; drlon="040 00 W"
+  tab_args(); tab_entry(TA_ALAT,TA_DECD,TA_LHA)
+  printf "right\t%s\n",       fmt_dm(TB_HC + TB_D*(TA_DECM/60)/60, 2)
+  printf "backwards\t%s\n",   fmt_dm(TB_HC - TB_D*(TA_DECM/60)/60, 2)
+  printf "declination\t%s\n", fmt_dm(reduce_sight(TA_ALAT,TA_ALON,TA_GHA,TA_DEC+(TA_DEC>=0?1:-1)), 2)
+  printf "lha\t%s\n",         fmt_dm(reduce_sight(TA_ALAT,TA_ALON,TA_GHA+1,TA_DEC), 2)
+}
+MK
+  $AWK1 -f src/celnav/engine.awk -f "$WORK/mk249.awk" </dev/null > "$WORK/readings.tsv"
+  CHECKS=
+  while IFS='	' read -r tag val; do
+    v=$(printf '%s' "$val" | tr -d "'")
+    $AWK1 -f src/celnav/engine.awk -v cmd=tabcheck -v drlat="35 00 N" -v drlon="040 00 W" \
+          -v utc="2026-08-29 07:30:00" -v body=Dubhe -v hs="19 32.1" -v ie=1.5 -v heye=3.0 \
+          -v temp=10 -v press=1010 -v limb=C -v uhc="$v" -v uz=27 \
+          </dev/null > "$WORK/t249-$tag.txt"
+    CHECKS="$CHECKS $WORK/t249-$tag.txt"
+  done < "$WORK/readings.tsv"
+  PORT="$PORT" node docs/web/tests/celnav-tables249.js \
+       "$WORK/t249-args.txt" "$WORK/t249-page.txt" $CHECKS
+
+  echo
   echo "CELNAV WEB: all stages passed"
 else
   echo

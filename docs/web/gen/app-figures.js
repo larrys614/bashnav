@@ -325,6 +325,32 @@ const FIGURES = [
     }
   },
   {
+    file: 'celnav-tables.png', app: 'celnav', shot: '#v-tables', height: 1900,
+    title: 'celnav: Pub. 249 generated, with the entering arguments and the tutor that marks your working',
+    async drive(p) {
+      await p.click('[data-go="tables"]');
+      await p.waitForTimeout(300);
+      /*  the project's worked example, and a reader's Hc that is wrong in
+          a RECOGNISABLE way - the interpolation applied backwards - so the
+          picture shows the thing this screen is for rather than a row of
+          ticks. The value is computed, not typed: Hc - d x mins/60.  */
+      await p.fill('#t-lat', '35 00 N');
+      await p.fill('#t-lon', '040 00 W');
+      await p.fill('#t-date', '2026-08-29');
+      await p.fill('#t-time', '07:30:00');
+      await p.fill('#t-body', 'Dubhe');
+      await p.fill('#t-hs', '19 32.1');
+      await p.fill('#t-ie', '1.5');
+      await p.fill('#t-he', '3.0');
+      await p.click('#t-go');
+      await p.waitForTimeout(500);
+      await p.fill('#t-uhc', '18 44.5');
+      await p.fill('#t-uz', '27');
+      await p.click('#t-mark');
+      await p.waitForTimeout(500);
+    }
+  },
+  {
     file: 'decklog-entry.png', app: 'deck-log', shot: '#v-entry',
     title: 'deck-log: an entry, with the position, course and speed the next one carries forward',
     async drive(p) { await p.click('text=New entry'); await p.waitForTimeout(600); }

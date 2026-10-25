@@ -29,20 +29,14 @@ fi
 sh docs/web/gen/make-app-figures.sh
 
 #  ---- what counts as "changed" ------------------------------------
-#  An SVG is the app's own drawing serialised, and it is byte-stable: any
-#  difference at all is a real difference.
+#  make-app-figures.sh has already put back any picture that differs only
+#  by font antialiasing - see docs/web/gen/figures-putback.sh for why a
+#  screenshot is not byte-stable and what the thresholds are. So anything
+#  still different here is a real difference, and the loop below only
+#  measures it so the report says how big it is.
 #
-#  A PNG is a screenshot, and a screenshot of an UNCHANGED page is not
-#  byte-stable. Two consecutive captures of the celnav noon screen came
-#  back 97 pixels different out of 1,083,600, maximum channel delta 6 -
-#  font antialiasing, invisible under a crop, and gone on the next run.
-#  Byte-comparing them made this check go red on pictures that were
-#  correct, and a check that cries wolf is a check nobody reads.
-#
-#  So PNGs are compared by PIXELS, with the headless Chromium that just
-#  took them doing the decoding - no image library to install. Under the
-#  threshold the picture is put back, so the working tree stays clean;
-#  over it, the run fails and says by how much.
+#  An SVG is the app's own drawing serialised and is byte-stable: any
+#  difference in one is real.
 NOISE_PX=400          # out of a million-odd: 0.04 per cent
 NOISE_DELTA=24        # one channel, out of 255
 

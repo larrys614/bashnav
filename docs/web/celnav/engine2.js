@@ -34,8 +34,35 @@ function extendCelnav(C) {
     if (h === '-') sign = -1;
     return sign * v;
   }
+  /*  printf's %.*f, WHICH IS NOT toFixed().
+      C rounds a tie to the EVEN last digit; JavaScript's toFixed rounds
+      it up. Deneb's catalogue magnitude is exactly 1.25, so the shell's
+      planning table printed 1.2 and the browser printed 1.3 - found by
+      docs/web/tests/celnav-plan.js diffing that table row for row, and
+      by nothing numerical, because both are the same number.
+
+      A tie at `dec` decimals needs the value to be an odd multiple of
+      1/2^(dec+1); any other x.x5 is not exactly representable and the two
+      languages already agree which side of the tie it falls. That test is
+      exact, because multiplying by a power of two cannot round - and the
+      obvious alternative, multiplying by ten and testing for .5, is
+      wrong: 2.45 is stored as 2.4500000000000001776 and rounds UP in
+      both languages, but ten times it is exactly 24.5.
+
+      This is the engine's, so there is one of it. celnav-app.js formats
+      through C.fx() and tests/fmt-check.js holds it to awk's printf.  */
+  function fx(v, dec) {
+    const h = v * Math.pow(2, dec + 1);
+    if (h === Math.round(h) && Math.abs(h) % 2 === 1) {
+      const p = Math.pow(10, dec), x = v * p;
+      let t = Math.trunc(x);
+      if (Math.abs(t) % 2 === 1) t += (x > 0 ? 1 : -1);
+      return (t / p).toFixed(dec);
+    }
+    return v.toFixed(dec);
+  }
   const pad = (n, w, dec) => {
-    let s = dec === undefined ? String(int(n)) : n.toFixed(dec);
+    let s = dec === undefined ? String(int(n)) : fx(n, dec);
     while (s.length < w) s = '0' + s;
     return s;
   };
@@ -279,6 +306,62 @@ function extendCelnav(C) {
              best: best > 0 ? [bi, bj, bk] : null };
   }
 
+  /* ---- Pub. 249, generated rather than shipped ---------------------
+     Every entry in the tables is the navigational triangle solved for
+     whole degrees of latitude, declination and LHA, which is what
+     reduce_sight() already does for arbitrary arguments. Restrict the
+     arguments to integers and the engine IS the table - so there is no
+     data file, and the browser can print the exact page a sight needs
+     instead of the handful an extract would cover.
+
+     Z IS NOT Zn. The tables print the azimuth ANGLE, 0 to 180, measured
+     from the elevated pole, and leave the reader to apply the rule at
+     the foot of the page. Teaching that rule is half the point, so the
+     page gives Z and the rule, never Zn.
+     ------------------------------------------------------------------ */
+  function tab_Z(zn, lha, lat) {
+    if (lat >= 0) return (nrm360(lha) > 180) ? zn : nrm360(360 - zn);
+    return (nrm360(lha) > 180) ? nrm360(180 - zn) : nrm360(zn - 180);
+  }
+  /*  one entry: the altitude at the whole degree of declination, how much
+      it changes per whole degree (the `d` column the minutes are
+      interpolated with), and the azimuth angle.
+      reduce_sight computes lha = gha + lon, so with lon 0 the GHA
+      argument IS the LHA - negating it put the whole table a quadrant
+      away, a body east of the meridian, with every altitude still
+      correct. cos LHA is even, so nothing in the Hc column could show
+      it.  */
+  function tab_entry(lat, dec, lha) {
+    C.reduce_sight(lat, 0, nrm360(lha), dec);
+    const hc1 = E.R_HC;
+    E.TB_Z = tab_Z(E.R_ZN, lha, lat);
+    C.reduce_sight(lat, 0, nrm360(lha), dec + (dec >= 0 ? 1 : -1));
+    E.TB_HC = hc1;
+    E.TB_D = (E.R_HC - hc1) * 60;
+    return 0;
+  }
+  /*  THE ENTERING ARGUMENTS, which is where the method actually goes
+      wrong. Two of the three are not free choices: the assumed latitude
+      is the whole degree nearest the DR, and the assumed longitude is
+      whatever makes the LHA a whole number - within half a degree of the
+      DR, which is what the two corrections below enforce.  */
+  function tab_args(utc, body, drlat, drlon) {
+    const jd = parse_utc(utc);
+    if (C.body_at(body, jd) === 'ERR') return 0;
+    const gha = E.B_GHA, dec = E.B_DEC;
+    E.TA_GHA = gha; E.TA_DEC = dec;
+    const la = parse_ang(drlat), lo = parse_ang(drlon);
+    E.TA_ALAT = int(la + (la >= 0 ? 0.5 : -0.5));
+    E.TA_ALON = int(gha + lo + (gha + lo >= 0 ? 0.5 : -0.5)) - gha;
+    if (E.TA_ALON - lo > 0.5) E.TA_ALON -= 1;
+    if (E.TA_ALON - lo < -0.5) E.TA_ALON += 1;
+    E.TA_LHA = nrm360(gha + E.TA_ALON);
+    E.TA_LHA = int(E.TA_LHA + 0.5); if (E.TA_LHA === 360) E.TA_LHA = 0;
+    E.TA_DECD = int(dec); if (dec < 0) E.TA_DECD = -int(-dec);
+    E.TA_DECM = (fabs(dec) - fabs(E.TA_DECD)) * 60;
+    return 1;
+  }
+
   /*  THE AMPLITUDE, and it is only printed when the body is within two
       degrees of the horizon - which is the whole point of it: on the
       horizon the azimuth can be read off the declination and the latitude
@@ -286,9 +369,9 @@ function extendCelnav(C) {
   function amplitude(dec, lat) { return asind(sind(dec) / cosd(lat)); }
 
   Object.assign(C, {
-    parse_ang, fmt_dm, fmt_lat, fmt_lon, fmt_hms, parse_utc,
+    parse_ang, fmt_dm, fmt_lat, fmt_lon, fmt_hms, parse_utc, fx,
     solve_fix, fix_geometry, sun_alt, find_cross, moon_ill, angsep,
-    lan_jd, pol_lat, plan_sky, amplitude
+    lan_jd, pol_lat, plan_sky, amplitude, tab_Z, tab_entry, tab_args
   });
   return C;
 }
