@@ -408,6 +408,20 @@ harness now reads it off the **input** sights, where it is knowable, and
 triggering condition you cannot demonstrate is not a check, and "I broke it and
 it went red" is only evidence if the break was the one that ships.
 
+### The PDFs are not reproducible, and it is the creation date
+
+`wkhtmltopdf` stamps a `/CreationDate` into every file it writes, so rebuilding
+`docs/celnav-manual.pdf` and `docs/celnav-quickref.pdf` produces a diff **even
+when the markdown has not changed** — the quick reference moved 1,272 bytes on a
+rebuild with no source edit at all. Nothing compares them today, so this is
+churn rather than a failure; it is written down because the moment anyone adds a
+regenerate-and-compare check for the PDFs, the way the site plates and the
+generated browser files have, that check is red from the first run and the
+reason is not in the diff.
+
+Rebuild the PDFs only when their markdown changed, and commit only the one that
+did.
+
 ### Do not put working files in `/tmp` on iOS
 
 `deck-log` and `weather` built each record in `${TMPDIR:-/tmp}`. iOS gives an app

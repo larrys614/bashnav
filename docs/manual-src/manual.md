@@ -47,6 +47,13 @@ set of commands. CELNAV runs on both.
 Follow the route you are using. Run **one block at a time** and check the output before
 moving on.
 
+> **On an iPad, none of this is needed any more.** `celnav` is a browser app:
+> open it in Safari, add it to the home screen, and it caches itself and runs
+> with the antenna down. There is no shell to install, no `awk`, no package
+> manager and no `gawk`. The routes below are for running the **shell build**
+> at a prompt, which is a thing some people would rather have and which still
+> works.
+
 ### Route A — iSH (Alpine Linux)
 
 **A1. (changes things)** Install an `awk` that has trigonometry compiled in. The `awk`
