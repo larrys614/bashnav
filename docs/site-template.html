@@ -241,12 +241,8 @@ celnav fix</pre>
   </ul>
   <p>They are not ports in the loose sense. Every lesson file and every data table is produced by <em>running the awk engine&rsquo;s own functions and capturing what they print</em> rather than transcribed, and the test suite regenerates all of them on every run and compares them with what is committed &mdash; so a change to the shell that has not reached the browser fails at the desk rather than at sea. The shared arithmetic is held to the same standard: <strong>21,264 comparisons</strong> for the rules of the road and <strong>4,099</strong> for contact management, against every awk on the machine.</p>
   <p class="small dim">The celestial engine was additionally diffed against the awk over 20,568 reference values when it was ported, and reproduces the shell tool&rsquo;s own self-test against an independent reference ephemeris to 0.151&prime;. The self-test runs on every suite run; that 20,568-row comparison was a one-off and its harness is not yet in the repository, which is a gap and is recorded as one.</p>
-  <p><strong>On iOS the shell route was a dead end</strong> and the apps are the answer: a-Shell cannot give the shell tools colour (<code>[&nbsp;-t&nbsp;1&nbsp;]</code> is false even printing straight to the screen), will not execute a script by path, and treats a compound redirect as a parse error. Those are platform faults, not bugs that can be fixed. The shell suite is a <strong>Mac, Linux and BSD</strong> tool; the phone and the iPad get these.</p>
   <p>To install one: in Safari, Share then <b>Add to Home Screen</b>; on a Mac, <b>Add to Dock</b>. <span class="small dim">Prove it once at the dock rather than at sea: open every screen, turn the network off, relaunch from the icon.</span></p>
 
-  <h3>Where the browser version is better, and where it is not</h3>
-  <p>Better, because a terminal could not do it: the sound signals are <em>sounded</em> rather than drawn; night mode puts every lamp red while the letters <span class="r">R</span> <span class="g">G</span> <span class="w">W</span> <span class="y">Y</span> keep the pattern unambiguous; and a camera can measure a sextant altitude, which no shell tool was ever going to manage.</p>
-  <p>Not better, and worth saying plainly: <strong>a phone camera is worth about two to three arcminutes once calibrated</strong> &mdash; the same order as a plastic lifeboat sextant, several times worse than a metal one in practised hands. Uncorrected lens distortion can cost tens of arcminutes, which is why the build carries a star-field calibration and says so on the page when it has not been done.</p>
     <figure>
       <img class="shot" src="img/app/launcher.png" alt="The launcher: six tiles, one per tool, with instructions for adding each to the home screen and an explanation of what offline means here" loading="lazy">
       <figcaption><b>One screen, six tools.</b> Each is a separate page so each gets its own icon on the home screen, and each caches itself the first time you open it with a signal. After that they run with no network at all &mdash; which is worth proving once at the dock rather than discovering at sea: open every screen, turn the network off, and relaunch from the icon.</figcaption>
@@ -256,10 +252,9 @@ celnav fix</pre>
 <section id="why">
   <p class="eyebrow">Design</p>
   <h2>Why it is built this way</h2>
-  <p>Four constraints shaped both tools, and each one has a consequence worth knowing.</p>
+  <p>Three constraints shaped both tools, and each one has a consequence worth knowing.</p>
   <ul>
     <li><b>It has to work when nothing else does.</b> No internet, no app store, no almanac to buy, nothing that runs out at the end of the year. The almanac is computed from orbital theory built into the script.</li>
-    <li><b>It has to run on whatever shell you can get.</b> POSIX <code>sh</code> plus <code>awk</code> is the largest common denominator across iSH and a-Shell on iOS, Termux on Android, macOS, Linux and the BSDs. There is no build step and nothing to install.</li>
     <li><b>One file per tool.</b> Each program carries its own engine inside it as text and writes it out on first run. Moving a tool to a new device is moving one file.</li>
     <li><b>The working is visible.</b> Every intermediate value is printed. If an answer looks wrong you can see where it went wrong, and continue by hand from any line of the output. These are assistants, not black boxes.</li>
   </ul>
@@ -292,6 +287,7 @@ celnav fix</pre>
   </table>
   <p class="small dim">One arcminute is one nautical mile. The almanac contributes well under half a mile everywhere, which puts it comfortably below a good sextant observation from a small vessel — your instrument and your clock stay the limiting factors, as they should be. The fix arithmetic was checked separately against 200 randomised worldwide cases with exact synthetic sights: every one with sound geometry recovered the true position within 0.11&nbsp;nm.</p>
 
+  <p>A note of caution: <strong>a phone camera is worth about two to three arcminutes once calibrated</strong> &mdash; the same order as a plastic lifeboat sextant, several times worse than a metal one in practised hands. Uncorrected lens distortion can cost tens of arcminutes, which is why the build carries a star-field calibration and says so on the page when it has not been done.</p>
   <h3>It teaches, as well as computes</h3>
   <p>Twenty lessons from first principles, an annotated walkthrough of one real sight, six kinds of drill generated from the real almanac and marked, and a sandbox where you change one number and watch the navigational triangle move.</p>
     <figure>
