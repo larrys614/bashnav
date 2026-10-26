@@ -863,15 +863,18 @@ claims, and nothing on the boat would say so.
    so people who only want the tools do not have to clone 2.9 MB of station
    data through git. The README's iPad instructions already point at
    `releases/latest/download/bashnav-ipad.sh`, so this is now load bearing.
-9. **The `ansi2svg` pipeline is now dead weight, and nobody has ruled on it.**
-   The site's pictures are the apps' own drawings, so all fifteen
-   `docs/img/*.svg` terminal renderings are unreferenced; only the `{{PLOT}}`
-   and `{{ENCOUNTER}}` plates are still used, and those are the collapsed "the
-   same thing, as your terminal prints it" blocks under each figure. The
-   generator, its tests and the fifteen files are still carried. Flagged three
-   times now without a decision: retiring it is a real deletion of a working
-   piece of the build, and keeping it means `make-site.sh` renders fifteen
-   pictures nothing looks at. **Larry's call.**
+9. ~~**The `ansi2svg` pipeline is now dead weight.**~~ **Settled 25 Oct 2026 —
+   it stays.** The front page leads with the browser apps and its figures are
+   those apps' own drawings, so most of the fifteen `docs/img/*.svg` terminal
+   renderings are not referenced by a page; `{{PLOT}}` and `{{ENCOUNTER}}` still
+   feed the collapsed "the same thing, as your terminal prints it" block under
+   each figure. Larry's decision was to keep the lot and say in the comments
+   that it is first-generation, which is now written at the head of
+   `docs/ansi2svg.awk` and above the picture section of `docs/make-site.sh`.
+   The reasoning, so it is not revisited: this is the only thing in the
+   repository that can photograph a terminal, `tests/plates-check.sh` rebuilds
+   all of it under every awk so it cannot rot quietly, and adding a picture is
+   reasonable where removing one for want of a link is not.
 
 10. **celnav's browser port is four screens from complete.** The commands with
     no browser screen are the drills, the annotated walkthrough, the sandbox and

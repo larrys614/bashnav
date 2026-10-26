@@ -113,11 +113,23 @@ function platelights(f,   line,out,t){
 }' docs/site-template.html > docs/index.html
 
 
-# ---- coloured pictures for the README -------------------------------
+# ---- coloured pictures of the terminal ------------------------------
 #  GitHub will not render ANSI in a code block and strips inline styles
-#  from a README, but it does render an SVG image. So the art on the
-#  front page can be the program's real output in the program's real
-#  colours, rather than a plain-text approximation of it.
+#  from a README, but it does render an SVG image. So a picture here can
+#  be the program's real output in the program's real colours, rather
+#  than a plain-text approximation of it.
+#
+#  FIRST GENERATION, AND KEPT ON PURPOSE. These are what the site showed
+#  while the shell build was the product. The front page leads with the
+#  browser apps now and its figures are those apps' own drawings, so most
+#  of these fifteen are not referenced by a page -- and they stay. The
+#  two plates still in use, {{PLOT}} and {{ENCOUNTER}}, feed the collapsed
+#  "the same thing, as your terminal prints it" block under each figure,
+#  and this is the only thing in the repository that can photograph a
+#  terminal at all. Larry's call, 25 Oct 2026.
+#
+#  tests/plates-check.sh rebuilds all of it under every awk and diffs
+#  against what is committed, so they cannot rot quietly.
 mkdir -p docs/img
 CENG="$CH/engine-$CV.awk"
 REN="-f $CR/engine-$RV.awk -f $CR/contacts-$RV.awk -f $CR/review-$RV.awk"

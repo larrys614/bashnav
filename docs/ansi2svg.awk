@@ -1,5 +1,22 @@
 #  ansi2svg -- turn a tool's real coloured output into an SVG picture.
 #
+#  FIRST GENERATION, AND KEPT ON PURPOSE. This is how the site showed the
+#  tools when the shell build was the product: GitHub renders neither ANSI
+#  in a code block nor inline styles in a README, but it does render an
+#  SVG, so the pictures could be the program's actual output in the
+#  program's actual colours instead of a plain-text approximation.
+#
+#  The front page leads with the browser apps now and its pictures are
+#  those apps' own drawings, so most of what this generates is no longer
+#  referenced by a page. It stays, because what it does is still true and
+#  still worth having: it is the only thing in the repository that can
+#  photograph a terminal, and the collapsed "the same thing, as your
+#  terminal prints it" blocks under each figure are built from the two
+#  plates beside it. Larry's call, 25 Oct 2026.
+#
+#  So: adding a picture here is reasonable, and removing one because
+#  nothing links to it is not.
+#
 #  GitHub will not render ANSI escapes in a code block and strips inline
 #  styles from a README, but it does render an SVG image. So the art on
 #  the front page can be the actual output of the actual program, in the
