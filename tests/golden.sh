@@ -477,7 +477,7 @@ cat > "$WXD/log" <<'WXLOG'
 2026-08-31T00:00Z|nav|lat=42 00.0N|wdir=150|wspd=32|sea=5|~
 2026-08-31T00:00Z|wx|mslp=1003.0|~
 WXLOG
-WX="-f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk -f src/weather/score.awk -f src/weather/chart.awk -f src/weather/teach.awk -f src/weather/screens.awk"
+WX="-f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f src/weather/wx.awk -f src/weather/score.awk -f src/weather/chart.awk -f src/weather/teach.awk -f src/weather/screens.awk"
 {
   echo "=== weather what ==="
   $AW $WX -v cmode=plain -v cmd=what -v LOG="$WXD/log" -v lon=-72 </dev/null

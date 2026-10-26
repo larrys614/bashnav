@@ -15,7 +15,7 @@ function awkWhat(logfile, lon) {
   return execFileSync('mawk', ['-v', 'cmode=plain', '-v', 'LOG=' + logfile,
     '-v', 'lon=' + lon, '-v', 'cmd=what',
     '-f', REPO + '/src/common/log.awk', '-f', REPO + '/src/common/colour.awk',
-    '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
+    '-f', REPO + '/src/weather/grid.awk', '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
     '-f', REPO + '/src/weather/chart.awk', '-f', REPO + '/src/weather/teach.awk',
     '-f', REPO + '/src/weather/screens.awk'], { input: '', encoding: 'utf8' });
 }

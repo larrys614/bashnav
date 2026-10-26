@@ -11,7 +11,7 @@ const BASE = 'http://127.0.0.1:8090/weather/';
 const TMP = process.env.TMPDIR || '/tmp';
 
 const ENG = ['-f', REPO + '/src/common/log.awk', '-f', REPO + '/src/common/colour.awk',
-             '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
+             '-f', REPO + '/src/weather/grid.awk', '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
              '-f', REPO + '/src/weather/chart.awk', '-f', REPO + '/src/weather/teach.awk',
              '-f', REPO + '/src/weather/screens.awk'];
 function awk(args) {

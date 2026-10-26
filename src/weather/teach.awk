@@ -412,6 +412,19 @@ function lesson_more(k){
     lp("  north    shrinks              east SLOWER       outruns it")
     lp("  south    grows                east FASTER       lags it")
     print ""
+    #  THE PICTURE GOES HERE, between the table that states the mechanism
+    #  and the sentence that states the punchline, because the punchline is
+    #  the part a reader doubts: "both deflect right" reads as a
+    #  contradiction until you see one shell go east and the other west in
+    #  the same drawing.
+    gun_figure()
+    gshow()
+    print ""
+    lpd("The curve is a parabola because the sideways acceleration is steady")
+    lpd("along the track, so the offset goes as the SQUARE of the time of")
+    lpd("flight. Its SIZE here is scaled to the width of the picture; the real")
+    lpd("figure is two paragraphs down, and it is small.")
+    print ""
     lp("Fired north it lands EAST of the aim. Fired south it lands WEST.")
     lp("Going north, east is to your right. Going south, west is to your")
     lp("right. " cw("Both deflect right",C_ACC) " - and in the southern hemisphere")

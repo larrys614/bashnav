@@ -8,7 +8,7 @@ const { execFileSync } = require('child_process');
 const REPO = path.resolve(__dirname, '..', '..', '..');
 const L = require(path.resolve(__dirname, '..', 'weather', 'lessons.js')).LESSONS;
 const ENG = ['-f', REPO + '/src/common/log.awk', '-f', REPO + '/src/common/colour.awk',
-             '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
+             '-f', REPO + '/src/weather/grid.awk', '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
              '-f', REPO + '/src/weather/chart.awk', '-f', REPO + '/src/weather/teach.awk',
              '-f', REPO + '/src/weather/screens.awk'];
 function awkLesson(k) {

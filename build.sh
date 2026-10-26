@@ -69,6 +69,7 @@ build_weather() {
     echo '#__BN_START_ENGINE__'
     cat src/common/log.awk
     cat src/common/colour.awk
+    cat src/weather/grid.awk
     cat src/weather/wx.awk
     cat src/weather/score.awk
     cat src/weather/chart.awk

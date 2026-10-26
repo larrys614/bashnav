@@ -44,7 +44,7 @@ echo "4. valid times: every real day from 2000 to 2040"
 #  dispatch in screens.awk exits before a later file's BEGIN would run.
 $AWK -v OUTF="$WORK/vt.tsv" -f docs/web/tests/weather-vt.awk \
      -f src/common/log.awk -f src/common/colour.awk \
-     -f src/weather/wx.awk -f src/weather/score.awk \
+     -f src/weather/grid.awk -f src/weather/wx.awk -f src/weather/score.awk \
      -f src/weather/chart.awk -f src/weather/teach.awk </dev/null >/dev/null 2>&1 || true
 [ -s "$WORK/vt.tsv" ] || { echo "the valid-time dump is empty" >&2; exit 1; }
 node -e '

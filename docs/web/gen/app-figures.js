@@ -377,6 +377,28 @@ const FIGURES = [
     async drive(p) { await p.click('text=Make a forecast'); await p.waitForTimeout(600); }
   },
   {
+    file: 'weather-coriolis.png', app: 'weather', shot: '#les-body', height: 1900,
+    title: 'weather: the two shells - Coriolis demonstrated by naval gunfire, fired north and fired south',
+    async drive(p) {
+      await p.click('[data-go="learn"]');
+      await p.waitForTimeout(300);
+      await p.click('#les-list >> text=/Coriolis/i');
+      await p.waitForTimeout(350);
+      /*  the figure lives in the Learn-more tier, which is deliberately
+          not in the page until it is asked for - the same rule the
+          lesson answers follow - so the capture has to ask for it  */
+      await p.click('#les-more button');
+      await p.waitForTimeout(600);
+      /*  BACK TO THE TOP BEFORE THE SHOT. Clicking into a lesson scrolls
+          the page, and a fullPage screenshot draws a position:sticky
+          header wherever it is sitting for the current scroll offset -
+          so the app's header came out painted across the middle of the
+          picture, over the lesson's own prose.  */
+      await p.evaluate(() => window.scrollTo(0, 0));
+      await p.waitForTimeout(250);
+    }
+  },
+  {
     file: 'weather-chart.png', app: 'weather', shot: '#v-chart',
     title: 'weather: reading a 500 mb chart - the steering flow above the surface weather',
     async drive(p) { await p.click('text=From a 500 mb chart'); await p.waitForTimeout(600); }

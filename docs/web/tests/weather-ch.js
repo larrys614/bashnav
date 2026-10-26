@@ -12,7 +12,7 @@ function awkChart(brg, dist, orient, w500, north) {
     '-v', 'brg=' + brg, '-v', 'dist=' + dist, '-v', 'orient=' + orient,
     '-v', 'w500=' + w500, '-v', 'north=' + north, '-v', 'LOG=/dev/null',
     '-f', REPO + '/src/common/log.awk', '-f', REPO + '/src/common/colour.awk',
-    '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
+    '-f', REPO + '/src/weather/grid.awk', '-f', REPO + '/src/weather/wx.awk', '-f', REPO + '/src/weather/score.awk',
     '-f', REPO + '/src/weather/chart.awk', '-f', REPO + '/src/weather/teach.awk',
     '-f', REPO + '/src/weather/screens.awk'], { input: '', encoding: 'utf8' });
 }

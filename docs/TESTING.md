@@ -314,6 +314,27 @@ boxes, and the keystrokes land on an element no longer in the page. Every answer
 the harness typed came back empty. A reader who edits the seed and then types an
 answer loses the answer; the boxes are relabelled now, not rebuilt.
 
+#### A no-sideways-scroll check does not see a figure clipped inside its own box
+
+`run-weather-web.sh` asserts that the page does not scroll sideways at 744, 390
+and 320 px, and it is a good check. It passed with a figure whose right-hand
+half was off the screen.
+
+The gunnery figure was first drawn 69 columns wide — comfortable on a laptop,
+and at 390 px the whole second panel sat outside the viewport. The page did not
+scroll sideways, because the **block** scrolled inside its own container
+instead, which is exactly what that container is for. So `documentElement
+.scrollWidth > clientWidth` was false and the check was satisfied, while the one
+thing the figure exists to show — east one way, west the other — was the part
+you could not see.
+
+What found it was rendering the lesson at 390 px and looking at the picture. The
+figure is 33 columns now, narrower than weather's own tables, and fits without
+scrolling at all. The lesson for the suite: a check on the page's overflow says
+nothing about the overflow of a scroller inside it, and a figure whose job is a
+side-by-side comparison has to be measured against the narrowest screen the tool
+is used on, not the widest.
+
 #### A drawing has to be checked, not just the numbers beside it
 
 The sandbox draws the navigational triangle, and its arithmetic is

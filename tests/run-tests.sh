@@ -440,20 +440,20 @@ for SH in $SHELLS; do
     bad "an interrupted write is not handled safely"
   fi
 
-  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f src/weather/wx.awk \
         -f tests/wx-check.awk </dev/null | tail -1)
   case "$r" in
     "WXRESULT "*" 0") ok "the weather rules hold over their whole range ($r)" ;;
     *) bad "weather rules: $r" ;;
   esac
 
-  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f src/weather/wx.awk \
         -f src/weather/score.awk -f tests/score-check.awk </dev/null | tail -1)
   case "$r" in
     "SCORERESULT "*" 0") ok "forecast scoring is right, including on the circle ($r)" ;;
     *) bad "forecast scoring: $r" ;;
   esac
-  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+  r=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f src/weather/wx.awk \
         -f src/weather/score.awk -f tests/date-check.awk </dev/null | tail -1)
   case "$r" in
     "DATERESULT 0") ok "date arithmetic round-trips over forty years" ;;
@@ -483,7 +483,7 @@ WXLOG
   #  a dedicated command rather than scraping the drawn syllabus - the
   #  same mistake as parsing the tides station list, and it bit here too
   for k in $(DECKLOG_HOME="$WH_" WEATHER_HOME="$WH_" WEATHER_AWK="$AW" \
-             $AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+             $AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f src/weather/wx.awk \
                  -f src/weather/score.awk -f src/weather/chart.awk \
                  -f src/weather/teach.awk -f src/weather/screens.awk \
                  -v cmd=lessonlist </dev/null); do
@@ -529,7 +529,7 @@ WXLOG
   #  the 500 mb rules
   o=$(DECKLOG_HOME="$WH_" WEATHER_HOME="$WH_" WEATHER_AWK="$AW" $SH ./bin/weather \
         chart </dev/null 2>&1 || true)
-  o=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/wx.awk \
+  o=$($AW -f src/common/log.awk -f src/common/colour.awk -f src/weather/grid.awk -f src/weather/wx.awk \
         -f src/weather/score.awk -f src/weather/chart.awk -f src/weather/teach.awk \
         -f src/weather/screens.awk -v cmode=plain -v cmd=chart -v brg=000 -v dist=200 \
         -v orient=090 -v w500=60 -v north=1 </dev/null)
@@ -666,7 +666,7 @@ WXLOG
   #  before a bracket that tells you nothing at all.
   fv_bad=0
   for grp in \
-    "src/common/log.awk src/common/colour.awk src/weather/wx.awk src/weather/score.awk src/weather/chart.awk src/weather/teach.awk src/weather/screens.awk" \
+    "src/common/log.awk src/common/colour.awk src/weather/grid.awk src/weather/wx.awk src/weather/score.awk src/weather/chart.awk src/weather/teach.awk src/weather/screens.awk" \
     "src/common/log.awk src/common/colour.awk src/decklog/views.awk src/decklog/screens.awk" \
     "src/colregs/engine.awk src/colregs/contacts.awk src/colregs/review.awk" \
     "src/celnav/engine.awk src/celnav/teach.awk" \

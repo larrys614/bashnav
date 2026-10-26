@@ -891,6 +891,87 @@ claims, and nothing on the boat would say so.
 
 ---
 
+## Three figures that are owed
+
+*Opened 26 Oct 2026, after Larry went looking for them on the site and found
+them missing.* They are listed here rather than mentioned in passing because
+one of them had already been discussed once and lost — he asked, in as many
+words, that they be kept track of.
+
+### 1. The README has pictures for two of the six tools
+
+`docs/index.html` carries two or more per app: celnav 6, colregs 5, tides 2,
+deck-log 2, weather 2, drill 1. **`README.md` carries three in total** — the
+celnav plotting sheet and two colregs drawings. Nothing for tides, deck-log,
+weather or drill.
+
+The figure work replaced the README's three ANSI renderings with the apps' own
+drawings; it never added any. The README is the page most people read.
+
+### 2. The weather example has no illustration at all
+
+"Forecast before you look" in the README is nine lines of prose with neither a
+picture nor a sample output block, unlike the three examples above it.
+
+### 3. ~~The naval gunfire figure~~ **— built 26 Oct 2026**
+
+The *lesson* shipped on 20 Oct: it is the Learn-more tier behind `coriolis` in
+`src/weather/teach.awk`, with the figures computed rather than recalled, and it
+reaches the browser build as well. What was never built is the **drawing** — the
+two shells fired north and south from 45 N, both deflecting right.
+
+`weather` had **no figure pipeline of any kind** — no character-grid calls in any
+of its awk — which is why this did not happen when it was first discussed: it was
+not "add a figure", it was "give the tool its first figure". It has one now,
+`src/weather/grid.awk`, and the figure is `gun_figure()` in it. The file's head
+explains why it is a fourth copy of the grid rather than a shared one, and what
+to do if a fifth tool ever needs it.
+
+Two things the build turned up, both recorded where they belong:
+
+- Weather's `col_init()` is the shared `src/common/colour.awk`, which has no panel
+  concept. celnav's own adds `C_PANEL` and `C_EOL`, and `gshow()` needs them —
+  copied without that the figure would print unpainted, which on a light terminal
+  profile is white artwork on white, the exact failure `docs/HACKING.md` records
+  for the colregs lights. `grid.awk` defines them itself.
+- Adding one file to weather's engine meant editing **ten separate file lists** —
+  `build.sh`, four in the suite, `golden.sh`, the web generator and five browser
+  harnesses. They are all correct now, and the duplication is the next thing to
+  tidy if weather gains another file.
+
+**The frame it is drawn in was the design decision.** The lesson tells the story
+in the inertial frame, where nothing curves and nothing pushes, and that is the
+honest account — but it does not *draw*. At true proportions a shell's path in
+that frame is a straight radial line and the ground turns under it by an
+invisible amount, which is precisely why the real deflection is ninety metres
+and not ninety miles; drawn at a scale where the rotation shows, the straight
+line wraps most of the way round the pole and stops looking like gunnery at all.
+
+So it is the gunner's frame, which is what a range table's diagram shows: the
+line of fire, the track, and where the shell actually falls. Two panels, because
+the point is the punchline — fired north it falls east, fired south it falls
+west, and both of those are to the *right* of the line of fire. One panel cannot
+show that; two show it without a word.
+
+The curve is computed, not drawn by hand: the rotating frame's sideways
+acceleration is steady along the track, so the offset goes as the square of the
+time of flight and the figure draws that parabola. Its **size** is scaled to the
+width of the picture and the lesson says so, with the real number beside it — a
+figure that silently exaggerated would be teaching the wrong magnitude, which in
+gunnery is the whole game.
+
+### Not on this list, because it exists
+
+**The moon.** `tides` has a Sun-and-moon panel in its day view — the phase disc
+drawn as an SVG whose terminator is an ellipse of width cos(elongation), the
+phase name and age, sun and moon rise and set, and civil twilight — and it is in
+`tides-day.png` on the site. What it lacks is a figure of its own: it sits below
+the curve, the high-and-low table and the depth calculator in a 1,716-pixel
+picture. Larry saw it in the app and said so; this entry is here so nobody
+"rediscovers" it as missing again.
+
+---
+
 ## Working agreement
 
 Larry has the sea time and the ideas; Claude writes the code. He is a market

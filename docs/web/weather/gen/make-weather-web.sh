@@ -33,6 +33,7 @@ AWK=awk
 for a in mawk gawk awk; do command -v "$a" >/dev/null 2>&1 && { AWK=$a; break; }; done
 
 ENG="-f $ROOT/src/common/log.awk -f $ROOT/src/common/colour.awk \
+     -f $SRC/grid.awk \
      -f $SRC/wx.awk -f $SRC/score.awk -f $SRC/chart.awk -f $SRC/teach.awk \
      -f $SRC/screens.awk"
 
