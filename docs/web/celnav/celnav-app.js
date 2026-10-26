@@ -2038,9 +2038,9 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /*  The seam tests/celnav-lessons-check.js loads this through. `module`
-    is undefined in a browser, so the page pays nothing; what it buys is
-    that the reflow and the figure-gap names can be held to something
-    outside one. Same seam colregs.js, contacts.js and weather.js carry.  */
+    is undefined in a browser, so the page pays nothing, and the reflow and
+    the figure-gap names can be held to something outside a browser. Same
+    seam colregs.js, contacts.js and weather.js carry.  */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { renderProse: renderProse, proseKind: proseKind,
                      FIG_NAMES: FIG_NAMES, splitQuestion: splitQuestion };

@@ -160,7 +160,8 @@ function lesson_body(k){
     lp("five degree rule below is a threshold for getting a storm started,")
     lp("not a line where the physics switches off.")
     print ""
-    lp(cw("Two things it buys you.",C_ACC))
+    lp(cw("Two consequences: where a cyclone cannot form, and which way",C_ACC))
+    lp(cw("to turn for the low.",C_ACC))
     print ""
     lp("First: " cw("no tropical cyclone forms within about 5 degrees of the",C_ACC))
     lp(cw("equator",C_ACC) ", because there is too little there to spin it up. All that")
@@ -339,10 +340,10 @@ function lesson_body(k){
     lp("year. That is the whole of the seasons - not distance from the sun,")
     lp("which barely varies and is at its smallest in northern winter.")
     print ""
-    lp("What it buys you at sea: the whole belt of weather migrates north and")
-    lp("south with it. The equatorial convergence, the subtropical ridge, the")
-    lp("storm tracks. " cw("A cyclone season is a season because the tilt makes it",C_ACC))
-    lp(cw("one",C_ACC) " - warm water and a ridge in the right place at the same time.")
+    lp("At sea you meet it as migration: the whole belt of weather moves north")
+    lp("and south with the tilt. The equatorial convergence, the subtropical")
+    lp("ridge, the storm tracks. " cw("A cyclone season is a season because the tilt",C_ACC))
+    lp(cw("makes it one",C_ACC) " - warm water and a ridge in the right place at once.")
     print ""
     lp(cw("Now the honest part.",C_ACC))
     print ""

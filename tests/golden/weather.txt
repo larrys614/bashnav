@@ -190,7 +190,8 @@ Probably not - that is very close to the daily atmospheric tide, which is about 
   five degree rule below is a threshold for getting a storm started,
   not a line where the physics switches off.
 
-  Two things it buys you.
+  Two consequences: where a cyclone cannot form, and which way
+  to turn for the low.
 
   First: no tropical cyclone forms within about 5 degrees of the
   equator, because there is too little there to spin it up. All that
@@ -599,10 +600,10 @@ No. Shear tears the tower apart before it can organise. Four of the five ingredi
   year. That is the whole of the seasons - not distance from the sun,
   which barely varies and is at its smallest in northern winter.
 
-  What it buys you at sea: the whole belt of weather migrates north and
-  south with it. The equatorial convergence, the subtropical ridge, the
-  storm tracks. A cyclone season is a season because the tilt makes it
-  one - warm water and a ridge in the right place at the same time.
+  At sea you meet it as migration: the whole belt of weather moves north
+  and south with the tilt. The equatorial convergence, the subtropical
+  ridge, the storm tracks. A cyclone season is a season because the tilt
+  makes it one - warm water and a ridge in the right place at once.
 
   Now the honest part.
 

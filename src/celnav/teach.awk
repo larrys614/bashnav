@@ -1568,8 +1568,9 @@ function les_H1(){
   tp("     converts it, and which rule depends on your hemisphere and")
   tp("     whether the LHA is more or less than 180.")
   tb()
-  tp("None of those three is difficulty. They are the bookkeeping that")
-  tp("buys you a fix with no battery in it.")
+  tp("None of those three is difficulty. They are the bookkeeping, and the")
+  tp("bookkeeping is the whole reason a fix can come out of a book and a")
+  tp("pencil with no battery anywhere in it.")
   return 0
 }
 function tab_fig(   la,de,lh,i){

@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003595302
+BASHNAV_BYTES=003595462
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -4701,8 +4701,9 @@ function les_H1(){
   tp("     converts it, and which rule depends on your hemisphere and")
   tp("     whether the LHA is more or less than 180.")
   tb()
-  tp("None of those three is difficulty. They are the bookkeeping that")
-  tp("buys you a fix with no battery in it.")
+  tp("None of those three is difficulty. They are the bookkeeping, and the")
+  tp("bookkeeping is the whole reason a fix can come out of a book and a")
+  tp("pencil with no battery anywhere in it.")
   return 0
 }
 function tab_fig(   la,de,lh,i){
@@ -22705,7 +22706,8 @@ function lesson_body(k){
     lp("five degree rule below is a threshold for getting a storm started,")
     lp("not a line where the physics switches off.")
     print ""
-    lp(cw("Two things it buys you.",C_ACC))
+    lp(cw("Two consequences: where a cyclone cannot form, and which way",C_ACC))
+    lp(cw("to turn for the low.",C_ACC))
     print ""
     lp("First: " cw("no tropical cyclone forms within about 5 degrees of the",C_ACC))
     lp(cw("equator",C_ACC) ", because there is too little there to spin it up. All that")
@@ -22884,10 +22886,10 @@ function lesson_body(k){
     lp("year. That is the whole of the seasons - not distance from the sun,")
     lp("which barely varies and is at its smallest in northern winter.")
     print ""
-    lp("What it buys you at sea: the whole belt of weather migrates north and")
-    lp("south with it. The equatorial convergence, the subtropical ridge, the")
-    lp("storm tracks. " cw("A cyclone season is a season because the tilt makes it",C_ACC))
-    lp(cw("one",C_ACC) " - warm water and a ridge in the right place at the same time.")
+    lp("At sea you meet it as migration: the whole belt of weather moves north")
+    lp("and south with the tilt. The equatorial convergence, the subtropical")
+    lp("ridge, the storm tracks. " cw("A cyclone season is a season because the tilt",C_ACC))
+    lp(cw("makes it one",C_ACC) " - warm water and a ridge in the right place at once.")
     print ""
     lp(cw("Now the honest part.",C_ACC))
     print ""
