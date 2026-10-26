@@ -35,7 +35,10 @@
  */
 'use strict';
 const { chromium } = require('playwright');
-const { writeFileSync, mkdirSync } = require('fs');
+const { writeFileSync, mkdirSync, readFileSync, mkdtempSync } = require('fs');
+const { execFileSync } = require('child_process');
+const os = require('os');
+const path = require('path');
 
 const BASE = 'http://127.0.0.1:' + (process.env.PORT || 8731) + '/';
 const OUT = 'docs/img/app';
@@ -132,6 +135,52 @@ async function grab(page, sel) {
  *  the same screen.
  */
 const SHOT = { width: 860, height: 1000 };
+
+/*  ---- the boat deck-log's pictures are of ---------------------------
+ *
+ *  Both deck-log figures used to be photographs of an EMPTY app. "No
+ *  equipment yet." "No part has moved yet." "Nothing outstanding." The
+ *  one claim that makes the tool worth having is the one thing an empty
+ *  locker cannot show: the holding is DERIVED by replaying the log and
+ *  is never stored. You cannot see a count come down from a job that
+ *  used a part when no part was ever used. The entry screen was the same
+ *  story - position, course and speed are state, shown as they were last
+ *  logged, and a blank form does not show that either.
+ *
+ *  So a small boat is seeded before the shot, and it is THE SAME BOAT the
+ *  README prints shell output for. docs/web/gen/decklog-fixture.sh is the
+ *  single source for both: the registry and the log are byte-identical
+ *  formats in the two builds, which views.awk and views.js both say was
+ *  deliberate, so one fixture can feed the shell and the browser.
+ *
+ *  That matters because this project has already shipped a figure and
+ *  its prose as two different runs once - the celnav plot sheet was
+ *  captured with ie 0 and he 2.5 while the text beside it quoted 1.5 and
+ *  3.0, and the intercepts disagreed. Reading the fixture rather than
+ *  restating it here is what stops that happening twice.
+ */
+const DLBOAT = (() => {
+  const d = mkdtempSync(path.join(os.tmpdir(), 'dlfix-'));
+  execFileSync('sh', ['docs/web/gen/decklog-fixture.sh', d]);
+  return {
+    registry: readFileSync(path.join(d, 'boat'), 'utf8'),
+    log: readFileSync(path.join(d, 'log'), 'utf8').split('\n').filter(L => L !== '')
+  };
+})();
+
+/*  The store is IndexedDB and append-only, so this is the app's own
+    write path rather than a fixture file dropped beside it: metaSet for
+    the registry, append for the log, then the app's own reload().  */
+async function seedDeckLog(p) {
+  const n = await p.evaluate(async (fx) => {
+    await STORE.metaSet('registry', fx.registry);
+    await STORE.append(fx.log);
+    await reload();
+    return fx.log.length;
+  }, DLBOAT);
+  if (n !== DLBOAT.log.length) throw new Error('the boat did not seed');
+  await p.waitForTimeout(300);
+}
 
 /*  ---- the figures ------------------------------------------------- */
 const FIGURES = [
@@ -364,12 +413,20 @@ const FIGURES = [
   {
     file: 'decklog-entry.png', app: 'deck-log', shot: '#v-entry',
     title: 'deck-log: an entry, with the position, course and speed the next one carries forward',
-    async drive(p) { await p.click('text=New entry'); await p.waitForTimeout(600); }
+    async drive(p) {
+      await seedDeckLog(p);
+      await p.click('text=New entry');
+      await p.waitForTimeout(600);
+    }
   },
   {
     file: 'decklog-boat.png', app: 'deck-log', shot: '#v-boat',
     title: 'deck-log: the boat - her equipment, and the spares replayed from the log rather than stored',
-    async drive(p) { await p.click('text=The boat'); await p.waitForTimeout(600); }
+    async drive(p) {
+      await seedDeckLog(p);
+      await p.click('text=The boat');
+      await p.waitForTimeout(600);
+    }
   },
   {
     file: 'weather-forecast.png', app: 'weather', shot: '#v-fcast',

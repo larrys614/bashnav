@@ -891,27 +891,73 @@ claims, and nothing on the boat would say so.
 
 ---
 
-## Three figures that are owed
+## Three figures that are owed — all three now built
 
 *Opened 26 Oct 2026, after Larry went looking for them on the site and found
 them missing.* They are listed here rather than mentioned in passing because
 one of them had already been discussed once and lost — he asked, in as many
 words, that they be kept track of.
 
-### 1. The README has pictures for two of the six tools
+### 1. ~~The README has pictures for two of the six tools~~ **— all six now**
 
-`docs/index.html` carries two or more per app: celnav 6, colregs 5, tides 2,
-deck-log 2, weather 2, drill 1. **`README.md` carries three in total** — the
-celnav plotting sheet and two colregs drawings. Nothing for tides, deck-log,
-weather or drill.
+`README.md` carried three pictures — the celnav plotting sheet and two colregs
+drawings — and nothing for tides, deck-log, weather or drill. It carries seven
+now, and the four new ones arrived as full worked examples rather than
+decoration: prose, a real run printed as text, then the app's own picture of the
+same thing. **Every line in those blocks is verbatim output of a live run**, not
+a hand-written sample; 52 lines across the three blocks that have one were
+compared against the tools' actual output before the commit.
 
-The figure work replaced the README's three ANSI renderings with the apps' own
-drawings; it never added any. The README is the page most people read.
+The fourth, `drill`, has no output block and should not have one — it is the one
+tool with no shell build, because reading a file the user chooses and keeping it
+in that browser's own storage is not something a terminal can do.
 
-### 2. The weather example has no illustration at all
+**Where each block comes from, so a later session can re-derive them rather than
+trust them:**
 
-"Forecast before you look" in the README is nine lines of prose with neither a
-picture nor a sample output block, unlike the three examples above it.
+| | |
+|---|---|
+| deck-log | `sh docs/web/gen/decklog-fixture.sh <dir>`, then `deck-log spares` and `deck-log shopping` with `DECKLOG_HOME=<dir>` |
+| tides | `tides find "new london"`, pick 1, then `tides sky 2026-08-29` |
+| weather | the four-line warm-front log in `tests/run-tests.sh`, then `weather what` |
+
+Also corrected while in there: the celnav section still said its nine lesson
+diagrams were "still being drawn for the browser". They have been real drawings
+since the port finished, and the README was telling readers a finished feature
+was unfinished.
+
+### 2. ~~The weather example has no illustration at all~~ **— and deck-log's was a picture of an empty app**
+
+"Forecast before you look" now shows what the tool finds in four observations
+and then the screen that refuses to forecast until you have.
+
+The thing worth recording is what turned up on the way. **Both deck-log figures
+were photographs of an EMPTY app** — "No equipment yet", "No part has moved
+yet", "Nothing outstanding" — and they were on the live site as well as absent
+from the README. The one claim that makes the tool worth having is the one
+thing an empty locker cannot show: the holding is DERIVED by replaying the log
+and is never stored. You cannot see a count come down from a job that used a
+part when no part was ever used.
+
+`docs/web/gen/decklog-fixture.sh` is the fix and it is deliberately ONE file for
+both builds: a small boat — two machines, three parts, a stocktake, an open
+finding and a job that consumed a spare — fed to `bin/deck-log` for the README's
+text and to the browser's own store for the picture. The registry and the log
+are byte-identical formats in the two builds, which `views.awk` and `views.js`
+both say was deliberate, so one fixture cannot drift into two boats. That
+matters because this project has already shipped a figure and its prose as two
+different runs once: the celnav plot sheet was captured with ie 0 and he 2.5
+while the text beside it quoted 1.5 and 3.0.
+
+The entry screen was the same story and is fixed by the same fixture — position,
+course and speed are state in deck-log, shown as they were last logged, and a
+blank form cannot show that either. It now reads "carried forward" against real
+values.
+
+**And the fixture found a bug.** See `docs/TESTING.md`, "A golden file cannot
+tell you the output is missing something": the log listing printed a field name
+no writer has ever set, so the wind was blank on every nav record ever logged,
+and the golden file had the blank committed as correct.
 
 ### 3. ~~The naval gunfire figure~~ **— built, and then made to move**
 

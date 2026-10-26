@@ -1061,6 +1061,19 @@ function menu_ok(key, ans,   n, a, i, p){
 #  Plausibility, as a question rather than a rejection.  An instrument
 #  reading wrongly is itself worth logging, so "no, that is what I read"
 #  has to be accepted.
+
+#  The wind for one line of the listing. It lives here rather than in
+#  log.awk because src/common/log.awk and src/decklog/log.awk are
+#  byte-identical copies and nothing in the suite enforces that - adding
+#  a function to one of them would quietly start a divergence. This is a
+#  presentation helper and belongs with the view that prints it.
+function lg_wind(d, s){
+  if(d=="" && s=="") return "-"
+  if(s=="") return d
+  if(d=="") return "?/" s
+  return d "/" s
+}
+
 function implausible(key, val,   x){
   if(val=="-" || val=="/" || val=="") return ""
   x = val+0
@@ -1112,8 +1125,15 @@ BEGIN{
     for(i = (LG_N>k ? LG_N-k+1 : 1); i<=LG_N; i++){
       if(!lg_at(i)) continue
       line = ""
+      #  THE WIND IS wdir AND wspd, not "wind". Nothing has ever written a
+      #  field called wind: do_entry asks for wdir and wspd and writes
+      #  both, so this slot printed eight spaces on every nav record ever
+      #  logged - a field asked for and then silently not shown, which is
+      #  the same fault the weather suite guards with its "visibility is
+      #  asked for and still ignored" check. tests/golden/decklog.txt had
+      #  the blank committed as correct, which is why no check saw it.
       if(LG_TYPE=="nav") line = sprintf("crs %-4s %5s kn  wind %-8s sea %s",
-            LG["crs"], LG["sog"], LG["wind"], LG["sea"])
+            LG["crs"], LG["sog"], lg_wind(LG["wdir"], LG["wspd"]), LG["sea"])
       else if(LG_TYPE=="wx") line = sprintf("%s hPa  tend %-2s cloud %-2s vis %s",
             LG["mslp"], LG["ptend"], LG["cloud"], LG["vis"])
       else if(LG_TYPE=="eng") line = sprintf("%s %s %s", LG["eq"],

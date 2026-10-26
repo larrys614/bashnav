@@ -127,10 +127,132 @@ depends entirely on who is listening.
 
 ### Forecast before you look
 
-`weather` will not show you its forecast until yours is written down. That is
-enforced, not suggested: the test suite asserts it on every run, because
-anticipation is the only thing being taught and reacting is easy to do by
-accident.
+`weather` reasons over your own log whenever you ask it to. Four observations
+from one night — two positions and two barometer readings — and it finds eight
+things in them, each with the rule it came from. Four of the eight:
+
+```
+  WHAT THE LOG SAYS
+  ----------------------------------------------------------------------
+  Pressure 1010.1, -6.3 hPa in 6.0 hours.
+  That is a serious fall. Expect a deepening system and a rising wind.
+     a rate matters more than a level: 1000 hPa steady is a quiet day,
+     1015 falling fast is not.
+
+  Wind has BACKED 40 degrees, 210 to 170.
+     northern hemisphere: backing with a falling glass puts the centre
+     to your north and closing. This is the one to take seriously.
+
+  Back to the wind: the low is roughly 260 from you.
+     Buys Ballot. Stand with your back to the wind: in the northern
+     hemisphere the low is on your left, in the southern, on your right.
+
+  The cloud has run the whole warm-front sequence: high, then
+  middle, and now low stratus. The front is on you or past.
+     cirrus -> cirrostratus -> altostratus -> nimbostratus and rain
+  ----------------------------------------------------------------------
+  This reasons only from what you logged. It is not a forecast:
+  no model, no chart, no GRIB. It is you, reading your own barometer.
+```
+
+What it will **not** do is tell you what happens next until you have said so
+first. That is enforced rather than suggested, and the test suite asserts it on
+every run: anticipation is the only thing being taught here, and reading an
+answer and agreeing with it is not anticipation. Commit yours, and then both
+are scored against what actually happened — including against simple
+persistence, so you can see whether you beat doing nothing.
+
+<img src="docs/img/app/weather-forecast.png" alt="The forecast screen: nothing of mine until yours is written down, a valid-at time, and four fields for wind direction, wind speed, pressure and sea state" width="620">
+
+### A day's water, and what is under the keel
+
+8,334 stations' harmonic constants are carried in the tool, so the prediction
+is computed where you are standing rather than fetched. No network, no
+subscription, and no summer time — station standard time, exactly like a
+printed tide table.
+
+```
+  New London
+  CT, United States   41.3614 -72.0900   heights above MLLW
+  2026-08-29   Sat   times in the station's standard time
+  ----------------------------------------------------------------------
+         time     height
+  low    03:53     0.05 m
+  HIGH   09:59     0.90 m
+  low    16:22     0.05 m
+  HIGH   22:15     0.87 m
+  ----------------------------------------------------------------------
+
+  SUN AND MOON
+  ----------------------------------------------------------------------
+  Sun     rises 05:12   sets 18:26
+  civil twilight begins 04:43   ends 18:55
+  Moon    rises 19:06   sets 06:36
+  waning gibbous  98% lit, 16.2 days old
+```
+
+The picture below is that same day in the browser build, and the heights and
+the rise and set times in it are the ones printed above, to the minute. Two
+implementations, one set of constants. It adds the curve, the depth helper —
+charted depth plus the tide against your draught, or a bridge clearance minus
+it — and the moon's phase, which is what tells you whether these ranges are
+springs or neaps.
+
+<img src="docs/img/app/tides-day.png" alt="A day at New London: the tide curve with the four turns marked, a table of high and low water, the depth and bridge clearance helper, and the sun and moon panel showing a waning gibbous moon at 98 per cent" width="620">
+
+### How many impellers are aboard?
+
+`deck-log` does not know. It works it out, every time you ask, by replaying
+what the log says was counted, used and restocked. The locker was counted at
+two impellers on 20 August; a job on the 28th changed one. So:
+
+```
+  SPARES ABOARD
+  ----------------------------------------------------------------------
+  raw water impeller       1  1 short of 2
+    Jabsco 17937-0001   fits eng.main
+    stowed: box 3, port locker
+  primary fuel filter      2  min 2
+    Racor 2010SM-10   fits eng.main
+    stowed: box 3, port locker
+  generator impeller       1  min 1
+    Jabsco 22405-0001   fits gen
+    stowed: box 4
+  ----------------------------------------------------------------------
+
+  SHOPPING LIST
+  ----------------------------------------------------------------------
+  raw water impeller       x1   have 1, want 2
+    Jabsco 17937-0001
+    fits: Yanmar 4JH4-TE  s/n E12345
+    stow: box 3, port locker
+```
+
+Nothing anywhere stores the number 1. A stored count is the obvious design and
+it is the one that goes wrong: it drifts from the log, and then you have two
+numbers and no way to know which of them lied. The same replay produces the
+shopping list — one impeller, with the part number the chandler will ask for —
+and keeps the strainer finding of the 26th open, because a finding is not an
+event that is over when it is written. It stays open until a job records that
+it closed it.
+
+<img src="docs/img/app/decklog-boat.png" alt="The boat screen: an open defect on the raw water strainer, the locker derived from the log showing one raw water impeller against a minimum of two, a shopping list asking for one, and the equipment and parts registry below" width="620">
+
+### A study machine with nothing in it
+
+`drill` is the one tool with no shell build, because what it does cannot be
+done in a terminal: it reads a file you choose from your own device, keeps it
+in that browser's own storage, and never sends it anywhere.
+
+That is the whole design. **Material somebody else owns can be studied without
+ever being published.** The machine is published; the material is yours and
+stays yours — which also means two people with the same pack get the same
+drill, and nobody without it gets anything at all. A pack is one JSON file:
+sections with their reference text, and questions tagged with the section they
+belong to. A question with an answer is graded; one without is a recall prompt
+you mark yourself.
+
+<img src="docs/img/app/drill-home.png" alt="The drill app with no pack loaded: a file chooser, an explanation that nothing is uploaded and the file is read in the browser, and notes on how a pack is made" width="620">
 
 ---
 
@@ -160,9 +282,10 @@ that is marked:
     The tables                what a reduction table is, Volumes 1 to 3, and when
                               the tables beat the calculator
 
-Nine of those lessons carry a diagram — ten in all, since one has two —
-that is still being drawn for the browser. Until they land, each one says what
-belongs there rather than quietly leaving a hole.
+Nine of those lessons carry a diagram — ten in all, since one has two. They are
+the app's own drawings rather than pictures of a terminal: the browser draws
+them from the same figures the shell lesson prints, so the two builds teach the
+same lesson from the same numbers.
 
 ### colregs
 

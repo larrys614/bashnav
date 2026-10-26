@@ -74,5 +74,21 @@ case "$o" in
   *) say "the app wrote a record its own reader rejects: $o" ;;
 esac
 
+#  ---- a field asked for must be a field shown -----------------------
+#  do_entry asks for the TRUE wind as wdir and wspd and writes both, but
+#  the listing printed LG["wind"], a field no writer has ever set, so
+#  every nav record in "deck-log log" showed eight spaces where the wind
+#  belonged. tests/golden/decklog.txt had the blank committed as correct,
+#  which is exactly why nothing caught it: a golden file records what the
+#  output IS, and cannot tell you the output is missing something.
+#
+#  So this asserts the value, not the layout: log a nav record with a
+#  wind nobody could produce by accident, and require both halves of it
+#  to come back out of the listing.
+printf '41 14.0N\n072 05.0W\n123\n7.5\n287\n33\n4\nwind check\nn\n' \
+  | $DL entry >/dev/null 2>&1
+o=$($DL log 1 | grep -c '287/33') || true
+[ "$o" = 1 ] || say "a nav record's wind (287/33) is not in the log listing"
+
 [ "$bad" = 0 ] && echo "DECKLOG OK"
 exit $bad

@@ -228,22 +228,57 @@ Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in t
   faster east; carry it further out and it must run slower.
 
 
-  TWO SHELLS, BOTH FIRED FROM 45 NORTH
+  TWO SHELLS, FIRED NORTH AND FIRED SOUTH
   ----------------------------------------------------------------------
     fired    distance from axis   ground below      the shell
     north    shrinks              east SLOWER       outruns it
     south    grows                east FASTER       lags it
+
+  
+     FIRED NORTH
+         aim              GUN
+          +-----* EAST     .
+          |    .           .
+          |   .            .
+          |  .             .
+          |  .            .|
+          | .             .|
+          | .             .|
+          |.             . |
+          |.            .  |
+          .             .  |
+          .            .   |
+          .           .    |
+          .    WEST  *-----+
+         GUN              aim
+                      FIRED SOUTH
+  both are to the RIGHT of
+  the line of fire
+  drawn from 45 N
+
+  The curve is a parabola because the sideways acceleration is steady
+  along the track, so the offset goes as the SQUARE of the time of
+  flight. Its SIZE here is scaled to the width of the picture; the real
+  figure is two paragraphs down, and it is small.
 
   Fired north it lands EAST of the aim. Fired south it lands WEST.
   Going north, east is to your right. Going south, west is to your
   right. Both deflect right - and in the southern hemisphere
   both deflect left. That is Coriolis, with no force anywhere in it.
 
-  The size is real and small. A 16 inch shell at full range - 38 km,
-  about 90 seconds of flight - arrives where the ground runs 7 km/h
-  slower to the east, which works out at roughly 90 metres of
-  sideways error. That is the hundred yards the gunnery tables have
-  always carried.
+  The size is real and small, and it takes BOTH halves of the story.
+  A 16 inch shell at full range - 38 km, about 90 seconds of flight -
+  ends up 27 km nearer the axis. The ground there runs 7 km/h slower
+  east; the shell itself runs 7 km/h faster to keep u x r. So it
+  arrives 14 km/h ahead of the ground, not 7, and since that excess
+  grows from nothing the offset is the mean of it: about 175 metres.
+
+  Checked the other way, which is the form a textbook gives: the
+  sideways acceleration is 2 x Omega x v x sin(latitude), here 0.044
+  m/s2, and half of that times ninety seconds squared is the same
+  175 metres. Counting only the ground slowing, and forgetting that
+  the shell speeds up, halves the answer - which is the easiest
+  mistake to make here, because the first half is the memorable one.
 
   Not to be confused with DRIFT, which in gunnery means the sideways
   deviation from the shell's own spin on a rifled barrel. Long range

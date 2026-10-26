@@ -173,6 +173,32 @@ The same sweep found two more gaps of the ordinary kind: `weather`'s and
 `docs/web/weather/lessons.js` had gone stale — the committed file was missing a
 passage of the Coriolis lesson that `src/weather` prints. Both are compared now.
 
+### A golden file cannot tell you the output is missing something
+
+`deck-log`'s entry screen asks for the TRUE wind as `wdir` and `wspd` and
+writes both on the nav record. The log listing printed `LG["wind"]` — a field
+no writer in either build has ever set — so every nav record in `deck-log log`
+showed eight spaces where the wind belonged. The data was in the log the whole
+time; only the view had the wrong name for it.
+
+**The golden file had the blank committed as correct.** `tests/golden/decklog.txt`
+carried `crs 096    8.5 kn  wind          sea 3` and had done for as long as the
+file existed, so the regression check was faithfully comparing the output
+against a record of the fault. That is the limit of a golden file and it is
+worth stating plainly: it tells you whether the output CHANGED, and it cannot
+tell you the output is missing something, because a missing field looks exactly
+like a field that was always missing.
+
+So `tests/decklog-check.sh` now asserts the VALUE rather than the layout: it
+logs a nav record with a wind nobody would produce by accident — 287 degrees at
+33 knots — and requires both halves to come back out of the listing. Verified
+red with the old `LG["wind"]` put back and green on the fix.
+
+The same class of fault already had a guard in `weather`, written after the
+cloud-type fields were asked for and ignored: *"visibility is asked for and
+still ignored"*. A field a tool asks a human to fill in and then never shows is
+how you teach somebody to stop filling in the form.
+
 ### A check written for one tool, when the fault belongs to all of them
 
 Every app's service worker is cache-first with no revalidation, so a file
@@ -501,6 +527,21 @@ tracking plots, the tide tables and curves, the station searches.
 This is a change detector, not a correctness check. It answers "did anything a
 user sees change, and did I mean it?" CI runs the comparison, so an unintended
 change to a screen fails the build instead of being noticed months later.
+
+**Two of the thirteen files are not awk-portable, so regenerate on the machine
+that owns them.** `tests/golden/ekelund.txt` and `tests/golden/celnav-polaris.txt`
+differ between awks on formatting alone — a bearing rate that rounds to zero
+from below prints `-0.0 deg/min` under one awk and ` 0.0` under another, which
+is a real difference in what a reader sees and arguably a display fault in its
+own right, since a bearing rate of minus zero is not a thing. The other eleven
+reproduce byte for byte under gawk and one-true-awk alike. Run `--update` under
+an awk that already reproduces the committed files, read the diff, and never
+commit a file whose only change is `-0.0` becoming `0.0`: that is the machine
+talking, not the program.
+
+`run-tests.sh` does not call `golden.sh`; it only checks the line count of
+`tests/golden/`, so a stale golden file does not fail the suite. Run the
+comparison by hand after changing anything a screen prints.
 
 ---
 

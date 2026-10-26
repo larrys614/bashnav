@@ -3,10 +3,10 @@
   THE LOG
   ----------------------------------------------------------------------
   2026-08-30T06:00 inv  stocktake impeller 2
-  2026-08-30T06:00 nav  crs 096    8.5 kn  wind          sea 3
+  2026-08-30T06:00 nav  crs 096    8.5 kn  wind 210/14   sea 3
   2026-08-30T06:00 wx   1016.4 hPa  tend 4  cloud 2  vis 
   2026-08-30T09:00 eng  eng.main insp belts = a - glazed, squeals at start
-  2026-08-30T12:00 nav  crs 096    8.1 kn  wind          sea 4
+  2026-08-30T12:00 nav  crs 096    8.1 kn  wind 170/22   sea 4
   2026-08-30T12:00 wx   1010.1 hPa  tend 7  cloud 7  vis 
   2026-08-30T15:00 eng  eng.main job impeller 
   ----------------------------------------------------------------------
