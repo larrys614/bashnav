@@ -13,6 +13,18 @@ function jq(s){ return js_sq(s) }
 BEGIN{ E=sprintf("%c",27); first=1 }
 {
   line = $0
+  #  A FIGURE IS A PLACE, NOT A PICTURE. gshow() prints "@@FIG grid W H"
+  #  under -v FIGDUMP=1 instead of the character grid, which is how the
+  #  shell says "the demonstration goes here" without deciding how it is
+  #  drawn. The terminal draws it in characters; the browser renders the
+  #  interactive version. Both builds are then the same lesson with the
+  #  same demonstration in the same place, rather than one of them having
+  #  a feature the other has never heard of.
+  if(line ~ /^@@FIG /){
+    split(line, fa, " ")
+    printf "    { s: 'demo', kind: '%s', w: %d, h: %d },\n", jq(fa[2]), fa[3]+0, fa[4]+0
+    next
+  }
   #  the horizontal rule is structure, not content
   if(line ~ /^  -+$/){ printf "    { s: 'rule' },\n"; next }
   if(line ~ /^[ \t]*$/){ printf "    { s: 'gap' },\n"; next }

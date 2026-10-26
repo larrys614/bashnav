@@ -32,7 +32,11 @@ trap 'rm -rf "$TMP"' EXIT
 AWK=awk
 for a in mawk gawk awk; do command -v "$a" >/dev/null 2>&1 && { AWK=$a; break; }; done
 
-ENG="-f $ROOT/src/common/log.awk -f $ROOT/src/common/colour.awk \
+#  FIGDUMP=1 makes gshow() print a marker instead of the character grid,
+#  so the browser gets the interactive demonstration where the terminal
+#  gets the drawing. weather's other figures are printf tables and never
+#  touch gshow, so this affects exactly one of them.
+ENG="-v FIGDUMP=1 -f $ROOT/src/common/log.awk -f $ROOT/src/common/colour.awk \
      -f $SRC/grid.awk \
      -f $SRC/wx.awk -f $SRC/score.awk -f $SRC/chart.awk -f $SRC/teach.awk \
      -f $SRC/screens.awk"

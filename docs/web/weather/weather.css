@@ -393,3 +393,14 @@ table.score .persist td:first-child { color: var(--persist); }
         border: 1px solid var(--line); border-radius: 8px; }
 .qbox b { display: block; color: var(--accent); font-size: 12px;
           letter-spacing: .07em; text-transform: uppercase; margin-bottom: 6px; }
+
+/*  the gunnery demonstration: the gun, its arc, and the two controls  */
+.gundemo { margin: 10px 0 0; }
+.gundemo svg { display: block; width: 100%; max-width: 360px; margin: 0 auto; }
+.gunctl { margin-top: 10px; }
+.gunctl label { display: block; margin: 10px 0 0; color: var(--dim); font-size: 13px; }
+.gunctl input[type=range] { display: block; width: 100%; margin: 6px 0 0;
+                            accent-color: var(--accent); }
+.gunval { color: var(--accent); font-family: ui-monospace, Menlo, monospace;
+          font-variant-numeric: tabular-nums; }
+.gunread { margin: 12px 0 0; color: var(--text); font-size: 14px; line-height: 1.5; }

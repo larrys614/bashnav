@@ -78,6 +78,17 @@ if node -e 'require("playwright")' >/dev/null 2>&1; then
   SRV=$!
   sleep 1
   node docs/web/tests/weather-ui.js
+
+  echo
+  echo "7. the gunnery demonstration, against the physics it teaches"
+  #  The demonstration is the one place in weather where a reader is shown
+  #  a number rather than told one, so a wrong number there is taught with
+  #  more conviction than prose could manage. Each of the lesson's three
+  #  claims is checked against an independent computation of
+  #  2*Omega*v*sin(phi) - bearing-independent, zero on the equator,
+  #  reversing with hemisphere - and the drawing is checked to put the fall
+  #  on the side the words say.
+  node docs/web/tests/weather-gun.js
   echo
   echo "WEATHER WEB: all stages passed"
 else

@@ -407,7 +407,7 @@ function lesson_more(k){
     lp(cw("u x r",C_ACC) " is fixed. Carry it closer to the axis and it must run")
     lp("faster east; carry it further out and it must run slower.")
     print ""
-    lph("TWO SHELLS, BOTH FIRED FROM 45 NORTH")
+    lph("TWO SHELLS, FIRED NORTH AND FIRED SOUTH")
     lp("  fired    distance from axis   ground below      the shell")
     lp("  north    shrinks              east SLOWER       outruns it")
     lp("  south    grows                east FASTER       lags it")
@@ -430,11 +430,19 @@ function lesson_more(k){
     lp("right. " cw("Both deflect right",C_ACC) " - and in the southern hemisphere")
     lp("both deflect left. That is Coriolis, with no force anywhere in it.")
     print ""
-    lp("The size is real and small. A 16 inch shell at full range - 38 km,")
-    lp("about 90 seconds of flight - arrives where the ground runs 7 km/h")
-    lp("slower to the east, which works out at roughly " cw("90 metres",C_ACC) " of")
-    lp("sideways error. That is the hundred yards the gunnery tables have")
-    lp("always carried.")
+      lp("The size is real and small, and it takes BOTH halves of the story.")
+      lp("A 16 inch shell at full range - 38 km, about 90 seconds of flight -")
+      lp("ends up 27 km nearer the axis. The ground there runs 7 km/h slower")
+      lp("east; the shell itself runs 7 km/h faster to keep " cw("u x r",C_ACC) ". So it")
+      lp("arrives " cw("14 km/h",C_ACC) " ahead of the ground, not 7, and since that excess")
+      lp("grows from nothing the offset is the mean of it: about " cw("175 metres",C_ACC) ".")
+      print ""
+      lpd("Checked the other way, which is the form a textbook gives: the")
+      lpd("sideways acceleration is 2 x Omega x v x sin(latitude), here 0.044")
+      lpd("m/s2, and half of that times ninety seconds squared is the same")
+      lpd("175 metres. Counting only the ground slowing, and forgetting that")
+      lpd("the shell speeds up, halves the answer - which is the easiest")
+      lpd("mistake to make here, because the first half is the memorable one.")
     print ""
     lpd("Not to be confused with DRIFT, which in gunnery means the sideways")
     lpd("deviation from the shell's own spin on a rifled barrel. Long range")

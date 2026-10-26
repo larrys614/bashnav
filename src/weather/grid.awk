@@ -160,8 +160,12 @@ function gun_figure(   w,h,xl,xr,ylo,yhi){
   gputsc(ylo, xl + GUN_DEF + 2, "EAST", C_ACC)
   gputsc(yhi, xr - GUN_DEF - 6, "WEST", C_ACC)
 
-  #  and the sentence the picture exists to make obvious, wrapped to fit
+  #  and the sentence the picture exists to make obvious, wrapped to fit.
+  #  The latitude is named HERE rather than in the lesson's heading,
+  #  because the browser's version of this demonstration has a slider and
+  #  a heading naming one latitude would be false there the moment it moved.
   gputsc(yhi+3, 0, "both are to the RIGHT of", C_ACC)
   gputsc(yhi+4, 0, "the line of fire", C_ACC)
+  gputsc(yhi+5, 0, "drawn from 45 N", C_DIM)
   return 0
 }

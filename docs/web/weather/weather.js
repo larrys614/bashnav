@@ -14,7 +14,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '5 \u2014 26 Oct 2026';
+var BUILD = '6 \u2014 26 Oct 2026';
 
 var RECS = [];
 var OBS = [];
@@ -420,6 +420,12 @@ function drawLines(box, lines) {
   lines.forEach(function (b) {
     if (b.s === 'gap') { flush(); box.appendChild(el('div', 'gap')); return; }
     if (b.s === 'rule') { flush(); box.appendChild(document.createElement('hr')); return; }
+    /*  A DEMONSTRATION, WHERE THE SHELL PUT ITS MARKER. teach.awk draws the
+        figure in characters for a terminal and prints "@@FIG" in its place
+        for the generator, so both builds carry the same lesson with the
+        same demonstration in the same position - one of them just has a
+        slider.  */
+    if (b.s === 'demo') { flush(); gunDemo(box); return; }
     //  the first printed line of a section is its heading
     if (firstLine) {
       firstLine = false;
@@ -584,6 +590,254 @@ window.addEventListener('DOMContentLoaded', function () {
     buys is that drawLines() can be run outside one and held to the
     three things the reflow must not get wrong. Same seam colregs.js and
     contacts.js carry, for the same reason.  */
+
+/* =====================================================================
+   THE TWO SHELLS, TRAINABLE AND FIRED
+
+   The demonstration behind the coriolis lesson. src/weather/teach.awk
+   draws it as a character figure for the terminal and prints a marker in
+   its place for the generator -- so the shell says WHERE the
+   demonstration goes and each build decides HOW. This is the browser's
+   how.
+
+   WHY TRAINING THE GUN IS THE POINT, and not decoration. For horizontal
+   motion the deflecting acceleration is 2*Omega*v*sin(phi), always
+   perpendicular to the track, always to the right in the northern
+   hemisphere -- WHATEVER THE BEARING. Fired north and fired south are
+   not two curiosities, they are two cases of one rule, and the way to
+   show that is to let a reader swing the gun through the whole 180 and
+   watch the rule hold at every setting. The static figure can only assert
+   it.
+
+   WHAT IS COMPUTED HERE, because it matters that this is not a cartoon:
+   the deflection shown in metres is the real one for the latitude on the
+   slider and the shell on the dial -- d = Omega * v * sin(phi) * T^2,
+   which is the standard half-a-T-squared with a = 2*Omega*v*sin(phi).
+   The TRACK is drawn to the panel, with the deflection exaggerated by a
+   stated factor so it is visible at all; the number beside it is not.
+   Counting only the ground's slowing and forgetting that the shell speeds
+   up halves the answer, which is the easy mistake and the reason the
+   lesson now shows both halves.
+   ===================================================================== */
+var GUN = {
+  OMEGA: 7.292115e-5,        /* rad/s, the earth's rotation            */
+  range: 38000,              /* m, a 16 inch gun at full elevation      */
+  tof: 90,                   /* s, its time of flight                   */
+  lat: 45,                   /* degrees, + north                        */
+  brg: 0,                    /* degrees from north, -90 west to +90 east */
+  exagg: 60                  /* the track's drawn deflection, x real    */
+};
+
+/*  the real sideways deflection, in metres, for the current settings.
+    POSITIVE IS TO THE RIGHT of the line of fire. sin(latitude) carries
+    the sign, so the southern hemisphere comes out negative - left - with
+    no special case, and the equator comes out zero because it is zero.  */
+function gunDeflect(lat, range, tof) {
+  var v = range / tof;
+  return GUN.OMEGA * v * Math.sin(lat * Math.PI / 180) * tof * tof;
+}
+
+function gunDemo(host) {
+  var NS = 'http://www.w3.org/2000/svg';
+  /*  THE ARC HAS TO FIT. Drawn at R = 210 in a 340-wide box the gun's
+      180 degrees ran off both edges: W and E were outside the canvas and
+      a shot trained north-east left the picture entirely. The radius is
+      bounded by the half-width less a margin, and the margin has to carry
+      the deflection too, which at the exaggeration below reaches about
+      forty pixels beyond the arc.  */
+  var W = 360, H = 204, cx = W / 2, cy = H - 40;   /* the gun, bottom centre */
+  var R = 140;                                      /* the range, in pixels  */
+  /*  THE EXAGGERATION IS DERIVED, NOT CHOSEN. Fixed at 60 the drawing left
+      the box: trained due east at 80 degrees the deflection is to the
+      right of east, which is downward, and it ran past the bottom edge.
+      So the factor is whatever maps the LARGEST deflection the controls
+      can reach - the poles, where sin(latitude) is 1 - onto a fixed pixel
+      budget. Every other setting then draws proportionally smaller, which
+      is the property that matters: the track's length is true to the real
+      deflection even though its scale is not, so dragging the latitude
+      slider shows the sin(latitude) law and not an artefact of fitting.  */
+  var budget = 30;                                  /* px of deflection at the pole */
+  var dmax = gunDeflect(90, GUN.range, GUN.tof);
+  GUN.exagg = budget / (dmax / GUN.range * R);
+  var wrap = el('div', 'gundemo');
+  var svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.setAttribute('role', 'img');
+  wrap.appendChild(svg);
+
+  function e(n, a, p) {
+    var x = document.createElementNS(NS, n), q;
+    for (q in a) if (a.hasOwnProperty(q)) x.setAttribute(q, a[q]);
+    (p || svg).appendChild(x);
+    return x;
+  }
+  var css = function (n) {
+    return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '#6fb3d9';
+  };
+
+  /*  the parts that never move, drawn once  */
+  var dim = css('--dim'), line = css('--line'), acc = css('--accent'),
+      text = css('--text'), warn = css('--warn');
+  var gArc = e('g'), gAim = e('g'), gTrack = e('g'), gMark = e('g'), gLbl = e('g');
+
+  /*  the arc the gun can be trained through, and the compass points on it  */
+  e('path', { d: 'M ' + (cx - R) + ' ' + cy + ' A ' + R + ' ' + R + ' 0 0 1 ' +
+                 (cx + R) + ' ' + cy, fill: 'none', stroke: line, 'stroke-width': 1 }, gArc);
+  [['W', -90], ['NW', -45], ['N', 0], ['NE', 45], ['E', 90]].forEach(function (c) {
+    var a = c[1] * Math.PI / 180;
+    var x = cx + R * Math.sin(a), y = cy - R * Math.cos(a);
+    e('circle', { cx: x, cy: y, r: 1.6, fill: dim }, gArc);
+    e('text', { x: x, y: y - 7, fill: dim, 'font-size': 10, 'text-anchor': 'middle' },
+      gArc).textContent = c[0];
+  });
+  e('circle', { cx: cx, cy: cy, r: 4, fill: text }, gArc);
+
+  var aimLine = e('line', { stroke: dim, 'stroke-width': 1,
+                            'stroke-dasharray': '4 4' }, gAim);
+  var aimDot  = e('circle', { r: 3.5, fill: 'none', stroke: dim, 'stroke-width': 1.2,
+                              'data-pt': 'aim' }, gAim);
+  var track   = e('polyline', { fill: 'none', stroke: acc, 'stroke-width': 2,
+                                'stroke-linecap': 'round' }, gTrack);
+  var shell   = e('circle', { r: 3.5, fill: acc, opacity: 0, 'data-pt': 'shell' }, gMark);
+  var fall    = e('circle', { r: 4, fill: 'none', stroke: acc, 'stroke-width': 1.6,
+                              opacity: 0, 'data-pt': 'fall' }, gMark);
+  var gapLine = e('line', { stroke: warn, 'stroke-width': 1.4, opacity: 0 }, gMark);
+
+  /*  where the shell is after a fraction t of its flight, in pixels.
+      Along the line of fire it goes R*t; across it, the deflection grows
+      as t squared, which is what a steady sideways acceleration does.  */
+  function at(t) {
+    var a = GUN.brg * Math.PI / 180;
+    var along = R * t;
+    var defl = gunDeflect(GUN.lat, GUN.range, GUN.tof) / GUN.range * R * GUN.exagg * t * t;
+    //  +across is to the RIGHT of the line of fire
+    var ux = Math.sin(a), uy = -Math.cos(a);          /* along, screen y down */
+    var rx = -uy, ry = ux;                            /* 90 deg right of it   */
+    return [cx + ux * along + rx * defl, cy + uy * along + ry * defl];
+  }
+
+  function redraw(t) {
+    var a = GUN.brg * Math.PI / 180;
+    var ax = cx + R * Math.sin(a), ay = cy - R * Math.cos(a);
+    aimLine.setAttribute('x1', cx); aimLine.setAttribute('y1', cy);
+    aimLine.setAttribute('x2', ax); aimLine.setAttribute('y2', ay);
+    aimDot.setAttribute('cx', ax); aimDot.setAttribute('cy', ay);
+
+    var pts = [], i, n = 48;
+    for (i = 0; i <= n * t; i++) pts.push(at(i / n).map(function (v) { return v.toFixed(1); }).join(','));
+    track.setAttribute('points', pts.join(' '));
+
+    var p = at(t);
+    shell.setAttribute('cx', p[0]); shell.setAttribute('cy', p[1]);
+    shell.setAttribute('opacity', t > 0 && t < 1 ? 1 : 0);
+
+    var done = (t >= 1);
+    var f = at(1);
+    fall.setAttribute('cx', f[0]); fall.setAttribute('cy', f[1]);
+    fall.setAttribute('opacity', done ? 1 : 0);
+    gapLine.setAttribute('x1', ax); gapLine.setAttribute('y1', ay);
+    gapLine.setAttribute('x2', f[0]); gapLine.setAttribute('y2', f[1]);
+    gapLine.setAttribute('opacity', done ? 1 : 0);
+
+    svg.setAttribute('aria-label',
+      'A gun at ' + GUN.lat.toFixed(0) + ' degrees latitude trained ' +
+      gunBearingName() + '. The shell falls ' +
+      Math.abs(gunDeflect(GUN.lat, GUN.range, GUN.tof)).toFixed(0) + ' metres to the ' +
+      (gunDeflect(GUN.lat, GUN.range, GUN.tof) >= 0 ? 'right' : 'left') + ' of the aim.');
+  }
+
+  function gunBearingName() {
+    var b = GUN.brg;
+    if (b <= -75) return 'west';
+    if (b < -15) return 'north-west';
+    if (b <= 15) return 'north';
+    if (b < 75) return 'north-east';
+    return 'east';
+  }
+
+  /* ---- the controls ------------------------------------------------ */
+  var ctl = el('div', 'gunctl');
+  function slider(id, label, min, max, step, value, fmt, onInput) {
+    var l = el('label', null, '');
+    var span = el('span', 'gunval', '');
+    l.appendChild(document.createTextNode(label + ' '));
+    l.appendChild(span);
+    var inp = document.createElement('input');
+    inp.type = 'range'; inp.min = min; inp.max = max; inp.step = step; inp.value = value;
+    inp.id = id;
+    l.appendChild(inp);
+    function sync() { span.textContent = fmt(parseFloat(inp.value)); }
+    inp.addEventListener('input', function () { sync(); onInput(parseFloat(inp.value)); });
+    sync();
+    ctl.appendChild(l);
+    return inp;
+  }
+
+  var readout = el('p', 'gunread', '');
+  function gunWhere() {
+    if (Math.abs(GUN.lat) < 0.5) return 'on the equator';
+    return 'from ' + Math.abs(GUN.lat).toFixed(0) + '° ' + (GUN.lat >= 0 ? 'N' : 'S');
+  }
+  function say() {
+    var d = gunDeflect(GUN.lat, GUN.range, GUN.tof);
+    /*  AT THE EQUATOR THERE IS NOTHING TO SAY ABOUT A SIDE, and "0 m
+        neither way" is a formatter talking rather than the physics.
+        sin(0) is zero, so the shell goes where it was aimed - which is
+        the most useful consequence in the whole lesson, because it is
+        also why no cyclone forms there.  */
+    if (Math.abs(d) < 0.5) {
+      readout.textContent = 'Trained ' + gunBearingName() + ' ' + gunWhere() +
+        ': the shell falls where it was aimed. sin(latitude) is zero here, so ' +
+        'there is nothing to deflect it \u2014 whichever way you train the gun.';
+      return;
+    }
+    readout.textContent = 'Trained ' + gunBearingName() + ' ' + gunWhere() +
+      ': the shell falls ' + Math.abs(d).toFixed(0) + ' m to the ' +
+      (d > 0 ? 'RIGHT' : 'LEFT') + ' of the aim.';
+  }
+
+  slider('gun-brg', 'Train the gun', -90, 90, 1, GUN.brg,
+         function (v) { GUN.brg = v; return gunBearingName(); },
+         function (v) { GUN.brg = v; redraw(shown); say(); });
+  slider('gun-lat', 'Latitude', -80, 80, 1, GUN.lat,
+         function (v) { return Math.abs(v).toFixed(0) + '° ' + (v >= 0 ? 'N' : 'S'); },
+         function (v) { GUN.lat = v; redraw(shown); say(); });
+
+  var fire = el('button', 'btn wide', 'Fire');
+  ctl.appendChild(fire);
+  wrap.appendChild(ctl);
+  wrap.appendChild(readout);
+  wrap.appendChild(el('p', 'note',
+    'The metres are real for the latitude and the gun on the dial. The track is ' +
+    'drawn with the deflection exaggerated \u00d7' + GUN.exagg.toFixed(0) + ', because at true scale ' +
+    'it is a hundred and seventy metres in thirty-eight kilometres and you would not see it ' +
+    '— which is the honest reason gunnery can ignore it at short range and cannot at long.'));
+
+  /*  the animation. prefers-reduced-motion is honoured by jumping
+      straight to the fall rather than by refusing to show anything.  */
+  var shown = 1, timer = null;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function run() {
+    if (timer) { cancelAnimationFrame(timer); timer = null; }
+    if (reduce) { shown = 1; redraw(1); say(); return; }
+    var t0 = null, dur = 1400;
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      shown = Math.min(1, (ts - t0) / dur);
+      redraw(shown);
+      if (shown < 1) timer = requestAnimationFrame(step); else { timer = null; say(); }
+    }
+    shown = 0; redraw(0);
+    timer = requestAnimationFrame(step);
+  }
+  fire.addEventListener('click', run);
+
+  redraw(1); say();
+  host.appendChild(wrap);
+  return wrap;
+}
+
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { drawLines: drawLines, wxKind: wxKind, wxText: wxText,
                      wxJoin: wxJoin, wxSpans: wxSpans };

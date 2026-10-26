@@ -314,6 +314,46 @@ boxes, and the keystrokes land on an element no longer in the page. Every answer
 the harness typed came back empty. A reader who edits the seed and then types an
 answer loses the answer; the boxes are relabelled now, not rebuilt.
 
+#### When one build renders a block differently, say so in the checks
+
+The gunnery demonstration is a character figure in the terminal and an
+interactive panel in the browser. `teach.awk` prints `@@FIG grid W H` under
+`-v FIGDUMP=1` where the figure goes, so the shell marks **where** the
+demonstration belongs and each build decides **how** — and two checks that
+compare the two builds word for word had to be told about it:
+
+- `weather-les.js` reconstructs the browser lesson and diffs it against the
+  awk's own output, character for character. It now runs the awk **the way the
+  generator does**, with `FIGDUMP=1`, so both sides carry the same marker. The
+  alternative — comparing 21 lines of character art against one panel — fails
+  by construction while saying nothing about the prose, which is what the check
+  is for.
+- `weather-reflow-check.js` compares the words the shell printed with the words
+  the page rendered. The panel's labels, readout and caption are the browser's
+  own text and were never in the shell lesson, so the panel's subtree comes out
+  of that comparison. **Excluding a subtree is how a check goes quietly blind**,
+  so its presence is asserted separately: the shell's marker count and the
+  page's panel count must match. Dropping the panel, or rendering it twice, now
+  fails.
+
+The terminal's own drawing is still covered — `gun_figure()` is byte-identical
+under all three awks — and the physics the panel displays has its own check,
+below.
+
+#### A demonstration that shows a number is held to an independent computation
+
+`weather-gun.js` drives the panel and checks the three claims the lesson makes,
+each against `2Ω v sin φ` computed in the check rather than read from the page:
+the magnitude does not depend on the bearing, it is zero on the equator, and it
+reverses with hemisphere and goes as sin(latitude). The drawing is checked too —
+the fall has to sit on the side the words say, which is a cross product of the
+line of fire with the aim-to-fall vector.
+
+Five faults planted and caught, including **the factor of two coming back**: the
+lesson's deflection had been computed from the ground's slowing alone, leaving
+out the shell's own speed-up, which halves the answer. That one is now a
+regression guard rather than a fixed comment.
+
 #### A no-sideways-scroll check does not see a figure clipped inside its own box
 
 `run-weather-web.sh` asserts that the page does not scroll sideways at 744, 390

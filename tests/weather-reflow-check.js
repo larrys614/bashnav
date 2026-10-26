@@ -82,8 +82,27 @@ function treeText(n) {                 /* inside a block: no gaps */
   if (n.kids.length) return n.kids.map(treeText).join('');
   return n.textContent || '';
 }
+/*  A DEMONSTRATION IS NOT THE LESSON'S WORDS.
+    teach.awk prints "@@FIG" where the gunnery figure goes and the browser
+    renders an interactive panel there instead of the character grid, so
+    the panel's own labels, readout and caption are the BROWSER'S text and
+    were never in the shell lesson. Comparing them against the shell's
+    words fails by construction.
+
+    So the panel's subtree comes out of the word comparison - and, because
+    excluding a subtree is exactly how a check goes quietly blind, its
+    presence is asserted separately below: a lesson whose figure the shell
+    prints and the browser drops would now fail on the missing panel
+    rather than pass on a shorter list of words.  */
+function isDemo(n) { return n.className && /\bgundemo\b/.test(n.className); }
+function countDemos(n, acc) {
+  acc = acc || { n: 0 };
+  if (isDemo(n)) { acc.n++; return acc; }
+  (n.kids || []).forEach(k => countDemos(k, acc));
+  return acc;
+}
 function treeTextTop(n) {              /* between blocks: one space */
-  return n.kids.map(treeText).join(' ');
+  return n.kids.filter(k => !isDemo(k)).map(treeText).join(' ');
 }
 /*  every word that sits inside a styled span, with its style  */
 function styled(n, cur, out) {
@@ -121,6 +140,17 @@ function check(key, what, lines) {
       if (s.s && s.s !== 'plain')
         s.t.split(/\s+/).filter(Boolean).forEach(w => srcStyled.push(s.s + ':' + w));
     }));
+
+  /*  0. the figure and the demonstration correspond. The shell prints one
+         "@@FIG" marker for this lesson and the browser must render one
+         panel for it - no more, and no fewer.  */
+  const wantDemos = lines.filter(b => b.s === 'demo').length;
+  const gotDemos = countDemos(box).n;
+  if (wantDemos !== gotDemos) {
+    console.log('FAIL  ' + key + ' ' + what + ': the shell marks ' + wantDemos +
+                ' demonstration(s) and the page rendered ' + gotDemos);
+    bad++;
+  }
 
   /*  1. the words, in order. The heading is rendered as an h3 from the
          first line, so it is in the tree too -- both sides include it. */

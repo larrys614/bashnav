@@ -24,6 +24,8 @@ function render(les) {
   var L = les.body.map(function (b) {
     if (b.s === 'gap') return '';
     if (b.s === 'rule') return RULE;
+    //  the demonstration, written back as the marker it came from
+    if (b.s === 'demo') return '@@FIG ' + b.kind + ' ' + b.w + ' ' + b.h;
     return b.p.map(function (p) { return p.t; }).join('');
   });
   L.push(RULE);
@@ -35,14 +37,27 @@ function render(les) {
 //  it was written in the awk rather than straight into JavaScript: deeper
 //  content is exactly where a quiet divergence between the two builds
 //  would matter most, and this is the only thing that would notice.
+//  FIGDUMP=1, THE WAY THE GENERATOR RUNS IT. gshow() then prints
+//  "@@FIG grid W H" instead of the character grid, which is how the shell
+//  marks where a demonstration goes without deciding how it is drawn. The
+//  browser renders an interactive panel there, so without this the
+//  comparison would be the terminal's character art against one panel and
+//  would fail by construction - while still saying nothing about the
+//  prose, which is what this check is for.
+//
+//  The terminal's own drawing is covered elsewhere: gun_figure() is
+//  deterministic under all three awks, and tests/weather-reflow-check.js
+//  holds the shell's marker and the browser's panel to one another.
 function awkMore(k) {
-  return execFileSync('mawk', ['-v', 'cmode=plain', '-v', 'cmd=lessonmore', '-v', 'key=' + k,
+  return execFileSync('mawk', ['-v', 'cmode=plain', '-v', 'FIGDUMP=1', '-v', 'cmd=lessonmore', '-v', 'key=' + k,
     '-v', 'LOG=/dev/null'].concat(ENG), { input: '', encoding: 'utf8' });
 }
 function renderMore(les) {
   return les.more.map(function (b) {
     if (b.s === 'gap') return '';
     if (b.s === 'rule') return RULE;
+    //  the demonstration, written back as the marker it came from
+    if (b.s === 'demo') return '@@FIG ' + b.kind + ' ' + b.w + ' ' + b.h;
     return b.p.map(function (p) { return p.t; }).join('');
   }).join('\n') + '\n';
 }

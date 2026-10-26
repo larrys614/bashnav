@@ -913,7 +913,7 @@ drawings; it never added any. The README is the page most people read.
 "Forecast before you look" in the README is nine lines of prose with neither a
 picture nor a sample output block, unlike the three examples above it.
 
-### 3. ~~The naval gunfire figure~~ **— built 26 Oct 2026**
+### 3. ~~The naval gunfire figure~~ **— built, and then made to move**
 
 The *lesson* shipped on 20 Oct: it is the Learn-more tier behind `coriolis` in
 `src/weather/teach.awk`, with the figures computed rather than recalled, and it
@@ -926,6 +926,28 @@ not "add a figure", it was "give the tool its first figure". It has one now,
 `src/weather/grid.awk`, and the figure is `gun_figure()` in it. The file's head
 explains why it is a fourth copy of the grid rather than a shared one, and what
 to do if a fifth tool ever needs it.
+
+**And then Larry asked for it to move.** The browser's version is now a
+drawing you operate: the gun trains through the whole 180°, it fires and the
+shell traces its arc, and a latitude slider runs from 80° S to 80° N. That makes
+the lesson's argument stronger rather than only prettier — for horizontal motion
+the deflecting acceleration is `2Ω v sin φ` perpendicular to the track *whatever
+the bearing*, so training the gun and watching the number hold turns "fired
+north" and "fired south" from two curiosities into two cases of one rule. The
+metres shown are real for the latitude on the dial; only the drawn track is
+exaggerated, by a factor derived from a pixel budget so it cannot leave the box.
+
+**It also found a factor of two in the lesson's own arithmetic.** The deflection
+had been computed from the ground's slowing alone — 7 km/h — leaving out the
+shell's own speed-up, which the prose states and the sum omitted. The two
+together are 14 km/h and the offset is about **175 m**, not 90. Both routes to
+it are now in the lesson, and `weather-gun.js` guards against the halving coming
+back.
+
+The shell build keeps the static character figure, because a terminal has no
+slider. That is the one place the two builds deliberately differ, and both
+checks that compare them word for word were taught the correspondence rather
+than silenced — see `docs/TESTING.md`.
 
 Two things the build turned up, both recorded where they belong:
 
