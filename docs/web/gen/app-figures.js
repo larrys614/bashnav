@@ -435,7 +435,8 @@ const FIGURES = [
   },
   {
     file: 'weather-coriolis.png', app: 'weather', shot: '#les-body', height: 1900,
-    title: 'weather: the two shells - Coriolis demonstrated by naval gunfire, fired north and fired south',
+    crop: '.gundemo',
+    title: 'weather: the gunnery demonstration - train the gun, fire, and watch the three Coriolis components',
     async drive(p) {
       await p.click('[data-go="learn"]');
       await p.waitForTimeout(300);
@@ -517,6 +518,31 @@ for (const f of FIGURES) {
           photograph that.  */
       const el = await p.$(f.shot);
       if (!el) throw new Error('nothing matched ' + f.shot + ' - the screen is not showing');
+      /*  A FIGURE THAT IS ONE PART OF A SCREEN. The coriolis lesson is
+          prose with a demonstration in the middle of it, and the
+          demonstration is the figure - photographing the whole Learn-more
+          tier produced a picture 5,641 pixels tall and 790 KB, which is
+          over the size cap in tests/app-figures-check.sh and is not a
+          figure anyone can read. So `crop` names the element to
+          photograph on its own. It is an element screenshot rather than a
+          clipped page shot because playwright scrolls the element into
+          view for it, and the app's sticky header only overlaps an
+          element taller than the viewport it is scrolled into - which is
+          why the viewport is left tall here and the panel is not.  */
+      if (f.crop) {
+        const ce = await p.$(f.crop);
+        if (!ce) throw new Error('nothing matched ' + f.crop + ' - the figure is not drawn');
+        await ce.scrollIntoViewIfNeeded();
+        await p.waitForTimeout(250);
+        const cb = await ce.boundingBox();
+        if (!cb || cb.height < 80) throw new Error('the figure is ' + (cb ? Math.round(cb.height) : 0) + 'px tall');
+        await ce.screenshot({ path: OUT + '/' + f.file });
+        console.log('  ' + f.file.padEnd(26) + Math.round(cb.width) + 'x' + Math.round(cb.height) +
+                    ' screenshot (cropped to ' + f.crop + ')');
+        if (errs.length) { console.log('    the page threw: ' + errs[0]); bad++; }
+        await p.close();
+        continue;
+      }
       const box = await el.boundingBox();
       if (!box || box.height < 80) throw new Error('the screen is ' + (box ? Math.round(box.height) : 0) + 'px tall - it did not render');
       /*  FIT THE VIEWPORT TO THE SCREEN. fullPage takes the LARGER of the

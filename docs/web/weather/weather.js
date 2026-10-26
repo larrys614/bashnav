@@ -14,7 +14,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '6 \u2014 26 Oct 2026';
+var BUILD = '7 \u2014 26 Oct 2026';
 
 var RECS = [];
 var OBS = [];
@@ -621,20 +621,80 @@ window.addEventListener('DOMContentLoaded', function () {
    ===================================================================== */
 var GUN = {
   OMEGA: 7.292115e-5,        /* rad/s, the earth's rotation            */
+  G: 9.80665,                /* m/s2                                    */
   range: 38000,              /* m, a 16 inch gun at full elevation      */
   tof: 90,                   /* s, its time of flight                   */
   lat: 45,                   /* degrees, + north                        */
   brg: 0,                    /* degrees from north, -90 west to +90 east */
-  exagg: 60                  /* the track's drawn deflection, x real    */
+  exagg: 60                  /* the track's drawn offset, x real        */
 };
 
-/*  the real sideways deflection, in metres, for the current settings.
-    POSITIVE IS TO THE RIGHT of the line of fire. sin(latitude) carries
-    the sign, so the southern hemisphere comes out negative - left - with
-    no special case, and the equator comes out zero because it is zero.  */
-function gunDeflect(lat, range, tof) {
-  var v = range / tof;
-  return GUN.OMEGA * v * Math.sin(lat * Math.PI / 180) * tof * tof;
+/* =====================================================================
+   THREE COMPONENTS, TWO CORRECTIONS.
+   ---------------------------------------------------------------------
+   This used to return one number: Omega*V*sin(phi)*T^2, the sideways
+   deflection, and it reported that as the whole answer. Larry asked why
+   a shell fired EAST shows the same deflection as one fired north, when
+   the angular-momentum story the lesson tells is about changing your
+   distance from the axis - which an east-west shot does not do. The
+   question is a good one and the answer is that there is a second
+   mechanism, which he named correctly: the Eoetvoes effect.
+
+   Coriolis in full is a = -2*Omega x V. In local (east, north, up) with
+   Omega = Omega*(0, cos phi, sin phi) and V = (u, v, w):
+
+       a_east  = +2*Omega*sin(phi)*v  -  2*Omega*cos(phi)*w
+       a_north = -2*Omega*sin(phi)*u
+       a_up    = +2*Omega*cos(phi)*u
+
+   Integrated twice along the unperturbed trajectory (vacuum, flat earth,
+   w0 = g*T/2, which is the same idealisation the lesson already makes),
+   that is three displacements, and they are different animals:
+
+     TURN    Omega*sin(phi)*V*T^2, perpendicular to the track, right in
+             the north. Bearing-independent - this is the one the lesson
+             is about, and it is unchanged.
+
+     EOETVOES  Omega*cos(phi)*u*T^2 of extra HEIGHT, from the EAST
+             component u alone, so it is exactly zero due north or south.
+             The shell still lands on the ground, so the observable is
+             not height but RANGE: converted at the descent angle,
+             2*Omega*cos(phi)*u*T*V/g. Fired east it carries long, fired
+             west it falls short.
+
+     RISE    -2*Omega*cos(phi)*w acting on the shell's own vertical speed.
+             Climbing it pushes west, falling it pushes east, and those do
+             NOT cancel: the double integral is the integral of height
+             over time, which is positive, leaving Omega*cos(phi)*g*T^3/6
+             to the WEST at every bearing. Same physics as the eastward
+             deflection of a dropped stone, run backwards for the climb.
+
+   Note what RISE does not do: it does not reverse with hemisphere, since
+   cos(phi) is positive on both sides of the equator. So the southern
+   hemisphere is NOT the mirror image of the northern, quite - at 45 S a
+   shell fired north drifts 238 m left where at 45 N it drifts 115 m
+   right.
+
+   AND IT IS A PROJECTILE TERM, NOT A WIND TERM. Air moving horizontally
+   has no w to speak of, so none of this touches the meteorology in the
+   rest of the lesson: wind still turns by 2*Omega*V*sin(phi) and still
+   does nothing on the equator.
+   ===================================================================== */
+function gunSolve(lat, brg) {
+  var T = GUN.tof, V = GUN.range / T, g = GUN.G;
+  var phi = lat * Math.PI / 180, b = brg * Math.PI / 180;
+  var sp = Math.sin(phi), cp = Math.cos(phi);
+  var u = V * Math.sin(b);                     /* the east component      */
+  var turn = GUN.OMEGA * sp * V * T * T;       /* + right of the track    */
+  var rise = GUN.OMEGA * cp * g * T * T * T / 6;  /* magnitude, due west  */
+  var eot = 2 * GUN.OMEGA * cp * u * T * V / g;   /* + long               */
+  /*  resolve the westward RISE onto the line of fire: the unit vector
+      along it is (sin b, cos b) in (east, north) and the one 90 degrees
+      right of it is (cos b, -sin b), so a displacement of -rise east
+      contributes -rise*cos(b) across and -rise*sin(b) along.  */
+  return { turn: turn, rise: rise, eotvos: eot,
+           drift: turn - rise * Math.cos(b),
+           along: eot - rise * Math.sin(b) };
 }
 
 function gunDemo(host) {
@@ -656,8 +716,22 @@ function gunDemo(host) {
       is the property that matters: the track's length is true to the real
       deflection even though its scale is not, so dragging the latitude
       slider shows the sin(latitude) law and not an artefact of fitting.  */
-  var budget = 30;                                  /* px of deflection at the pole */
-  var dmax = gunDeflect(90, GUN.range, GUN.tof);
+  /*  WITH THREE COMPONENTS THE WORST CASE IS NO LONGER OBVIOUS. It used
+      to be "the poles, where sin(latitude) is 1". It is not: the westward
+      RISE term subtracts from the drift on one bearing and adds on the
+      opposite one, and the range change is largest at the EQUATOR where
+      the drift is smallest. So rather than reason about which corner
+      wins, scan what the controls can actually reach and take the
+      largest total. It comes out 264 m, at 71 S trained north.  */
+  var budget = 30;                                  /* px, the largest offset drawn */
+  var dmax = 0, _la, _br, _s, _m;
+  for (_la = -80; _la <= 80; _la++) {
+    for (_br = -90; _br <= 90; _br += 5) {
+      _s = gunSolve(_la, _br);
+      _m = Math.sqrt(_s.drift * _s.drift + _s.along * _s.along);
+      if (_m > dmax) dmax = _m;
+    }
+  }
   GUN.exagg = budget / (dmax / GUN.range * R);
   var wrap = el('div', 'gundemo');
   var svg = document.createElementNS(NS, 'svg');
@@ -707,13 +781,23 @@ function gunDemo(host) {
       Along the line of fire it goes R*t; across it, the deflection grows
       as t squared, which is what a steady sideways acceleration does.  */
   function at(t) {
-    var a = GUN.brg * Math.PI / 180;
-    var along = R * t;
-    var defl = gunDeflect(GUN.lat, GUN.range, GUN.tof) / GUN.range * R * GUN.exagg * t * t;
-    //  +across is to the RIGHT of the line of fire
+    var a = GUN.brg * Math.PI / 180, k = R / GUN.range * GUN.exagg;
+    var s = gunSolve(GUN.lat, GUN.brg);
+    /*  BOTH OFFSETS GROW AS t SQUARED, which is what a steady
+        acceleration does to a displacement. For the drift that is exact.
+        For the range it is a drawing rather than a trajectory: the real
+        Eoetvoes displacement that grows as t^2 is the shell's extra
+        HEIGHT, and it only becomes range at impact, when the shell flies
+        on past the moment it would have landed. Drawing it as a
+        lengthening track is the honest picture of the same quantity -
+        the fall mark ends up where the shell ends up - and it keeps the
+        parabola the lesson is about.  */
+    var along = R * t + s.along * k * t * t;
+    var cross = s.drift * k * t * t;
+    //  +cross is to the RIGHT of the line of fire
     var ux = Math.sin(a), uy = -Math.cos(a);          /* along, screen y down */
     var rx = -uy, ry = ux;                            /* 90 deg right of it   */
-    return [cx + ux * along + rx * defl, cy + uy * along + ry * defl];
+    return [cx + ux * along + rx * cross, cy + uy * along + ry * cross];
   }
 
   function redraw(t) {
@@ -739,11 +823,14 @@ function gunDemo(host) {
     gapLine.setAttribute('x2', f[0]); gapLine.setAttribute('y2', f[1]);
     gapLine.setAttribute('opacity', done ? 1 : 0);
 
+    var sv = gunSolve(GUN.lat, GUN.brg);
     svg.setAttribute('aria-label',
       'A gun at ' + GUN.lat.toFixed(0) + ' degrees latitude trained ' +
       gunBearingName() + '. The shell falls ' +
-      Math.abs(gunDeflect(GUN.lat, GUN.range, GUN.tof)).toFixed(0) + ' metres to the ' +
-      (gunDeflect(GUN.lat, GUN.range, GUN.tof) >= 0 ? 'right' : 'left') + ' of the aim.');
+      Math.abs(sv.drift).toFixed(0) + ' metres to the ' +
+      (sv.drift >= 0 ? 'right' : 'left') + ' of the aim and ' +
+      Math.abs(sv.along).toFixed(0) + ' metres ' +
+      (sv.along >= 0 ? 'long' : 'short') + '.');
   }
 
   function gunBearingName() {
@@ -774,26 +861,62 @@ function gunDemo(host) {
   }
 
   var readout = el('p', 'gunread', '');
+
+  /*  THE THREE COMPONENTS, NAMED, because one number was hiding two
+      mechanisms. The reader gets what the gun captain corrects for - a
+      drift and a range - and under it the three causes that add up to
+      them, each with the term it comes from. Reporting a single total is
+      what prompted the question in the first place: the total across the
+      track is the same for a shot fired east as for one fired north, and
+      that looks like a bug until you can see it arrives by a different
+      route.  */
+  var comp = el('div', 'guncomp');
+  function comprow(name, rule) {
+    var r = el('div', 'gcrow');
+    r.appendChild(el('span', 'gcn', name));
+    var v = el('span', 'gcv', '');
+    r.appendChild(v);
+    r.appendChild(el('span', 'gcr', rule));
+    comp.appendChild(r);
+    return v;
+  }
+  var vTurn = comprow('turning with the earth', '2\u03a9\u00b7V\u00b7sin \u03c6 \u2014 any bearing');
+  var vEot  = comprow('the E\u00f6tv\u00f6s effect', '2\u03a9\u00b7u\u00b7cos \u03c6 \u2014 east\u2013west only');
+  var vRise = comprow('its own climb and fall', '2\u03a9\u00b7w\u00b7cos \u03c6 \u2014 always west');
+
   function gunWhere() {
     if (Math.abs(GUN.lat) < 0.5) return 'on the equator';
-    return 'from ' + Math.abs(GUN.lat).toFixed(0) + '° ' + (GUN.lat >= 0 ? 'N' : 'S');
+    return 'from ' + Math.abs(GUN.lat).toFixed(0) + '\u00b0 ' + (GUN.lat >= 0 ? 'N' : 'S');
+  }
+  function m(x, pos, neg) {
+    return Math.abs(x).toFixed(0) + ' m ' + (x >= 0 ? pos : neg);
   }
   function say() {
-    var d = gunDeflect(GUN.lat, GUN.range, GUN.tof);
-    /*  AT THE EQUATOR THERE IS NOTHING TO SAY ABOUT A SIDE, and "0 m
-        neither way" is a formatter talking rather than the physics.
-        sin(0) is zero, so the shell goes where it was aimed - which is
-        the most useful consequence in the whole lesson, because it is
-        also why no cyclone forms there.  */
-    if (Math.abs(d) < 0.5) {
-      readout.textContent = 'Trained ' + gunBearingName() + ' ' + gunWhere() +
-        ': the shell falls where it was aimed. sin(latitude) is zero here, so ' +
-        'there is nothing to deflect it \u2014 whichever way you train the gun.';
-      return;
+    var s = gunSolve(GUN.lat, GUN.brg);
+    vTurn.textContent = m(s.turn, 'right', 'left');
+    vEot.textContent  = Math.abs(s.eotvos) < 0.5 ? 'nothing here'
+                                                 : m(s.eotvos, 'long', 'short');
+    vRise.textContent = s.rise.toFixed(0) + ' m west';
+
+    var bits = [];
+    if (Math.abs(s.drift) >= 0.5)
+      bits.push(m(s.drift, 'to the RIGHT', 'to the LEFT') + ' of the aim');
+    if (Math.abs(s.along) >= 0.5) bits.push(m(s.along, 'LONG', 'SHORT'));
+    var t = 'Trained ' + gunBearingName() + ' ' + gunWhere() + ': the shell falls ' +
+            (bits.length ? bits.join(', and ') + '.' : 'where it was aimed.');
+
+    /*  THE EQUATOR USED TO SAY "the shell falls where it was aimed", and
+        that was the old single-term answer talking. sin(0) is zero, so
+        nothing TURNS it - which is still why no cyclone forms here - but
+        the shell is not undeflected: fired north on the equator it goes
+        87 m west, all of it the climb-and-fall term, which is largest
+        exactly where the turning term vanishes.  */
+    if (Math.abs(s.turn) < 0.5) {
+      t += ' sin(latitude) is zero here, so nothing turns it \u2014 which is also ' +
+           'why no cyclone forms on the equator. What is left is the shell\u2019s own ' +
+           'climb and fall, and that is at its largest here.';
     }
-    readout.textContent = 'Trained ' + gunBearingName() + ' ' + gunWhere() +
-      ': the shell falls ' + Math.abs(d).toFixed(0) + ' m to the ' +
-      (d > 0 ? 'RIGHT' : 'LEFT') + ' of the aim.';
+    readout.textContent = t;
   }
 
   slider('gun-brg', 'Train the gun', -90, 90, 1, GUN.brg,
@@ -807,11 +930,14 @@ function gunDemo(host) {
   ctl.appendChild(fire);
   wrap.appendChild(ctl);
   wrap.appendChild(readout);
+  wrap.appendChild(comp);
   wrap.appendChild(el('p', 'note',
-    'The metres are real for the latitude and the gun on the dial. The track is ' +
-    'drawn with the deflection exaggerated \u00d7' + GUN.exagg.toFixed(0) + ', because at true scale ' +
-    'it is a hundred and seventy metres in thirty-eight kilometres and you would not see it ' +
-    '— which is the honest reason gunnery can ignore it at short range and cannot at long.'));
+    'Every figure is real for the latitude and the bearing on the dials. The track is ' +
+    'drawn with both offsets exaggerated \u00d7' + GUN.exagg.toFixed(0) + ', because at true scale the ' +
+    'largest of them is about two hundred and sixty metres in thirty-eight kilometres and you ' +
+    'would not see it — which is the honest reason gunnery can ignore all three at short range ' +
+    'and cannot at long. Vacuum and a flat earth, like the rest of the lesson: air resistance ' +
+    'makes the climb and the fall unequal and changes the third figure.'));
 
   /*  the animation. prefers-reduced-motion is honoured by jumping
       straight to the fall rather than by refusing to show anything.  */

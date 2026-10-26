@@ -88,7 +88,8 @@ function gshow(   r,c,line,cur,last,cc){
 #  is the honest account.  It does not DRAW: at true proportions a
 #  shell's path in that frame is a straight radial line and the ground
 #  turns under it by an invisible amount -- which is exactly why the real
-#  deflection is ninety metres and not ninety miles.  Drawn at a scale
+#  deflection is a couple of hundred metres and not ninety miles.  Drawn
+#  at a scale
 #  where the rotation shows, the "straight line" wraps most of the way
 #  round the pole and stops looking like gunnery at all.
 #

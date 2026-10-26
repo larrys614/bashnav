@@ -891,7 +891,7 @@ claims, and nothing on the boat would say so.
 
 ---
 
-## Three figures that are owed — all three now built
+## Three figures that were owed — all built, and a fourth thread off the last one
 
 *Opened 26 Oct 2026, after Larry went looking for them on the site and found
 them missing.* They are listed here rather than mentioned in passing because
@@ -1011,9 +1011,10 @@ Two things the build turned up, both recorded where they belong:
 in the inertial frame, where nothing curves and nothing pushes, and that is the
 honest account — but it does not *draw*. At true proportions a shell's path in
 that frame is a straight radial line and the ground turns under it by an
-invisible amount, which is precisely why the real deflection is ninety metres
-and not ninety miles; drawn at a scale where the rotation shows, the straight
-line wraps most of the way round the pole and stops looking like gunnery at all.
+invisible amount, which is precisely why the real deflection is a couple of
+hundred metres and not ninety miles; drawn at a scale where the rotation shows,
+the straight line wraps most of the way round the pole and stops looking like
+gunnery at all.
 
 So it is the gunner's frame, which is what a range table's diagram shows: the
 line of fire, the track, and where the shell actually falls. Two panels, because
@@ -1037,6 +1038,74 @@ phase name and age, sun and moon rise and set, and civil twilight — and it is 
 the curve, the high-and-low table and the depth calculator in a 1,716-pixel
 picture. Larry saw it in the app and said so; this entry is here so nobody
 "rediscovers" it as missing again.
+
+---
+
+### 4. And then Larry asked the question that broke the single number
+
+*26 Oct.* He trained the gun east, saw the same deflection as due north, and
+said so: the lesson's angular-momentum story is about changing your **distance
+from the earth's axis**, and an east-west shot does not change it. He named what
+he thought was missing — the **Eötvös effect** — and asked whether I concurred.
+
+**He was right, and there was a third term neither of us had mentioned.** The
+demonstration reports three components now:
+
+| | | |
+|---|---|---|
+| turning with the earth | `2Ω·V·sin φ` | 176 m right at 45 N, any bearing |
+| the Eötvös effect | `2Ω·u·cos φ` | 169 m of range, east-west only |
+| its own climb and fall | `2Ω·w·cos φ` | 61 m west, any bearing |
+
+**Where he was right.** For purely eastward motion the Coriolis acceleration is
+`2Ωu` pointing straight **away from the earth's axis** — verified against the
+axis-outward unit vector `(0, -sin φ, cos φ)` to twelve decimal places at every
+latitude. At latitude φ that direction is tilted: up by `cos φ`, equatorward by
+`sin φ`. So the two famous effects are **one vector's two shadows**. The vertical
+share is Eötvös — apparent weight, and therefore range, because the shell lands
+on the ground rather than staying up to enjoy it. The horizontal share is the
+ordinary right-hand deflection. Their latitude dependence falls straight out of
+the geometry, which is why one is largest exactly where the other vanishes.
+
+**Where the program was right and the intuition was not.** An east shot *does*
+deflect sideways, by the same `2Ω·V·sin φ`. Fired due east at 45 N a shell drifts
+south, which is to its right. The angular-momentum account simply does not cover
+that case — it is a second mechanism arriving at the same number.
+
+**The third term, found while checking.** `-2Ω·w·cos φ` acts east-west on the
+shell's own vertical speed: climbing pushes west, falling pushes east, and they
+do not cancel, because the double integral is the integral of height over time.
+What survives is `Ω·g·T³·cos φ / 6`, about **61 m west at any bearing**. Same
+physics as the eastward deflection of a dropped stone, with the climb run
+backwards. **It does not reverse with hemisphere** — `cos φ` is positive on both
+sides — so the southern hemisphere is not quite the mirror of the northern.
+
+**Which means the single number was wrong in detail at nearly every bearing.**
+Fired north from 45 N the drift is **115 m**, not 176, because the westward term
+takes 61 off it; fired south it is **238 m**. Both still right, which is the
+lesson; not right by the same amount, which the lesson used to imply. Two things
+that had already shipped said so and are corrected here: the browser readout's
+equator case claimed *"the shell falls where it was aimed"* (fired north on the
+equator it goes 87 m west, all of it this term), and the **site's figure caption
+still carried the old halved 90 m** — it had never been updated when the lesson
+was corrected at `ce27ca9`, because `docs/site-template.html` is a separate file
+from the lesson and nothing compares them.
+
+**One thing this does not touch: the wind.** Air moving horizontally has no
+vertical speed worth the name, so only the turning term applies to it. The
+meteorology in the rest of the lesson stands, including the five-degree rule.
+
+All three are first-order, in vacuum, over a flat earth — the same idealisation
+as the 38 km in 90 seconds. `weather-gun.js` was rewritten to hold the panel to
+a **numerical integration** of the full equations rather than to a restatement
+of its own formulas; the two agree to within 1.7 m everywhere the sliders reach,
+which is where its tolerance comes from. See `docs/TESTING.md`.
+
+The site figure changed with it. Photographing the whole Learn-more tier now
+produces a picture 5,641 px tall and 790 KB — over the size cap in
+`tests/app-figures-check.sh` and unreadable besides — so `app-figures.js` grew a
+`crop` option and `weather-coriolis.png` is the demonstration itself, 710×657
+and 59 KB.
 
 ---
 

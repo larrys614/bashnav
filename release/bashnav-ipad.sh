@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003589681
+BASHNAV_BYTES=003595302
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -21832,7 +21832,8 @@ function gshow(   r,c,line,cur,last,cc){
 #  is the honest account.  It does not DRAW: at true proportions a
 #  shell's path in that frame is a straight radial line and the ground
 #  turns under it by an invisible amount -- which is exactly why the real
-#  deflection is ninety metres and not ninety miles.  Drawn at a scale
+#  deflection is a couple of hundred metres and not ninety miles.  Drawn
+#  at a scale
 #  where the rotation shows, the "straight line" wraps most of the way
 #  round the pole and stops looking like gunnery at all.
 #
@@ -22987,6 +22988,105 @@ function lesson_more(k){
       lpd("175 metres. Counting only the ground slowing, and forgetting that")
       lpd("the shell speeds up, halves the answer - which is the easiest")
       lpd("mistake to make here, because the first half is the memorable one.")
+    print ""
+    lph("FIRED EAST OR WEST, THE MOMENTUM STORY RUNS OUT")
+    lp("Everything above is about changing your DISTANCE FROM THE AXIS, so")
+    lp("it explains a shot fired north or south and says nothing at all")
+    lp("about one fired east or west - which does not change that distance.")
+    lp("Yet an east shot gets the same " cw("175 metre",C_ACC) " sideways push. That looks")
+    lp("like a contradiction and it is not: it is a " cw("second mechanism",C_ACC) " that")
+    lp("happens to give the same answer.")
+    print ""
+    lp("Fire east and you are now going round the axis FASTER than the")
+    lp("ground is. A faster circle needs more centripetal force than")
+    lp("gravity was already supplying, and what it does not get, it loses")
+    lp("as an outward push. The push is " cw("away from the EARTH'S AXIS",C_ACC) " - not")
+    lp("away from the centre, and not straight up.")
+    print ""
+    lp("And that is the whole answer, because at latitude L the direction")
+    lp("away from the axis is tilted. It points:")
+    print ""
+    lp("  up                   by cos L")
+    lp("  toward the equator   by sin L")
+    print ""
+    lp("One push, resolved two ways. The equatorward part is an ordinary")
+    lp("sideways deflection - south, which fired east is to your right -")
+    lp("and it is " cw("2 x Omega x u x sin L",C_ACC) ", the same size as before. The")
+    lp("upward part reduces the shell's apparent weight, and that is the")
+    lp(cw("Eotvos effect",C_ACC) ".")
+    print ""
+    lpd("Checkable, and it checks exactly: for purely eastward motion the")
+    lpd("Coriolis acceleration is 2 x Omega x u at EVERY latitude, and its")
+    lpd("direction is the axis-outward unit vector (0, -sin L, cos L) in")
+    lpd("east-north-up to twelve decimal places. The two famous components")
+    lpd("are not two effects. They are one vector's two shadows.")
+    print ""
+    lp("The symmetry is worth holding on to. The sideways part goes as")
+    lp("sin L and the vertical part as cos L, so they trade places:")
+    print ""
+    lp("  on the equator   away from the axis is STRAIGHT UP")
+    lp("                   no sideways deflection, Eotvos at its largest")
+    lp("  at the pole      away from the axis is HORIZONTAL")
+    lp("                   all sideways deflection, no Eotvos at all")
+    print ""
+    lp("A shell does not stay up to enjoy its lost weight, so the thing you")
+    lp("measure is not height but " cw("RANGE",C_ACC) ". Lighter, it hangs on past the")
+    lp("moment it should have landed: at 45 N our 16 inch shell carries")
+    lp(cw("169 metres further",C_ACC) " fired east and 169 metres short fired west.")
+    lp("Due north or south, nothing - there is no east component to act on.")
+    print ""
+    lph("AND THE SHELL'S OWN CLIMB AND FALL")
+    lp("One more, and it is the one nobody mentions. The same cos L term")
+    lp("acts on the shell's VERTICAL speed, east-west:")
+    print ""
+    lp("  climbing   pushed west")
+    lp("  falling    pushed east")
+    print ""
+    lp("Those do not cancel. The shell spends the whole flight above the")
+    lp("ground, so the westward push acts on a rising shell for the first")
+    lp("half and the eastward push on a falling one for the second, and")
+    lp("what survives is the time the shell spent up there at all. For a")
+    lp("90 second flight it is about " cw("61 metres to the west",C_ACC) ", whichever way")
+    lp("the gun is trained.")
+    print ""
+    lpd("It is the same physics as the eastward deflection of a dropped")
+    lpd("stone, with the climb run backwards. And note what it does NOT do:")
+    lpd("cos L is positive on both sides of the equator, so unlike the other")
+    lpd("two this term does not reverse with hemisphere. The southern")
+    lpd("hemisphere is therefore not quite the mirror of the northern.")
+    print ""
+    lph("THE THREE, AND WHAT THE GUN CAPTAIN CORRECTS")
+    lp("A 16 inch shell, 38 km, 90 seconds, from 45 N:")
+    print ""
+    lp("  turning with the earth    176 m right    any bearing")
+    lp("  the Eotvos effect         169 m range    east-west only")
+    lp("  its own climb and fall     61 m west     any bearing")
+    print ""
+    lpd("The 175 above and the 176 here are the same quantity; the first")
+    lpd("came from speeds rounded to whole km/h.")
+    print ""
+    lp("Which add up, by bearing, to two corrections:")
+    print ""
+    lp("  fired      across the track      along it")
+    lp("  north      115 m right           -")
+    lp("  east       176 m right           107 m long")
+    lp("  south      238 m right           -")
+    lp("  west       176 m right           107 m short")
+    print ""
+    lp("So the deflection is NOT the same at every bearing after all - the")
+    lp("turning term is, and the climb-and-fall term adds to it going south")
+    lp("and subtracts going north. " cw("Both still deflect right",C_ACC) ", which is the")
+    lp("lesson; they do not deflect right by the same amount.")
+    print ""
+    lpd("All three are first-order, in vacuum, over a flat earth - the same")
+    lpd("idealisation as the 38 km in 90 seconds. Air resistance makes the")
+    lpd("climb and the fall unequal and moves the third figure in")
+    lpd("particular. Real firing tables are built from measurement.")
+    print ""
+    lpd("ONE THING THIS DOES NOT TOUCH: the wind. Air moving horizontally")
+    lpd("has no vertical speed worth the name and no east-west component")
+    lpd("going round the axis fast enough to matter, so of the three only")
+    lpd("the turning term applies to it. Everything below stands.")
     print ""
     lpd("Not to be confused with DRIFT, which in gunnery means the sideways")
     lpd("deviation from the shell's own spin on a rifled barrel. Long range")

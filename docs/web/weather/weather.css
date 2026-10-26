@@ -395,7 +395,12 @@ table.score .persist td:first-child { color: var(--persist); }
           letter-spacing: .07em; text-transform: uppercase; margin-bottom: 6px; }
 
 /*  the gunnery demonstration: the gun, its arc, and the two controls  */
-.gundemo { margin: 10px 0 0; }
+/*  The 12px inset sets the demonstration off from the prose it sits in,
+    and it is also what stops the component values touching the edge when
+    docs/web/gen/app-figures.js crops this block on its own for the site
+    figure. A capture-only style would have been the wrong fix: the
+    picture has to be what a reader sees.  */
+.gundemo { margin: 10px 0 0; padding: 0 12px; }
 .gundemo svg { display: block; width: 100%; max-width: 360px; margin: 0 auto; }
 .gunctl { margin-top: 10px; }
 .gunctl label { display: block; margin: 10px 0 0; color: var(--dim); font-size: 13px; }
@@ -404,3 +409,17 @@ table.score .persist td:first-child { color: var(--persist); }
 .gunval { color: var(--accent); font-family: ui-monospace, Menlo, monospace;
           font-variant-numeric: tabular-nums; }
 .gunread { margin: 12px 0 0; color: var(--text); font-size: 14px; line-height: 1.5; }
+
+/*  The three components. A grid rather than a table because the third
+    column - the term each one comes from - has to be allowed to wrap
+    under the other two on a phone without the numbers losing their
+    column. The values are tabular so that 176 and 61 line up and the
+    reader can see at a glance which is the big one.  */
+.guncomp { margin: 10px 0 0; display: grid; gap: 6px; }
+.gcrow { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px;
+         align-items: baseline; padding: 6px 0 0; border-top: 1px solid var(--line); }
+.gcn { color: var(--text); font-size: 13px; }
+.gcv { color: var(--accent); font-size: 13px; text-align: right;
+       font-family: ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums;
+       white-space: nowrap; }
+.gcr { grid-column: 1 / -1; color: var(--dim); font-size: 12px; }

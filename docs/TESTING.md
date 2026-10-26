@@ -368,17 +368,66 @@ below.
 
 #### A demonstration that shows a number is held to an independent computation
 
-`weather-gun.js` drives the panel and checks the three claims the lesson makes,
-each against `2Ω v sin φ` computed in the check rather than read from the page:
-the magnitude does not depend on the bearing, it is zero on the equator, and it
-reverses with hemisphere and goes as sin(latitude). The drawing is checked too —
-the fall has to sit on the side the words say, which is a cross product of the
-line of fire with the aim-to-fall vector.
+`weather-gun.js` drives the panel and checks what it says against a computation
+written here rather than read from the page. It began as three claims checked
+against `2Ω v sin φ`: the magnitude does not depend on the bearing, it is zero
+on the equator, and it reverses with hemisphere as sin(latitude). The drawing
+was checked too — the fall has to sit on the side the words say, which is a
+cross product of the line of fire with the aim-to-fall vector.
 
 Five faults planted and caught, including **the factor of two coming back**: the
 lesson's deflection had been computed from the ground's slowing alone, leaving
 out the shell's own speed-up, which halves the answer. That one is now a
 regression guard rather than a fixed comment.
+
+#### Then a reader's question showed the check was verifying the wrong model
+
+Larry asked why a shell fired **east** showed the same deflection as one fired
+north, when the lesson's angular-momentum story is about changing your distance
+from the earth's axis — which an east-west shot does not do. He was right that
+something was missing and right about its name, the Eötvös effect; working it
+through turned up a third term as well. The demonstration reports three
+components now, and the check had to change with it.
+
+**The check no longer restates a formula; it integrates the equations.** The
+page's three closed forms are the first-order perturbation — Coriolis evaluated
+along the unperturbed trajectory, integrated twice — and a check that repeats
+those formulas can only confirm the arithmetic, never the derivation. So
+`fly()` integrates `a = -2Ω × V - g` directly, knowing nothing but the
+acceleration, and lands the shell by interpolating the step in which it crosses
+zero. Everything the page reports is compared against that.
+
+**Why the tolerance is 2.5 m and not a rounding allowance.** The two answers
+differ by the second-order terms the derivation drops, and that difference is a
+real quantity worth bounding rather than absorbing. Swept over every setting the
+sliders can reach, the worst disagreement is **1.39 m of drift and 1.67 m of
+range**; the page rounds to the metre on top of that. At 1.5 m the check failed
+on four settings and every one of them was the truncation, not a fault.
+
+The claims checked now:
+
+1. **Both corrections against the integration**, at twelve settings spread over
+   both hemispheres and the whole training arc — and the three components must
+   **add up** to them, or the rows are decoration rather than a decomposition.
+2. **The turning term** is still bearing-blind, still reverses, still goes as
+   sin(latitude). Unchanged, because it is still true.
+3. **The Eötvös term** is exactly zero due north and due south, largest on the
+   equator, and opposite between east and west — and it is asserted to *depend*
+   on bearing, which is the fault that started this.
+4. **The climb-and-fall term does not reverse with hemisphere.** `cos φ` is
+   positive on both sides of the equator. This is the counter-intuitive one and
+   it is why the southern hemisphere is not quite the mirror of the northern.
+5. **The equator** still says why no cyclone forms there, and no longer claims
+   the shell lands on the aim — fired north on the equator it goes 87 m west,
+   all of it the climb-and-fall term, which is largest exactly where the
+   turning term vanishes.
+6. **The drawing** puts the fall on the side the readout states and long or
+   short as the range line says.
+
+Five faults planted and caught again, each a plausible slip rather than a
+nonsense: the Eötvös term made bearing-blind, the climb-and-fall term reversed
+with hemisphere, that term dropped altogether, the Eötvös sign flipped, and the
+turning term halved. 99 checks when it is right.
 
 #### A no-sideways-scroll check does not see a figure clipped inside its own box
 

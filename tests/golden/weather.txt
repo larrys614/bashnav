@@ -280,6 +280,111 @@ Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in t
   the shell speeds up, halves the answer - which is the easiest
   mistake to make here, because the first half is the memorable one.
 
+
+  FIRED EAST OR WEST, THE MOMENTUM STORY RUNS OUT
+  ----------------------------------------------------------------------
+  Everything above is about changing your DISTANCE FROM THE AXIS, so
+  it explains a shot fired north or south and says nothing at all
+  about one fired east or west - which does not change that distance.
+  Yet an east shot gets the same 175 metre sideways push. That looks
+  like a contradiction and it is not: it is a second mechanism that
+  happens to give the same answer.
+
+  Fire east and you are now going round the axis FASTER than the
+  ground is. A faster circle needs more centripetal force than
+  gravity was already supplying, and what it does not get, it loses
+  as an outward push. The push is away from the EARTH'S AXIS - not
+  away from the centre, and not straight up.
+
+  And that is the whole answer, because at latitude L the direction
+  away from the axis is tilted. It points:
+
+    up                   by cos L
+    toward the equator   by sin L
+
+  One push, resolved two ways. The equatorward part is an ordinary
+  sideways deflection - south, which fired east is to your right -
+  and it is 2 x Omega x u x sin L, the same size as before. The
+  upward part reduces the shell's apparent weight, and that is the
+  Eotvos effect.
+
+  Checkable, and it checks exactly: for purely eastward motion the
+  Coriolis acceleration is 2 x Omega x u at EVERY latitude, and its
+  direction is the axis-outward unit vector (0, -sin L, cos L) in
+  east-north-up to twelve decimal places. The two famous components
+  are not two effects. They are one vector's two shadows.
+
+  The symmetry is worth holding on to. The sideways part goes as
+  sin L and the vertical part as cos L, so they trade places:
+
+    on the equator   away from the axis is STRAIGHT UP
+                     no sideways deflection, Eotvos at its largest
+    at the pole      away from the axis is HORIZONTAL
+                     all sideways deflection, no Eotvos at all
+
+  A shell does not stay up to enjoy its lost weight, so the thing you
+  measure is not height but RANGE. Lighter, it hangs on past the
+  moment it should have landed: at 45 N our 16 inch shell carries
+  169 metres further fired east and 169 metres short fired west.
+  Due north or south, nothing - there is no east component to act on.
+
+
+  AND THE SHELL'S OWN CLIMB AND FALL
+  ----------------------------------------------------------------------
+  One more, and it is the one nobody mentions. The same cos L term
+  acts on the shell's VERTICAL speed, east-west:
+
+    climbing   pushed west
+    falling    pushed east
+
+  Those do not cancel. The shell spends the whole flight above the
+  ground, so the westward push acts on a rising shell for the first
+  half and the eastward push on a falling one for the second, and
+  what survives is the time the shell spent up there at all. For a
+  90 second flight it is about 61 metres to the west, whichever way
+  the gun is trained.
+
+  It is the same physics as the eastward deflection of a dropped
+  stone, with the climb run backwards. And note what it does NOT do:
+  cos L is positive on both sides of the equator, so unlike the other
+  two this term does not reverse with hemisphere. The southern
+  hemisphere is therefore not quite the mirror of the northern.
+
+
+  THE THREE, AND WHAT THE GUN CAPTAIN CORRECTS
+  ----------------------------------------------------------------------
+  A 16 inch shell, 38 km, 90 seconds, from 45 N:
+
+    turning with the earth    176 m right    any bearing
+    the Eotvos effect         169 m range    east-west only
+    its own climb and fall     61 m west     any bearing
+
+  The 175 above and the 176 here are the same quantity; the first
+  came from speeds rounded to whole km/h.
+
+  Which add up, by bearing, to two corrections:
+
+    fired      across the track      along it
+    north      115 m right           -
+    east       176 m right           107 m long
+    south      238 m right           -
+    west       176 m right           107 m short
+
+  So the deflection is NOT the same at every bearing after all - the
+  turning term is, and the climb-and-fall term adds to it going south
+  and subtracts going north. Both still deflect right, which is the
+  lesson; they do not deflect right by the same amount.
+
+  All three are first-order, in vacuum, over a flat earth - the same
+  idealisation as the 38 km in 90 seconds. Air resistance makes the
+  climb and the fall unequal and moves the third figure in
+  particular. Real firing tables are built from measurement.
+
+  ONE THING THIS DOES NOT TOUCH: the wind. Air moving horizontally
+  has no vertical speed worth the name and no east-west component
+  going round the axis fast enough to matter, so of the three only
+  the turning term applies to it. Everything below stands.
+
   Not to be confused with DRIFT, which in gunnery means the sideways
   deviation from the shell's own spin on a rifled barrel. Long range
   tables correct for both. They are different things with different
