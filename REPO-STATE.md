@@ -974,7 +974,7 @@ explains why it is a fourth copy of the grid rather than a shared one, and what
 to do if a fifth tool ever needs it.
 
 **And then Larry asked for it to move.** The browser's version is now a
-drawing you operate: the gun trains through the whole 180°, it fires and the
+drawing you operate: the gun trains round the compass, it fires and the
 shell traces its arc, and a latitude slider runs from 80° S to 80° N. That makes
 the lesson's argument stronger rather than only prettier — for horizontal motion
 the deflecting acceleration is `2Ω v sin φ` perpendicular to the track *whatever
@@ -1106,6 +1106,38 @@ produces a picture 5,641 px tall and 790 KB — over the size cap in
 `tests/app-figures-check.sh` and unreadable besides — so `app-figures.js` grew a
 `crop` option and `weather-coriolis.png` is the demonstration itself, 710×657
 and 59 KB.
+
+### 5. And the gun only trained through half the circle
+
+*Same day, straight after.* Larry: **"we need to add the ability to train the gun
+the full 360."** He is right, and the reason is the one above rather than
+completeness for its own sake.
+
+With the slider running −90° to +90° — west through north to east — `cos φ` of the
+bearing is never negative, so the **westward climb-and-fall term could only ever
+subtract** from the drift. The half that was out of reach is the half where it
+*adds*, and that is where the lesson's own second number lives: 115 m fired north
+at 45 N against **238 m fired south**. A demonstration of three components that
+cannot reach the setting where two of them add was demonstrating one and a half.
+
+The gun now sits at the centre of a full compass rose in a square box rather than
+at the foot of an arc, with all eight points labelled radially outward — "above
+the point" put S, SE and SW *inside* the drawing, where the track runs. The
+bearing namer went from five sectors to eight, which matters because the readout
+and the figure's own `aria-label` both quote it: a sector the slider can reach and
+the namer cannot would leave the picture describing itself wrongly.
+
+**And the check caught an error of mine rather than the program's.** The new
+assertion said the drift is larger fired south "in both hemispheres". It is not.
+The term is always westward while the drift is right of the track in the north
+and left of it in the south, so the bearing on which the two agree flips over: at
+45 S the larger shot is the one fired **north**. The hemisphere-free statement is
+better and is the term's whole signature — *of the two, the larger is always the
+one whose drift points west, and they differ by exactly twice the term.* That is
+what is checked now, and the reasoning is in the check beside it.
+
+Four faults planted and caught, **the narrowed slider among them**, so the 180°
+cannot come back quietly. 158 checks. weather-v8, build 8.
 
 ---
 

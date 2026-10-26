@@ -169,8 +169,9 @@ function is(what, got, want) {
 
   /* ---- 1. the two corrections, against the integration ----------- */
   for (const [brg, lat] of [[0, 45], [90, 45], [-90, 45], [45, 45], [-30, 20],
-                            [0, 0], [90, 0], [0, 80], [90, 80],
-                            [0, -45], [90, -45], [-60, -70]]) {
+                            [180, 45], [135, 45], [-135, 45], [180, 0], [180, -45],
+                            [0, 0], [90, 0], [0, 80], [90, 80], [180, 80],
+                            [0, -45], [90, -45], [-60, -70], [-180, -70]]) {
     const r = await read(brg, lat);
     const f = fly(r.lat, r.brg, gun.range, gun.tof);
     /*  WHY THE TOLERANCE IS 2.5 METRES AND NOT A ROUNDING ALLOWANCE. The
@@ -197,7 +198,7 @@ function is(what, got, want) {
 
   /* ---- 2. the turning term: bearing-blind, sin(lat), reversing --- */
   const t45 = comp(await read(0, 45), TURN, 'right');
-  for (const brg of [-90, -45, -17, 0, 23, 45, 90]) {
+  for (const brg of [-180, -135, -90, -45, -17, 0, 23, 45, 90, 135, 180]) {
     near('the turning term at brg ' + brg + ', 45 N', comp(await read(brg, 45), TURN, 'right'),
          t45, 0.6);
   }
@@ -255,8 +256,57 @@ function is(what, got, want) {
     near('fired north on the equator it goes west', r.drift, fly(0, 0, gun.range, gun.tof).drift, 1.5);
   }
 
-  /* ---- 6. the drawing agrees with the words ---------------------- */
-  for (const [brg, lat] of [[0, 45], [90, 45], [-90, 45], [0, -45], [90, 0]]) {
+  /* ---- 6. THE SOUTH HALF, which the 180 slider could not reach ----
+       With the gun trainable only west-north-east, cos(bearing) is never
+       negative and the westward climb-and-fall term could only SUBTRACT
+       from the drift. The other half is where it adds, and the two
+       numbers the lesson quotes - 115 m fired north and 238 m fired south
+       at 45 N - are a pair the old demonstration could show only half of.
+
+       THE FIRST VERSION OF THIS CHECK WAS WRONG, and it is worth leaving
+       the reason here. It asserted the drift is larger fired south "in
+       both hemispheres". It is not: the term is always westward, the
+       drift is right of the track in the north and left of it in the
+       south, so the bearing on which the two agree flips over. At 45 S
+       the larger shot is the one fired NORTH - 238 m against 115 m.
+
+       The hemisphere-free statement is the one worth checking, and it is
+       also the term's whole signature: OF THE TWO, THE LARGER IS ALWAYS
+       THE ONE WHOSE DRIFT POINTS WEST, and they differ by exactly twice
+       the term.  */
+  for (const lat of [45, 20, -45, -70]) {
+    const n = await read(0, lat), so = await read(180, lat);
+    const rise = comp(n, RISE, 'west');
+    near('north and south at ' + n.lat + ' differ by twice the rise term',
+         Math.abs(Math.abs(so.drift) - Math.abs(n.drift)), 2 * rise, 1.6);
+    /*  is the drift westward? it lies to the RIGHT of the track, whose
+        right-hand unit vector is (cos b, -sin b) in east-north, so the
+        east component of the drift is drift*cos(b) and west is negative  */
+    const eastOf = (r) => r.drift * Math.cos(r.brg * Math.PI / 180);
+    const bigger = Math.abs(so.drift) > Math.abs(n.drift) ? so : n;
+    checks++;
+    if (!(eastOf(bigger) < 0)) {
+      bad++; console.log('  FAIL at ' + n.lat + ' the larger shot is not the westward one');
+    }
+    /*  and both are still to the same side, which is the lesson  */
+    is('north and south at ' + n.lat + ' deflect the same way',
+       Math.sign(so.drift), Math.sign(n.drift));
+  }
+  //  and the namer must cover every sector the slider can now reach
+  for (const [brg, want] of [[0, 'north'], [45, 'north-east'], [90, 'east'],
+                             [135, 'south-east'], [180, 'south'], [-135, 'south-west'],
+                             [-90, 'west'], [-45, 'north-west'], [-180, 'south']]) {
+    const r = await read(brg, 45);
+    checks++;
+    if (!(new RegExp('Trained ' + want + ' ')).test(r.text)) {
+      bad++; console.log('  FAIL brg ' + brg + ' is not named ' + want + ': ' +
+                         JSON.stringify(r.text.slice(0, 48)));
+    }
+  }
+
+  /* ---- 7. the drawing agrees with the words ---------------------- */
+  for (const [brg, lat] of [[0, 45], [90, 45], [-90, 45], [0, -45], [90, 0],
+                            [180, 45], [135, 45], [-135, 45], [180, -45]]) {
     const r = await read(brg, lat);
     const a = brg * Math.PI / 180;
     const ux = Math.sin(a), uy = -Math.cos(a);        /* along the line of fire */

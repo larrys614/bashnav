@@ -429,6 +429,28 @@ nonsense: the Eötvös term made bearing-blind, the climb-and-fall term reversed
 with hemisphere, that term dropped altogether, the Eötvös sign flipped, and the
 turning term halved. 99 checks when it is right.
 
+#### And then the check caught an error in the check
+
+Larry asked for the gun to train the full 360°, which it should: with the slider
+running west-north-east, `cos` of the bearing is never negative and the westward
+climb-and-fall term **could only ever subtract** from the drift. The half that
+was unreachable is the half where it adds, and that is where the lesson's second
+number lives — 115 m fired north at 45 N against 238 m fired south.
+
+The new assertion for it was wrong. It said the drift is larger fired south *in
+both hemispheres*; it is not. The term is always westward, while the drift lies
+right of the track in the north and left of it in the south, so the bearing on
+which the two agree flips over: **at 45 S the larger shot is the one fired
+north.** The failure was mine and the check reported it as a disagreement
+between the page and the computation, which is exactly what it is for — a check
+written from the physics rather than from the page can be wrong about the
+physics, and then it is the check that is wrong, not the program.
+
+The replacement is hemisphere-free and is the term's own signature: *of the two,
+the larger is always the one whose drift points west, and they differ by exactly
+twice the term.* Four faults planted and caught, **the narrowed slider among
+them**, so 180° cannot come back quietly. 158 checks.
+
 #### A no-sideways-scroll check does not see a figure clipped inside its own box
 
 `run-weather-web.sh` asserts that the page does not scroll sideways at 744, 390

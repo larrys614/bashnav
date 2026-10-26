@@ -14,7 +14,7 @@
    ===================================================================== */
 'use strict';
 
-var BUILD = '7 \u2014 26 Oct 2026';
+var BUILD = '8 \u2014 26 Oct 2026';
 
 var RECS = [];
 var OBS = [];
@@ -605,9 +605,17 @@ window.addEventListener('DOMContentLoaded', function () {
    perpendicular to the track, always to the right in the northern
    hemisphere -- WHATEVER THE BEARING. Fired north and fired south are
    not two curiosities, they are two cases of one rule, and the way to
-   show that is to let a reader swing the gun through the whole 180 and
-   watch the rule hold at every setting. The static figure can only assert
-   it.
+   show that is to let a reader swing the gun round and watch the rule
+   hold at every setting. The static figure can only assert it.
+
+   AND IT TRAINS THROUGH THE FULL 360, which started as a 180 and was
+   wrong at 180. With the arc running west-north-east, cos(bearing) is
+   never negative, so the westward climb-and-fall term could only ever
+   SUBTRACT from the drift. The south half is the half where it ADDS -
+   and that is where the lesson's own second number lives: at 45 N the
+   drift is 115 m fired north and 237 m fired south. A demonstration of
+   three components that cannot reach the setting where two of them add
+   is demonstrating one and a half.
 
    WHAT IS COMPUTED HERE, because it matters that this is not a cartoon:
    the deflection shown in metres is the real one for the latitude on the
@@ -699,14 +707,16 @@ function gunSolve(lat, brg) {
 
 function gunDemo(host) {
   var NS = 'http://www.w3.org/2000/svg';
-  /*  THE ARC HAS TO FIT. Drawn at R = 210 in a 340-wide box the gun's
-      180 degrees ran off both edges: W and E were outside the canvas and
-      a shot trained north-east left the picture entirely. The radius is
-      bounded by the half-width less a margin, and the margin has to carry
-      the deflection too, which at the exaggeration below reaches about
-      forty pixels beyond the arc.  */
-  var W = 360, H = 204, cx = W / 2, cy = H - 40;   /* the gun, bottom centre */
-  var R = 140;                                      /* the range, in pixels  */
+  /*  THE CIRCLE HAS TO FIT, and the box is square now. With a half-circle
+      the gun sat 40 px off the bottom edge and the picture only had to
+      hold the top half; a full 360 puts the gun at the CENTRE and needs
+      the same clearance in every direction. The radius is bounded by the
+      half-width less a margin, and the margin carries three things: the
+      compass labels, which sit 14 px outside the circle, the text above
+      them, and the drawn offset, which at the exaggeration below reaches
+      about thirty pixels beyond it. 132 + 14 + text is inside 180.  */
+  var W = 360, H = 360, cx = W / 2, cy = H / 2;    /* the gun, dead centre  */
+  var R = 132;                                      /* the range, in pixels  */
   /*  THE EXAGGERATION IS DERIVED, NOT CHOSEN. Fixed at 60 the drawing left
       the box: trained due east at 80 degrees the deflection is to the
       right of east, which is downward, and it ran past the bottom edge.
@@ -726,7 +736,7 @@ function gunDemo(host) {
   var budget = 30;                                  /* px, the largest offset drawn */
   var dmax = 0, _la, _br, _s, _m;
   for (_la = -80; _la <= 80; _la++) {
-    for (_br = -90; _br <= 90; _br += 5) {
+    for (_br = -180; _br <= 180; _br += 5) {
       _s = gunSolve(_la, _br);
       _m = Math.sqrt(_s.drift * _s.drift + _s.along * _s.along);
       if (_m > dmax) dmax = _m;
@@ -754,15 +764,22 @@ function gunDemo(host) {
       text = css('--text'), warn = css('--warn');
   var gArc = e('g'), gAim = e('g'), gTrack = e('g'), gMark = e('g'), gLbl = e('g');
 
-  /*  the arc the gun can be trained through, and the compass points on it  */
-  e('path', { d: 'M ' + (cx - R) + ' ' + cy + ' A ' + R + ' ' + R + ' 0 0 1 ' +
-                 (cx + R) + ' ' + cy, fill: 'none', stroke: line, 'stroke-width': 1 }, gArc);
-  [['W', -90], ['NW', -45], ['N', 0], ['NE', 45], ['E', 90]].forEach(function (c) {
+  /*  the circle the gun can be trained through, and the compass rose on it.
+      THE LABELS GO RADIALLY OUTWARD, not above the point. With a half
+      circle every label sat in the top half and "above" was always
+      outside; on a full circle "above" puts S, SE and SW INSIDE the
+      drawing, where the track runs through them. So each one is pushed
+      out along its own bearing, and the baseline nudge keeps the text
+      optically centred on that point rather than hanging off it.  */
+  e('circle', { cx: cx, cy: cy, r: R, fill: 'none', stroke: line, 'stroke-width': 1 }, gArc);
+  [['N', 0], ['NE', 45], ['E', 90], ['SE', 135],
+   ['S', 180], ['SW', -135], ['W', -90], ['NW', -45]].forEach(function (c) {
     var a = c[1] * Math.PI / 180;
     var x = cx + R * Math.sin(a), y = cy - R * Math.cos(a);
+    var lx = cx + (R + 14) * Math.sin(a), ly = cy - (R + 14) * Math.cos(a);
     e('circle', { cx: x, cy: y, r: 1.6, fill: dim }, gArc);
-    e('text', { x: x, y: y - 7, fill: dim, 'font-size': 10, 'text-anchor': 'middle' },
-      gArc).textContent = c[0];
+    e('text', { x: lx, y: ly + 3.5, fill: dim, 'font-size': 10,
+                'text-anchor': 'middle' }, gArc).textContent = c[0];
   });
   e('circle', { cx: cx, cy: cy, r: 4, fill: text }, gArc);
 
@@ -833,13 +850,23 @@ function gunDemo(host) {
       (sv.along >= 0 ? 'long' : 'short') + '.');
   }
 
+  /*  EIGHT POINTS, NOT FIVE. The name is what the readout and the
+      figure's own aria-label both say, so a sector the slider can reach
+      and the namer cannot would leave the picture describing itself
+      wrongly. Sectors are 45 degrees wide and centred on their point,
+      which puts every boundary on a 22.5 and means no value of the
+      slider falls outside one.  */
   function gunBearingName() {
     var b = GUN.brg;
-    if (b <= -75) return 'west';
-    if (b < -15) return 'north-west';
-    if (b <= 15) return 'north';
-    if (b < 75) return 'north-east';
-    return 'east';
+    if (b < -157.5) return 'south';
+    if (b < -112.5) return 'south-west';
+    if (b < -67.5) return 'west';
+    if (b < -22.5) return 'north-west';
+    if (b <= 22.5) return 'north';
+    if (b <= 67.5) return 'north-east';
+    if (b <= 112.5) return 'east';
+    if (b <= 157.5) return 'south-east';
+    return 'south';
   }
 
   /* ---- the controls ------------------------------------------------ */
@@ -919,7 +946,7 @@ function gunDemo(host) {
     readout.textContent = t;
   }
 
-  slider('gun-brg', 'Train the gun', -90, 90, 1, GUN.brg,
+  slider('gun-brg', 'Train the gun', -180, 180, 1, GUN.brg,
          function (v) { GUN.brg = v; return gunBearingName(); },
          function (v) { GUN.brg = v; redraw(shown); say(); });
   slider('gun-lat', 'Latitude', -80, 80, 1, GUN.lat,
