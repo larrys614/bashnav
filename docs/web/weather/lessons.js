@@ -168,7 +168,7 @@ var LESSONS = [
     { s: 'gap' },
     { s: 'line', p: [, { t: '  ', s: 'plain' }, { t: 'TWO SHELLS, FIRED NORTH AND FIRED SOUTH', s: 'acc' }] },
     { s: 'rule' },
-    { s: 'line', p: [, { t: '    fired    distance from axis   ground below      the shell', s: 'plain' }] },
+    { s: 'line', p: [, { t: '    ', s: 'plain' }, { t: 'fired    distance from axis   ground below      the shell', s: 'acc' }] },
     { s: 'line', p: [, { t: '    north    shrinks              east SLOWER       outruns it', s: 'plain' }] },
     { s: 'line', p: [, { t: '    south    grows                east FASTER       lags it', s: 'plain' }] },
     { s: 'gap' },

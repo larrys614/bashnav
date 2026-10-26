@@ -409,7 +409,7 @@ function lesson_more(k){
     lp("faster east; carry it further out and it must run slower.")
     print ""
     lph("TWO SHELLS, FIRED NORTH AND FIRED SOUTH")
-    lp("  fired    distance from axis   ground below      the shell")
+    lp("  " cw("fired    distance from axis   ground below      the shell",C_ACC))
     lp("  north    shrinks              east SLOWER       outruns it")
     lp("  south    grows                east FASTER       lags it")
     print ""

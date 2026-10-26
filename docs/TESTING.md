@@ -199,6 +199,47 @@ cloud-type fields were asked for and ignored: *"visibility is asked for and
 still ignored"*. A field a tool asks a human to fill in and then never shows is
 how you teach somebody to stop filling in the form.
 
+### A check that printed "emphasis preserved" and did not check it
+
+Larry asked for the top line of a table in the coriolis lesson to be bold. It is
+one `cw(..., C_ACC)` away, and the accent renders bold in both builds — `C_ACC`
+is `ESC[1;32m`, and `.lesson .acc` is `font-weight: 600`. The change was easy.
+Verifying it was not, because **nothing was verifying emphasis at all.**
+
+Two checks looked as though they were:
+
+- `docs/web/tests/weather-les.js` rebuilds each lesson from `lessons.js` and
+  compares it with what the awk prints, character for character, and signed off
+  with *"every lesson is character-identical, emphasis preserved"*. It ran the
+  awk in `cmode=plain`, **where `C_ACC` is the empty string** — so emphasis was
+  not in either side of the comparison. The claim was counting spans by style
+  and calling that a check.
+- `tests/weather-reflow-check.js` does compare emphasis, but in the other
+  direction: it holds the *renderer* to `lessons.js`. If `lessons.js` has lost
+  an accent, both sides agree and it passes.
+
+Between them, nothing compared `lessons.js` with the awk it is generated from.
+Proved by taking the accent off one table heading in `lessons.js` by hand: the
+whole suite, both browser harnesses included, stayed green.
+
+`weather-les.js` now runs the awk a second time in `cmode=day` and walks the
+escape sequences **using the same code table as
+`docs/web/weather/gen/dumplessons.awk`** — deliberately the same, because a
+check that invented its own mapping would be testing its own opinion of what
+`1;32` means. It compares styled WORDS rather than runs, since the generator may
+split a run at a line end and rejoin it into a different span shape without
+losing an emphasis. 1,039 emphasised words across ten lessons.
+
+One documented exclusion: `acc:Question:`. The shell prints that label accented
+at the foot of a lesson, and `lessons.js` keeps the question in its own field so
+the page can ask before it tells — the same asymmetry `render()` already handles
+by hand on the text side. It is the label's styling, not a word of the lesson.
+
+Three faults planted and caught: the bold taken off the new heading, an accent
+downgraded to `dim`, and an accent invented where the awk has none. The last one
+matters as much as the first — a check that only looks for missing emphasis will
+not notice a build that emphasises everything.
+
 ### A check written for one tool, when the fault belongs to all of them
 
 Every app's service worker is cache-first with no revalidation, so a file

@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003595448
+BASHNAV_BYTES=003595461
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -22955,7 +22955,7 @@ function lesson_more(k){
     lp("faster east; carry it further out and it must run slower.")
     print ""
     lph("TWO SHELLS, FIRED NORTH AND FIRED SOUTH")
-    lp("  fired    distance from axis   ground below      the shell")
+    lp("  " cw("fired    distance from axis   ground below      the shell",C_ACC))
     lp("  north    shrinks              east SLOWER       outruns it")
     lp("  south    grows                east FASTER       lags it")
     print ""
