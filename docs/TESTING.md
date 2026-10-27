@@ -240,6 +240,55 @@ downgraded to `dim`, and an accent invented where the awk has none. The last one
 matters as much as the first — a check that only looks for missing emphasis will
 not notice a build that emphasises everything.
 
+### Checking the science before building the demonstration
+
+Larry asked for a second demonstration in the coriolis lesson: isobars round a
+low, wind arrowing in from eight points, sliders for latitude and for the low's
+pressure — with the wind following the isobars *more closely* as the pressure
+differential rose, centrifugal force being the cause. He also asked for the
+science to be checked, which is the only reason this section exists.
+
+**It does not work that way, and the check is shaped by the wrongness:**
+
+1. In a frictionless balance the wind **already follows the isobars exactly**,
+   at every gradient and every latitude — geostrophic, gradient and cyclostrophic
+   alike. There is nothing for centrifugal force to improve on.
+2. **Friction** is what turns the wind across them, and with a linear drag the
+   balance solves to `tan α = k/f` exactly: the pressure gradient **cancels out
+   of the angle**. Verified across the whole pressure slider — 1 to 8 mb per
+   100 km, same angle to a tenth of a degree.
+3. With the quadratic drag water really has, the angle **grows** with the wind.
+   A hurricane's boundary layer runs 20–30° of inflow, which is the clearest
+   refutation available: the strongest lows have the largest inflow angles.
+4. **Latitude** is the real dial, through `f = 2Ω sin φ` — 48° of inflow at 10° N
+   over water against 11° at 75°.
+5. Centrifugal force changes the **speed**: subgeostrophic round a low,
+   supergeostrophic round a high, and for a high a hard limit at `f²R = 4G` past
+   which **no solution exists at all**. That is why a deep tight low is ordinary
+   and a tight intense high does not occur.
+
+`docs/web/tests/weather-wind.js` holds the panel to a balance written from
+scratch in the check, and asserts the angle does *not* move with the gradient —
+if it ever does, the demonstration has gone back to the intuitive story. The
+high's limit is checked from both sides, and every arrow's angle to its own
+isobar tangent is measured off the SVG and compared with the stated angle, with
+the circulation sense taken from a cross product. 67 checks.
+
+Five faults planted and caught, the first of them the wrong physics itself: the
+angle made to depend on the gradient, the curvature term dropped, the high's
+limit removed, the circulation reversed, and inflow turned into outflow.
+
+**Two faults of my own that the harness found first.** `var WX` for the new
+demonstration's state clobbered the app's own `WX` object — the one carrying
+`load()` and `renderTerminal()` — and the page died with "WX.load is not a
+function". That is CLAUDE.md's rule 2 in JavaScript: a name that already means
+something is not available just because the file you are editing has not used it
+yet. And `weather-gun.js` counted `.gcrow` across the whole document, which
+became 7 the moment a second panel existed; scoping it to `.gundemo:first-of-type`
+then matched **nothing**, because that pseudo-class means the first element of
+its *tag* among its siblings and these panels are divs among divs. Both were
+found by a check going red, not by reading.
+
 ### A check written for one tool, when the fault belongs to all of them
 
 Every app's service worker is cache-first with no revalidation, so a file

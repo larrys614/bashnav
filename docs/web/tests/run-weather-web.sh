@@ -90,6 +90,18 @@ if node -e 'require("playwright")' >/dev/null 2>&1; then
   #  on the side the words say.
   node docs/web/tests/weather-gun.js
   echo
+  echo "8. the wind demonstration, against the physics it teaches"
+  #  The second demonstration, and the one whose science was checked
+  #  BEFORE it was built: the version first described had the wind
+  #  crossing the isobars less as the pressure gradient rose, which is the
+  #  intuitive answer and the wrong one. So the check asserts the angle
+  #  does NOT move with the gradient, that latitude is what moves it, that
+  #  curvature moves the SPEED instead - below geostrophic round a low,
+  #  above it round a high - and that a high past f*f*R = 4G draws nothing
+  #  rather than nonsense. Every arrow's angle to its own isobar is
+  #  measured off the drawing and compared with the stated one.
+  node docs/web/tests/weather-wind.js
+  echo
   echo "WEATHER WEB: all stages passed"
 else
   echo

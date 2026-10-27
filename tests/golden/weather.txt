@@ -412,11 +412,87 @@ Coriolis goes as sin(latitude) and is zero there. All the heat and moisture in t
   That is why a low is wet and a high is dry. It is the same friction
   that puts twist in a sail - see gradient for the numbers.
 
-  Honest boundary: angular momentum about the axis settles the
-  north-south case completely, which is why the two shells are the
-  demonstration. East-west motion needs a second idea as well - how
-  gravity and the centrifugal term balance, which tilts the local
-  vertical. Do not expect one principle to cover both directions.
+
+  HOW FAR ACROSS, AND WHAT DOES NOT CHANGE IT
+  ----------------------------------------------------------------------
+  With a drag that goes as the wind, the balance solves exactly:
+
+    tan(alpha) = k / f       speed / gradient = cos(alpha)
+
+  and the pressure gradient cancels out of the angle. A deeper low
+  gives you more wind at the same angle, not a straighter wind.
+
+  That is worth dwelling on, because the opposite is the intuitive
+  answer: surely a hard blow is dragged round into the isobars? No -
+  and with the quadratic drag water really has, the angle GROWS
+  with the wind. The strongest lows on earth have the largest inflow
+  angles: a hurricane's boundary layer runs 20 to 30 degrees of it.
+
+  Nor can centrifugal force be the reason, because in a frictionless
+  balance the wind already follows the isobars exactly, at every
+  gradient and every latitude. There is nothing for it to improve.
+
+  What does set the angle is the surface you are over, and latitude.
+  Take 15 degrees over water at 45 N and carry the same drag north
+  and south:
+
+    latitude   over water   over land
+    10            48            71
+    20            29            55
+    30            21            45
+    45            15            35
+    60            12            30
+    75            11            27
+
+  Near the equator the air pours almost straight down the gradient
+  into the low. At high latitude it nearly follows the isobars. Same
+  physics as the two shells: less sin(latitude), less turning.
+
+  
+     gradient wind
+     -------------->  HIGH side
+  
+   ..\\............................
+       \\\\
+           \\\\
+               \\\\
+                   \\\
+                      \\
+                        v surface
+  
+     crosses the isobar at 15 deg
+     toward the LOW
+
+
+  AND THE CENTRIFUGAL TERM CHANGES THE SPEED
+  ----------------------------------------------------------------------
+  Round a low it points outward, so it ADDS to Coriolis against the
+  pressure gradient and the wind comes out below geostrophic. Round
+  a high it subtracts, and the wind runs above it. One isobar
+  spacing, 4 mb in 100 km at 45 N, which is 62 knots geostrophic:
+
+    curvature    round a low   round a high
+    2000 km         54 kn         76 kn
+    1000 km         49 kn         impossible
+     500 km         43 kn         impossible
+     250 km         36 kn         impossible
+
+  That word is the arithmetic, not a shrug. For a high the balance
+  needs f squared R to be at least 4G, and past that there is no
+  solution at all - no wind can hold that pressure field up. So a
+  deep tight low is ordinary and a tight intense high does not exist,
+  which is why every chart you have ever read looks the way it does.
+
+  And the limit tightens as you go equatorward, because it goes as f
+  squared. At 1000 km of curvature the steepest high that can exist
+  is 6.1 mb per 100 km at 75 degrees, 3.3 at 45, and 0.2 at 10. The
+  tropics get their weather from lows for a reason.
+
+  Honest boundary: these are steady-state balances with a drag law
+  fitted to an observed angle, not a boundary-layer model. The 10
+  metre wind is lower again than cos(alpha) says, because most of
+  that reduction is shear between the anemometer and the gradient
+  level rather than the balance above.
 
 === weather learn gradient ===
 

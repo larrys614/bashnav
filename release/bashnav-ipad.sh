@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003595461
+BASHNAV_BYTES=003606127
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -21784,7 +21784,7 @@ function gcol_init(   e){
   GCOL_READY=1
   return 0
 }
-function gclear(w,h,   r,c){ gcol_init(); PW=w; PH=h
+function gclear(w,h,   r,c){ gcol_init(); PW=w; PH=h; FIGNAME=""
   for(r=0;r<h;r++) for(c=0;c<w;c++){ G[r,c]=" "; GC[r,c]="" } }
 function gput(r,c,ch){ r=int(r+0.5); c=int(c+0.5)
   if(r>=0&&r<PH&&c>=0&&c<PW){ G[r,c]=ch; GC[r,c]="" } }
@@ -21810,7 +21810,15 @@ function gshow(   r,c,line,cur,last,cc){
   #
   #  The grid is still cleared, so a figure built and skipped cannot
   #  leave its marks inside the next one.
-  if(FIGDUMP){ print "@@FIG grid " PW " " PH; gclear(PW,PH); return 0 }
+  #  THE MARKER CARRIES THE FIGURE'S NAME, not just the word "grid". With
+  #  one figure in the tool the name was a constant and nobody noticed;
+  #  with two, the browser has to know WHICH demonstration a gap stands
+  #  for, and the shell is the only thing that knows. Each figure function
+  #  sets FIGNAME at its head, gclear() resets it, and the default stays
+  #  "grid" so the other three tools' figures are unaffected if this file
+  #  is ever the one that gets extracted.
+  if(FIGDUMP){ print "@@FIG " (FIGNAME=="" ? "grid" : FIGNAME) " " PW " " PH
+               gclear(PW,PH); return 0 }
   for(r=0;r<PH;r++){
     last=-1
     for(c=0;c<PW;c++) if(G[r,c]!=" ") last=c
@@ -21894,6 +21902,7 @@ function gun_figure(   w,h,xl,xr,ylo,yhi){
   #  than weather's own tables, so this now fits where they do not.
   w=34; h=21
   gclear(w,h)
+  FIGNAME = "gun"
   GUN_DEF = 6                       # columns of deflection at impact
   xl = 8; xr = 25; ylo = 3; yhi = 15
 
@@ -21913,6 +21922,153 @@ function gun_figure(   w,h,xl,xr,ylo,yhi){
   gputsc(yhi+3, 0, "both are to the RIGHT of", C_ACC)
   gputsc(yhi+4, 0, "the line of fire", C_ACC)
   gputsc(yhi+5, 0, "drawn from 45 N", C_DIM)
+  return 0
+}
+
+# =====================================================================
+#  THE SURFACE WIND ROUND A LOW, and the arithmetic under it.
+#
+#  Larry asked for this demonstration and asked me to check the science
+#  first, which was the right instinct: the version he described had the
+#  wind crossing the isobars LESS as the pressure gradient rose, with
+#  centrifugal force as the cause. That is not what happens, and the
+#  reason is worth stating where the code is, because the wrong version
+#  is the intuitive one.
+#
+#  1. IN A FRICTIONLESS BALANCE THE WIND ALREADY FOLLOWS THE ISOBARS
+#     EXACTLY, at every gradient and every latitude -- geostrophic,
+#     gradient and cyclostrophic balance alike. So "follows them more
+#     closely" cannot be a centrifugal effect. There is nothing for it
+#     to improve on.
+#
+#  2. FRICTION is what turns the wind across the isobars. Slowed air
+#     feels less Coriolis, so pressure wins a little and the flow spirals
+#     in. With a linear drag k the steady balance solves exactly:
+#
+#            tan(alpha) = k / f        |V| / Vg = cos(alpha)
+#
+#     and the pressure gradient CANCELS OUT of the angle. A deeper low
+#     gives more wind at the same angle, not a smaller angle.
+#
+#  3. WITH REALISTIC QUADRATIC DRAG IT GOES THE OTHER WAY. Friction over
+#     water goes as V squared, so the angle GROWS with the gradient. The
+#     strongest lows on earth have the largest inflow angles -- a
+#     hurricane's boundary layer runs 20-30 degrees of inflow -- which is
+#     the clearest refutation available.
+#
+#  4. LATITUDE IS THE REAL DIAL, through f = 2*Omega*sin(lat). Same drag,
+#     50 degrees of inflow at 10 N and 12 at 75 N.
+#
+#  5. CENTRIFUGAL IS REAL AND CHANGES THE SPEED, NOT THE ANGLE. Round a
+#     low it points outward, adding to Coriolis against the pressure
+#     gradient, so the gradient wind is SUBgeostrophic; round a high it
+#     subtracts and the wind is supergeostrophic. The high has a hard
+#     limit where no solution exists at all, which is why tight intense
+#     highs do not occur and tight intense lows do.
+#
+#  This lives here beside the figure that draws it rather than in wx.awk,
+#  because nothing in the tool's own reasoning uses it. If `weather what`
+#  ever reasons from a gradient, it moves to wx.awk.
+# =====================================================================
+function wx_pi(){ return 3.14159265358979 }
+function wx_rad(d){ return d * wx_pi() / 180 }
+function wx_tan(a){ return sin(a)/cos(a) }
+function wx_cor(lat){ return 2 * 7.292115e-5 * sin(wx_rad(lat)) }
+
+#  The drag is pinned by what is actually observed -- the inflow angle at
+#  45 degrees over a given surface -- and the model carries it to other
+#  latitudes. That is the honest direction: the angle is the measurement
+#  and k is the fitted constant, not the other way round.
+function wx_drag(a45){ return wx_cor(45) * wx_tan(wx_rad(a45)) }
+
+#  the inflow angle at this latitude for that surface, in degrees
+function wx_alpha(lat, a45,   f){
+  f = wx_cor(lat); if(f < 0) f = -f
+  if(f <= 0) return 90
+  return atan2(wx_drag(a45), f) * 180 / wx_pi()
+}
+
+#  pressure gradient force per unit mass, from millibars per 100 km
+function wx_pgf(mb100){ return (mb100 * 100.0 / 1.0e5) / 1.225 }
+
+#  The gradient wind: pressure against Coriolis AND curvature.
+#    low   G = f*V + V^2/R      ->  subgeostrophic
+#    high  G = f*V - V^2/R      ->  supergeostrophic, and limited
+#  Returns -1 for a high too tight and too steep to exist, which is a
+#  real answer and not an error: f^2*R < 4*G has no root.
+function wx_vgrad(mb100, lat, rkm, isLow,   f,g,r,disc){
+  f = wx_cor(lat); if(f < 0) f = -f
+  g = wx_pgf(mb100); r = rkm * 1000.0
+  if(f <= 0 || g <= 0) return 0
+  if(isLow) return r/2 * (-f + sqrt(f*f + 4*g/r))
+  disc = f*f - 4*g/r
+  if(disc < 0) return -1
+  return r/2 * (f - sqrt(disc))
+}
+
+#  The wind crossing an isobar, in characters.  Thirty-four columns, like
+#  the gun, so it fits the device the tool is for.
+#
+#  WHY THIS IS NOT THE CIRCLE THE BROWSER DRAWS, and it was built as the
+#  circle first. Eight arrows round an isobar need eight unambiguous
+#  arrowheads, and a character cell has four: > < ^ v. The diagonals have
+#  to be "/" and "\\", which carry an AXIS and not a direction - so on the
+#  flanks of the circle, where the wind blows up-and-inward, the arrow
+#  reads equally well as down-and-outward, and the figure says the
+#  opposite of what it means to half its readers. Drawn and looked at
+#  before it was thrown away.
+#
+#  So the terminal gets the one claim the figure exists to make, drawn so
+#  it cannot be misread: ONE isobar, the gradient wind along it, and the
+#  surface wind crossing it toward the low at the computed angle. The
+#  browser, which has real arrowheads at any angle, draws the circle with
+#  its eight.
+#
+#  The cell aspect is deliberately IGNORED here. Cells are about twice as
+#  tall as wide, so halving the vertical component the way wind_glyph()
+#  does would draw a true 15 degrees as about 8 on screen - correct
+#  geometry, and useless as a picture of an angle. The angle is drawn as
+#  it reads and printed as it is.
+function wind_figure(lat, a45, isLow,   w,h,i,al,a,yiso,x0,sgn,bs,hd,r,rmax,xe,ye){
+  w=34; h=14
+  gclear(w,h)
+  FIGNAME = "wind"
+  a = wx_alpha(lat, a45)
+  al = wx_rad(a)
+  yiso = 4; x0 = 3
+  sgn = (isLow ? 1 : -1)              # the low is below the isobar for a low
+  bs = sprintf("%c", 92)              # a backslash, without the escaping
+  hd = (sgn > 0 ? "v" : "^")
+  rmax = h - 4
+
+  #  the gradient wind, along the isobar: what the chart draws
+  gputsc(yiso-3, x0, "gradient wind", C_DIM)
+  for(i=x0;i<=x0+13;i++) gputc(yiso-2, i, "-", C_DIM)
+  gputc(yiso-2, x0+14, ">", C_DIM)
+  gputsc(yiso-2, x0+17, (isLow ? "HIGH side" : "LOW side"), C_DIM)
+
+  #  the isobar itself
+  for(i=1;i<w-1;i++) gputc(yiso, i, ".", C_DIM)
+
+  #  the surface wind, the same flow turned toward the low by alpha.
+  #  It stops at the panel edge rather than running off it: at 10 degrees
+  #  of latitude alpha is nearly 50 and the line would leave the figure.
+  xe = x0; ye = yiso
+  for(i=0;i<=18;i++){
+    r = yiso + sgn * i * wx_tan(al)
+    if(r < 1 || r > rmax) break
+    gputc(r, x0 + i, (sgn > 0 ? bs : "/"), C_ACC)
+    xe = x0 + i; ye = r
+  }
+  gputc(ye + sgn, xe + 1, hd, C_ACC)
+  #  the label goes beside the head, pulled back inside the panel when the
+  #  head has run far enough right that it would be clipped - at 15
+  #  degrees the line reaches column 21 and "surface wind" lost its last
+  #  two characters off the edge.
+  i = xe + 3; if(i + 7 > w - 1) i = w - 1 - 7
+  gputsc(ye + sgn, i, "surface", C_ACC)
+  gputsc(h-2, x0, sprintf("crosses the isobar at %d deg", int(a + 0.5)), C_ACC)
+  gputsc(h-1, x0, (isLow ? "toward the LOW" : "away from the HIGH"), C_DIM)
   return 0
 }
 # =====================================================================
@@ -23114,11 +23270,71 @@ function lesson_more(k){
     lp("That is why a low is wet and a high is dry. It is the same friction")
     lp("that puts twist in a sail - see " cw("gradient",C_ACC) " for the numbers.")
     print ""
-    lpd("Honest boundary: angular momentum about the axis settles the")
-    lpd("north-south case completely, which is why the two shells are the")
-    lpd("demonstration. East-west motion needs a second idea as well - how")
-    lpd("gravity and the centrifugal term balance, which tilts the local")
-    lpd("vertical. Do not expect one principle to cover both directions.")
+    lph("HOW FAR ACROSS, AND WHAT DOES NOT CHANGE IT")
+    lp("With a drag that goes as the wind, the balance solves exactly:")
+    print ""
+    lp("  " cw("tan(alpha) = k / f",C_ACC) "       speed / gradient = cos(alpha)")
+    print ""
+    lp("and the " cw("pressure gradient cancels out of the angle",C_ACC) ". A deeper low")
+    lp("gives you more wind at the same angle, not a straighter wind.")
+    print ""
+    lp("That is worth dwelling on, because the opposite is the intuitive")
+    lp("answer: surely a hard blow is dragged round into the isobars? No -")
+    lp("and with the quadratic drag water really has, the angle " cw("GROWS",C_ACC))
+    lp("with the wind. The strongest lows on earth have the largest inflow")
+    lp("angles: a hurricane's boundary layer runs 20 to 30 degrees of it.")
+    print ""
+    lp("Nor can centrifugal force be the reason, because in a frictionless")
+    lp("balance the wind " cw("already follows the isobars exactly",C_ACC) ", at every")
+    lp("gradient and every latitude. There is nothing for it to improve.")
+    print ""
+    lp("What does set the angle is the surface you are over, and " cw("latitude",C_ACC) ".")
+    lp("Take 15 degrees over water at 45 N and carry the same drag north")
+    lp("and south:")
+    print ""
+    lp("  " cw("latitude   over water   over land",C_ACC))
+    lp("  10            48            71")
+    lp("  20            29            55")
+    lp("  30            21            45")
+    lp("  45            15            35")
+    lp("  60            12            30")
+    lp("  75            11            27")
+    print ""
+    lp("Near the equator the air pours almost straight down the gradient")
+    lp("into the low. At high latitude it nearly follows the isobars. Same")
+    lp("physics as the two shells: less sin(latitude), less turning.")
+    print ""
+    wind_figure(45, 15, 1)
+    gshow()
+    print ""
+    lph("AND THE CENTRIFUGAL TERM CHANGES THE SPEED")
+    lp("Round a low it points outward, so it ADDS to Coriolis against the")
+    lp("pressure gradient and the wind comes out " cw("below",C_ACC) " geostrophic. Round")
+    lp("a high it subtracts, and the wind runs above it. One isobar")
+    lp("spacing, 4 mb in 100 km at 45 N, which is 62 knots geostrophic:")
+    print ""
+    lp("  " cw("curvature    round a low   round a high",C_ACC))
+    lp("  2000 km         54 kn         76 kn")
+    lp("  1000 km         49 kn         " cw("impossible",C_WARN))
+    lp("   500 km         43 kn         " cw("impossible",C_WARN))
+    lp("   250 km         36 kn         " cw("impossible",C_WARN))
+    print ""
+    lp("That word is the arithmetic, not a shrug. For a high the balance")
+    lp("needs f squared R to be at least 4G, and past that there is " cw("no",C_ACC))
+    lp(cw("solution at all",C_ACC) " - no wind can hold that pressure field up. So a")
+    lp("deep tight low is ordinary and a tight intense high does not exist,")
+    lp("which is why every chart you have ever read looks the way it does.")
+    print ""
+    lpd("And the limit tightens as you go equatorward, because it goes as f")
+    lpd("squared. At 1000 km of curvature the steepest high that can exist")
+    lpd("is 6.1 mb per 100 km at 75 degrees, 3.3 at 45, and 0.2 at 10. The")
+    lpd("tropics get their weather from lows for a reason.")
+    print ""
+    lpd("Honest boundary: these are steady-state balances with a drag law")
+    lpd("fitted to an observed angle, not a boundary-layer model. The 10")
+    lpd("metre wind is lower again than cos(alpha) says, because most of")
+    lpd("that reduction is shear between the anemometer and the gradient")
+    lpd("level rather than the balance above.")
     print ""
     return 1
   }

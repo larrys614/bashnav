@@ -568,11 +568,71 @@ function lesson_more(k){
     lp("That is why a low is wet and a high is dry. It is the same friction")
     lp("that puts twist in a sail - see " cw("gradient",C_ACC) " for the numbers.")
     print ""
-    lpd("Honest boundary: angular momentum about the axis settles the")
-    lpd("north-south case completely, which is why the two shells are the")
-    lpd("demonstration. East-west motion needs a second idea as well - how")
-    lpd("gravity and the centrifugal term balance, which tilts the local")
-    lpd("vertical. Do not expect one principle to cover both directions.")
+    lph("HOW FAR ACROSS, AND WHAT DOES NOT CHANGE IT")
+    lp("With a drag that goes as the wind, the balance solves exactly:")
+    print ""
+    lp("  " cw("tan(alpha) = k / f",C_ACC) "       speed / gradient = cos(alpha)")
+    print ""
+    lp("and the " cw("pressure gradient cancels out of the angle",C_ACC) ". A deeper low")
+    lp("gives you more wind at the same angle, not a straighter wind.")
+    print ""
+    lp("That is worth dwelling on, because the opposite is the intuitive")
+    lp("answer: surely a hard blow is dragged round into the isobars? No -")
+    lp("and with the quadratic drag water really has, the angle " cw("GROWS",C_ACC))
+    lp("with the wind. The strongest lows on earth have the largest inflow")
+    lp("angles: a hurricane's boundary layer runs 20 to 30 degrees of it.")
+    print ""
+    lp("Nor can centrifugal force be the reason, because in a frictionless")
+    lp("balance the wind " cw("already follows the isobars exactly",C_ACC) ", at every")
+    lp("gradient and every latitude. There is nothing for it to improve.")
+    print ""
+    lp("What does set the angle is the surface you are over, and " cw("latitude",C_ACC) ".")
+    lp("Take 15 degrees over water at 45 N and carry the same drag north")
+    lp("and south:")
+    print ""
+    lp("  " cw("latitude   over water   over land",C_ACC))
+    lp("  10            48            71")
+    lp("  20            29            55")
+    lp("  30            21            45")
+    lp("  45            15            35")
+    lp("  60            12            30")
+    lp("  75            11            27")
+    print ""
+    lp("Near the equator the air pours almost straight down the gradient")
+    lp("into the low. At high latitude it nearly follows the isobars. Same")
+    lp("physics as the two shells: less sin(latitude), less turning.")
+    print ""
+    wind_figure(45, 15, 1)
+    gshow()
+    print ""
+    lph("AND THE CENTRIFUGAL TERM CHANGES THE SPEED")
+    lp("Round a low it points outward, so it ADDS to Coriolis against the")
+    lp("pressure gradient and the wind comes out " cw("below",C_ACC) " geostrophic. Round")
+    lp("a high it subtracts, and the wind runs above it. One isobar")
+    lp("spacing, 4 mb in 100 km at 45 N, which is 62 knots geostrophic:")
+    print ""
+    lp("  " cw("curvature    round a low   round a high",C_ACC))
+    lp("  2000 km         54 kn         76 kn")
+    lp("  1000 km         49 kn         " cw("impossible",C_WARN))
+    lp("   500 km         43 kn         " cw("impossible",C_WARN))
+    lp("   250 km         36 kn         " cw("impossible",C_WARN))
+    print ""
+    lp("That word is the arithmetic, not a shrug. For a high the balance")
+    lp("needs f squared R to be at least 4G, and past that there is " cw("no",C_ACC))
+    lp(cw("solution at all",C_ACC) " - no wind can hold that pressure field up. So a")
+    lp("deep tight low is ordinary and a tight intense high does not exist,")
+    lp("which is why every chart you have ever read looks the way it does.")
+    print ""
+    lpd("And the limit tightens as you go equatorward, because it goes as f")
+    lpd("squared. At 1000 km of curvature the steepest high that can exist")
+    lpd("is 6.1 mb per 100 km at 75 degrees, 3.3 at 45, and 0.2 at 10. The")
+    lpd("tropics get their weather from lows for a reason.")
+    print ""
+    lpd("Honest boundary: these are steady-state balances with a drag law")
+    lpd("fitted to an observed angle, not a boundary-layer model. The 10")
+    lpd("metre wind is lower again than cos(alpha) says, because most of")
+    lpd("that reduction is shear between the anemometer and the gradient")
+    lpd("level rather than the balance above.")
     print ""
     return 1
   }

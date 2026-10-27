@@ -119,10 +119,18 @@ function is(what, got, want) {
   await page.click('#les-more button');
   await page.waitForTimeout(400);
 
+  /*  SCOPED TO ITS OWN PANEL. The lesson carries two demonstrations now -
+      the gun and the wind - and this check counted .gcrow across the whole
+      document, which became 7 the moment the second one landed. Every
+      selector below reads inside the FIRST .gundemo.
+      Not ":first-of-type": that means the first element of its TAG among
+      its siblings, and these panels are divs among other divs, so it
+      matched nothing at all. Tried, and it failed loudly.  */
   is('the demonstration is on the page', await page.evaluate(
-    () => !!document.querySelector('.gundemo svg')), true);
+    () => !!(document.querySelectorAll('.gundemo')[0] || {}).querySelector), true);
   is('three components are named', await page.evaluate(
-    () => document.querySelectorAll('.guncomp .gcrow').length), 3);
+    () => document.querySelectorAll('.gundemo')[0]
+            .querySelectorAll('.guncomp .gcrow').length), 3);
 
   /*  the gun's own figures, read off the page rather than assumed, so a
       change to the shell or the range is picked up instead of hidden  */
@@ -132,16 +140,17 @@ function is(what, got, want) {
     const f = (id, v) => { const e = document.getElementById(id); e.value = v;
       e.dispatchEvent(new Event('input', { bubbles: true })); };
     f('gun-brg', b); f('gun-lat', l);
-    const t = document.querySelector('.gunread').textContent;
+    const pan = document.querySelectorAll('.gundemo')[0];
+    const t = pan.querySelector('.gunread').textContent;
     const md = /falls (\d+(?:\.\d+)?) m to the (RIGHT|LEFT)/.exec(t);
     const ma = /(\d+(?:\.\d+)?) m (LONG|SHORT)/.exec(t);
     /*  the component rows, by the name each one carries, so a reordering
         of the list cannot quietly swap two readings  */
     const comp = {};
-    Array.prototype.forEach.call(document.querySelectorAll('.guncomp .gcrow'), function (r) {
+    Array.prototype.forEach.call(pan.querySelectorAll('.guncomp .gcrow'), function (r) {
       comp[r.querySelector('.gcn').textContent] = r.querySelector('.gcv').textContent;
     });
-    const svg = document.querySelector('.gundemo svg');
+    const svg = pan.querySelector('svg');
     const q = s => svg.querySelector('[data-pt="' + s + '"]');
     const pt = s => [ +q(s).getAttribute('cx'), +q(s).getAttribute('cy') ];
     return { text: t, comp: comp,

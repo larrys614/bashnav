@@ -457,6 +457,21 @@ const FIGURES = [
     }
   },
   {
+    file: 'weather-wind.png', app: 'weather', shot: '#les-body', height: 2400,
+    crop: '.gundemo', cropNth: 1,
+    title: 'weather: the wind round a low - eight arrows crossing the isobars, and what sets the angle',
+    async drive(p) {
+      await p.click('[data-go="learn"]');
+      await p.waitForTimeout(300);
+      await p.click('#les-list >> text=/Coriolis/i');
+      await p.waitForTimeout(350);
+      await p.click('#les-more button');
+      await p.waitForTimeout(700);
+      await p.evaluate(() => window.scrollTo(0, 0));
+      await p.waitForTimeout(250);
+    }
+  },
+  {
     file: 'weather-chart.png', app: 'weather', shot: '#v-chart',
     title: 'weather: reading a 500 mb chart - the steering flow above the surface weather',
     async drive(p) { await p.click('text=From a 500 mb chart'); await p.waitForTimeout(600); }
@@ -530,8 +545,14 @@ for (const f of FIGURES) {
           element taller than the viewport it is scrolled into - which is
           why the viewport is left tall here and the panel is not.  */
       if (f.crop) {
-        const ce = await p.$(f.crop);
-        if (!ce) throw new Error('nothing matched ' + f.crop + ' - the figure is not drawn');
+        /*  cropNth picks among several matches, because the coriolis
+            lesson carries TWO demonstrations in identical wrappers and a
+            bare selector always returns the gun.  */
+        const all = await p.$$(f.crop);
+        const ce = all[f.cropNth || 0];
+        if (!ce) throw new Error('nothing matched ' + f.crop +
+                                 (f.cropNth ? ' at index ' + f.cropNth : '') +
+                                 ' - the figure is not drawn');
         await ce.scrollIntoViewIfNeeded();
         await p.waitForTimeout(250);
         const cb = await ce.boundingBox();

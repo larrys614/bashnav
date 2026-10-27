@@ -39,7 +39,7 @@ function gcol_init(   e){
   GCOL_READY=1
   return 0
 }
-function gclear(w,h,   r,c){ gcol_init(); PW=w; PH=h
+function gclear(w,h,   r,c){ gcol_init(); PW=w; PH=h; FIGNAME=""
   for(r=0;r<h;r++) for(c=0;c<w;c++){ G[r,c]=" "; GC[r,c]="" } }
 function gput(r,c,ch){ r=int(r+0.5); c=int(c+0.5)
   if(r>=0&&r<PH&&c>=0&&c<PW){ G[r,c]=ch; GC[r,c]="" } }
@@ -65,7 +65,15 @@ function gshow(   r,c,line,cur,last,cc){
   #
   #  The grid is still cleared, so a figure built and skipped cannot
   #  leave its marks inside the next one.
-  if(FIGDUMP){ print "@@FIG grid " PW " " PH; gclear(PW,PH); return 0 }
+  #  THE MARKER CARRIES THE FIGURE'S NAME, not just the word "grid". With
+  #  one figure in the tool the name was a constant and nobody noticed;
+  #  with two, the browser has to know WHICH demonstration a gap stands
+  #  for, and the shell is the only thing that knows. Each figure function
+  #  sets FIGNAME at its head, gclear() resets it, and the default stays
+  #  "grid" so the other three tools' figures are unaffected if this file
+  #  is ever the one that gets extracted.
+  if(FIGDUMP){ print "@@FIG " (FIGNAME=="" ? "grid" : FIGNAME) " " PW " " PH
+               gclear(PW,PH); return 0 }
   for(r=0;r<PH;r++){
     last=-1
     for(c=0;c<PW;c++) if(G[r,c]!=" ") last=c
@@ -149,6 +157,7 @@ function gun_figure(   w,h,xl,xr,ylo,yhi){
   #  than weather's own tables, so this now fits where they do not.
   w=34; h=21
   gclear(w,h)
+  FIGNAME = "gun"
   GUN_DEF = 6                       # columns of deflection at impact
   xl = 8; xr = 25; ylo = 3; yhi = 15
 
@@ -168,5 +177,152 @@ function gun_figure(   w,h,xl,xr,ylo,yhi){
   gputsc(yhi+3, 0, "both are to the RIGHT of", C_ACC)
   gputsc(yhi+4, 0, "the line of fire", C_ACC)
   gputsc(yhi+5, 0, "drawn from 45 N", C_DIM)
+  return 0
+}
+
+# =====================================================================
+#  THE SURFACE WIND ROUND A LOW, and the arithmetic under it.
+#
+#  Larry asked for this demonstration and asked me to check the science
+#  first, which was the right instinct: the version he described had the
+#  wind crossing the isobars LESS as the pressure gradient rose, with
+#  centrifugal force as the cause. That is not what happens, and the
+#  reason is worth stating where the code is, because the wrong version
+#  is the intuitive one.
+#
+#  1. IN A FRICTIONLESS BALANCE THE WIND ALREADY FOLLOWS THE ISOBARS
+#     EXACTLY, at every gradient and every latitude -- geostrophic,
+#     gradient and cyclostrophic balance alike. So "follows them more
+#     closely" cannot be a centrifugal effect. There is nothing for it
+#     to improve on.
+#
+#  2. FRICTION is what turns the wind across the isobars. Slowed air
+#     feels less Coriolis, so pressure wins a little and the flow spirals
+#     in. With a linear drag k the steady balance solves exactly:
+#
+#            tan(alpha) = k / f        |V| / Vg = cos(alpha)
+#
+#     and the pressure gradient CANCELS OUT of the angle. A deeper low
+#     gives more wind at the same angle, not a smaller angle.
+#
+#  3. WITH REALISTIC QUADRATIC DRAG IT GOES THE OTHER WAY. Friction over
+#     water goes as V squared, so the angle GROWS with the gradient. The
+#     strongest lows on earth have the largest inflow angles -- a
+#     hurricane's boundary layer runs 20-30 degrees of inflow -- which is
+#     the clearest refutation available.
+#
+#  4. LATITUDE IS THE REAL DIAL, through f = 2*Omega*sin(lat). Same drag,
+#     50 degrees of inflow at 10 N and 12 at 75 N.
+#
+#  5. CENTRIFUGAL IS REAL AND CHANGES THE SPEED, NOT THE ANGLE. Round a
+#     low it points outward, adding to Coriolis against the pressure
+#     gradient, so the gradient wind is SUBgeostrophic; round a high it
+#     subtracts and the wind is supergeostrophic. The high has a hard
+#     limit where no solution exists at all, which is why tight intense
+#     highs do not occur and tight intense lows do.
+#
+#  This lives here beside the figure that draws it rather than in wx.awk,
+#  because nothing in the tool's own reasoning uses it. If `weather what`
+#  ever reasons from a gradient, it moves to wx.awk.
+# =====================================================================
+function wx_pi(){ return 3.14159265358979 }
+function wx_rad(d){ return d * wx_pi() / 180 }
+function wx_tan(a){ return sin(a)/cos(a) }
+function wx_cor(lat){ return 2 * 7.292115e-5 * sin(wx_rad(lat)) }
+
+#  The drag is pinned by what is actually observed -- the inflow angle at
+#  45 degrees over a given surface -- and the model carries it to other
+#  latitudes. That is the honest direction: the angle is the measurement
+#  and k is the fitted constant, not the other way round.
+function wx_drag(a45){ return wx_cor(45) * wx_tan(wx_rad(a45)) }
+
+#  the inflow angle at this latitude for that surface, in degrees
+function wx_alpha(lat, a45,   f){
+  f = wx_cor(lat); if(f < 0) f = -f
+  if(f <= 0) return 90
+  return atan2(wx_drag(a45), f) * 180 / wx_pi()
+}
+
+#  pressure gradient force per unit mass, from millibars per 100 km
+function wx_pgf(mb100){ return (mb100 * 100.0 / 1.0e5) / 1.225 }
+
+#  The gradient wind: pressure against Coriolis AND curvature.
+#    low   G = f*V + V^2/R      ->  subgeostrophic
+#    high  G = f*V - V^2/R      ->  supergeostrophic, and limited
+#  Returns -1 for a high too tight and too steep to exist, which is a
+#  real answer and not an error: f^2*R < 4*G has no root.
+function wx_vgrad(mb100, lat, rkm, isLow,   f,g,r,disc){
+  f = wx_cor(lat); if(f < 0) f = -f
+  g = wx_pgf(mb100); r = rkm * 1000.0
+  if(f <= 0 || g <= 0) return 0
+  if(isLow) return r/2 * (-f + sqrt(f*f + 4*g/r))
+  disc = f*f - 4*g/r
+  if(disc < 0) return -1
+  return r/2 * (f - sqrt(disc))
+}
+
+#  The wind crossing an isobar, in characters.  Thirty-four columns, like
+#  the gun, so it fits the device the tool is for.
+#
+#  WHY THIS IS NOT THE CIRCLE THE BROWSER DRAWS, and it was built as the
+#  circle first. Eight arrows round an isobar need eight unambiguous
+#  arrowheads, and a character cell has four: > < ^ v. The diagonals have
+#  to be "/" and "\\", which carry an AXIS and not a direction - so on the
+#  flanks of the circle, where the wind blows up-and-inward, the arrow
+#  reads equally well as down-and-outward, and the figure says the
+#  opposite of what it means to half its readers. Drawn and looked at
+#  before it was thrown away.
+#
+#  So the terminal gets the one claim the figure exists to make, drawn so
+#  it cannot be misread: ONE isobar, the gradient wind along it, and the
+#  surface wind crossing it toward the low at the computed angle. The
+#  browser, which has real arrowheads at any angle, draws the circle with
+#  its eight.
+#
+#  The cell aspect is deliberately IGNORED here. Cells are about twice as
+#  tall as wide, so halving the vertical component the way wind_glyph()
+#  does would draw a true 15 degrees as about 8 on screen - correct
+#  geometry, and useless as a picture of an angle. The angle is drawn as
+#  it reads and printed as it is.
+function wind_figure(lat, a45, isLow,   w,h,i,al,a,yiso,x0,sgn,bs,hd,r,rmax,xe,ye){
+  w=34; h=14
+  gclear(w,h)
+  FIGNAME = "wind"
+  a = wx_alpha(lat, a45)
+  al = wx_rad(a)
+  yiso = 4; x0 = 3
+  sgn = (isLow ? 1 : -1)              # the low is below the isobar for a low
+  bs = sprintf("%c", 92)              # a backslash, without the escaping
+  hd = (sgn > 0 ? "v" : "^")
+  rmax = h - 4
+
+  #  the gradient wind, along the isobar: what the chart draws
+  gputsc(yiso-3, x0, "gradient wind", C_DIM)
+  for(i=x0;i<=x0+13;i++) gputc(yiso-2, i, "-", C_DIM)
+  gputc(yiso-2, x0+14, ">", C_DIM)
+  gputsc(yiso-2, x0+17, (isLow ? "HIGH side" : "LOW side"), C_DIM)
+
+  #  the isobar itself
+  for(i=1;i<w-1;i++) gputc(yiso, i, ".", C_DIM)
+
+  #  the surface wind, the same flow turned toward the low by alpha.
+  #  It stops at the panel edge rather than running off it: at 10 degrees
+  #  of latitude alpha is nearly 50 and the line would leave the figure.
+  xe = x0; ye = yiso
+  for(i=0;i<=18;i++){
+    r = yiso + sgn * i * wx_tan(al)
+    if(r < 1 || r > rmax) break
+    gputc(r, x0 + i, (sgn > 0 ? bs : "/"), C_ACC)
+    xe = x0 + i; ye = r
+  }
+  gputc(ye + sgn, xe + 1, hd, C_ACC)
+  #  the label goes beside the head, pulled back inside the panel when the
+  #  head has run far enough right that it would be clipped - at 15
+  #  degrees the line reaches column 21 and "surface wind" lost its last
+  #  two characters off the edge.
+  i = xe + 3; if(i + 7 > w - 1) i = w - 1 - 7
+  gputsc(ye + sgn, i, "surface", C_ACC)
+  gputsc(h-2, x0, sprintf("crosses the isobar at %d deg", int(a + 0.5)), C_ACC)
+  gputsc(h-1, x0, (isLow ? "toward the LOW" : "away from the HIGH"), C_DIM)
   return 0
 }
