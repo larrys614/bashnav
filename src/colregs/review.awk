@@ -9,7 +9,7 @@
 # =====================================================================
 
 #  Every reviewable claim, in a fixed order, as  key | section | title
-function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x){
+function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x,xi,xt){
   if(RV_READY) return RV_N
   ves_init(); shp_init(); enc_init(); snd_init()
   RV_N=0
@@ -28,18 +28,31 @@ function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x){
       m=motion_of(i,t)
       k = a[2] "\t" motion_text(m) "\t" motion_why(m,i)
       if(k in RVSEEN) continue
-      RVSEEN[k]=1; cnt++; MOK[cnt]=k
+      #  KEEP THE VESSEL AND THE BEARING, not just the sentence. The
+      #  review screen showed the claim with her type handed over as a
+      #  given and no lights at all -- for a section called "give-way
+      #  calls from her lights", which is backwards. Larry, reviewing the
+      #  fishing ones: "you dont show all lights....just say you see a
+      #  green or red bow light and the statment that shee is fishing...
+      #  If I see just green, and not white over green ore green over
+      #  white, then she is either a sailboat or a small power drivven
+      #  vessal,,,,not a fishing boat." Exactly so: a sidelight alone
+      #  identifies nothing. The claim is only judgeable with the picture
+      #  that produced it, so the first bearing that yields each distinct
+      #  call is kept and drawn.
+      RVSEEN[k]=1; cnt++; MOK[cnt]=k; MOI[cnt]=i; MOT[cnt]=t
     }
   }
   #  sorted, so the order does not depend on the order vessels happen
   #  to be listed in
-  for(i=2;i<=cnt;i++){ x=MOK[i]; j=i-1
-    while(j>=1 && MOK[j]>x){ MOK[j+1]=MOK[j]; j-- }
-    MOK[j+1]=x }
+  for(i=2;i<=cnt;i++){ x=MOK[i]; xi=MOI[i]; xt=MOT[i]; j=i-1
+    while(j>=1 && MOK[j]>x){ MOK[j+1]=MOK[j]; MOI[j+1]=MOI[j]; MOT[j+1]=MOT[j]; j-- }
+    MOK[j+1]=x; MOI[j+1]=xi; MOT[j+1]=xt }
   for(i=1;i<=cnt;i++){
     split(MOK[i],a,"\t")
     RV_N++; RV_K[RV_N]=sprintf("mot-%d",i-1); RV_S[RV_N]="mot"
     RV_T[RV_N]=substr(a[1] " -- " a[2],1,58); RV_M[RV_N]=MOK[i]
+    RV_MI[RV_N]=MOI[i]; RV_MT[RV_N]=MOT[i]
   }
   for(i=1;i<=NVES;i++){
     split(VT[i],a,"|")
@@ -131,6 +144,20 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
   else if(s=="mot"){
     split(RV_M[i],a,"\t")
     printf "  Vessel   %s\n", a[1]
+    #  HER LIGHTS, FROM THE BEARING THAT PRODUCES THIS CALL. Without the
+    #  picture the claim cannot be judged as framed: her type arrives as
+    #  an assertion rather than as something read off her lights, and the
+    #  one thing the section is about - that you identify her first and
+    #  work the geometry second - is missing from the screen.
+    if(RV_MI[i]!=""){
+      split(VT[RV_MI[i]],parts,"|")
+      print ""
+      G_NOCROP=1
+      draw_lights(parts[1], RV_MT[i]); gshow()
+      G_NOCROP=0
+      printf "  %s\n", cwd(sprintf("drawn from %03d - %s", RV_MT[i], parts[5]))
+    }
+    print ""
     printf "  %s   %s\n", cw("The program says",C_ACC), a[2]
     print ""
     printf "  %s\n", a[3]

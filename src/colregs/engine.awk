@@ -351,14 +351,49 @@ function motion_ovt(st,   n){
   #  much room you leave while you do it.
   return "You are overtaking her, and you keep out of her way until you are finally past and clear. Rule 13 opens \"notwithstanding anything contained in the Rules of Part B, Sections I and II\", so it decides that before Rule 18 comes into it. She is " n ", which does not change whether you keep clear -- it changes how wide you go."
 }
-function motion_why(k,idx,   a,st,s){
+#  WHAT SHE SHOWS COMES FIRST, AND THEN THE GEOMETRY.
+#
+#  This read "Her green sidelight is her starboard side, so you are
+#  standing in her starboard sector... But she is ENGAGED IN FISHING" --
+#  a sentence that tells the reader what they can see, names ONE light,
+#  and then produces her identity from nowhere. Larry, reviewing the
+#  fishing claims: "If I see just green, and not white over green ore
+#  green over white, then she is either a sailboat or a small power
+#  drivven vessal,,,,not a fishing boat."
+#
+#  He is right, and it is the wrong way round besides. The identifying
+#  lights are what you read FIRST at night -- red over white, green over
+#  white, red-white-red -- and the sidelight settles her aspect second.
+#  A drill called "give-way calls from her lights" that names only the
+#  sidelight is teaching the half that cannot identify anything.
+#
+#  So the identity goes in front, taken from the vessel's own light
+#  table rather than written again here, which is why it cannot drift
+#  from the picture the quiz draws.
+function motion_why(k,idx,   a,st,s,sig){
   split(VT[idx],a,"|")
   st = r18_of(a[1])
+  sig = motion_sig(idx)
   s = motion_lights(k)
+  if(sig!="") s = sig " " s
   if(k==5) return s
   if(k==4) return s " " motion_ovt(st)
   if(st=="") return s " " motion_plain(k)
   return s " " r18_say(st,k)
+}
+
+#  Her identifying lights, as the table states them: the first sentence
+#  of the vessel's own description. Field 5 of VT[] is written for
+#  exactly this -- "Red over white.", "Green over white.", "Three
+#  all-round greens" -- so one wording serves the quiz reveal, the
+#  review screen and this.
+function motion_sig(idx,   a,d,i){
+  split(VT[idx],a,"|")
+  d = a[5]
+  i = index(d, ".")
+  if(i>0) d = substr(d,1,i-1)
+  if(d=="") return ""
+  return "She shows " tolower(substr(d,1,1)) substr(d,2) "."
 }
 
 function light_sig(idx,th,   a,n,L,i,f,cnt,j,t1,t2,sig){
