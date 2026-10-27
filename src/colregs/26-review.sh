@@ -10,19 +10,19 @@ rv_save() {   # key state note
   n=$(printf '%s' "$3" | tr '\t\n' '  ')
   printf '%s\t%s\t%s\n' "$1" "$2" "$n" >> "$(rv_file)"
 }
-rv_ask_note() {
-  printf "  What is wrong with it? (one line, return to skip): "
+rv_ask_note() {   # $1 = the question to ask
+  printf "  %s (one line, return to skip): " "$1"
   IFS= read -r RVNOTE || RVNOTE=""
 }
 rv_one() {   # $1 = key ; returns 1 to stop
   eng -v cmd=rvshow -v key="$1" || return 1
-  printf "  %s  [r] correct   [f] wrong   [c] correct, but a comment\n" "$1"
+  printf "  %s  [r] right   [f] wrong, say why   [c] right, but a comment\n" "$1"
   printf "  [return] skip   [q] stop : "
   IFS= read -r v || return 1
   case "$v" in
     r|R) rv_save "$1" ok "" ;;
-    f|F) rv_ask_note; rv_save "$1" flag "$RVNOTE" ;;
-    c|C) rv_ask_note; rv_save "$1" ok "$RVNOTE" ;;
+    f|F) rv_ask_note "What is wrong with it?"; rv_save "$1" flag "$RVNOTE" ;;
+    c|C) rv_ask_note "What is the comment?"; rv_save "$1" ok "$RVNOTE" ;;
     q|Q|x|X) return 1 ;;
     *) : ;;
   esac

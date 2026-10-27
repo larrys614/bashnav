@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003612222
+BASHNAV_BYTES=003616569
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -6107,19 +6107,19 @@ rv_save() {   # key state note
   n=$(printf '%s' "$3" | tr '\t\n' '  ')
   printf '%s\t%s\t%s\n' "$1" "$2" "$n" >> "$(rv_file)"
 }
-rv_ask_note() {
-  printf "  What is wrong with it? (one line, return to skip): "
+rv_ask_note() {   # $1 = the question to ask
+  printf "  %s (one line, return to skip): " "$1"
   IFS= read -r RVNOTE || RVNOTE=""
 }
 rv_one() {   # $1 = key ; returns 1 to stop
   eng -v cmd=rvshow -v key="$1" || return 1
-  printf "  %s  [r] correct   [f] wrong   [c] correct, but a comment\n" "$1"
+  printf "  %s  [r] right   [f] wrong, say why   [c] right, but a comment\n" "$1"
   printf "  [return] skip   [q] stop : "
   IFS= read -r v || return 1
   case "$v" in
     r|R) rv_save "$1" ok "" ;;
-    f|F) rv_ask_note; rv_save "$1" flag "$RVNOTE" ;;
-    c|C) rv_ask_note; rv_save "$1" ok "$RVNOTE" ;;
+    f|F) rv_ask_note "What is wrong with it?"; rv_save "$1" flag "$RVNOTE" ;;
+    c|C) rv_ask_note "What is the comment?"; rv_save "$1" ok "$RVNOTE" ;;
     q|Q|x|X) return 1 ;;
     *) : ;;
   esac
@@ -6760,7 +6760,7 @@ function ves_init(   i,n,a){
   #  lights off to one side and made them impossible to account for.
   VT[18] = "mineclear|Mine clearance vessel|Rule 27|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.98,"G") ";" yd(0.15,0.15,0.82,"G") ";" yd(0.15,-0.15,0.82,"G") "|Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.|The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not."
   VT[19] = "hover|Air-cushion vessel in non-displacement mode|Rule 23|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.60,"Y") "|The ordinary power-driven lights plus an all-round flashing yellow."
-  VT[20] = "sail7|Sailing vessel under 7 m, or a vessel under oars|Rule 25|" ar(0.0,0,0.35,"W") "|If she carries nothing else she must show a torch or lantern in time to prevent collision."
+  VT[20] = "sail7|Sailing vessel under 7 m, or a vessel under oars|Rule 25|" ar(0.0,0,0.35,"W") "|If she carries nothing else she must show a torch or lantern in time to prevent collision.||a torch or lantern in time to prevent collision, and nothing else"
   #  Rule 23(c), added to the Convention by IMO resolution A.910(22).  The
   #  flashing red is IN ADDITION to the ordinary power-driven lights, and
   #  only while taking off, landing, or in flight near the surface.
@@ -6775,7 +6775,7 @@ function ves_init(   i,n,a){
   #  the point.  Written out rather than built from ar(), because ar() makes
   #  every lamp all-round and that turned her sidelights into all-round
   #  lights: the display then read her as "not making way".
-  VT[22] = "submarine|Submarine on the surface (US Navy identification light)|32 CFR 707.7|0.10,0,0.30,M,W,;0.06,0.11,0.20,S,G,;0.06,-0.11,0.20,P,R,;-0.30,0,0.16,T,W,;" ar(0.10,0,0.42,"Y") "|NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition."
+  VT[22] = "submarine|Submarine on the surface (US Navy identification light)|32 CFR 707.7|0.10,0,0.30,M,W,;0.06,0.11,0.20,S,G,;0.06,-0.11,0.20,P,R,;-0.30,0,0.16,T,W,;" ar(0.10,0,0.42,"Y") "|NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition.||the ordinary power-driven lights, sitting lower and closer together than a ship's, with an amber beacon flashing once a second for three seconds and then dark for three"
   NVES=22
   VES_READY=1
   return 0
@@ -6870,7 +6870,15 @@ function motion_lights(k){
   if(k==2) return "Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right."
   if(k==3) return "Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left."
   if(k==4) return "A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam."
-  return "No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped."
+  #  NOT "Anchored, aground, or stopped." Larry, on mot-16 -- a vessel
+  #  not under command, making no way: "the description of the answer
+  #  does not say 'not under command' which she clearly is." Two
+  #  all-round reds is Rule 27(a) and nothing else; a vessel at ANCHOR
+  #  shows an all-round white, Rule 30, so this sentence offered him a
+  #  reading her lights had already ruled out. What she is comes from the
+  #  identity sentence in front of this one and from her standing after
+  #  it; this half only says that she is not moving.
+  return "No sidelights and no sternlight, so she is not making way through the water."
 }
 
 #  HER STANDING UNDER RULE 18, which is a different question from her
@@ -6925,6 +6933,20 @@ function r18_say(st,k){
   if(st=="wig")  return "She is a WIG CRAFT taking off, landing or in flight near the surface. Rule 18(f)(i): she keeps well clear of all vessels and avoids impeding their navigation. On the water, she is a power-driven vessel like any other."
   if(st=="tow")  return "She is a vessel BEING TOWED, and a tow has no standing of her own under Rule 18. The vessel towing her may well be restricted in her ability to manoeuvre and showing the lights for it. Find the towing vessel and what is between you before you decide anything: the tow line is the hazard, and it may be a long way ahead of her."
   return ""
+}
+#  Her standing when she is NOT MAKING WAY. r18_say() is written for a
+#  crossing - "whichever way she is crossing", "her lights tell you where
+#  she is going" - and neither is true of a vessel lying stopped, so this
+#  says the same rules in the situation that actually obtains.
+function r18_still(st,key){
+  if(st=="nuc")  return "And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for."
+  if(st=="ram")  return "And she is RESTRICTED IN HER ABILITY TO MANOEUVRE, Rule 27(b). Rule 18(a)(ii): you keep out of her way. Stopped or not, she may be unable to move at all."
+  if(st=="fish") return "And she is ENGAGED IN FISHING, Rule 26. Rule 18(a)(iii): you keep out of her way, and her gear may be streamed a long way from her -- stopped is exactly when it is out."
+  if(st=="sail") return "And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must."
+  if(st=="cbd")  return "And she is CONSTRAINED BY HER DRAUGHT, Rule 28. Rule 18(d)(i): do not impede her -- and a vessel this deep lying stopped has very little water to work with."
+  if(key=="anchor" || key=="anchor50") return "She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding."
+  if(key=="aground") return "She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look."
+  return "Nothing in her lights says why she has stopped."
 }
 function motion_plain(k){
   if(k==1) return "Taking you as a power-driven vessel under way, Rule 14: neither of you stands on - each alters to starboard and you pass port to port."
@@ -6988,7 +7010,13 @@ function motion_why(k,idx,   a,st,s,sig){
   sig = motion_sig(idx)
   s = motion_lights(k)
   if(sig!="") s = sig " " s
-  if(k==5) return s
+  #  A STOPPED VESSEL STILL HAS A STANDING, and this returned before
+  #  saying so. mot-16 ended "...she is not making way through the water.
+  #  Anchored, aground, or stopped." -- with no mention that two all-round
+  #  reds mean NOT UNDER COMMAND, which is the whole of what her lights
+  #  are telling you and the only thing that decides what you do about
+  #  her. Rule 18 does not stop applying because she has stopped.
+  if(k==5) return s " " r18_still(st, a[1])
   if(k==4) return s " " motion_ovt(st)
   if(st=="") return s " " motion_plain(k)
   return s " " r18_say(st,k)
@@ -6999,12 +7027,32 @@ function motion_why(k,idx,   a,st,s,sig){
 #  exactly this -- "Red over white.", "Green over white.", "Three
 #  all-round greens" -- so one wording serves the quiz reveal, the
 #  review screen and this.
-function motion_sig(idx,   a,d,i){
+#  TWO OF THE TWENTY-THREE CAPTIONS ARE NOT LIGHT LISTS, and feeding
+#  them through the same sentence produced English that was wrong or not
+#  English at all:
+#
+#    sail7       "She shows if she carries nothing else she must show a
+#                 torch or lantern in time to prevent collision."
+#    submarine   "She shows nOT a Convention light."
+#
+#  The second one is also a lie about what you would see. Both captions
+#  are right where they are -- one is a conditional, one is a warning
+#  that the light is outside the Convention -- so the fix is a field for
+#  what she SHOWS, field 7, filled in only for the vessels whose caption
+#  will not serve. It stays in the table, beside the lights it describes,
+#  for the reason the caption is used at all: a sentence written here
+#  instead can drift from the picture, and nothing would catch it.
+function motion_sig(idx,   a,d,i,w){
   split(VT[idx],a,"|")
+  if(a[7] != "") return "She shows " a[7] "."
   d = a[5]
   i = index(d, ".")
   if(i>0) d = substr(d,1,i-1)
   if(d=="") return ""
+  #  and a caption that starts as a clause rather than a list stands as
+  #  its own sentence, so a new one cannot silently repeat the fault.
+  w = d; sub(/ .*/, "", w)
+  if(w=="If" || w=="When" || w=="She" || w=="Her" || w=="NOT" || w=="Not") return d "."
   return "She shows " tolower(substr(d,1,1)) substr(d,2) "."
 }
 

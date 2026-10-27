@@ -1809,7 +1809,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 30 ===
 
@@ -1846,7 +1846,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 60 ===
 
@@ -1883,7 +1883,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 90 ===
 
@@ -1920,7 +1920,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 120 ===
 
@@ -1957,7 +1957,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 150 ===
 
@@ -1994,7 +1994,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 180 ===
 
@@ -2031,7 +2031,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 210 ===
 
@@ -2068,7 +2068,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 240 ===
 
@@ -2105,7 +2105,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 270 ===
 
@@ -2142,7 +2142,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 300 ===
 
@@ -2179,7 +2179,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor 330 ===
 
@@ -2216,7 +2216,7 @@
   Rule 30.  A single all-round white light where it can best be seen.
 
   She is not under way, or not making way through the water.
-  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a single all-round white light where it can best be seen. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 0 ===
 
@@ -2253,7 +2253,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 30 ===
 
@@ -2290,7 +2290,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 60 ===
 
@@ -2327,7 +2327,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 90 ===
 
@@ -2364,7 +2364,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 120 ===
 
@@ -2401,7 +2401,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 150 ===
 
@@ -2438,7 +2438,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 180 ===
 
@@ -2475,7 +2475,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 210 ===
 
@@ -2512,7 +2512,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 240 ===
 
@@ -2549,7 +2549,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 270 ===
 
@@ -2586,7 +2586,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 300 ===
 
@@ -2623,7 +2623,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light anchor50 330 ===
 
@@ -2660,7 +2660,7 @@
   Rule 30.  Two all-round whites, forward one higher, and the decks lit.
 
   She is not under way, or not making way through the water.
-  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round whites, forward one higher, and the decks lit. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
 
 === light aground 0 ===
 
@@ -2697,7 +2697,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 30 ===
 
@@ -2734,7 +2734,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 60 ===
 
@@ -2771,7 +2771,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 90 ===
 
@@ -2808,7 +2808,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 120 ===
 
@@ -2845,7 +2845,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 150 ===
 
@@ -2882,7 +2882,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 180 ===
 
@@ -2919,7 +2919,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 210 ===
 
@@ -2956,7 +2956,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 240 ===
 
@@ -2993,7 +2993,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 270 ===
 
@@ -3030,7 +3030,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 300 ===
 
@@ -3067,7 +3067,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light aground 330 ===
 
@@ -3104,7 +3104,7 @@
   Rule 30.  Anchor light or lights, plus two all-round reds in a vertical line.
 
   She is not under way, or not making way through the water.
-  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows anchor light or lights, plus two all-round reds in a vertical line. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
 
 === light nuc 0 ===
 
@@ -3141,7 +3141,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 30 ===
 
@@ -3178,7 +3178,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 60 ===
 
@@ -3215,7 +3215,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 90 ===
 
@@ -3252,7 +3252,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 120 ===
 
@@ -3289,7 +3289,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 150 ===
 
@@ -3326,7 +3326,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 180 ===
 
@@ -3363,7 +3363,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 210 ===
 
@@ -3400,7 +3400,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 240 ===
 
@@ -3437,7 +3437,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 270 ===
 
@@ -3474,7 +3474,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 300 ===
 
@@ -3511,7 +3511,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nuc 330 ===
 
@@ -3548,7 +3548,7 @@
   Rule 27.  Two all-round reds. Nothing else if she is not moving through the water.
 
   She is not under way, or not making way through the water.
-  She shows two all-round reds. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
 
 === light nucway 0 ===
 
@@ -8533,7 +8533,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 30 ===
 
@@ -8570,7 +8570,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 60 ===
 
@@ -8607,7 +8607,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 90 ===
 
@@ -8644,7 +8644,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 120 ===
 
@@ -8681,7 +8681,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 150 ===
 
@@ -8718,7 +8718,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 180 ===
 
@@ -8755,7 +8755,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 210 ===
 
@@ -8792,7 +8792,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 240 ===
 
@@ -8829,7 +8829,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 270 ===
 
@@ -8866,7 +8866,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 300 ===
 
@@ -8903,7 +8903,7 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
 === light sail7 330 ===
 
@@ -8940,5 +8940,5 @@
   Rule 25.  If she carries nothing else she must show a torch or lantern in time to prevent collision.
 
   She is not under way, or not making way through the water.
-  She shows if she carries nothing else she must show a torch or lantern in time to prevent collision. No sidelights and no sternlight: she is not making way through the water. Anchored, aground, or stopped.
+  She shows a torch or lantern in time to prevent collision, and nothing else. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
 
