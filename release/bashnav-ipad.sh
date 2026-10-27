@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003616569
+BASHNAV_BYTES=003619667
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -6760,7 +6760,7 @@ function ves_init(   i,n,a){
   #  lights off to one side and made them impossible to account for.
   VT[18] = "mineclear|Mine clearance vessel|Rule 27|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.98,"G") ";" yd(0.15,0.15,0.82,"G") ";" yd(0.15,-0.15,0.82,"G") "|Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.|The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not."
   VT[19] = "hover|Air-cushion vessel in non-displacement mode|Rule 23|" MF ";" SG ";" SR ";" ST ";" ar(0.15,0,0.60,"Y") "|The ordinary power-driven lights plus an all-round flashing yellow."
-  VT[20] = "sail7|Sailing vessel under 7 m, or a vessel under oars|Rule 25|" ar(0.0,0,0.35,"W") "|If she carries nothing else she must show a torch or lantern in time to prevent collision.||a torch or lantern in time to prevent collision, and nothing else"
+  VT[20] = "sail7|Sailing vessel under 7 m, or a vessel under oars|Rule 25|" ar(0.0,0,0.35,"W") "|If she carries nothing else she must show a torch or lantern in time to prevent collision."
   #  Rule 23(c), added to the Convention by IMO resolution A.910(22).  The
   #  flashing red is IN ADDITION to the ordinary power-driven lights, and
   #  only while taking off, landing, or in flight near the surface.
@@ -6775,7 +6775,7 @@ function ves_init(   i,n,a){
   #  the point.  Written out rather than built from ar(), because ar() makes
   #  every lamp all-round and that turned her sidelights into all-round
   #  lights: the display then read her as "not making way".
-  VT[22] = "submarine|Submarine on the surface (US Navy identification light)|32 CFR 707.7|0.10,0,0.30,M,W,;0.06,0.11,0.20,S,G,;0.06,-0.11,0.20,P,R,;-0.30,0,0.16,T,W,;" ar(0.10,0,0.42,"Y") "|NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition.||the ordinary power-driven lights, sitting lower and closer together than a ship's, with an amber beacon flashing once a second for three seconds and then dark for three"
+  VT[22] = "submarine|Submarine on the surface (US Navy identification light)|32 CFR 707.7|0.10,0,0.30,M,W,;0.06,0.11,0.20,S,G,;0.06,-0.11,0.20,P,R,;-0.30,0,0.16,T,W,;" ar(0.10,0,0.42,"Y") "|NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition."
   NVES=22
   VES_READY=1
   return 0
@@ -7004,10 +7004,10 @@ function motion_ovt(st,   n){
 #  So the identity goes in front, taken from the vessel's own light
 #  table rather than written again here, which is why it cannot drift
 #  from the picture the quiz draws.
-function motion_why(k,idx,   a,st,s,sig){
+function motion_why(k,idx,th,   a,st,s,sig){
   split(VT[idx],a,"|")
   st = r18_of(a[1])
-  sig = motion_sig(idx)
+  sig = seen_sig(idx,th)
   s = motion_lights(k)
   if(sig!="") s = sig " " s
   #  A STOPPED VESSEL STILL HAS A STANDING, and this returned before
@@ -7022,38 +7022,111 @@ function motion_why(k,idx,   a,st,s,sig){
   return s " " r18_say(st,k)
 }
 
-#  Her identifying lights, as the table states them: the first sentence
-#  of the vessel's own description. Field 5 of VT[] is written for
-#  exactly this -- "Red over white.", "Green over white.", "Three
-#  all-round greens" -- so one wording serves the quiz reveal, the
-#  review screen and this.
-#  TWO OF THE TWENTY-THREE CAPTIONS ARE NOT LIGHT LISTS, and feeding
-#  them through the same sentence produced English that was wrong or not
-#  English at all:
+#  WHAT YOU CAN SEE FROM THIS BEARING -- not what she carries.
 #
-#    sail7       "She shows if she carries nothing else she must show a
-#                 torch or lantern in time to prevent collision."
-#    submarine   "She shows nOT a Convention light."
+#  Larry, reviewing mot-28, mot-29 and mot-30 in a row:
 #
-#  The second one is also a lie about what you would see. Both captions
-#  are right where they are -- one is a conditional, one is a warning
-#  that the light is outside the Convention -- so the fix is a field for
-#  what she SHOWS, field 7, filled in only for the vessels whose caption
-#  will not serve. It stays in the table, beside the lights it describes,
-#  for the reason the caption is used at all: a sentence written here
-#  instead can drift from the picture, and nothing would catch it.
-function motion_sig(idx,   a,d,i,w){
-  split(VT[idx],a,"|")
-  if(a[7] != "") return "She shows " a[7] "."
-  d = a[5]
-  i = index(d, ".")
-  if(i>0) d = substr(d,1,i-1)
-  if(d=="") return ""
-  #  and a caption that starts as a clause rather than a list stands as
-  #  its own sentence, so a new one cannot silently repeat the fault.
-  w = d; sub(/ .*/, "", w)
-  if(w=="If" || w=="When" || w=="She" || w=="Her" || w=="NOT" || w=="Not") return d "."
-  return "She shows " tolower(substr(d,1,1)) substr(d,2) "."
+#      "you say she shows two masthead lights but you only display one"
+#      "here again, the description does not match the lights displayed"
+#
+#  Three claims, one fault.  This sentence was built from field 5 of the
+#  vessel table, which is her SIGNATURE: every light she carries.  The
+#  drawing beside it shows only the lights whose ARCS bear on you from
+#  the bearing it was drawn at.  Those are different things, and the
+#  sentence used one as if it were the other:
+#
+#    mot-28  drawn from 135, a vessel of 50 m or more
+#            said  "She shows two masthead lights, the after one higher"
+#            drew  one white - her sternlight.  Masthead lights are cut
+#                  off abaft 112.5 degrees; you could see neither.
+#    mot-29  drawn from 045    named both sidelights and a sternlight;
+#                              only the masthead and the green bear.
+#    mot-30  drawn from 270    the same the other way round.
+#
+#  It is general, not three cases: every vessel whose identity is carried
+#  in DIRECTIONAL lights states it wrongly from some bearing, and every
+#  caption that ends "...and sternlight" is false from ahead.
+#
+#  So the sentence is built from the lights that are in arc, which makes
+#  it unable to disagree with the picture: both read the same table
+#  through the same arc_vis().  All-round lights come first, highest
+#  first, because they are what identifies her; then masthead lights,
+#  then sidelights, then the sternlight.
+#
+#  AND THE SENTENCE IT PRODUCES FROM ASTERN IS THE POINT, not a loss:
+#
+#      She shows her sternlight.
+#
+#  Fifty metres or fifteen, laden or light, from abaft her beam an
+#  ordinary power-driven vessel's lights identify nothing whatever.  That
+#  is worth a reader meeting head-on, and no caption written from the
+#  table could ever have said it.
+function colname(c){
+  if(c=="W") return "white"
+  if(c=="G") return "green"
+  if(c=="R") return "red"
+  if(c=="Y") return "yellow"
+  return c
+}
+function arphrase(c,k){
+  if(k==1) return "an all-round " colname(c)
+  return (k==2?"two":(k==3?"three":k)) " all-round " colname(c) "s"
+}
+function seen_sig(idx,th,   a,n,L,i,f,j,t1,t2,nar,nmh,sg,sp,stn,yel,m,np,txt,allone,ARC,ARH,SEGC,SEGK,PH){
+  ves_init()
+  split(VT[idx],a,"|"); n=split(a[4],L,";")
+  nar=0; nmh=0; sg=0; sp=0; stn=0; yel=0
+  for(i=1;i<=n;i++){
+    split(L[i],f,",")
+    if(!arc_vis(f[4],th)) continue
+    if(f[4]=="A"){ nar++; ARH[nar]=f[3]+0; ARC[nar]=f[5] }
+    else if(f[4]=="M") nmh++
+    else if(f[4]=="S") sg=1
+    else if(f[4]=="P") sp=1
+    else if(f[4]=="T") stn=1
+    else if(f[4]=="Y") yel=1
+  }
+  #  highest first: a vertical pair is named top down, which is how the
+  #  rhymes are learnt and how the drawing stacks them.
+  for(i=2;i<=nar;i++){ t1=ARH[i]; t2=ARC[i]; j=i-1
+    while(j>=1 && ARH[j]<t1){ ARH[j+1]=ARH[j]; ARC[j+1]=ARC[j]; j-- }
+    ARH[j+1]=t1; ARC[j+1]=t2 }
+  m=0
+  for(i=1;i<=nar;i++){
+    if(m>0 && SEGC[m]==ARC[i]) SEGK[m]++
+    else { m++; SEGC[m]=ARC[i]; SEGK[m]=1 }
+  }
+  np=0
+  if(m>0){
+    allone=1
+    for(i=1;i<=m;i++) if(SEGK[i]>1) allone=0
+    #  "green over white" and "red, white and red in a vertical line" are
+    #  the words the rules are remembered in; only fall back to counting
+    #  all-round lights when the stack is not one of those shapes.
+    if(m==1) txt=arphrase(SEGC[1],SEGK[1])
+    else if(allone && m==2) txt=colname(SEGC[1]) " over " colname(SEGC[2])
+    else if(allone && m==3) txt=colname(SEGC[1]) ", " colname(SEGC[2]) " and " colname(SEGC[3]) " in a vertical line"
+    else { txt=""
+      for(i=1;i<=m;i++) txt=txt (i>1?" over ":"") arphrase(SEGC[i],SEGK[i]) }
+    np++; PH[np]=txt
+  }
+  if(nmh==1){ np++; PH[np]="a masthead light" }
+  else if(nmh==2){ np++; PH[np]="two masthead lights, the after one higher" }
+  else if(nmh==3){ np++; PH[np]="three masthead lights in a vertical line" }
+  else if(nmh>3){ np++; PH[np]=nmh " masthead lights" }
+  if(sg&&sp){ np++; PH[np]="both sidelights" }
+  else if(sg){ np++; PH[np]="her green sidelight" }
+  else if(sp){ np++; PH[np]="her red sidelight" }
+  if(stn){ np++; PH[np]="her sternlight" }
+  if(yel){ np++; PH[np]="a yellow towing light" }
+  if(np==0) return "Not one of her lights bears on you from here."
+  txt=""
+  for(i=1;i<=np;i++){
+    if(i==1) txt=PH[i]
+    else if(i==np) txt=txt " and " PH[i]
+    else txt=txt ", " PH[i]
+  }
+  return "She shows " txt "."
 }
 
 function light_sig(idx,th,   a,n,L,i,f,cnt,j,t1,t2,sig){
@@ -7295,7 +7368,7 @@ function reveal_lights(   rk,ra){
   if(V_IDX>0){
     print ""
     printf "  %s\n", cw(motion_text(motion_of(V_IDX,V_TH)),C_ACC)
-    printf "  %s\n", motion_why(motion_of(V_IDX,V_TH),V_IDX)
+    printf "  %s\n", motion_why(motion_of(V_IDX,V_TH),V_IDX,V_TH)
   }
   print ""
   return 0
@@ -8325,7 +8398,7 @@ function quiz_lights_reveal(){
   if(QA[6]!="") printf "      %s %s\n", cw("Watch out:",C_ACC), QA[6]
   print ""
   printf "  Q2  %s -- %s\n", cw(toupper(QZ_MANS) " is right",C_ACC), motion_text(QZ_MOT)
-  printf "      %s\n", motion_why(QZ_MOT,QZ_C)
+  printf "      %s\n", motion_why(QZ_MOT,QZ_C,QZ_TH)
   printf "      %s\n", aspect_words(QZ_TH)
   if(QZ_SAME!=""){
     print ""
@@ -9831,7 +9904,7 @@ function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x,xi,xt){
     split(VT[i],a,"|")
     for(t=0;t<360;t+=45){
       m=motion_of(i,t)
-      k = a[2] "\t" motion_text(m) "\t" motion_why(m,i)
+      k = a[2] "\t" motion_text(m) "\t" motion_why(m,i,t)
       if(k in RVSEEN) continue
       #  KEEP THE VESSEL AND THE BEARING, not just the sentence. The
       #  review screen showed the claim with her type handed over as a
@@ -9960,7 +10033,14 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
       G_NOCROP=1
       draw_lights(parts[1], RV_MT[i]); gshow()
       G_NOCROP=0
-      printf "  %s\n", cwd(sprintf("drawn from %03d - %s", RV_MT[i], parts[5]))
+      #  "drawn from 135 - Two masthead lights, the after one higher."
+      #  read as a caption for the picture, and the picture showed one
+      #  sternlight: field 5 is her SIGNATURE, every light she carries,
+      #  and from 135 you can see none of the three it names. The words
+      #  above now say what bears on you; this line says what she
+      #  carries, and says which it is.
+      printf "  %s\n", cwd(sprintf("drawn from %03d - she carries %s", RV_MT[i],
+                                    tolower(substr(parts[5],1,1)) substr(parts[5],2)))
       if(hidden_note(parts[1], RV_MT[i])!="")
         printf "  %s\n", cw(hidden_note(parts[1], RV_MT[i]),C_ACC)
     }

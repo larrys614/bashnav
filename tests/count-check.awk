@@ -8,7 +8,7 @@ BEGIN{
     for(i=1;i<=NVES;i++){ split(VT[i],a,"|")
       for(t=0;t<360;t+=45){
         m=motion_of(i,t)
-        k = a[2] "|" motion_text(m) "|" motion_why(m,i)
+        k = a[2] "|" motion_text(m) "|" motion_why(m,i,t)
         if(!(k in S)){ S[k]=1; n++ } } }
     print n; exit 0 }
   print "?"; exit 1

@@ -33,7 +33,7 @@ BEGIN{
     for(t=0;t<360;t+=45){
       m = motion_of(i,t)
       printf "%s{\"name\":\"%s\",\"brg\":%d,\"call\":\"%s\",\"why\":\"%s\"}\n",
-        (k>0?",":""), jesc(a[2]), t, jesc(motion_text(m)), jesc(motion_why(m,i))
+        (k>0?",":""), jesc(a[2]), t, jesc(motion_text(m)), jesc(motion_why(m,i,t))
       k++
     }
   }

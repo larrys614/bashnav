@@ -696,7 +696,7 @@ WXLOG
         tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
         tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk \
         tests/colregs-wind.awk tests/colregs-vessel.awk tests/colregs-bearing.awk \
-        tests/colregs-r18.awk)
+        tests/colregs-r18.awk tests/motion-seen-check.awk)
   n=$(echo "$r" | tail -1 | $AW '{print $2}')
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
@@ -1318,6 +1318,17 @@ WXLOG
   else
     bad "a give-way call ignores her standing under Rule 18"
     echo "$r" | grep FAIL | head -4
+  fi
+
+  # ---- the words match the display ---------------------------------
+  #  The give-way explanation says what she shows; the drawing shows what
+  #  bears. Nothing compared the two until Larry found three claims in a
+  #  row where they disagreed.
+  if r=$($AW $CSRC -f tests/motion-seen-check.awk -v cmode=plain </dev/null); then
+    echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+  else
+    bad "a give-way call names a light you cannot see, or misses one you can"
+    echo "$r" | grep -A1 FAIL | head -8
   fi
 
   # ---- one bearing per scenario, stated by the stem ----------------

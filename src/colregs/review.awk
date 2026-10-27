@@ -26,7 +26,7 @@ function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x,xi,xt){
     split(VT[i],a,"|")
     for(t=0;t<360;t+=45){
       m=motion_of(i,t)
-      k = a[2] "\t" motion_text(m) "\t" motion_why(m,i)
+      k = a[2] "\t" motion_text(m) "\t" motion_why(m,i,t)
       if(k in RVSEEN) continue
       #  KEEP THE VESSEL AND THE BEARING, not just the sentence. The
       #  review screen showed the claim with her type handed over as a
@@ -155,7 +155,14 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
       G_NOCROP=1
       draw_lights(parts[1], RV_MT[i]); gshow()
       G_NOCROP=0
-      printf "  %s\n", cwd(sprintf("drawn from %03d - %s", RV_MT[i], parts[5]))
+      #  "drawn from 135 - Two masthead lights, the after one higher."
+      #  read as a caption for the picture, and the picture showed one
+      #  sternlight: field 5 is her SIGNATURE, every light she carries,
+      #  and from 135 you can see none of the three it names. The words
+      #  above now say what bears on you; this line says what she
+      #  carries, and says which it is.
+      printf "  %s\n", cwd(sprintf("drawn from %03d - she carries %s", RV_MT[i],
+                                    tolower(substr(parts[5],1,1)) substr(parts[5],2)))
       if(hidden_note(parts[1], RV_MT[i])!="")
         printf "  %s\n", cw(hidden_note(parts[1], RV_MT[i]),C_ACC)
     }

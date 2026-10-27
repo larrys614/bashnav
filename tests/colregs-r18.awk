@@ -32,7 +32,7 @@ BEGIN{
     for(th=0;th<360;th+=15){
       m = motion_of(v,th)
       if(m==5) continue
-      w = motion_why(m,v)
+      w = motion_why(m,v,th)
       checked++
       if(w ~ /You stand on and hold your course/){
         printf "FAIL  %s (%s) at %03d: told to stand on\n", a[1], st, th
