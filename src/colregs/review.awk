@@ -156,6 +156,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
       draw_lights(parts[1], RV_MT[i]); gshow()
       G_NOCROP=0
       printf "  %s\n", cwd(sprintf("drawn from %03d - %s", RV_MT[i], parts[5]))
+      if(hidden_note(parts[1], RV_MT[i])!="")
+        printf "  %s\n", cw(hidden_note(parts[1], RV_MT[i]),C_ACC)
     }
     print ""
     printf "  %s   %s\n", cw("The program says",C_ACC), a[2]

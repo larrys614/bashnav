@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003609317
+BASHNAV_BYTES=003612222
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -7142,6 +7142,60 @@ function aspect_words(th,   t,p){
   if(index(p,"beam")>0) return "You are " p ": you see her whole " ((t<0)?"port":"starboard") " side."
   return "You are " p "."
 }
+#  WHEN ONE LIGHT HIDES ANOTHER, SAY SO.
+#
+#  Larry marked mot-13 wrong: "here you say she shows three greens, but
+#  the picture shows two greens.....which is correct?" Both are. The
+#  claim is drawn from 270 - exactly abeam - and her two yard-end greens
+#  sit at the same height, one each side of the mast, so from abeam you
+#  are looking ALONG the fore yard and one is directly behind the other.
+#  Projected sideways they land on the same spot:
+#
+#      bearing      foremast    yard+    yard-
+#      000             0.000   -0.150    0.150   separated by 0.30
+#      045             0.106   -0.000    0.212   separated by 0.21
+#      090             0.150    0.150    0.150   SUPERIMPOSED
+#      270            -0.150   -0.150   -0.150   SUPERIMPOSED
+#
+#  So the drawing was right, the sentence was right, and the two together
+#  said one thing and showed another with nothing to reconcile them. That
+#  is a display fault and he was right to flag it.
+#
+#  It is also worth teaching rather than papering over: a mine clearance
+#  vessel seen from abeam shows TWO greens, and a mariner who has only
+#  ever been told "three" will not recognise her.
+function hidden_note(key,th,   a,i,j,n,L,f,nv,X,H,C,pairs,col,d1,d2){
+  ves_init()
+  for(i=1;i<=NVES;i++){ split(VT[i],a,"|"); if(a[1]==key) break }
+  n=split(a[4],L,";")
+  nv=0
+  for(i=1;i<=n;i++){
+    split(L[i],f,",")
+    if(!arc_vis(f[4],th)) continue
+    nv++
+    X[nv] = (f[1]+0)*sind(th) - (f[2]+0)*cosd(th)
+    H[nv] = f[3]+0
+    C[nv] = f[5]
+  }
+  pairs=0; col=""
+  for(i=1;i<nv;i++){
+    for(j=i+1;j<=nv;j++){
+      if(C[i]!=C[j]) continue
+      d1 = X[i]-X[j]; if(d1<0) d1 = -d1
+      d2 = H[i]-H[j]; if(d2<0) d2 = -d2
+      if(d1<0.02 && d2<0.02){ pairs++; col=C[i] }
+    }
+  }
+  if(pairs==0) return ""
+  #  COUNT ONLY THE COLOUR THAT COLLIDES. "She shows 5, you can see 4" is
+  #  true of every light on her and buries the thing that matters, which
+  #  is the one a reader is counting: three greens against two.
+  d1=0
+  for(i=1;i<=nv;i++) if(C[i]==col) d1++
+  return sprintf("She shows %d %s lights and you can see %d: two of them are exactly in line from this bearing, one behind the other. Swing a few degrees either way and they open up.",
+                 d1, (col=="G" ? "green" : (col=="R" ? "red" : "white")), d1-pairs)
+}
+
 function show_lights(key,th){
   if(draw_lights(key,th)) return 1
   print ""
@@ -7152,6 +7206,11 @@ function show_lights(key,th){
   #  Browsing tells you the aspect.  The quiz must not: Q2 is asking
   #  you to work the aspect out from the lights themselves.
   if(!Q_NOASPECT) printf "  %s\n", aspect_words(th)
+  #  Same guard as the aspect, and for the same reason: "she shows three
+  #  green lights" answers Q1 before it is asked. The quiz gets this in
+  #  the reveal instead, where it is teaching rather than telling.
+  if(!Q_NOASPECT && hidden_note(key,th)!="")
+    printf "  %s\n", cw(hidden_note(key,th),C_ACC)
   printf "  Letters are the colours: %s white  %s red  %s green  %s yellow\n",
      cw("W",K_W), cw("R",K_R), cw("G",K_G), cw("Y",K_Y)
   #  Left-and-right is where a light sits along her hull, seen from close
@@ -7176,10 +7235,15 @@ function show_lights(key,th){
   print ""
   return 0
 }
-function reveal_lights(){
+function reveal_lights(   rk,ra){
   printf "  %s\n", cw(V_NAME,C_ACC)
   printf "  %s.  %s\n", V_RULE, V_NOTE
   if(V_TRAP!="") printf "  %s %s\n", cw("Watch out:",C_ACC), V_TRAP
+  if(V_IDX>0){
+    split(VT[V_IDX],ra,"|"); rk = ra[1]
+    if(hidden_note(rk,V_TH)!="")
+      printf "  %s %s\n", cw("And from this bearing:",C_ACC), hidden_note(rk,V_TH)
+  }
   if(V_IDX>0){
     print ""
     printf "  %s\n", cw(motion_text(motion_of(V_IDX,V_TH)),C_ACC)
@@ -9849,6 +9913,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
       draw_lights(parts[1], RV_MT[i]); gshow()
       G_NOCROP=0
       printf "  %s\n", cwd(sprintf("drawn from %03d - %s", RV_MT[i], parts[5]))
+      if(hidden_note(parts[1], RV_MT[i])!="")
+        printf "  %s\n", cw(hidden_note(parts[1], RV_MT[i]),C_ACC)
     }
     print ""
     printf "  %s   %s\n", cw("The program says",C_ACC), a[2]

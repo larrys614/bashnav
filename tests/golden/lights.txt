@@ -7731,6 +7731,7 @@
   
   ----------------------------------------------------------------------
   You are on her starboard beam: you see her whole starboard side.
+  She shows 4 green lights and you can see 3: two of them are exactly in line from this bearing, one behind the other. Swing a few degrees either way and they open up.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -7742,6 +7743,7 @@
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
   Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
+  And from this bearing: She shows 4 green lights and you can see 3: two of them are exactly in line from this bearing, one behind the other. Swing a few degrees either way and they open up.
 
   Crossing from your left to your right.
   She shows three all-round greens: one at the foremast head and one at each end of the fore yard. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
@@ -7959,6 +7961,7 @@
   
   ----------------------------------------------------------------------
   You are on her port beam: you see her whole port side.
+  She shows 3 green lights and you can see 2: two of them are exactly in line from this bearing, one behind the other. Swing a few degrees either way and they open up.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -7970,6 +7973,7 @@
   Mine clearance vessel
   Rule 27.  Three all-round greens: one at the foremast head and one at each end of the fore yard. Keep 1000 m clear.
   Watch out: The top green sits over the masthead white, and green over white on its own is a trawler. The two greens out on the yard are what tell you it is not.
+  And from this bearing: She shows 3 green lights and you can see 2: two of them are exactly in line from this bearing, one behind the other. Swing a few degrees either way and they open up.
 
   Crossing from your right to your left.
   She shows three all-round greens: one at the foremast head and one at each end of the fore yard. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. But she is RESTRICTED IN HER ABILITY TO MANOEUVRE. Rule 18(a)(ii): a power-driven vessel under way keeps out of the way of her, whatever the crossing geometry says. She may be unable to get out of your way at all.
