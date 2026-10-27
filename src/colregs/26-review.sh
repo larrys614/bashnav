@@ -14,21 +14,51 @@ rv_ask_note() {   # $1 = the question to ask
   printf "  %s (one line, return to skip): " "$1"
   IFS= read -r RVNOTE || RVNOTE=""
 }
+#  THE VERDICT IS SAVED BEFORE THE NOTE IS ASKED FOR, and this is not a
+#  tidiness point.  Larry marked three claims in the mot section -- two
+#  wrong, one with a comment -- and none of the three was in review.tsv
+#  afterwards.  The file's last write was hours earlier, at the end of
+#  the encounter section.
+#
+#  The sequence that loses them:
+#
+#    1  he presses f.  The verdict is now known.
+#    2  rv_ask_note prints its prompt and `read` BLOCKS.
+#    3  he reaches for the mouse to copy the screen into a chat, and
+#       presses ctrl-c to get his shell back.
+#    4  SIGINT's default disposition kills the script while read is
+#       blocked, so rv_save on the same line never runs.
+#
+#  Reproduced with a fifo held open so `read` genuinely blocks: the mark
+#  is gone.  The note is optional and the verdict is not, so the verdict
+#  is written the instant the key is pressed.  If a note follows, a
+#  SECOND row is appended for the same key, and every reader of this file
+#  -- rv_load, rv_list, rv_next -- takes the last row for a key, so the
+#  later row supersedes the earlier one.
+#
+#  The cost is a duplicate line per annotated claim.  The alternative is
+#  losing a reviewer's judgement because he wanted to copy the screen.
 rv_one() {   # $1 = key ; returns 1 to stop
   eng -v cmd=rvshow -v key="$1" || return 1
   printf "  %s  [r] right   [f] wrong, say why   [c] right, but a comment\n" "$1"
   printf "  [return] skip   [q] stop : "
   IFS= read -r v || return 1
+  RVSTEP=answered
   case "$v" in
     r|R) rv_save "$1" ok "" ;;
-    f|F) rv_ask_note "What is wrong with it?"; rv_save "$1" flag "$RVNOTE" ;;
-    c|C) rv_ask_note "What is the comment?"; rv_save "$1" ok "$RVNOTE" ;;
+    f|F) rv_save "$1" flag ""
+         rv_ask_note "What is wrong with it?"
+         [ -n "$RVNOTE" ] && rv_save "$1" flag "$RVNOTE" ;;
+    c|C) rv_save "$1" ok ""
+         rv_ask_note "What is the comment?"
+         [ -n "$RVNOTE" ] && rv_save "$1" ok "$RVNOTE" ;;
     q|Q|x|X) return 1 ;;
-    *) : ;;
+    *) RVSTEP=skipped ;;
   esac
   return 0
 }
 rv_run() {   # $1 = section, or empty for "carry on from where I left off"
+  RVSKIP=""
   if [ -n "$1" ]; then
     #  NOT  while read k ... done < keyfile :  that redirects the loop
     #  body's stdin to the key file, so every prompt inside rv_one reads
@@ -40,10 +70,16 @@ rv_run() {   # $1 = section, or empty for "carry on from where I left off"
       rv_one "$k" || break
     done
   else
+    #  rv_next returns the first claim with no row in the file, and
+    #  [return] deliberately writes no row -- so skipping re-offered the
+    #  SAME claim, for ever.  The keys skipped in this run are carried
+    #  along and stepped over; nothing is written for them, so a later
+    #  run offers them again, which is what skipping means.
     while :; do
-      k=$(eng -v cmd=rvnext -v rfile="$(rv_file)")
+      k=$(eng -v cmd=rvnext -v rfile="$(rv_file)" -v skips="$RVSKIP")
       [ -z "$k" ] && { echo; echo "  Every claim has been looked at.  Thank you."; echo; break; }
       rv_one "$k" || break
+      [ "$RVSTEP" = skipped ] && RVSKIP="$RVSKIP $k"
     done
   fi
 }

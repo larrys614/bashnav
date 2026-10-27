@@ -865,7 +865,12 @@ WXLOG
     case "$got" in *"enc-0	flag	the note"*) ;; *) bad "review did not record the flag and its note" ;; esac
     case "$got" in *"enc-1	ok"*) ;; *) bad "review did not record a plain correct" ;; esac
     case "$got" in *"enc-2	ok	a comment"*) ;; *) bad "review did not record a comment on a correct item" ;; esac
-    n=$(wc -l < "$RVH/review.tsv" | tr -d ' ')
+    #  COUNT DISTINCT KEYS, not lines. A flag or a comment now writes the
+    #  verdict first and the note second, so an annotated claim is two
+    #  rows and the later one supersedes -- which is what keeps the
+    #  judgement when the reviewer interrupts at the note prompt. Three
+    #  keypresses must still be three ANSWERS.
+    n=$(cut -f1 "$RVH/review.tsv" | sort -u | wc -l | tr -d ' ')
     [ "$n" = 3 ] || bad "review recorded $n answers from three keypresses"
     ok "the review session records what a person actually types"
   else
@@ -1319,6 +1324,18 @@ WXLOG
     bad "a give-way call ignores her standing under Rule 18"
     echo "$r" | grep FAIL | head -4
   fi
+
+  # ---- a reviewer's judgement survives the prompt -------------------
+  #  Three marks Larry made never reached review.tsv: he pressed the key,
+  #  then interrupted at the note prompt to copy the screen, and SIGINT
+  #  killed the script before the save ran.
+  guard 90 sh tests/review-durability.sh "$SH" "$AW"
+  o=$(cat "$GUARD_OUT" 2>/dev/null)
+  case $o in
+    *SKIP*)    say "  --    review durability needs a fifo; skipped here" ;;
+    *"BAD 0"*) ok "a review verdict reaches disk before the note is asked for, and skip advances" ;;
+    *) bad "a review mark can be lost"; echo "$o" | grep -E "FAIL" | head -4 ;;
+  esac
 
   # ---- the words match the display ---------------------------------
   #  The give-way explanation says what she shows; the drawing shows what

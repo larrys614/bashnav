@@ -1991,7 +1991,7 @@ BEGIN{
   #  review: the claims a test cannot check, put to a person
   else if(cmd=="rvlist")   rv_list(rfile)
   else if(cmd=="rvshow")   exit rv_show(key)
-  else if(cmd=="rvnext")   rv_next(rfile)
+  else if(cmd=="rvnext")   rv_next(rfile,skips)
   else if(cmd=="rvreport") rv_report(rfile)
   else if(cmd=="rvurl")    rv_url(rfile)
   else if(cmd=="rvcount"){ print rv_build() }

@@ -269,14 +269,29 @@ function rv_list(rfile,   i,line,f,n,done,fl,s,lastsec){
   print ""
   return 0
 }
-function rv_next(rfile,   i,line,f,n){
+#  "CARRY ON FROM WHERE I LEFT OFF" PLUS SKIP WAS AN INFINITE LOOP.
+#  rv_next() returns the first claim with no row in review.tsv, and
+#  [return] deliberately writes no row -- so the same claim came back,
+#  and came back, and came back. The menu offers skip, so skip has to
+#  mean "not this one, now", not "ask me again immediately".
+#
+#  The keys skipped during THIS run are passed in and stepped over.
+#  Nothing is written for them, so the next run offers them again, which
+#  is what a reviewer means by skipping: he has not judged it yet.
+function rv_next(rfile,skips,   i,line,f,n,SK,j,m){
   rv_build()
   while((getline line < rfile) > 0){
     n=split(line,f,"\t"); if(n<2) continue
     ST_[f[1]]=f[2]
   }
   close(rfile)
-  for(i=1;i<=RV_N;i++) if(!(RV_K[i] in ST_)){ print RV_K[i]; return 0 }
+  m=split(skips,SK," ")
+  for(i=1;i<=RV_N;i++){
+    if(RV_K[i] in ST_) continue
+    for(j=1;j<=m;j++) if(SK[j]==RV_K[i]) break
+    if(j<=m) continue
+    print RV_K[i]; return 0
+  }
   print ""
   return 0
 }
