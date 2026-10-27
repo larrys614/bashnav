@@ -69,7 +69,14 @@ guard() {
   #  never waited for -- three lines of alarming noise in the middle of
   #  a passing run.  dash does not, which is why it looked clean here.
   kill "$g_kill" 2>/dev/null
-  wait "$g_kill" 2>/dev/null
+  #  "|| :" is load-bearing. wait on a process we have just TERMed
+  #  returns 143, and on one already reaped returns 127 -- so under
+  #  set -e this line exits the whole suite. It never did, only because
+  #  every caller so far wrote "if guard ...; then", and set -e is
+  #  suspended for a function run as an if condition. The first bare
+  #  "guard 90 ..." killed the run at exit 143, after the check it was
+  #  guarding had already passed.
+  wait "$g_kill" 2>/dev/null || :
   if [ "$g_rc" -ge 128 ]; then
     printf '  ... TIMED OUT after %ss and was killed. Last step above.\n' "$g_sec" >> "$GUARD_OUT"
   fi
@@ -1329,13 +1336,20 @@ WXLOG
   #  Three marks Larry made never reached review.tsv: he pressed the key,
   #  then interrupted at the note prompt to copy the screen, and SIGINT
   #  killed the script before the save ran.
-  guard 90 sh tests/review-durability.sh "$SH" "$AW"
-  o=$(cat "$GUARD_OUT" 2>/dev/null)
-  case $o in
-    *SKIP*)    say "  --    review durability needs a fifo; skipped here" ;;
-    *"BAD 0"*) ok "a review verdict reaches disk before the note is asked for, and skip advances" ;;
-    *) bad "a review mark can be lost"; echo "$o" | grep -E "FAIL" | head -4 ;;
-  esac
+  #  Shell-only, once per shell: it is signal handling and `read` that
+  #  are under test, and it spends real seconds waiting for a blocked
+  #  read in each of three cases -- the awk underneath cannot change the
+  #  answer, and running it for every awk as well costs a minute a run.
+  if [ "$AW" != "$FIRSTAWK" ]; then :
+  else
+    guard 90 sh tests/review-durability.sh "$SH" "$AW" || :
+    o=$(cat "$GUARD_OUT" 2>/dev/null)
+    case $o in
+      *SKIP*)    say "  --    review durability needs a fifo; skipped here" ;;
+      *"BAD 0"*) ok "a review verdict reaches disk before the note is asked for, and skip advances" ;;
+      *) bad "a review mark can be lost"; echo "$o" | grep -E "FAIL" | head -4 ;;
+    esac
+  fi
 
   # ---- the words match the display ---------------------------------
   #  The give-way explanation says what she shows; the drawing shows what
