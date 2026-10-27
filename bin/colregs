@@ -4415,6 +4415,21 @@ function rv_secrule(s){
   if(s=="shp") return "Rules 24 to 30"
   return ""
 }
+#  WHAT THIS CLAIM IS ASSERTING, said on the screen rather than inferred
+#  from the section heading. Larry, after three claims where the words
+#  and the drawing disagreed: "lets add a sperate line saying TESTING:
+#  blah blah". Each section asserts a different thing, so each gets its
+#  own sentence -- one line reused across six sections could only be
+#  true of one of them.
+function rv_testing(s){
+  if(s=="enc") return "who gives way in this encounter, and what each of you does about it"
+  if(s=="mot") return "what her lights tell you about her heading, and who gives way"
+  if(s=="lig") return "the lights she carries: colour, arc and height, against Annex I"
+  if(s=="les") return "the answer the lesson marks right, and the reason it gives for it"
+  if(s=="snd") return "what the signal means, and the rule that prescribes it"
+  if(s=="shp") return "the day shape she carries, and what it identifies her as"
+  return ""
+}
 function rv_find(key,   i){ rv_build()
   for(i=1;i<=RV_N;i++) if(RV_K[i]==key) return i
   return 0 }
@@ -4456,6 +4471,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     n=split(a[7],O,";")
     for(j=1;j<=n;j++) printf "     %s) %s\n", substr("abcd",j,1), O[j]
     print ""
+    printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    print ""
     printf "  %s   %s\n", cw("The program says " toupper(a[6]),C_ACC), a[9]
     printf "  %s\n", a[8]
   }
@@ -4485,6 +4502,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
         printf "  %s\n", cw(hidden_note(parts[1], RV_MT[i]),C_ACC)
     }
     print ""
+    printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    print ""
     printf "  %s   %s\n", cw("The program says",C_ACC), a[2]
     print ""
     printf "  %s\n", a[3]
@@ -4494,6 +4513,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     G_NOCROP=1
     draw_lights(a[1], 305); gshow()
     printf "  %s\n", cwd("drawn from 305 - use 'colregs light " a[1] " <brg>' for any angle")
+    print ""
+    printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
     print ""
     printf "  %s   %s.  %s\n", cw(a[2],C_ACC), a[3], a[5]
     if(a[6]!="") printf "  %s %s\n", cw("Watch out:",C_ACC), a[6]
@@ -4511,11 +4532,16 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     les_q("L" idx,1)
     Q_A=""; les_q("L" idx,0)
     print ""
+    printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    print ""
     printf "  %s   %s\n", cw("The program says " toupper(Q_A),C_ACC), Q_W
     printf "  %s\n", cwd("the lesson body itself is 'colregs lesson L" idx "'")
   }
   else if(s=="snd"){
     idx=RV_I[i]; split(SD[idx],a,"|")
+    print ""
+    printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    print ""
     printf "  %s\n", cw(a[2],C_ACC)
     printf "  %s   %s\n", a[3], a[4]
     print ""
@@ -4524,6 +4550,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
   else if(s=="shp"){
     idx=RV_I[i]; split(SH[idx],a,"|")
     draw_shapes(a[1]); gshow()
+    print ""
+    printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
     print ""
     printf "  %s   %s\n", cw(a[2],C_ACC), a[3]
     printf "  %s\n", a[5]
