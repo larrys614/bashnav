@@ -20,7 +20,7 @@
     at colregs-v1 since the app was written. tests/run-tests.sh now
     refuses a build and a cache that disagree, which is the same check
     the drill app got for the same reason.  */
-var BUILD = 12;
+var BUILD = 13;
 
 var D = window.COLREGS_DATA;
 var $ = function (id) { return document.getElementById(id); };
@@ -1638,7 +1638,15 @@ document.addEventListener('DOMContentLoaded', function () {
   /* offline */
   var note = $('offline-note');
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').then(function () {
+    /*  updateViaCache: 'none' IS THE OTHER HALF OF THE SAME FAULT.
+        A browser only checks sw.js for updates on navigation, and that check
+        goes through the HTTP cache unless the previous script's max-age was
+        over 24 hours. GitHub Pages sends max-age=600, so for ten minutes
+        after a push the browser compares the new sw.js against a CACHED COPY
+        of the old one, sees no difference, and installs nothing. "Open it
+        once with a signal" is then a no-op that looks exactly like the app
+        being stuck - which is what it looked like.  */
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function () {
       note.textContent = 'Cached for offline use. Add to your home screen and it works with no signal.';
     }).catch(function () {
       note.textContent = 'Offline cache unavailable — the page still works while it is open.';

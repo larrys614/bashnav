@@ -330,6 +330,60 @@ scope of its own** and the second could not see the first's declarations. The
 sources are joined into one now, which is what reproduces a browser's shared
 global scope.
 
+### Ten minutes of cache, and an offline promise that could not be tested
+
+Larry: *"it still has not showed up... it seem to take time... it took like 5 min
+when I was looking for it on the correolis page."* An accurate symptom, and it
+was neither the service worker nor the browser alone. Measured on the live site
+from his own network:
+
+```
+cache-control: max-age=600
+last-modified:  Tue, 27 Oct 2026 02:16:13 GMT     <- the push
+date:           Tue, 27 Oct 2026 02:20:46 GMT     <- the fetch, 4.5 min later
+x-served-by:    cache-ewr-kewr1740087-EWR
+x-cache:        MISS
+```
+
+**GitHub Pages sends `max-age=600` on everything**, with a Fastly edge in front
+carrying an `age` of its own. His five minutes is the tail of a ten-minute
+window, enforced in two places at once.
+
+That is a nuisance for the front page and a **fault** for the apps, in two
+compounding ways:
+
+1. **A browser only re-checks `sw.js` through the HTTP cache**, unless the
+   previous script's `max-age` was over 24 hours. At 600 seconds it compares the
+   new worker against a *cached copy of the old one*, finds no difference, and
+   installs nothing. "Open it once with a signal" is then a no-op that looks
+   exactly like the app being stuck.
+2. **And `addAll(FILES)` reads that same cache.** So a worker that *did* install
+   could fill a brand-new cache with the previous version's files — reporting
+   its new `CACHE` name while serving old content. That is worse than being
+   plainly out of date: the version says one thing and the bytes say another,
+   and the build line at the foot of the page, the one thing a reader can check,
+   would lie to them.
+
+Both are fixed in all seven workers. Registration passes
+`updateViaCache: 'none'`, and `install` fetches every file with
+`cache: 'reload'` — still all-or-nothing, because a cache half-filled from two
+versions is the state nothing can diagnose, and that was `addAll`'s one virtue.
+
+`tests/sw-precache-check.sh` guards both, and **took two attempts to write
+correctly, in the same way twice.** The first matched the sentence in `sw.js`
+that explains why `addAll(FILES)` is not used, and reported all seven workers as
+broken. Stripping `//` comments fixed that and not the second one: the paragraph
+above each `register()` call is a `/* */` block, so the check passed on a file
+where `updateViaCache` had been taken off the code and left in the prose.
+Matching the register line itself is immune to both. Verified red four ways.
+
+**Two things found while running every harness, neither fixed here.**
+`run-drill-web.sh` fails on *"no runner questions found in this pack"* at the
+previous commit as well, so it predates this work. And the tides harness writes
+`shot-day.png` and `shot-pick.png` **into the repository root** rather than a
+temporary directory — untracked PNGs in a repo that is one `git add -A` from
+publication, which is the hazard `CLAUDE.md` opens with.
+
 ### A check written for one tool, when the fault belongs to all of them
 
 Every app's service worker is cache-first with no revalidation, so a file

@@ -20,7 +20,7 @@
   /* A visible build stamp.  Debugging this remotely without one meant
      guessing which version was on the device, and the guess was wrong:
      the service worker below had been serving a cached build. */
-  const BUILD = '19 \u2014 27 Oct 2026';
+  const BUILD = '20 \u2014 27 Oct 2026';
   const R2D = 180 / Math.PI;
 
   const CN = extendCelnav(makeCelnav(window.CELNAV_TABLES));
@@ -722,7 +722,15 @@
       if (window.caches && caches.keys)
         caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))).catch(() => {});
     } else {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      /*  updateViaCache: 'none' IS THE OTHER HALF OF THE SAME FAULT.
+          A browser only checks sw.js for updates on navigation, and that check
+          goes through the HTTP cache unless the previous script's max-age was
+          over 24 hours. GitHub Pages sends max-age=600, so for ten minutes
+          after a push the browser compares the new sw.js against a CACHED COPY
+          of the old one, sees no difference, and installs nothing. "Open it
+          once with a signal" is then a no-op that looks exactly like the app
+          being stuck - which is what it looked like.  */
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {});
     }
   }
 })();

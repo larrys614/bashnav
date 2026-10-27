@@ -73,6 +73,55 @@ for sw in docs/web/sw.js docs/web/*/sw.js; do
     fi
   fi
 
+  #  ---- and the precache must go PAST the browser's cache -----------
+  #
+  #  GitHub Pages serves everything with  cache-control: max-age=600  -
+  #  measured on the live site, not assumed. So for ten minutes after a
+  #  push, a plain  c.addAll(FILES)  is entitled to fill a brand new cache
+  #  with the PREVIOUS version's files: the worker then reports its new
+  #  CACHE name while serving old content, and the build line at the foot
+  #  of the page - the one thing a reader can check - lies to them.
+  #
+  #  Larry found this as "it takes about five minutes to show up", which
+  #  is the ten-minute window seen from the outside.
+  #  the worker's CODE, with its // comments taken off: the first version
+  #  of this check matched the sentence in sw.js that explains why
+  #  addAll(FILES) is not used, and reported all seven workers as broken.
+  code=$(sed 's|//.*||' "$sw")
+  if printf '%s\n' "$code" | grep -q 'addAll(FILES)'; then
+    echo "  FAIL  $name: sw.js precaches with addAll(FILES), which reads the"
+    echo "        browser's HTTP cache - fetch each file with cache:'reload'"
+    rc=1
+  fi
+  if ! printf '%s\n' "$code" | grep -q "cache: 'reload'"; then
+    echo "  FAIL  $name: sw.js does not fetch its precache past the HTTP cache"
+    rc=1
+  fi
+
+  #  ---- and the page must ask for the worker the same way ------------
+  #
+  #  The other half of it: a browser checks sw.js for updates through the
+  #  HTTP cache unless the previous script's max-age was over 24 hours.
+  #  At 600 seconds it compares the new worker against a cached copy of
+  #  the old one, finds no difference, and installs nothing - so "open it
+  #  once with a signal" is a no-op that looks like the app being stuck.
+  for js in "$dir"/*.js; do
+    [ -f "$js" ] || continue
+    case "$js" in *"/sw.js") continue ;; esac
+    #  ON THE REGISTER LINE ITSELF, not anywhere in the file. Stripping
+    #  // comments was not enough: the paragraph above each register call
+    #  explaining why updateViaCache is there is a /* */ block, so the
+    #  check passed on a file where the option had been taken off the code
+    #  and left in the prose. Matching the line is immune to both.
+    if grep -q 'serviceWorker.register(' "$js"; then
+      if ! grep -q "serviceWorker.register(.*updateViaCache: 'none'" "$js"; then
+        echo "  FAIL  $name: $(basename "$js") registers the worker without"
+        echo "        updateViaCache: 'none', so a push is invisible for ten minutes"
+        rc=1
+      fi
+    fi
+  done
+
   for f in $files; do
     case "$f" in ''|./) continue ;; esac
     if [ ! -e "$dir/$f" ]; then

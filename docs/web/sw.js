@@ -1,6 +1,6 @@
 // The launcher's own cache.  Each tool caches itself under its own
 // scope, so a tool updating does not invalidate this and vice versa.
-const CACHE = 'bashnav-launcher-v1'
+const CACHE = 'bashnav-launcher-v2'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'bashnav-launcher-';
@@ -8,8 +8,34 @@ const FILES = ['./', './launcher.css', './launcher.js', './manifest.webmanifest'
                './icon.svg', './icons/bashnav.svg', './icons/celnav.svg',
                './icons/colregs.svg', './icons/tides.svg', './icons/weather.svg',
                './icons/deck-log.svg'];
+//  EVERY FILE IS FETCHED PAST THE HTTP CACHE, and that is the whole point
+//  of this block rather than a plain addAll(FILES).
+//
+//  GitHub Pages serves every file with  cache-control: max-age=600  -
+//  measured, not assumed: ten minutes, and a Fastly edge in front of it
+//  with an age of its own. So for ten minutes after a push, addAll() is
+//  entitled to fill a brand new cache with the PREVIOUS version's files.
+//  The worker would then report its new CACHE name while serving old
+//  content, which is worse than being plainly out of date: the version
+//  says one thing and the bytes say another, and the one check a reader
+//  has - the build line at the foot of the page - would lie to them.
+//
+//  'reload' bypasses the browser's cache for each fetch and goes to the
+//  network. Still all-or-nothing: every response is fetched and checked
+//  before anything is written, because a cache half-filled from two
+//  versions is the state nothing can diagnose. That was addAll()'s one
+//  virtue and it is kept deliberately.
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    Promise.all(FILES.map(f => fetch(f, { cache: 'reload' })))
+      .then(rs => {
+        if (rs.some(r => !r.ok)) {
+          throw new Error('precache: a file did not fetch, so nothing is cached');
+        }
+        return caches.open(CACHE)
+                 .then(c => Promise.all(rs.map((r, i) => c.put(FILES[i], r))));
+      })
+      .then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()

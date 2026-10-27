@@ -88,6 +88,14 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
+    /*  updateViaCache: 'none' IS THE OTHER HALF OF THE SAME FAULT.
+        A browser only checks sw.js for updates on navigation, and that check
+        goes through the HTTP cache unless the previous script's max-age was
+        over 24 hours. GitHub Pages sends max-age=600, so for ten minutes
+        after a push the browser compares the new sw.js against a CACHED COPY
+        of the old one, sees no difference, and installs nothing. "Open it
+        once with a signal" is then a no-op that looks exactly like the app
+        being stuck - which is what it looked like.  */
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(function () {});
   }
 });
