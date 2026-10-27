@@ -289,6 +289,47 @@ then matched **nothing**, because that pseudo-class means the first element of
 its *tag* among its siblings and these panels are divs among divs. Both were
 found by a check going red, not by reading.
 
+### One panel, two pages, and the check that was hiding a gap
+
+Larry: *"It belongs on the main page."* The front page was pure static HTML with
+inline CSS and **no JavaScript at all**, and he asked for the live panel in the
+header rather than a screenshot of one. So `windDemo`, its physics and the panel
+stylesheet moved to `docs/web/shared/`, loaded by both the weather app and the
+site page — one implementation, which is the rule this project already applies
+to the shell and browser builds. A second copy would have been quicker and wrong
+by the third edit.
+
+The panel reads five custom properties off `:root` at draw time — `--accent`,
+`--dim`, `--line`, `--text`, `--warn` — so it takes whatever palette the page it
+is on uses. The site maps them onto its own, and the same file comes out magenta
+there and blue in the app. A `<noscript>` carries the static picture, so the page
+still says something useful with JavaScript off.
+
+**`tests/sw-precache-check.sh` could not see the new files, and the reason is
+worth keeping.** Its list of precached files was built with
+`sed -n 's|^\./||p'`, and `-n` with `p` prints only the lines the substitution
+**matched** — so every entry without a leading `./` was dropped from the list
+entirely and then reported as not precached. `../shared/demo.css` was precached
+correctly and the check said it was not.
+
+Dropping the `-n` is not the fix either: that filter was doing double duty,
+stripping `./` *and* discarding the tokens around the array — `const`, `FILES`,
+`=`, `[`, `];` — which then arrived in the existence loop as files that are not
+there, 35 of them across seven workers. The quoted strings are taken deliberately
+now rather than being whatever survives a `tr`. Verified red both ways: a
+`../shared` entry removed from `FILES`, and a `./nope.js` added that does not
+exist.
+
+**And `weather-reflow-check.js` had to learn that the page loads two files.** It
+evaluates `weather.js` in Node, whose render loop calls `windDemo` for a demo
+block of kind `wind` — so loading `weather.js` alone threw *ReferenceError:
+windDemo is not defined*, which is the check doing its job: a page that loaded
+one file and not the other would fail in front of a reader the same way. Loading
+them as two separate `new Function` calls still failed, because **each gets a
+scope of its own** and the second could not see the first's declarations. The
+sources are joined into one now, which is what reproduces a browser's shared
+global scope.
+
 ### A check written for one tool, when the fault belongs to all of them
 
 Every app's service worker is cache-first with no revalidation, so a file

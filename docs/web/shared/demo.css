@@ -1,0 +1,49 @@
+/*  The demonstration panels, styled once for both the pages that show
+    them: the weather app's coriolis lesson and the project's front page.
+    Larry asked for the wind panel to be live on the front page rather
+    than a screenshot, so the page that was pure static HTML now loads
+    this and ../shared/winddemo.js - and a second copy of these rules was
+    the obvious way to do it and the wrong one.
+
+    EVERY COLOUR COMES FROM THE HOST. --accent, --dim, --line, --text and
+    --warn are the host page's to define; the weather app already has
+    them, and the site page maps them onto its own palette. Nothing here
+    hard-codes a colour, so the panel looks like the page it is on.  */
+/*  The 12px inset sets the demonstration off from the prose it sits in,
+    and it is also what stops the component values touching the edge when
+    docs/web/gen/app-figures.js crops this block on its own for the site
+    figure. A capture-only style would have been the wrong fix: the
+    picture has to be what a reader sees.  */
+.gundemo { margin: 10px 0 0; padding: 0 12px; }
+.gundemo svg { display: block; width: 100%; max-width: 360px; margin: 0 auto; }
+.gunctl { margin-top: 10px; }
+.gunctl label { display: block; margin: 10px 0 0; color: var(--dim); font-size: 13px; }
+.gunctl input[type=range] { display: block; width: 100%; margin: 6px 0 0;
+                            accent-color: var(--accent); }
+.gunval { color: var(--accent); font-family: ui-monospace, Menlo, monospace;
+          font-variant-numeric: tabular-nums; }
+.gunread { margin: 12px 0 0; color: var(--text); font-size: 14px; line-height: 1.5; }
+
+/*  The three components. A grid rather than a table because the third
+    column - the term each one comes from - has to be allowed to wrap
+    under the other two on a phone without the numbers losing their
+    column. The values are tabular so that 176 and 61 line up and the
+    reader can see at a glance which is the big one.  */
+.guncomp { margin: 10px 0 0; display: grid; gap: 6px; }
+.gcrow { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px;
+         align-items: baseline; padding: 6px 0 0; border-top: 1px solid var(--line); }
+.gcn { color: var(--text); font-size: 13px; }
+.gcv { color: var(--accent); font-size: 13px; text-align: right;
+       font-family: ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums;
+       white-space: nowrap; }
+.gcr { grid-column: 1 / -1; color: var(--dim); font-size: 12px; }
+
+/*  The wind panel's own button and note. The gun panel borrows weather's
+    .btn and .note, which belong to the app; this panel cannot, because it
+    is also on a page that has neither.  */
+.wdbtn { display: block; width: 100%; margin: 12px 0 0; padding: 10px 12px;
+         font: inherit; font-weight: 600; color: var(--accent);
+         background: transparent; border: 1px solid var(--line);
+         border-radius: 8px; cursor: pointer; }
+.wdbtn:hover { border-color: var(--accent); }
+.wdnote { margin: 10px 0 0; color: var(--dim); font-size: 12px; line-height: 1.5; }

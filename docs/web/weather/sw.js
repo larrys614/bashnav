@@ -7,11 +7,18 @@
 //  installed copy serves what it already has until THIS file's bytes
 //  differ. The page no longer names this string -- it finds the cache by
 //  prefix -- so bumping it here is all that is needed.
-const CACHE = 'weather-v11'
+const CACHE = 'weather-v12'
 //  this tool's family, derived from CACHE so there is no second
 //  constant to drift out of step with it
 const FAMILY = 'weather-';
+//  ../shared/ IS PRECACHED TOO. The wind demonstration and the panel
+//  stylesheet live one folder up, because the project's front page shows
+//  the same live panel and one copy serves both. A file the page loads
+//  and the worker does not precache is fetched from the network on first
+//  use - fine at the dock, and at sea it is a section of the app that
+//  never arrives. tests/sw-precache-check.sh compares these two lists.
 const FILES = ['./', './index.html', './weather.css', './weather.js',
+               '../shared/demo.css', '../shared/winddemo.js',
                './log.js', './store.js', './wx.js', './score.js',
                './chart.js', './lessons.js',
                './manifest.webmanifest', './icon.svg'];

@@ -33,8 +33,20 @@ for sw in docs/web/sw.js docs/web/*/sw.js; do
   [ "$name" = web ] && name=launcher
 
   #  the worker's list, one per line, './x' -> 'x'
+  #
+  #  NOT  sed -n 's|^\./||p' :  -n with p prints only the lines the
+  #  substitution MATCHED, so every entry without a leading './' was
+  #  dropped from the list entirely and then reported as not precached.
+  #  Found the day weather's page started loading '../shared/demo.css',
+  #  which the worker precached correctly and this check could not see.
+  #
+  #  And dropping the -n alone is not the fix either: that filter was
+  #  doing double duty, stripping './' AND discarding the tokens around
+  #  the array - const, FILES, =, [, ]; - which then arrived in the
+  #  existence loop as files that are not there. So the quoted strings are
+  #  taken deliberately instead of being whatever survives a tr.
   files=$(sed -n '/^const FILES/,/\];/p' "$sw" \
-          | tr ",'\"" '\n\n\n' | sed -n 's|^\./||p' | sed '/^$/d')
+          | grep -o "'[^']*'" | tr -d "'" | sed 's|^\./||' | sed '/^$/d')
 
   #  what the page actually loads, local only: a CDN is not our problem
   #  and there are none, but a check that ignores the distinction would

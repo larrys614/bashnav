@@ -8,7 +8,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&family=Spectral:ital,wght@0,300;0,600;1,300&display=swap">
+<link rel="stylesheet" href="web/shared/demo.css">
 <style>
+/*  the live demonstration in the header. A max-width because the panel's
+    own svg stops at 360px and the controls should not run wider than the
+    thing they drive.  */
+.herodemo{margin:26px 0 0;max-width:430px}
+.herocap{margin:12px 0 0;color:var(--buff3);font-size:14px;line-height:1.6}
+.herocap b{color:var(--buff)}
 :root{
   --ink:#0b1a22; --ink2:#102530; --ink3:#0e202a;
   --buff:#e7dcc6; --buff2:#a9bac4; --buff3:#72868f;
@@ -18,6 +25,13 @@
   --serif:'Spectral',Georgia,'Times New Roman',serif;
   --sans:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;
   --mono:'IBM Plex Mono','SFMono-Regular',Consolas,'Liberation Mono',monospace;
+
+  /*  THE FIVE THE DEMONSTRATION PANEL READS. web/shared/winddemo.js takes
+      its colours from the page it is on rather than carrying any, so the
+      live panel in the header below looks like this site and the same file
+      in the weather app looks like the app. Mapped, not duplicated.  */
+  --accent:var(--magenta); --dim:var(--buff3); --line:var(--rule);
+  --text:var(--buff); --warn:var(--red);
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -186,6 +200,14 @@ footer p{max-width:70ch}
   <p class="eyebrow">Bash Navigation Software</p>
   <h1>Navigation tools that work<br><em>with no signal at all</em></h1>
   <p class="lede">Six marine tools you open in a browser and use at sea: celestial navigation, the rules of the road, tides, the boat&rsquo;s log, the weather, and a study machine that ships empty. They install to a home screen, cache themselves, and keep working with the aircraft mode on. No account, no server, and nothing leaves the device. Underneath, every one is generated from and checked against a POSIX <strong>sh</strong> and <strong>awk</strong> implementation of the same thing &mdash; which is <a href="#web">why the two agree</a>.</p>
+    <div class="herodemo">
+    <div id="wind-host"></div>
+    <noscript>
+      <img class="shot" src="img/app/weather-wind.png" alt="The wind demonstration as a picture: three dotted isobars round a low, eight arrows crossing the middle one inward, and sliders for latitude, surface and pressure gradient" loading="lazy">
+      <p class="herocap">The live version of this needs JavaScript. The picture is the same panel.</p>
+    </noscript>
+    <p class="herocap"><b>Drag the latitude.</b> This is the real thing out of the weather app, not a picture of it &mdash; the wind round a low, with the angle it crosses the isobars at computed for the dials. Near the equator the air pours almost straight down the gradient; at high latitude it nearly follows the isobars. The pressure slider changes the <em>speeds</em> and leaves the angle alone, which is the part most people get backwards. Press <b>Make it a high</b> and wind the pressure up until the arrows vanish, because past a certain steepness no wind can hold a high together at all.</p>
+  </div>
   <pre class="cmd"><span class="c"># three star sights, taken at morning twilight</span>
 celnav sight "2026-08-29 07:30:00" Dubhe     C "19 32.1"
 celnav sight "2026-08-29 07:34:00" Bellatrix C "49 37.2"
@@ -503,5 +525,21 @@ cd bashnav
 </footer>
 
 </div>
+<!--  THE FIRST SCRIPT THIS PAGE HAS EVER CARRIED. It was deliberately
+      static HTML with inline CSS and no JavaScript at all; Larry asked for
+      the wind demonstration to be live in the header rather than a
+      screenshot of it, which is worth the change. The <noscript> above
+      keeps the old promise for a reader without JavaScript: the same panel
+      as a picture, and said so.
+
+      One file, loaded by this page and by the weather app's own page, so
+      what a visitor plays with here cannot drift from what the app does.  -->
+<script src="web/shared/winddemo.js"></script>
+<script>
+  (function () {
+    var host = document.getElementById('wind-host');
+    if (host && typeof windDemo === 'function') { windDemo(host); }
+  })();
+</script>
 </body>
 </html>

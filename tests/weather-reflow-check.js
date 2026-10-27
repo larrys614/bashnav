@@ -59,9 +59,21 @@ global.localStorage = { getItem: () => null, setItem() {} };
 global.getComputedStyle = () => ({ getPropertyValue: () => '' });
 global.indexedDB = undefined;
 
+/*  BOTH FILES, THE WAY THE PAGE LOADS THEM. windDemo lives in
+    docs/web/shared/winddemo.js now, because the project's front page shows
+    the same live panel and one copy serves both pages. weather.js's render
+    loop calls it for a demo block of kind 'wind', so loading weather.js
+    alone here threw ReferenceError: windDemo is not defined - which is the
+    check doing its job, since a page that loaded one and not the other
+    would fail exactly the same way in front of a reader.  */
 const m = { exports: {} };
+/*  ONE Function, BOTH SOURCES, because each new Function() gets a scope of
+    its own: loading them separately left windDemo invisible to weather.js
+    and threw the same ReferenceError as before. A browser puts both in the
+    shared global scope, and joining the sources is what reproduces that.  */
 new Function('module', 'window', 'document',
-             fs.readFileSync(path.join(ROOT, 'docs/web/weather/weather.js'), 'utf8'))
+             ['docs/web/shared/winddemo.js', 'docs/web/weather/weather.js']
+               .map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n;\n'))
             (m, global.window, global.document);
 const drawLines = m.exports.drawLines;
 if (typeof drawLines !== 'function') {
