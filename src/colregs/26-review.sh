@@ -65,7 +65,7 @@ rv_run() {   # $1 = section, or empty for "carry on from where I left off"
     #  a KEY instead of the answer the person typed, and the whole
     #  section scrolls past unanswered. The keys are plain tokens, so
     #  word-splitting a single variable is safe and leaves stdin alone.
-    rvkeys=$(eng -v cmd=rvkeys -v which="$1")
+    rvkeys=$(eng -v cmd=rvkeys -v which="$1" -v rfile="$(rv_file)")
     for k in $rvkeys; do
       rv_one "$k" || break
     done
@@ -152,6 +152,7 @@ review_menu() {
       '  it says about the rules is true. That needs somebody with the' \
       '  Convention open, going through the claims one at a time.' \
       '' \
+      '    0  Only what nothing has checked      73 of the 190' \
       '    1  Carry on from where I left off' \
       '    2  Encounter verdicts        who gives way, and what to do' \
       '    3  Give-way calls from her lights' \
@@ -163,6 +164,13 @@ review_menu() {
       '    x  back'
     printf "  > "; IFS= read -r c || return 0
     case "$c" in
+      #  The short list, and the one worth an evening. A claim is on it
+      #  when nothing outside the program has checked what it asserts,
+      #  and the screen says which part that is. Claims carrying the
+      #  SAME unchecked sentence appear once: in the give-way section
+      #  the standing sentence repeats at every bearing that produces
+      #  it, so 73 claims there are 23 things to read.
+      0) rv_run unsure ;;
       1) rv_run "" ;;
       2) rv_run enc ;;  3) rv_run mot ;;  4) rv_run lig ;;
       5) rv_run les ;;  6) rv_run snd ;;  7) rv_run shp ;;

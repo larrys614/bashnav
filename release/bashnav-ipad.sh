@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003638990
+BASHNAV_BYTES=003646814
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -6162,7 +6162,7 @@ rv_run() {   # $1 = section, or empty for "carry on from where I left off"
     #  a KEY instead of the answer the person typed, and the whole
     #  section scrolls past unanswered. The keys are plain tokens, so
     #  word-splitting a single variable is safe and leaves stdin alone.
-    rvkeys=$(eng -v cmd=rvkeys -v which="$1")
+    rvkeys=$(eng -v cmd=rvkeys -v which="$1" -v rfile="$(rv_file)")
     for k in $rvkeys; do
       rv_one "$k" || break
     done
@@ -6249,6 +6249,7 @@ review_menu() {
       '  it says about the rules is true. That needs somebody with the' \
       '  Convention open, going through the claims one at a time.' \
       '' \
+      '    0  Only what nothing has checked      73 of the 190' \
       '    1  Carry on from where I left off' \
       '    2  Encounter verdicts        who gives way, and what to do' \
       '    3  Give-way calls from her lights' \
@@ -6260,6 +6261,13 @@ review_menu() {
       '    x  back'
     printf "  > "; IFS= read -r c || return 0
     case "$c" in
+      #  The short list, and the one worth an evening. A claim is on it
+      #  when nothing outside the program has checked what it asserts,
+      #  and the screen says which part that is. Claims carrying the
+      #  SAME unchecked sentence appear once: in the give-way section
+      #  the standing sentence repeats at every bearing that produces
+      #  it, so 73 claims there are 23 things to read.
+      0) rv_run unsure ;;
       1) rv_run "" ;;
       2) rv_run enc ;;  3) rv_run mot ;;  4) rv_run lig ;;
       5) rv_run les ;;  6) rv_run snd ;;  7) rv_run shp ;;
@@ -10128,6 +10136,119 @@ function ct_ref(){
 # =====================================================================
 
 #  Every reviewable claim, in a fixed order, as  key | section | title
+#  WHICH CLAIMS ARE WORTH A REVIEWER'S EVENING.
+#
+#  Larry, asked what he wanted to review out of the 190: "I really only
+#  want to review the ones you are not confident of."
+#
+#  That is only answerable if the confidence rests on something that can
+#  be named, so this returns a REASON rather than a score, and returns
+#  nothing at all for a claim that has been checked. The rule used:
+#
+#    CHECKED means a specific outside check that agreed -- the light
+#    tables, day shapes, sound signals and arcs were put against a
+#    reference guide and against the Convention text, claim by claim;
+#    and the geometry half of a give-way call (what she shows, which way
+#    she is going) is proved by tests over every vessel at every degree.
+#
+#    NOT CHECKED means written from the Convention by Claude and read by
+#    nobody else. That is most of Part B: who gives way, and what to do.
+#    It is also every note and warning written this session for the
+#    vessels that were added, because the lights in those entries come
+#    from the rule but the prose around them does not.
+#
+#  The honest list is about seventy of the hundred and ninety, and the
+#  reason is on the screen with the claim, so the reviewer knows what to
+#  check rather than being told merely to look harder.
+function rv_doubt(i,   s,k,a,st,m){
+  s=RV_S[i]; k=RV_K[i]
+
+  #  Part B conduct. The most dangerous thing in the program if wrong --
+  #  a wrong light table makes you misname a ship, a wrong verdict makes
+  #  you turn the wrong way -- and the first review round found two
+  #  faults in this section.
+  if(s=="enc") return "the verdict and the action. Written from Rules 8 to 19 and never checked against anything outside the program."
+
+  if(s=="les") return "the answer the lesson marks right, and the reason under it. Written from the Convention and not checked against an outside source."
+
+  if(s=="mot"){
+    split(VT[RV_MI[i]],a,"|")
+    st = r18_of(a[1])
+    m = motion_of(RV_MI[i], RV_MT[i])
+    #  what she shows and which way she is heading are proved by
+    #  tests/motion-seen-check.awk and tests/aspect-check.awk over every
+    #  vessel at every degree. What is NOT proved is the half that tells
+    #  you what to do about her.
+    if(m==5) return "what a vessel lying stopped is told about her standing. Rule 18 does not stop applying because she has stopped, and these sentences are new."
+    if(m==4) return "Rule 13 against Rule 18. The claim says an overtaking vessel keeps clear whatever the other one is, and that her status changes how wide you go rather than who gives way."
+    if(st!="") return "her standing under Rule 18, and the action that follows from it. Written from the Convention; the lights half of this claim is machine-checked, this half is not."
+    if(rv_newves(a[1])) return "a vessel added this session. Her lights come from the rule; the give-way sentence around them has been read by nobody."
+    return ""
+  }
+
+  if(s=="lig"){
+    split(VT[RV_I[i]],a,"|")
+    if(rv_newves(a[1])) return "a vessel added this session. The lights are from the rule and the arcs are checked; the note and the warning are new prose and have been read by nobody."
+    return ""
+  }
+
+  if(s=="shp"){
+    split(SH[RV_I[i]],a,"|")
+    if(a[1]=="fishing") return "the basket. Kept deliberately as something no longer prescribed, so the wording has to be right about what it is and is not."
+    return ""
+  }
+
+  return ""
+}
+#  TWO CLAIMS THAT CARRY THE SAME UNCHECKED SENTENCE ARE ONE THING TO
+#  READ. A give-way call is built in two halves: what she shows and
+#  which way she is heading, which tests prove over every vessel at
+#  every degree, and then her standing and what you do about it, which
+#  nothing outside the program has checked. The second half is the same
+#  sentence at every bearing that produces it, so putting it to a
+#  reviewer four times spends his evening on one assertion. The unsure
+#  walk shows one claim per distinct unchecked sentence: 23 rather than
+#  73 in the give-way section, and the geometry half of the ones it
+#  skips is proved anyway.
+function rv_dkey(i,   m,full,pre){
+  if(RV_S[i]!="mot") return RV_K[i]
+  m    = motion_of(RV_MI[i], RV_MT[i])
+  full = motion_why(m, RV_MI[i], RV_MT[i])
+  pre  = seen_sig(RV_MI[i], RV_MT[i]) " " motion_lights(m)
+  return "mot\t" substr(full, length(pre)+2)
+}
+
+#  The six appended when the sweep found the tables had no entry for
+#  them. Listed rather than derived from the index, so that appending a
+#  seventh does not silently mark it checked.
+function rv_newves(key){
+  if(key=="dredge" || key=="sailtri" || key=="towalong") return 1
+  if(key=="power12" || key=="power7" || key=="fishgear") return 1
+  return 0
+}
+
+#  A REVIEW KEY MUST NOT MOVE WHEN THE TABLE DOES.
+#
+#  The keys were positions: mot-28 meant "the twenty-ninth give-way claim
+#  in sorted order". Adding six vessels the tables had no entry for moved
+#  65 of the 95 existing keys onto different claims, because the claims
+#  are sorted by vessel name and the new ones insert in the middle. A
+#  reviewer's saved verdicts point at keys; move the keys and his work
+#  silently attaches to claims he never read.
+#
+#  It cost nothing this time, by luck -- the give-way section had no
+#  saved marks. It would have cost a whole evening's work the next time.
+#
+#  So a key now names the thing it is about, and nothing about where it
+#  sits: mot-power50p-135, lig-trawl, snd-fogram, shp-aground. They are
+#  stable under insertion, and they say what they are, which matters
+#  when the reviewer is reading his own notes weeks later or when a
+#  report arrives as a GitHub issue.
+#
+#  enc-N keeps its number. The encounter table is indexed and not
+#  sorted, so those keys have never moved -- and the first review round
+#  is written up against enc-13 and enc-15, which stay what they were.
+#  les-N likewise: lessons are L1..L15 by number.
 function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x,xi,xt){
   if(RV_READY) return RV_N
   ves_init(); shp_init(); enc_init(); snd_init()
@@ -10169,13 +10290,14 @@ function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x,xi,xt){
     MOK[j+1]=x; MOI[j+1]=xi; MOT[j+1]=xt }
   for(i=1;i<=cnt;i++){
     split(MOK[i],a,"\t")
-    RV_N++; RV_K[RV_N]=sprintf("mot-%d",i-1); RV_S[RV_N]="mot"
+    split(VT[MOI[i]],f,"|")
+    RV_N++; RV_K[RV_N]=sprintf("mot-%s-%03d",f[1],MOT[i]); RV_S[RV_N]="mot"
     RV_T[RV_N]=substr(a[1] " -- " a[2],1,58); RV_M[RV_N]=MOK[i]
     RV_MI[RV_N]=MOI[i]; RV_MT[RV_N]=MOT[i]
   }
   for(i=1;i<=NVES;i++){
     split(VT[i],a,"|")
-    RV_N++; RV_K[RV_N]=sprintf("lig-%d",i-1); RV_S[RV_N]="lig"
+    RV_N++; RV_K[RV_N]=sprintf("lig-%s",a[1]); RV_S[RV_N]="lig"
     RV_T[RV_N]=substr(a[2],1,58); RV_I[RV_N]=i
   }
   j=0
@@ -10187,12 +10309,12 @@ function rv_build(   i,j,n,a,L,f,t,m,k,cnt,tmp,x,xi,xt){
   }
   for(i=1;i<=NSND;i++){
     split(SD[i],a,"|")
-    RV_N++; RV_K[RV_N]=sprintf("snd-%d",i-1); RV_S[RV_N]="snd"
+    RV_N++; RV_K[RV_N]=sprintf("snd-%s",a[1]); RV_S[RV_N]="snd"
     RV_T[RV_N]=substr(a[3],1,58); RV_I[RV_N]=i
   }
   for(i=1;i<=NSHP;i++){
     split(SH[i],a,"|")
-    RV_N++; RV_K[RV_N]=sprintf("shp-%d",i-1); RV_S[RV_N]="shp"
+    RV_N++; RV_K[RV_N]=sprintf("shp-%s",a[1]); RV_S[RV_N]="shp"
     RV_T[RV_N]=substr(a[2],1,58); RV_I[RV_N]=i
   }
   RV_READY=1
@@ -10273,6 +10395,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     for(j=1;j<=n;j++) printf "     %s) %s\n", substr("abcd",j,1), O[j]
     print ""
     printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    if(rv_doubt(i)!="")
+      printf "  %s   %s\n", cw("UNCHECKED",C_ACC), cwd(rv_doubt(i))
     print ""
     printf "  %s   %s\n", cw("The program says " toupper(a[6]),C_ACC), a[9]
     printf "  %s\n", a[8]
@@ -10304,6 +10428,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     }
     print ""
     printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    if(rv_doubt(i)!="")
+      printf "  %s   %s\n", cw("UNCHECKED",C_ACC), cwd(rv_doubt(i))
     print ""
     printf "  %s   %s\n", cw("The program says",C_ACC), a[2]
     print ""
@@ -10316,6 +10442,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     printf "  %s\n", cwd("drawn from 305 - use 'colregs light " a[1] " <brg>' for any angle")
     print ""
     printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    if(rv_doubt(i)!="")
+      printf "  %s   %s\n", cw("UNCHECKED",C_ACC), cwd(rv_doubt(i))
     print ""
     printf "  %s   %s.  %s\n", cw(a[2],C_ACC), a[3], a[5]
     if(a[6]!="") printf "  %s %s\n", cw("Watch out:",C_ACC), a[6]
@@ -10334,6 +10462,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     Q_A=""; les_q("L" idx,0)
     print ""
     printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    if(rv_doubt(i)!="")
+      printf "  %s   %s\n", cw("UNCHECKED",C_ACC), cwd(rv_doubt(i))
     print ""
     printf "  %s   %s\n", cw("The program says " toupper(Q_A),C_ACC), Q_W
     printf "  %s\n", cwd("the lesson body itself is 'colregs lesson L" idx "'")
@@ -10342,6 +10472,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     idx=RV_I[i]; split(SD[idx],a,"|")
     print ""
     printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    if(rv_doubt(i)!="")
+      printf "  %s   %s\n", cw("UNCHECKED",C_ACC), cwd(rv_doubt(i))
     print ""
     printf "  %s\n", cw(a[2],C_ACC)
     printf "  %s   %s\n", a[3], a[4]
@@ -10353,6 +10485,8 @@ function rv_show(key,   i,s,a,n,O,j,idx,parts){
     draw_shapes(a[1]); gshow()
     print ""
     printf "  %s   %s\n", cw("TESTING",C_ACC), cwd(rv_testing(s))
+    if(rv_doubt(i)!="")
+      printf "  %s   %s\n", cw("UNCHECKED",C_ACC), cwd(rv_doubt(i))
     print ""
     printf "  %s   %s\n", cw(a[2],C_ACC), a[3]
     printf "  %s\n", a[5]
@@ -10380,7 +10514,7 @@ function rv_list(rfile,   i,line,f,n,done,fl,s,lastsec){
     s = (RV_K[i] in ST_) ? ST_[RV_K[i]] : ""
     if(s=="ok") done++
     if(s=="flag"){ done++; fl++ }
-    printf "   [%s] %-8s %s\n",
+    printf "   [%s] %-18s %s\n",
       (s=="ok"?"x":(s=="flag"?cw("!",C_ACC):" ")), RV_K[i], RV_T[i]
   }
   hr()
@@ -10415,8 +10549,30 @@ function rv_next(rfile,skips,   i,line,f,n,SK,j,m){
   return 0
 }
 
-function rv_keys(sec,   i){
+function rv_keys(sec,   i,d,line,f,n,SEEN2){
   rv_build()
+  if(sec=="unsure"){
+    #  What is LEFT to check, not the whole list: a claim already
+    #  answered is not offered again, and -- because two claims carrying
+    #  the same unchecked sentence are one thing to read -- answering
+    #  one of them settles the rest. Without that second part the walk
+    #  would hand back the same standing sentence at the next bearing
+    #  the moment the reviewer marked it.
+    if(rfile!=""){
+      while((getline line < rfile) > 0){
+        n=split(line,f,"\t"); if(n<2) continue
+        ST_[f[1]]=f[2]
+      }
+      close(rfile)
+      for(i=1;i<=RV_N;i++) if(RV_K[i] in ST_) SEEN2[rv_dkey(i)]=1
+    }
+    for(i=1;i<=RV_N;i++){
+      if(rv_doubt(i)=="") continue
+      d=rv_dkey(i); if(d in SEEN2) continue
+      SEEN2[d]=1; print RV_K[i]
+    }
+    return 0
+  }
   for(i=1;i<=RV_N;i++) if(sec=="" || RV_S[i]==sec) print RV_K[i]
   return 0
 }

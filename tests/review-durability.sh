@@ -45,10 +45,20 @@ kill -INT $p 2>/dev/null
 sleep 1
 kill $p $holder 2>/dev/null
 wait 2>/dev/null
+#  The keys name the vessel and the bearing now, so the first key of the
+#  section is asked for rather than written in. A test that hard-codes a
+#  key starts failing for the wrong reason the moment the table changes,
+#  which is the very thing the new key format exists to prevent.
+K1=$($AWKB -f src/colregs/engine.awk -f src/colregs/contacts.awk \
+       -f src/colregs/review.awk -v cmode=plain -v cmd=rvkeys -v which=mot \
+       </dev/null | sed -n 1p)
+K2=$($AWKB -f src/colregs/engine.awk -f src/colregs/contacts.awk \
+       -f src/colregs/review.awk -v cmode=plain -v cmd=rvkeys -v which=mot \
+       </dev/null | sed -n 4p)
 if [ ! -s "$H/review.tsv" ]; then
   fail "a verdict is lost if the reviewer interrupts at the note prompt"
 else
-  grep -q '^mot-0	flag' "$H/review.tsv" || fail "the verdict saved is not the one given"
+  grep -q "^$K1	flag" "$H/review.tsv" || fail "the verdict saved is not the one given"
 fi
 
 # ---- 2  a note supersedes the bare verdict row ----------------------
@@ -61,20 +71,20 @@ case $r in
   *"never says not under command"*) : ;;
   *) fail "the note does not reach the report" ;;
 esac
-n=$(printf '%s\n' "$r" | grep -c '^- \*\*mot-0\*\*')
-[ "$n" = 1 ] || fail "mot-0 appears $n times in the report, want 1"
+n=$(printf '%s\n' "$r" | grep -c -- "^- \*\*$K1\*\*")
+[ "$n" = 1 ] || fail "$K1 appears $n times in the report, want 1"
 
 # ---- 3  [return] advances instead of re-offering the same claim -----
 H3="$T/h3"; mkdir -p "$H3"
 i=0; while [ $i -lt 28 ]; do printf 'enc-%d\tok\t\n' "$i" >> "$H3/review.tsv"; i=$((i+1)); done
 printf '1\n\n\n\nr\nq\nx\n' \
   | COLREGS_HOME="$H3" COLREGS_AWK="$AWKB" $SHL ./bin/colregs review > "$T/out3" 2>&1
-seen=$(grep -oE '^  mot-[0-9]+  \[r\]' "$T/out3" | awk '{print $1}' | tr '\n' ' ')
-case $seen in
-  "mot-0 mot-1 mot-2 mot-3 "*) : ;;
-  *) fail "skipping does not advance: saw [$seen]" ;;
-esac
-grep -q '^mot-3	ok' "$H3/review.tsv" || fail "the claim answered after three skips was not saved"
+seen=$(grep -oE '^  mot-[a-z0-9]+-[0-9]+  \[r\]' "$T/out3" | awk '{print $1}' | tr '\n' ' ')
+#  four DISTINCT keys in order: three skipped, the fourth answered. If
+#  skipping did not advance, the first key is simply repeated.
+nd=$(printf '%s\n' $seen | sort -u | wc -l | tr -d ' ')
+[ "$nd" -ge 4 ] || fail "skipping does not advance: saw [$seen]"
+grep -q "^$K2	ok" "$H3/review.tsv" || fail "the claim answered after three skips was not saved"
 
 rm -rf "$T"
 printf 'BAD %d\n' "$bad"
