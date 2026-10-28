@@ -6445,7 +6445,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200 150 ===
 
@@ -6482,7 +6482,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200 180 ===
 
@@ -6519,7 +6519,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200 210 ===
 
@@ -6556,7 +6556,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200 240 ===
 
@@ -6593,7 +6593,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200 270 ===
 
@@ -6889,7 +6889,7 @@
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200p 150 ===
 
@@ -6926,7 +6926,7 @@
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200p 180 ===
 
@@ -6963,7 +6963,7 @@
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200p 210 ===
 
@@ -7000,7 +7000,7 @@
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200p 240 ===
 
@@ -7037,7 +7037,7 @@
   Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Going away from you - you are overtaking her.
-  She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+  She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
 
 === light tow200p 270 ===
 

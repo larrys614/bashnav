@@ -826,7 +826,7 @@
       Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -841,7 +841,7 @@
       Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -856,7 +856,7 @@
       Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -871,7 +871,7 @@
       Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are broad on her port quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -2833,7 +2833,7 @@
       Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -2848,7 +2848,7 @@
       Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -2863,7 +2863,7 @@
       Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.
@@ -2878,7 +2878,7 @@
       Rule 24.  Three masthead lights in a vertical line - the tow is longer than 200 m.
 
   Q2  C is right -- Going away from you - you are overtaking her.
-      She shows her sternlight. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
+      She shows her sternlight and a yellow towing light. A sternlight and no sidelight means you are more than 22.5 degrees abaft her beam. You are overtaking her, and you keep out of her way until you are finally past and clear.
       You are fine on her starboard quarter.
 
   But from this angle she is genuinely ambiguous.

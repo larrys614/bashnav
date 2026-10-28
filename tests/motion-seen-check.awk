@@ -33,11 +33,19 @@ BEGIN{
       for(i=1;i<=n;i++){
         split(L[i],f,",")
         if(!arc_vis(f[4],th)) continue
+        #  BY COLOUR AS WELL AS ARC, and this check used to get it wrong
+        #  in exactly the way the code did. A towing light is yellow and
+        #  carried on the STERN arc (Rule 21(d)), so bucketing on the arc
+        #  alone called it a sternlight -- and because this test derived
+        #  its expectation from the same field, it agreed, and a towing
+        #  vessel seen from astern passed while being described as
+        #  showing only "her sternlight". A check that re-derives from
+        #  the same field as the code cannot catch a mis-bucketed field.
         if(f[4]=="M") mh++
         else if(f[4]=="S") sg=1
         else if(f[4]=="P") sp=1
+        else if(f[4]=="Y" || (f[4]=="T" && f[5]=="Y")) yel=1
         else if(f[4]=="T") stn=1
-        else if(f[4]=="Y") yel=1
         else if(f[4]=="A"){ arn++
           c=(f[5]=="W"?"white":(f[5]=="G"?"green":(f[5]=="R"?"red":"yellow")))
           if(!has(arw,c)) arw=arw c "," }
@@ -72,6 +80,8 @@ BEGIN{
 
       if(yel && !has(s,"yellow towing")){
         printf "FAIL  %s at %03d: her towing light bears and is not named\n  %s\n", a[1],th,s; bad++ }
+      if(!yel && has(s,"yellow towing")){
+        printf "FAIL  %s at %03d: no towing light bears, but one is named\n  %s\n", a[1],th,s; bad++ }
 
       #  every all-round colour that bears must appear by name
       nc=split(arw,CL,",")
