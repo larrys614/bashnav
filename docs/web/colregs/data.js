@@ -158,6 +158,41 @@ window.COLREGS_DATA = {
    "rule": "32 CFR 707.7",
    "lights": [{"x": 0.1, "y": 0.0, "h": 0.3, "arc": "M", "col": "W"}, {"x": 0.06, "y": 0.11, "h": 0.2, "arc": "S", "col": "G"}, {"x": 0.06, "y": -0.11, "h": 0.2, "arc": "P", "col": "R"}, {"x": -0.3, "y": 0.0, "h": 0.16, "arc": "T", "col": "W"}, {"x": 0.1, "y": 0.0, "h": 0.42, "arc": "A", "col": "Y"}],
    "note": "NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition."
+  },
+  {
+   "key": "dredge",
+   "name": "Dredging or underwater operations, restricted",
+   "rule": "Rule 27(d)",
+   "lights": [{"x": 0.1, "y": 0.0, "h": 0.99, "arc": "A", "col": "R"}, {"x": 0.1, "y": 0.0, "h": 0.89, "arc": "A", "col": "W"}, {"x": 0.1, "y": 0.0, "h": 0.79, "arc": "A", "col": "R"}, {"x": 0.15, "y": 0.0, "h": 0.72, "arc": "M", "col": "W"}, {"x": 0.06, "y": 0.11, "h": 0.42, "arc": "S", "col": "G"}, {"x": 0.06, "y": -0.11, "h": 0.42, "arc": "P", "col": "R"}, {"x": -0.46, "y": 0.0, "h": 0.36, "arc": "T", "col": "W"}, {"x": 0.1, "y": -0.2, "h": 0.62, "arc": "A", "col": "G"}, {"x": 0.1, "y": -0.2, "h": 0.52, "arc": "A", "col": "G"}, {"x": 0.1, "y": 0.2, "h": 0.62, "arc": "A", "col": "R"}, {"x": 0.1, "y": 0.2, "h": 0.52, "arc": "A", "col": "R"}],
+   "note": "Red, white, red for restricted in her ability to manoeuvre, and in addition two all-round reds on the side the obstruction is and two all-round greens on the side you may pass. Here the obstruction is to starboard and the way past is to port."
+  },
+  {
+   "key": "sailtri",
+   "name": "Sailing vessel under 20 m, combined lantern",
+   "rule": "Rule 25(b)",
+   "lights": [{"x": 0.0, "y": 0.0, "h": 0.95, "arc": "S", "col": "G"}, {"x": 0.0, "y": 0.0, "h": 0.95, "arc": "P", "col": "R"}, {"x": 0.0, "y": 0.0, "h": 0.95, "arc": "T", "col": "W"}],
+   "note": "Sidelights and sternlight combined in one lantern at or near the top of the mast. Only a sailing vessel under 20 metres may do this."
+  },
+  {
+   "key": "towalong",
+   "name": "Pushing ahead, or towing alongside",
+   "rule": "Rule 24(c)",
+   "lights": [{"x": 0.15, "y": 0.0, "h": 0.72, "arc": "M", "col": "W"}, {"x": 0.15, "y": 0.0, "h": 0.84, "arc": "M", "col": "W"}, {"x": 0.06, "y": 0.11, "h": 0.42, "arc": "S", "col": "G"}, {"x": 0.06, "y": -0.11, "h": 0.42, "arc": "P", "col": "R"}, {"x": -0.46, "y": 0.0, "h": 0.36, "arc": "T", "col": "W"}],
+   "note": "Two masthead lights in a vertical line, sidelights and a sternlight -- and no towing light. She is pushing ahead or towing alongside, so nothing of hers is astern on a wire."
+  },
+  {
+   "key": "power12",
+   "name": "Power-driven vessel under 12 m",
+   "rule": "Rule 23(d)",
+   "lights": [{"x": 0.0, "y": 0.0, "h": 0.45, "arc": "A", "col": "W"}, {"x": 0.06, "y": 0.11, "h": 0.42, "arc": "S", "col": "G"}, {"x": 0.06, "y": -0.11, "h": 0.42, "arc": "P", "col": "R"}],
+   "note": "Under 12 metres she may show an all-round white light and sidelights, in place of the masthead light and the sternlight."
+  },
+  {
+   "key": "power7",
+   "name": "Power-driven vessel under 7 m, 7 knots or less",
+   "rule": "Rule 23(d)",
+   "lights": [{"x": 0.0, "y": 0.0, "h": 0.35, "arc": "A", "col": "W"}],
+   "note": "Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable."
   }
  ],
  "shapes": [

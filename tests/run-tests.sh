@@ -328,12 +328,12 @@ for SH in $SHELLS; do
   ne=$($AW $CSRC -v cmode=plain -f tests/count-check.awk \
        -v what=encounters </dev/null)
   nm=$($AW $CSRC -v cmode=plain -f tests/count-check.awk -v what=motion </dev/null)
-  [ "$nv" = 22 ] || bad "about says twenty-two vessels; there are $nv"
+  [ "$nv" = 27 ] || bad "about says twenty-seven vessels; there are $nv"
   [ "$ne" = 28 ] || bad "about says twenty-eight encounters; there are $ne"
-  [ "$nm" = 73 ] || bad "about says seventy-three give-way calls; there are $nm"
-  case "$a" in *"Twenty-two vessels"*) ;; *) bad "about no longer says how many vessels" ;; esac
+  [ "$nm" = 90 ] || bad "about says ninety give-way calls; there are $nm"
+  case "$a" in *"Twenty-seven vessels"*) ;; *) bad "about no longer says how many vessels" ;; esac
   case "$a" in *"twenty-eight encounters"*) ;; *) bad "about no longer says how many encounters" ;; esac
-  case "$a" in *"seventy-three distinct give-way calls"*) ;; *) bad "about no longer says how many give-way calls" ;; esac
+  case "$a" in *"ninety distinct give-way calls"*) ;; *) bad "about no longer says how many give-way calls" ;; esac
   gl=$(cat tests/golden/*.txt 2>/dev/null | wc -l)
   if [ "$gl" -lt 20000 ] || [ "$gl" -gt 34000 ]; then
     bad "about says about twenty-six thousand golden lines; there are $gl"

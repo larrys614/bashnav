@@ -12,6 +12,32 @@ BEGIN{
     ng=0; nr=0; nmast=0; nstern=0
     mfx=""; mfh=-1; sgh=-1; srh=-1; sgx=""; srx=""; sgy=0; sry=0
     delete H; delete X
+    #  TWO EXCEPTIONS THE RULES THEMSELVES GRANT, both found by adding
+    #  vessels the table had no entry for, and both read off the lights
+    #  rather than off the vessel's name -- a check that exempts a key by
+    #  name stops checking that vessel at all.
+    #
+    #  1  COMBINED LANTERN. Rule 25(b) lets a sailing vessel under 20 m
+    #     combine her sidelights and sternlight in ONE lantern at the
+    #     masthead. Three lights then sit at the same point, and the
+    #     sidelights are not opposite each other because there is only
+    #     one of them. Detected as: every light she carries is at the
+    #     same place.
+    #  2  ALL-ROUND WHITE IN PLACE OF THE STERNLIGHT. Rule 23(d) lets a
+    #     power-driven vessel under 12 m show an all-round white light
+    #     instead of the masthead light AND the sternlight, so she shows
+    #     sidelights with no sternlight of her own -- the all-round white
+    #     is what bears astern.
+    nlit=0; onepos=1; firstpos=""; arw=0
+    for(j=1;j<=n;j++){
+      split(L[j],f,",")
+      nlit++
+      pk = sprintf("%.3f/%.3f/%.3f", f[1]+0, f[2]+0, f[3]+0)
+      if(firstpos=="") firstpos=pk
+      else if(pk!=firstpos) onepos=0
+      if(f[4]=="A" && f[5]=="W") arw=1
+    }
+    lantern = (nlit>1 && onepos)
     for(j=1;j<=n;j++){
       split(L[j],f,",")
       x=f[1]+0; y=f[2]+0; h=f[3]+0; arc=f[4]; col=f[5]
@@ -28,7 +54,7 @@ BEGIN{
       if(arc=="T"&&col=="W") nstern++
       #  two lights at the same place are one light
       kk = sprintf("%.3f/%.3f/%.3f", x, y, h)
-      if(kk in H) fail(key,"two lights in exactly the same place")
+      if((kk in H) && !lantern) fail(key,"two lights in exactly the same place")
       H[kk]=1
     }
     # ---- Rule 21 / Annex I -------------------------------------------
@@ -37,7 +63,7 @@ BEGIN{
     if(ng==1){
       if(sgh!=srh) fail(key,"sidelights are at different heights")
       if(sgx!=srx) fail(key,"sidelights are at different points along the hull")
-      if(sgy<=0 || sry>=0 || sgy!=-sry) fail(key,"sidelights are not opposite each other")
+      if(!lantern && (sgy<=0 || sry>=0 || sgy!=-sry)) fail(key,"sidelights are not opposite each other")
       #  Annex I 3(b): sidelights not higher than 3/4 of the forward
       #  masthead light
       if(nmast>0 && sgh > 0.75*mfh + 1e-9)
@@ -53,7 +79,7 @@ BEGIN{
         fail(key,sprintf("sidelights at %.2f are forward of the masthead light at %.2f",sgx,mfx))
     }
     #  A vessel under way showing sidelights shows a sternlight
-    if(ng==1 && nstern==0 && key!="tow200" && key!="tow200p")
+    if(ng==1 && nstern==0 && !arw && key!="tow200" && key!="tow200p")
       fail(key,"shows sidelights but no sternlight")
     #  Masthead lights of one vessel are in a vertical line: same x
     if(nmast>1){

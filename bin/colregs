@@ -498,7 +498,7 @@ about_needs() {
     '  much damage a wrong one would do.' \
     '' \
     '  1  WHO GIVES WAY, AND WHAT TO DO.  The twenty-eight encounters,' \
-    '     and the seventy-three distinct give-way calls the lights quiz' \
+    '     and the ninety distinct give-way calls the lights quiz' \
     '     can make.  A wrong light table makes you misname a ship.  A' \
     '     wrong verdict here makes you TURN THE WRONG WAY, which is' \
     '     the difference between a training aid that is imperfect and' \
@@ -506,7 +506,7 @@ about_needs() {
     '     once during development and caught by hand, by a reader, not' \
     '     by any test.  Rules 12 to 18.' \
     '' \
-    '  2  THE LIGHT TABLES.  Twenty-two vessels, and every picture,' \
+    '  2  THE LIGHT TABLES.  Twenty-seven vessels, and every picture,' \
     '     question and answer is computed from them.  Two errors in' \
     '     them have already been found by users - both by somebody' \
     '     looking at a picture, trying to account for every light in' \
@@ -1252,7 +1252,48 @@ function ves_init(   i,n,a){
   #  every lamp all-round and that turned her sidelights into all-round
   #  lights: the display then read her as "not making way".
   VT[22] = "submarine|Submarine on the surface (US Navy identification light)|32 CFR 707.7|0.10,0,0.30,M,W,;0.06,0.11,0.20,S,G,;0.06,-0.11,0.20,P,R,;-0.30,0,0.16,T,W,;" ar(0.10,0,0.42,"Y") "|NOT a Convention light. A US Navy special rule: an intermittent flashing amber beacon, one flash a second for three seconds then three seconds dark, shown all round the horizon. Her ordinary lights sit much lower and closer together than a ship's, which is itself the recognition."
-  NVES=22
+  #  ---- vessels the tables had no entry for ---------------------------
+  #  Found by sweeping the claim list against an outside reference. None
+  #  of these was wrong; all six were simply absent, and each is a vessel
+  #  a watchkeeper will actually meet. APPENDED at the end on purpose:
+  #  rv_build() walks this table in order, so adding here leaves every
+  #  existing review key pointing at the vessel it pointed at before, and
+  #  a review in progress keeps its place.
+
+  #  Rule 27(d). The two reds mark the side the obstruction is on and the
+  #  two greens the side you may pass -- and the greens are to PORT here,
+  #  which puts the REDS on her starboard side, where a watchkeeper
+  #  expects to see a green sidelight. That is the confusion worth
+  #  drawing rather than avoiding: they are not sidelights, they do not
+  #  tell you her heading, and reading them as her port side sends you
+  #  into the dredge.
+  VT[23] = "dredge|Dredging or underwater operations, restricted|Rule 27(d)|"            ar(0.10,0,0.99,"R") ";" ar(0.10,0,0.89,"W") ";" ar(0.10,0,0.79,"R") ";"            MF ";" SG ";" SR ";" ST ";"            ar(0.10,-0.20,0.62,"G") ";" ar(0.10,-0.20,0.52,"G") ";"            ar(0.10,0.20,0.62,"R") ";" ar(0.10,0.20,0.52,"R")            "|Red, white, red for restricted in her ability to manoeuvre, and in addition two all-round reds on the side the obstruction is and two all-round greens on the side you may pass. Here the obstruction is to starboard and the way past is to port.|The two reds are out on her STARBOARD side, where you expect her green sidelight. They are not a sidelight and they are not her port side: they mark the obstruction, and Rule 27(d) says you pass on the side showing the greens."
+
+  #  Rule 25(b). The commonest yacht at night and the table had no entry
+  #  for her. All three lights from one point at the top of the mast:
+  #  she carries no second light to give you her length, and the lantern
+  #  being high and small makes her look further off than she is.
+  VT[24] = "sailtri|Sailing vessel under 20 m, combined lantern|Rule 25(b)|"            "0.000,0.000,0.950,S,G,;0.000,0.000,0.950,P,R,;0.000,0.000,0.950,T,W,"            "|Sidelights and sternlight combined in one lantern at or near the top of the mast. Only a sailing vessel under 20 metres may do this.|She may not also show the optional red over green of Rule 25(c): it is one or the other. And every light she has comes from a single point high up, so there is nothing in her lights to tell you her length, and a small bright lantern well above the water reads as further away than she is."
+
+  #  Rule 24(c). The same two masthead lights as a vessel towing astern
+  #  with a tow under 200 m, and the whole difference is a light she does
+  #  NOT carry. A confusable pair is worth a table entry of its own.
+  VT[25] = "towalong|Pushing ahead, or towing alongside|Rule 24(c)|"            MF ";0.150,0.000,0.840,M,W,;" SG ";" SR ";" ST            "|Two masthead lights in a vertical line, sidelights and a sternlight -- and no towing light. She is pushing ahead or towing alongside, so nothing of hers is astern on a wire.|Her two masthead lights are what a vessel towing astern shows for a tow of 200 metres or less. The difference is the yellow towing light above the sternlight: towing astern has one, pushing or towing alongside does not. Look for the yellow before you decide what is behind her."
+
+  #  Rule 23(d)(i). An all-round white in place of BOTH the masthead
+  #  light and the sternlight, so from astern she shows one white light
+  #  and nothing else -- which is also a vessel at anchor, and also a
+  #  sailing vessel under 7 m with a torch.
+  VT[26] = "power12|Power-driven vessel under 12 m|Rule 23(d)|"            ar(0.000,0,0.450,"W") ";" SG ";" SR            "|Under 12 metres she may show an all-round white light and sidelights, in place of the masthead light and the sternlight.|On a vessel under 12 metres that white light may also be displaced from the centreline, so do not read its position as her heading. From astern she shows one white and no sidelights, and so does a vessel at anchor."
+
+  #  Rule 23(d)(ii). One all-round white and, if practicable, sidelights
+  #  -- so at worst a single white light, identical to a vessel at anchor
+  #  under 50 m and to a sailing vessel under 7 m. The quiz already pulls
+  #  look-alikes out of the option pool and says so, which is the right
+  #  answer: the ambiguity is the lesson, not a fault to design around.
+  VT[27] = "power7|Power-driven vessel under 7 m, 7 knots or less|Rule 23(d)|"            ar(0.000,0,0.350,"W")            "|Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable.|A single white light is the most ambiguous thing you can see at night. It is this, or a vessel at anchor, or a sailing vessel under 7 m showing a torch, or the sternlight of a ship. It will not tell you which, and it will not tell you her heading."
+
+  NVES=27
   VES_READY=1
   return 0
 }
@@ -1558,12 +1599,29 @@ function ar_look(idx,th,   a,n,L,i,f,j,t1,t2,m,allone,x1,x2,d,ARC,ARH,ARX,ARP,AR
   ves_init()
   split(VT[idx],a,"|"); n=split(a[4],L,";")
   AR_N=0; AR_DIR=0; AR_FA=0; AR_MH=0; AR_SG=0; AR_SP=0; AR_ST=0; AR_YL=0; AR_PCOL=""
+  AR_MHFA=0; AR_MHX=0; AR_DSP=0; DS_N=0; DP_N=0; DS_C=""; DP_C=""
   for(i=1;i<=n;i++){
     split(L[i],f,",")
     if(!arc_vis(f[4],th)) continue
-    if(f[4]=="A"){ AR_N++; ARH[AR_N]=f[3]+0; ARC[AR_N]=f[5]
-                   ARP[AR_N]=f[1]+0; ARQ[AR_N]=f[2]+0
-                   ARX[AR_N]=(f[1]+0)*sind(th) - (f[2]+0)*cosd(th) }
+    if(f[4]=="A"){
+      #  AN ALL-ROUND LIGHT OUT ON HER SIDE IS NOT PART OF THE VERTICAL
+      #  STACK. A dredger shows red-white-red up the mast AND two reds on
+      #  the obstructed side and two greens on the side you may pass
+      #  (Rule 27(d)); sorting all seven by height alone interleaved them
+      #  into "an all-round red over an all-round white over an all-round
+      #  red over an all-round green over..." -- unreadable, and untrue
+      #  of the picture, where two groups sit out to either side.
+      #  A yard-mounted light is excluded: a mine clearance vessel's two
+      #  yard-end greens belong with the green at her foremast head and
+      #  are counted with it, which is what hidden_note() then explains
+      #  when one hides the other.
+      if((f[2]+0)!=0 && f[6]!="yard"){
+        if((f[2]+0)>0){ DS_N++; DS_C=f[5] } else { DP_N++; DP_C=f[5] }
+        AR_DSP=1
+      } else {
+        AR_N++; ARH[AR_N]=f[3]+0; ARC[AR_N]=f[5]
+        ARP[AR_N]=f[1]+0; ARQ[AR_N]=f[2]+0
+        ARX[AR_N]=(f[1]+0)*sind(th) - (f[2]+0)*cosd(th) } }
     else { AR_DIR=1
       #  BUCKET BY COLOUR AS WELL AS ARC. Rule 21(d): a towing light is
       #  "a yellow light having the same characteristics as the
@@ -1575,7 +1633,16 @@ function ar_look(idx,th,   a,n,L,i,f,j,t1,t2,m,allone,x1,x2,d,ARC,ARH,ARX,ARP,AR
       #  there is something on the end of a wire ahead of you, and the
       #  gap between her towing light and her sternlight is how you tell
       #  you are looking at the towing vessel and not at the tow.
-      if(f[4]=="M") AR_MH++
+      #  TWO MASTHEAD LIGHTS MEAN DIFFERENT THINGS DEPENDING ON WHERE
+      #  THEY SIT, and this said "the after one higher" for both. Rule
+      #  23(a)(ii) puts the second masthead light of a vessel of 50 m or
+      #  more ABAFT of and higher than the forward one; Rule 24(a)(i)
+      #  puts a towing vessel's two IN A VERTICAL LINE. That is the
+      #  distinction between a ship and a tug with something on the end
+      #  of a wire, and the program was describing them identically.
+      if(f[4]=="M"){ AR_MH++
+        if(AR_MH==1) AR_MHX=f[1]+0
+        else if((f[1]+0)!=AR_MHX) AR_MHFA=1 }
       else if(f[4]=="S") AR_SG=1
       else if(f[4]=="P") AR_SP=1
       else if(f[4]=="Y" || (f[4]=="T" && f[5]=="Y")) AR_YL=1
@@ -1637,8 +1704,22 @@ function seen_sig(idx,th,   i,np,txt,PH){
   ar_look(idx,th)
   np=0
   if(AR_SAY!=""){ np++; PH[np]=AR_SAY }
+  if(AR_DSP){
+    #  described as the picture has them -- which side carries which
+    #  colour is in the table's own note and in the drawing, and that is
+    #  where the rule belongs. This sentence says what you see.
+    if(DS_N>0 && DP_N>0){ np++
+      PH[np]=arphrase(DP_C,DP_N) " out on one side and " arphrase(DS_C,DS_N) " out on the other" }
+    else if(DS_N>0){ np++; PH[np]=arphrase(DS_C,DS_N) " out on one side" }
+    else if(DP_N>0){ np++; PH[np]=arphrase(DP_C,DP_N) " out on one side" }
+  }
   if(AR_MH==1){ np++; PH[np]="a masthead light" }
-  else if(AR_MH==2){ np++; PH[np]="two masthead lights, the after one higher" }
+  else if(AR_MH==2){ np++
+    #  plain ifs, not a ternary split over two lines: awk allows a
+    #  newline after a comma or an operator but not after the ':' of a
+    #  conditional, and mawk refuses to parse the file at all.
+    if(AR_MHFA) PH[np]="two masthead lights, the after one higher"
+    else PH[np]="two masthead lights in a vertical line" }
   else if(AR_MH==3){ np++; PH[np]="three masthead lights in a vertical line" }
   else if(AR_MH>3){ np++; PH[np]=AR_MH " masthead lights" }
   if(AR_SG&&AR_SP){ np++; PH[np]="both sidelights" }
@@ -2100,7 +2181,7 @@ function enc_init(){
   #
   #  wind:   the true wind direction, relative to YOUR head, where Rule
   #          12 turns on which side it is. Empty on a power scenario.
-  #  vessel: a key into the twenty-two the lights drill renders, so the
+  #  vessel: a key into the twenty-seven the lights drill renders, so the
   #          scenario can draw her at the aspect it was drawn from
   #          instead of describing her. Empty on the two fog signals,
   #          where you cannot see her, and on the seaplane, whose lights

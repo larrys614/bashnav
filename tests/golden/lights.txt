@@ -6297,7 +6297,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   End on, or nearly: she is coming straight at you.
-  She shows two masthead lights, the after one higher and both sidelights. Both sidelights at once means you are within a degree or two of her bow, and she of yours. Her red appears on your right and her green on your left, because she is facing you. Taking you as a power-driven vessel under way, Rule 14: neither of you stands on - each alters to starboard and you pass port to port.
+  She shows two masthead lights in a vertical line and both sidelights. Both sidelights at once means you are within a degree or two of her bow, and she of yours. Her red appears on your right and her green on your left, because she is facing you. Taking you as a power-driven vessel under way, Rule 14: neither of you stands on - each alters to starboard and you pass port to port.
 
 === light tow200 30 ===
 
@@ -6334,7 +6334,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Crossing from your left to your right.
-  She shows two masthead lights, the after one higher and her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+  She shows two masthead lights in a vertical line and her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
 
 === light tow200 60 ===
 
@@ -6371,7 +6371,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Crossing from your left to your right.
-  She shows two masthead lights, the after one higher and her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+  She shows two masthead lights in a vertical line and her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
 
 === light tow200 90 ===
 
@@ -6408,7 +6408,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Crossing from your left to your right.
-  She shows two masthead lights, the after one higher and her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
+  She shows two masthead lights in a vertical line and her green sidelight. Her green sidelight is her starboard side, so you are standing in her starboard sector and she is heading from your left to your right. Taking you both as power-driven vessels under way, this also tells you who gives way: she has YOU on her starboard side, so under Rule 15 she is the one who must keep out of the way. You stand on and hold your course - while watching her like a hawk.
 
 === light tow200 120 ===
 
@@ -6630,7 +6630,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Crossing from your right to your left.
-  She shows two masthead lights, the after one higher and her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+  She shows two masthead lights in a vertical line and her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
 
 === light tow200 300 ===
 
@@ -6667,7 +6667,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Crossing from your right to your left.
-  She shows two masthead lights, the after one higher and her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+  She shows two masthead lights in a vertical line and her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
 
 === light tow200 330 ===
 
@@ -6704,7 +6704,7 @@
   Rule 24.  Two masthead lights in a vertical line, and a yellow towing light above the sternlight.
 
   Crossing from your right to your left.
-  She shows two masthead lights, the after one higher and her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
+  She shows two masthead lights in a vertical line and her red sidelight. Her red sidelight is her port side, so you are in her port sector and she is heading from your right to your left. Taking you both as power-driven vessels under way, that puts her on your own starboard side, which makes you the give-way vessel: alter to starboard and pass under her stern. If to starboard red appear, it is your duty to keep clear.
 
 === light tow200p 0 ===
 
