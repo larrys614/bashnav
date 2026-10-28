@@ -208,7 +208,7 @@ window.COLREGS_DATA = {
    "name": "Vessel fishing",
    "rule": "Rule 26",
    "stack": ["hourglass"],
-   "note": "Two cones with their points together. Under 20 m may show a basket instead."
+   "note": "Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for."
   },
   {
    "key": "tow200p",
@@ -644,9 +644,9 @@ window.COLREGS_DATA = {
   {
    "key": "fogram",
    "pattern": "#### # #",
-   "meaning": "Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing",
+   "meaning": "Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing",
    "rule": "Rule 35(c)",
-   "when": "One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is."
+   "when": "One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is."
   },
   {
    "key": "fogtowed",

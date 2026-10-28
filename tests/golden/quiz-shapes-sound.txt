@@ -211,18 +211,18 @@
 
   Not right.
   C is right -- Vessel fishing
-  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+  Rule 26.  Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for.
 
   Not right.
   C is right -- Vessel fishing
-  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+  Rule 26.  Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for.
 
   C is right -- Vessel fishing
-  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+  Rule 26.  Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for.
 
   Not right.
   C is right -- Vessel fishing
-  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+  Rule 26.  Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for.
 
 === qshape 8 ===
 
@@ -279,18 +279,18 @@
 
   Not right.
   C is right -- Vessel fishing
-  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+  Rule 26.  Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for.
 
   Not right.
   C is right -- Vessel fishing
-  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+  Rule 26.  Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for.
 
   C is right -- Vessel fishing
-  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+  Rule 26.  Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for.
 
   Not right.
   C is right -- Vessel fishing
-  Rule 26.  Two cones with their points together. Under 20 m may show a basket instead.
+  Rule 26.  Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for.
 
 === qshape 10 ===
 
@@ -1033,7 +1033,7 @@
    a) At anchor
    b) I am approaching a bend where other vessels may be hidden
    c) I am altering my course to starboard
-   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
 
   Not right.
   C is right -- I am altering my course to starboard
@@ -1097,7 +1097,7 @@
   *  a stroke on the bell               ***** the bell rung rapidly
 
    a) I agree: go ahead and overtake
-   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
    c) Power-driven vessel under way but stopped and making no way
    d) I am altering my course to port
 
@@ -1196,7 +1196,7 @@
   *  a stroke on the bell               ***** the bell rung rapidly
 
    a) Pilot vessel on duty - identity signal
-   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
    c) Power-driven vessel under way but stopped and making no way
    d) I am altering my course to starboard
 
@@ -1229,7 +1229,7 @@
   *  a stroke on the bell               ***** the bell rung rapidly
 
    a) I agree: go ahead and overtake
-   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
    c) I am operating astern propulsion
    d) A vessel being towed, and manned
 
@@ -1262,24 +1262,24 @@
   *  a stroke on the bell               ***** the bell rung rapidly
 
    a) I am approaching a bend where other vessels may be hidden
-   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
    c) I intend to overtake you on your port side
    d) I am altering my course to port
 
   Not right.
-  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is.
 
-  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
-
-  Not right.
-  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is.
 
   Not right.
-  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is.
+
+  Not right.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is.
 
 === qsound 10 ===
 
@@ -1328,24 +1328,24 @@
   *  a stroke on the bell               ***** the bell rung rapidly
 
    a) Power-driven vessel under way but stopped and making no way
-   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   b) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
    c) I intend to overtake you on your starboard side
    d) Power-driven vessel making way through the water
 
   Not right.
-  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is.
 
-  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
-
-  Not right.
-  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is.
 
   Not right.
-  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
-  Rule 35(c).  One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is.
+
+  Not right.
+  B is right -- Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
+  Rule 35(c).  One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is.
 
 === qsound 12 ===
 
@@ -1363,7 +1363,7 @@
    a) I do not understand your intentions, or I doubt you are taking sufficient action
    b) I intend to overtake you on your starboard side
    c) I am altering my course to starboard
-   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
 
   A is right -- I do not understand your intentions, or I doubt you are taking sufficient action
   Rule 34(d).  Five or more short and rapid blasts. Use it early and use it loudly; it is the only signal that says something is wrong.
@@ -1626,7 +1626,7 @@
 
    a) Pilot vessel on duty - identity signal
    b) Power-driven vessel under way but stopped and making no way
-   c) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   c) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
    d) I intend to overtake you on your port side
 
   Not right.
@@ -1693,7 +1693,7 @@
    a) A vessel being towed, and manned
    b) I agree: go ahead and overtake
    c) I intend to overtake you on your port side
-   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
 
   Not right.
   B is right -- I agree: go ahead and overtake
@@ -1858,7 +1858,7 @@
    a) I agree: go ahead and overtake
    b) I am altering my course to port
    c) I am altering my course to starboard
-   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   d) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
 
   Not right.
   C is right -- I am altering my course to starboard
@@ -1923,7 +1923,7 @@
 
    a) I am altering my course to starboard
    b) I am altering my course to port
-   c) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+   c) Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
    d) I am approaching a bend where other vessels may be hidden
 
   A is right -- I am altering my course to starboard

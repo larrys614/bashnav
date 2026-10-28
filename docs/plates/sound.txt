@@ -11,7 +11,7 @@ In sight of one another (Rule 34)
 In or near an area of restricted visibility (Rule 35)
   ####               Power-driven vessel making way through the water
   #### ####          Power-driven vessel under way but stopped and making no way
-  #### # #           Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing
+  #### # #           Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing
   #### # # #         A vessel being towed, and manned
   *****              At anchor
   * * * ***** * * *  Aground

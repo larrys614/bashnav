@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003629158
+BASHNAV_BYTES=003630163
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -7517,7 +7517,15 @@ function shp_init(){
   SH[4] = "ram|Restricted in her ability to manoeuvre|Rule 27|ball;diamond;ball|Ball, diamond, ball. The diamond in the middle is the one to remember."
   SH[5] = "draught|Constrained by her draught|Rule 28|cyl|A black cylinder."
   SH[6] = "motorsail|Sailing vessel also under power|Rule 25|conedn|A cone, point down, forward. She is a power-driven vessel now, whatever her sails are doing."
-  SH[7] = "fishing|Vessel fishing|Rule 26|hourglass|Two cones with their points together. Under 20 m may show a basket instead."
+  #  THE BASKET IS HISTORY, AND KEPT AS HISTORY. Larry's ruling, after
+  #  the sources were put to him: keep it, but say plainly that it is no
+  #  longer prescribed. Rule 26(b)(i) and (c)(i) as they now stand give
+  #  the two cones and no alternative -- the basket was in the 1972 text
+  #  and is not in the current one. It stays on the screen because it is
+  #  still in older books and still occasionally on an older boat, and a
+  #  reader who meets one should know what he is looking at and that it
+  #  is not what the Convention asks for.
+  SH[7] = "fishing|Vessel fishing|Rule 26|hourglass|Two cones with their points together. The 1972 text let a vessel under 20 m show a basket instead; that alternative is no longer in Rule 26, so you may still see one but it is not what the rule now asks for."
   SH[8] = "tow200p|Towing, tow over 200 m|Rule 24|diamond|A diamond, shown by the towing vessel and by the tow."
   SH[9] = "mineclear|Mine clearance|Rule 27|ball;ballpair|Three balls: one at the foremast head and one at each end of the fore yard."
   SH[10]= "divers|Vessel with divers down|Rule 27|flagA|A rigid replica of flag A, at least 1 m high. She is restricted in her ability to manoeuvre."
@@ -7953,7 +7961,12 @@ function snd_init(){
   SD[8] ="bend|####|I am approaching a bend where other vessels may be hidden|Rule 34(e)|Answered by any vessel within hearing round the bend with the same signal."
   SD[9] ="fogpower|####|Power-driven vessel making way through the water|Rule 35(a)|At intervals of not more than two minutes."
   SD[10]="fogstop|#### ####|Power-driven vessel under way but stopped and making no way|Rule 35(b)|Two prolonged blasts, about two seconds apart, every two minutes."
-  SD[11]="fogram|#### # #|Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing|Rule 35(c)|One prolonged and two short, every two minutes. Six different vessels share this signal, so it tells you to be careful rather than exactly what she is."
+  #  "OR PUSHING" was missing. Rule 35(c) covers "a vessel engaged in
+  #  towing or pushing another vessel", and a vessel pushing ahead sounds
+  #  the same one-prolonged-two-short as the rest -- she was simply not
+  #  in the list. Still six categories, because towing and pushing are
+  #  one of them.
+  SD[11]="fogram|#### # #|Not under command, restricted in ability to manoeuvre, constrained by draught, sailing, fishing, or towing or pushing|Rule 35(c)|One prolonged and two short, every two minutes. Six different kinds of vessel share this signal, so it tells you to be careful rather than exactly what she is."
   SD[12]="fogtowed|#### # # #|A vessel being towed, and manned|Rule 35(e)|One prolonged and three short, sounded immediately after the towing vessel's signal."
   SD[13]="foganchor|*****|At anchor|Rule 35(g)|The bell rung rapidly for about five seconds, every minute. A vessel of 100 m or more also sounds a gong aft, and any vessel may add one short, one prolonged and one short to warn an approaching vessel."
   SD[14]="fogaground|* * * ***** * * *|Aground|Rule 35(h)|Three distinct strokes, the rapid ringing, then three distinct strokes again."
