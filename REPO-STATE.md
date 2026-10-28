@@ -1,6 +1,6 @@
 # Repository state
 
-Last updated 2026-10-20. Published at
+Last updated 2026-10-28. Published at
 **https://github.com/larrys614/bashnav**.
 
 New here? Start with [`CLAUDE.md`](CLAUDE.md), then
@@ -14,12 +14,12 @@ New here? Start with [`CLAUDE.md`](CLAUDE.md), then
 
 | tool | version | size | what it is |
 |---|---|---|---|
-| `bin/celnav` | 1.6 | 256 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
-| `bin/colregs` | 1.15 | 222 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
+| `bin/celnav` | 1.6 | 258 KB | celestial navigation: almanac, sight reduction, plotting, fix, and a teaching track |
+| `bin/colregs` | 1.15 | 255 KB | rules of the road: lights, shapes, sounds, encounters, collision-avoidance scenarios, contact management, and an interactive review |
 | `bin/tides` | 1.1 | 2.8 MB | harmonic tide prediction, 8,334 stations worldwide |
-| `bin/deck-log` | 1.1 | 48 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
-| `bin/weather` | 1.0 | 80 KB | reasons over the log's observations and shows its working; ten lessons; forecast scoring |
-| `bin/bashnav` | 1.0 | 3.4 KB | the launcher: a menu in front of the other five, and one home-screen icon on an iPad |
+| `bin/deck-log` | 1.1 | 49 KB | the boat's records &mdash; deck, engine, provisions &mdash; append-only in UTC, spares derived by replaying the log |
+| `bin/weather` | 1.0 | 106 KB | reasons over the log's observations and shows its working; ten lessons, the Coriolis tier and the wind demonstration; forecast scoring |
+| `bin/bashnav` | 1.0 | 3 KB | the launcher: a menu in front of the other five, and one home-screen icon on an iPad |
 
 Those sizes are measured, not remembered: the table had carried 153 KB for
 `celnav` and 175 KB for `colregs` since before several months of additions, and
@@ -1138,6 +1138,245 @@ what is checked now, and the reasoning is in the check beside it.
 
 Four faults planted and caught, **the narrowed slider among them**, so the 180°
 cannot come back quietly. 158 checks. weather-v8, build 8.
+
+---
+
+## The wind demonstration, and where it ended up
+
+`weather` grew a second figure beside the gunnery one: a circular plot of
+isobars round a low, with the surface wind crossing them, and sliders for
+latitude and for the pressure gradient. The physics is in `grid.awk` —
+`wx_cor`, `wx_drag`, `wx_alpha`, `wx_pgf`, `wx_vgrad` — and two results in
+it are worth knowing because they are counter-intuitive:
+
+- **With linear drag the cross-isobar angle does not depend on the pressure
+  gradient at all.** `tan α = k/f` exactly; the gradient cancels. A stronger
+  low gives you more wind at the same angle, not a different angle.
+- **A gradient-wind high has a speed limit.** Round a high the balance is
+  `G = fV − V²/R`, which has no solution when `f²R < 4G`: there is a
+  tightest possible high for a given gradient, and the panel refuses the
+  slider settings that ask for one.
+
+An earlier design drew eight arrows round a full circle and was thrown away
+in favour of one isobar and one wind vector. In characters, `/` and `\`
+carry an axis but not a direction, so the flank arrows read as outflow —
+the opposite of what the figure is about.
+
+**It is on the front page, live.** `docs/site-template.html` carries the
+panel in the header, which made it the first page in the project to run
+JavaScript at all. The code is in `docs/web/shared/winddemo.js` and
+`docs/web/shared/demo.css`, loaded by both the weather app and the site, so
+the two cannot drift. A `<noscript>` fallback shows the still picture.
+
+One naming trap worth recording: the state object was called `WX` and
+**clobbered the weather app's own `WX`**, which is a module of the
+application. "WX.load is not a function" in the console. It is `WIND` now.
+Two files loaded separately each get their own `new Function` scope, so they
+cannot see each other's declarations either — the reflow test joins them
+with a newline and loads them as one.
+
+---
+
+## A push was invisible for ten minutes
+
+Measured on the live site rather than guessed at: GitHub Pages serves
+`cache-control: max-age=600` behind a Fastly edge. A browser re-checks
+`sw.js` through the HTTP cache unless the previous response allowed more
+than 24 hours, and `cache.addAll()` reads that same cache — so a service
+worker could install, report its new cache name, and then serve the previous
+version's files out from under it. The app looked updated and was not.
+
+Fixed in all seven workers, two changes that have to go together:
+
+- `serviceWorker.register(..., { updateViaCache: 'none' })`, so the worker
+  script itself is always fetched from the network;
+- `fetch(f, { cache: 'reload' })` for every precached file in `install`,
+  in place of `cache.addAll(FILES)`, so the files cannot come from the
+  stale HTTP cache either.
+
+`tests/sw-precache-check.sh` now asserts all three properties — no
+`addAll(FILES)`, `cache: 'reload'` present, and `updateViaCache: 'none'` on
+the register call itself. Fixing that check also taught a small lesson about
+`sed`: `sed -n 's|^\./||p'` prints only the lines the substitution
+*matched*, so every entry that did not begin with `./` was silently dropped
+from the comparison.
+
+**What is still slow, and cannot be fixed here:** `docs/index.html` has no
+service worker, and Pages still sends `max-age=600` for it. A hard reload is
+the way past that one.
+
+---
+
+## Saying what the tools can already do
+
+Measured rather than guessed: each tool's command surface was compared
+against the README and the front page. `colregs review` appeared on the
+front page zero times. `celnav devcard`, `syllabus`, `stocktake` and
+`amplitude` appeared in neither.
+
+The review tool was the worse omission, because the page was already making
+the argument and leaving out the thing that acts on it. "What the tests
+cover, and what they cannot" said plainly that nothing in the suite can tell
+you whether Rule 27 says what the program says it says — and then asked the
+reader to open an issue, without mentioning that the program will walk them
+through the claims one at a time and build the issue for them.
+
+The front page now ends that section with the tool, and says what has **no**
+such tool: celnav, tides and weather make claims a test can only check for
+self-consistency.
+
+---
+
+## The claim review, round two
+
+Five faults, and **not one of them was about the rules** — every one was the
+screen saying something other than what it showed, or the tool losing what
+the reviewer typed. Written up in full in the project notes; the short
+version, because each taught something general:
+
+1. **Three greens, two visible.** A mine clearance vessel's two yard-end
+   greens sit at the same height, one at each end of the fore yard, so from
+   abeam you look *along* the yard and one is directly behind the other. The
+   drawing was right and the sentence was right and nothing reconciled them.
+   `hidden_note()` now finds any two same-coloured lights within a fiftieth
+   of a hull length in both height and projected sideways position and says
+   so — and it is worth teaching, because a mine clearance vessel seen from
+   abeam shows two greens and abeam is when the 1000 metre clearance matters.
+2. **A stopped vessel still has a standing.** `motion_why()` returned before
+   reaching Rule 18 for any vessel lying stopped, so two all-round reds never
+   produced the words "not under command" — and the sentence ended by
+   offering "anchored", which her own lights rule out.
+3. **The wording must match the display.** The identity sentence was built
+   from the vessel's *signature* — every light she carries — while the
+   drawing shows only the lights whose *arcs bear on you*. A vessel of 50 m
+   or more drawn from 135 was described as showing two masthead lights and
+   drawn showing one sternlight. The sentence is generated from the lights in
+   arc now, so the two read the same table through the same `arc_vis()`. What
+   it produces from astern is the teaching point: **"She shows her
+   sternlight."** — from abaft her beam an ordinary power-driven vessel's
+   lights identify nothing whatever.
+4. **The menu hid the option.** `[f]` already took a comment and never said
+   so. It reads `[r] right  [f] wrong, say why  [c] right, but a comment`
+   now, and every section carries a `TESTING` line stating what the claim
+   asserts.
+5. **Three marks were never saved.** The sharpest one, because it destroyed
+   work rather than misinforming anyone. The verdict was written *after* the
+   note was asked for, so interrupting at the note prompt — which is what you
+   do when you want to copy the screen into a chat — killed the script
+   between the keypress and the save. Every claim the reviewer had something
+   to say about was the vulnerable kind. The verdict reaches disk the instant
+   the key is pressed now; a note follows as a second row and supersedes.
+   Reproducing it needed a fifo held open, because a pipe reaches EOF and
+   `read` returns instead of blocking.
+
+A second fault found while reproducing that one: "carry on from where I left
+off" plus `[return]` was an infinite loop, because `rv_next` returns the
+first claim with no row and skipping deliberately writes no row.
+
+**And a harness fault the new check exposed**, worth more than the fault:
+`guard()` reaps its watchdog with `wait`, which returns 143 for a process
+just terminated — and under `set -e` that ends the script. It had never
+fired because every caller wrote `if guard ...; then`, and **`set -e` is
+suspended for the whole body of a function run as an `if` condition.** The
+first bare `guard` call stopped the suite three quarters of the way through,
+with every check passing and no failure reported.
+
+---
+
+## Checking the claims against an outside reference
+
+A lights, shapes and sound-signals guide was put to the tables. It confirmed
+all 15 sound signals, all 10 day shapes, every arc, and 18 of the then 22
+light tables — and it corroborated two of round two's findings from a source
+that has never seen the program.
+
+It found two more display faults:
+
+- **An aspect stated that her lights cannot give.** Five vessels show only
+  all-round lights at every bearing of the 360. The aspect line came from
+  the true bearing and was stated with equal confidence for all of them —
+  beside a picture of one all-round white light. In the reference that is at
+  worst incomplete, since the bearing was typed; **in the quiz reveal it is
+  the answer.** The one exception is the one the rules prescribe: Rule 30(a)
+  puts a 50 m vessel's second anchor light at or near the stern and lower, so
+  how far that same-coloured pair opens gives an approximate aspect — never
+  which side, never which end. A gap between lights of *different* colours
+  is not prescribed, so nothing is read off it.
+- **A towing light reported as a sternlight.** Rule 21(d) makes it a yellow
+  light with the sternlight's characteristics, so it carries the stern arc —
+  and bucketing on the arc alone merged the two. A towing vessel from abaft
+  her beam read "She shows her sternlight", when the gap between her towing
+  light and her sternlight is how you tell her from the tow, and seeing one
+  white alone may mean you are *between* them.
+
+**The test written for that exact class of fault could not see it**, because
+it derived "is this a towing light?" from the same field the bug lived in.
+*A check that re-derives its expectation from the same field as the code is
+not an independent check of that field; it only proves the code is consistent
+with itself.* Both `motion-seen-check` and `aspect-check` assert the converse
+as well now.
+
+### Six vessels the tables had no entry for
+
+None of the existing tables was wrong; these were absent.
+
+| | | |
+|---|---|---|
+| `dredge` | Rule 27(d) | two reds on the obstructed side, two greens on the side you may pass |
+| `sailtri` | Rule 25(b) | sidelights and sternlight in one lantern at the masthead |
+| `towalong` | Rule 24(c) | pushing ahead or towing alongside — and **no** towing light |
+| `power12` | Rule 23(d) | an all-round white in place of masthead light and sternlight |
+| `power7` | Rule 23(d) | a single white light, and nothing to say which of four things it is |
+| `fishgear` | Rule 26(c)(ii) | an all-round white out towards gear streamed over 150 m |
+
+They are **appended** to the vessel table rather than inserted, so the light
+table claims keep their keys.
+
+Two faults in earlier work surfaced as soon as they were added:
+
+- **Two masthead lights were described identically** whether they sat fore
+  and aft (Rule 23(a)(ii), a vessel of 50 m or more) or in a vertical line
+  (Rule 24(a)(i), a towing vessel) — which is exactly how you tell a ship
+  from a tug with something on the end of a wire. Read off the geometry now.
+- **An all-round light out on her side is not part of the vertical stack.**
+  Sorting a dredger's by height alone produced seven lights in one
+  unreadable chain. Displaced lights are named separately; a yard-mounted
+  light is excluded, so a mine clearance vessel's yard greens still count
+  with the green at her foremast head.
+
+Two exceptions were added to `tests/annex1-check.awk`, both read off the
+lights rather than off a vessel's name — **a check that exempts a key by name
+stops checking that vessel at all**: a combined lantern may put several
+lights at one point and show one sidelight rather than an opposed pair, and
+an all-round white may stand in for the sternlight.
+
+### Two rules rulings
+
+- **Rule 35(c) covers pushing.** The signal line listed six categories and
+  stopped at towing, so a vessel pushing ahead sounded a signal the program
+  did not attribute to her.
+- **The basket is kept, as history.** Rule 26 as it now stands gives two
+  cones and no alternative; the basket a vessel under 20 m could show was in
+  the 1972 text. Larry's ruling was to keep it on the screen and date it,
+  because it is still in older books and occasionally on an older boat, and a
+  reference that silently drops a signal leaves the reader who sees one with
+  nothing.
+
+### What the review has shown about the tool
+
+Across both rounds: **every fault was wider than the claim that exposed it**
+— one claim became two, one became nine, one became the whole give-way
+section, one became every annotated claim in the file. A reviewer reading
+one screen is sampling; the thing to do with a flag is measure the class it
+belongs to.
+
+And the faults have moved. Round one found three and all three were about
+the rules. Round two and the sweep found seven and **not one was** — the
+rules engine has now been checked against an outside source across Part C
+and Part D and holds. What keeps failing is the layer that turns the tables
+into sentences, and **that layer still has no golden coverage on the review
+screen**: adding a line to all six review screens moved no golden file,
+because no golden file contains one. That is the next gap to close.
 
 ---
 

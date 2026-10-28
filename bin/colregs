@@ -466,7 +466,7 @@ about_tested() {
     '  THE GOLDEN FILES.  tests/golden.sh' \
     '' \
     '    Every screen the program can produce deterministically is' \
-    '    captured as text and committed - about twenty-six thousand' \
+    '    captured as text and committed - about thirty-four thousand' \
     '    lines of it. Any change to any of it turns up as a diff that' \
     '    somebody has to read and accept on purpose. That is how a' \
     '    small edit to one function gets caught quietly changing' \

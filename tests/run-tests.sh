@@ -335,8 +335,12 @@ for SH in $SHELLS; do
   case "$a" in *"twenty-eight encounters"*) ;; *) bad "about no longer says how many encounters" ;; esac
   case "$a" in *"ninety-four distinct give-way calls"*) ;; *) bad "about no longer says how many give-way calls" ;; esac
   gl=$(cat tests/golden/*.txt 2>/dev/null | wc -l)
-  if [ "$gl" -lt 20000 ] || [ "$gl" -gt 34000 ]; then
-    bad "about says about twenty-six thousand golden lines; there are $gl"
+  #  The band is wide on purpose -- "about thirty-four thousand" is an
+  #  order of magnitude, not a count -- but it has to move when the
+  #  figure does, or the check stops meaning anything. It was last set
+  #  around twenty-six thousand and the goldens have grown past it.
+  if [ "$gl" -lt 26000 ] || [ "$gl" -gt 42000 ]; then
+    bad "about says about thirty-four thousand golden lines; there are $gl"
   fi
   ok "the numbers the about section quotes match the program ($nv/$ne/$nm/$gl)"
   #  the licence the program claims must be the licence in the file

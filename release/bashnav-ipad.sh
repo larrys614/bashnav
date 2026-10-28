@@ -24,7 +24,7 @@ BASHNAV_RELEASE=1.0
 #  assembled.  The placeholder __BYTES__ is nine characters and the
 #  number is zero padded to nine, so substituting it does not change the
 #  file's length -- which is the only reason the number can be true.
-BASHNAV_BYTES=003638989
+BASHNAV_BYTES=003638990
 TOOLS="celnav colregs tides deck-log weather bashnav"
 
 say()  { printf '%s\n' "$*"; }
@@ -6026,7 +6026,7 @@ about_tested() {
     '  THE GOLDEN FILES.  tests/golden.sh' \
     '' \
     '    Every screen the program can produce deterministically is' \
-    '    captured as text and committed - about twenty-six thousand' \
+    '    captured as text and committed - about thirty-four thousand' \
     '    lines of it. Any change to any of it turns up as a diff that' \
     '    somebody has to read and accept on purpose. That is how a' \
     '    small edit to one function gets caught quietly changing' \
