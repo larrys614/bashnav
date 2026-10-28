@@ -1796,7 +1796,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right ahead of her: you are looking at her bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -1833,7 +1833,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -1870,7 +1870,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -1907,7 +1907,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her starboard beam: you see her whole starboard side.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -1944,7 +1944,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard quarter.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -1981,7 +1981,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard quarter.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2018,7 +2018,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right astern of her: you are looking at her stern.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2055,7 +2055,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port quarter.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2092,7 +2092,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port quarter.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2129,7 +2129,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her port beam: you see her whole port side.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2166,7 +2166,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2203,7 +2203,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2240,7 +2240,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right ahead of her: you are looking at her bow.
+  Her two whites are nearly in line, so you are nearer end-on than abeam -- but whether that is her bow or her stern is not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2277,7 +2277,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard bow.
+  Her two whites are part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2314,7 +2314,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard bow.
+  Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2351,7 +2351,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her starboard beam: you see her whole starboard side.
+  Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2388,7 +2388,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard quarter.
+  Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2425,7 +2425,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard quarter.
+  Her two whites are part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2462,7 +2462,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right astern of her: you are looking at her stern.
+  Her two whites are nearly in line, so you are nearer end-on than abeam -- but whether that is her bow or her stern is not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2499,7 +2499,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port quarter.
+  Her two whites are part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2536,7 +2536,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port quarter.
+  Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2573,7 +2573,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her port beam: you see her whole port side.
+  Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2610,7 +2610,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port bow.
+  Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2647,7 +2647,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port bow.
+  Her two whites are part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2684,7 +2684,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right ahead of her: you are looking at her bow.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2721,7 +2721,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard bow.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2758,7 +2758,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard bow.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2795,7 +2795,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her starboard beam: you see her whole starboard side.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2832,7 +2832,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard quarter.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2869,7 +2869,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard quarter.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2906,7 +2906,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right astern of her: you are looking at her stern.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2943,7 +2943,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port quarter.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -2980,7 +2980,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port quarter.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3017,7 +3017,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her port beam: you see her whole port side.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3054,7 +3054,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port bow.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3091,7 +3091,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port bow.
+  Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3128,7 +3128,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right ahead of her: you are looking at her bow.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3165,7 +3165,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard bow.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3202,7 +3202,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard bow.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3239,7 +3239,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her starboard beam: you see her whole starboard side.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3276,7 +3276,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard quarter.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3313,7 +3313,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard quarter.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3350,7 +3350,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right astern of her: you are looking at her stern.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3387,7 +3387,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port quarter.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3424,7 +3424,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port quarter.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3461,7 +3461,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her port beam: you see her whole port side.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3498,7 +3498,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port bow.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -3535,7 +3535,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port bow.
+  Her lights give you no aspect at all: two all-round reds look the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8520,7 +8520,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right ahead of her: you are looking at her bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8557,7 +8557,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8594,7 +8594,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8631,7 +8631,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her starboard beam: you see her whole starboard side.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8668,7 +8668,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her starboard quarter.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8705,7 +8705,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her starboard quarter.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8742,7 +8742,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are right astern of her: you are looking at her stern.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8779,7 +8779,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port quarter.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8816,7 +8816,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port quarter.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8853,7 +8853,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are on her port beam: you see her whole port side.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8890,7 +8890,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are broad on her port bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a
@@ -8927,7 +8927,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
   ----------------------------------------------------------------------
-  You are fine on her port bow.
+  Her lights give you no aspect at all: an all-round white looks the same from every bearing.
   Letters are the colours: W white  R red  G green  Y yellow
   Sideways spacing is where the lights sit along her hull, close to.
   Annex I keeps sidelights abaft the forward masthead light, so a

@@ -460,53 +460,94 @@ function arphrase(c,k){
   if(k==1) return "an all-round " colname(c)
   return (k==2?"two":(k==3?"three":k)) " all-round " colname(c) "s"
 }
-function seen_sig(idx,th,   a,n,L,i,f,j,t1,t2,nar,nmh,sg,sp,stn,yel,m,np,txt,allone,ARC,ARH,SEGC,SEGK,PH){
+#  The all-round lights that bear, named top down, and the counts the
+#  aspect line needs. Separated from seen_sig() so that the two cannot
+#  describe the same lights differently: AR_SAY is the phrase, AR_N the
+#  count, AR_DIR whether any directional light bears, and AR_FA the
+#  widest fore-and-aft separation between two all-round lights OF THE
+#  SAME COLOUR, as projected sideways from this bearing.
+function ar_look(idx,th,   a,n,L,i,f,j,t1,t2,m,allone,x1,x2,d,ARC,ARH,ARX,ARP,ARQ,SEGC,SEGK){
   ves_init()
   split(VT[idx],a,"|"); n=split(a[4],L,";")
-  nar=0; nmh=0; sg=0; sp=0; stn=0; yel=0
+  AR_N=0; AR_DIR=0; AR_FA=0; AR_MH=0; AR_SG=0; AR_SP=0; AR_ST=0; AR_YL=0; AR_PCOL=""
   for(i=1;i<=n;i++){
     split(L[i],f,",")
     if(!arc_vis(f[4],th)) continue
-    if(f[4]=="A"){ nar++; ARH[nar]=f[3]+0; ARC[nar]=f[5] }
-    else if(f[4]=="M") nmh++
-    else if(f[4]=="S") sg=1
-    else if(f[4]=="P") sp=1
-    else if(f[4]=="T") stn=1
-    else if(f[4]=="Y") yel=1
+    if(f[4]=="A"){ AR_N++; ARH[AR_N]=f[3]+0; ARC[AR_N]=f[5]
+                   ARP[AR_N]=f[1]+0; ARQ[AR_N]=f[2]+0
+                   ARX[AR_N]=(f[1]+0)*sind(th) - (f[2]+0)*cosd(th) }
+    else { AR_DIR=1
+      if(f[4]=="M") AR_MH++
+      else if(f[4]=="S") AR_SG=1
+      else if(f[4]=="P") AR_SP=1
+      else if(f[4]=="T") AR_ST=1
+      else if(f[4]=="Y") AR_YL=1 }
   }
   #  highest first: a vertical pair is named top down, which is how the
   #  rhymes are learnt and how the drawing stacks them.
-  for(i=2;i<=nar;i++){ t1=ARH[i]; t2=ARC[i]; j=i-1
-    while(j>=1 && ARH[j]<t1){ ARH[j+1]=ARH[j]; ARC[j+1]=ARC[j]; j-- }
-    ARH[j+1]=t1; ARC[j+1]=t2 }
+  #  EVERY parallel array moves, or they desynchronise. The first
+  #  version carried ARH, ARC and ARX and left ARP and ARQ where they
+  #  were, so a vessel aground -- reds at 0.100, anchor light at 0.350 --
+  #  came out with ARC saying "red, red" against ARP saying "0.350,
+  #  0.100", and she was reported as having a fore-and-aft pair she does
+  #  not have. Sorted arrays that are read together must be swapped
+  #  together.
+  for(i=2;i<=AR_N;i++){ t1=ARH[i]; t2=ARC[i]; d=ARX[i]; x1=ARP[i]; x2=ARQ[i]; j=i-1
+    while(j>=1 && ARH[j]<t1){ ARH[j+1]=ARH[j]; ARC[j+1]=ARC[j]; ARX[j+1]=ARX[j]
+                              ARP[j+1]=ARP[j]; ARQ[j+1]=ARQ[j]; j-- }
+    ARH[j+1]=t1; ARC[j+1]=t2; ARX[j+1]=d; ARP[j+1]=x1; ARQ[j+1]=x2 }
+  #  SAME COLOUR on purpose. Two lights of the same colour separated fore
+  #  and aft are a pair you can tell apart and measure across -- Rule
+  #  30(a) prescribes exactly that for a vessel of 50 m or more at
+  #  anchor, second light "at or near the stern and at a lower level".
+  #  A gap between lights of DIFFERENT colours, like the anchor white and
+  #  the two reds of a vessel aground, is not prescribed anywhere: Rule
+  #  30(d) says only "where they can best be seen", so any separation our
+  #  drawing happens to show is ours and not the Convention's, and
+  #  nothing may be read off it.
+  AR_PAIR=0
+  for(i=1;i<=AR_N;i++) for(j=i+1;j<=AR_N;j++){
+    if(ARC[i]!=ARC[j]) continue
+    x1=ARX[i]; x2=ARX[j]; d=x1-x2; if(d<0) d=-d
+    if(d>AR_FA) AR_FA=d
+    #  AR_PAIR is about the VESSEL, not this bearing: do two lights of
+    #  one colour sit at different places on her at all? AR_FA is this
+    #  bearing's projection of that, and it falls to zero end-on -- which
+    #  is itself a reading, not an absence of one.
+    if(ARP[i]!=ARP[j] || ARQ[i]!=ARQ[j]){ AR_PAIR=1; AR_PCOL=ARC[i] }
+  }
   m=0
-  for(i=1;i<=nar;i++){
+  for(i=1;i<=AR_N;i++){
     if(m>0 && SEGC[m]==ARC[i]) SEGK[m]++
     else { m++; SEGC[m]=ARC[i]; SEGK[m]=1 }
   }
-  np=0
+  AR_SAY=""
   if(m>0){
     allone=1
     for(i=1;i<=m;i++) if(SEGK[i]>1) allone=0
     #  "green over white" and "red, white and red in a vertical line" are
     #  the words the rules are remembered in; only fall back to counting
     #  all-round lights when the stack is not one of those shapes.
-    if(m==1) txt=arphrase(SEGC[1],SEGK[1])
-    else if(allone && m==2) txt=colname(SEGC[1]) " over " colname(SEGC[2])
-    else if(allone && m==3) txt=colname(SEGC[1]) ", " colname(SEGC[2]) " and " colname(SEGC[3]) " in a vertical line"
-    else { txt=""
-      for(i=1;i<=m;i++) txt=txt (i>1?" over ":"") arphrase(SEGC[i],SEGK[i]) }
-    np++; PH[np]=txt
+    if(m==1) AR_SAY=arphrase(SEGC[1],SEGK[1])
+    else if(allone && m==2) AR_SAY=colname(SEGC[1]) " over " colname(SEGC[2])
+    else if(allone && m==3) AR_SAY=colname(SEGC[1]) ", " colname(SEGC[2]) " and " colname(SEGC[3]) " in a vertical line"
+    else for(i=1;i<=m;i++) AR_SAY=AR_SAY (i>1?" over ":"") arphrase(SEGC[i],SEGK[i])
   }
-  if(nmh==1){ np++; PH[np]="a masthead light" }
-  else if(nmh==2){ np++; PH[np]="two masthead lights, the after one higher" }
-  else if(nmh==3){ np++; PH[np]="three masthead lights in a vertical line" }
-  else if(nmh>3){ np++; PH[np]=nmh " masthead lights" }
-  if(sg&&sp){ np++; PH[np]="both sidelights" }
-  else if(sg){ np++; PH[np]="her green sidelight" }
-  else if(sp){ np++; PH[np]="her red sidelight" }
-  if(stn){ np++; PH[np]="her sternlight" }
-  if(yel){ np++; PH[np]="a yellow towing light" }
+  return AR_N
+}
+function seen_sig(idx,th,   i,np,txt,PH){
+  ar_look(idx,th)
+  np=0
+  if(AR_SAY!=""){ np++; PH[np]=AR_SAY }
+  if(AR_MH==1){ np++; PH[np]="a masthead light" }
+  else if(AR_MH==2){ np++; PH[np]="two masthead lights, the after one higher" }
+  else if(AR_MH==3){ np++; PH[np]="three masthead lights in a vertical line" }
+  else if(AR_MH>3){ np++; PH[np]=AR_MH " masthead lights" }
+  if(AR_SG&&AR_SP){ np++; PH[np]="both sidelights" }
+  else if(AR_SG){ np++; PH[np]="her green sidelight" }
+  else if(AR_SP){ np++; PH[np]="her red sidelight" }
+  if(AR_ST){ np++; PH[np]="her sternlight" }
+  if(AR_YL){ np++; PH[np]="a yellow towing light" }
   if(np==0) return "Not one of her lights bears on you from here."
   txt=""
   for(i=1;i<=np;i++){
@@ -651,6 +692,50 @@ function aspect_words(th,   t,p){
   if(index(p,"beam")>0) return "You are " p ": you see her whole " ((t<0)?"port":"starboard") " side."
   return "You are " p "."
 }
+#  AN ASPECT YOU CANNOT READ MUST NOT BE STATED AS ONE.
+#
+#  aspect_words() takes the true bearing and says where you are standing,
+#  which is right for a vessel whose sidelights, masthead lights or
+#  sternlight bear on you -- that is the whole skill the drill teaches.
+#  Five vessels in the table show ONLY all-round lights, at every bearing
+#  of the 360:
+#
+#      anchor      Vessel at anchor, under 50 m
+#      anchor50    Vessel at anchor, 50 m or more
+#      aground     Vessel aground
+#      nuc         Not under command, making no way
+#      sail7       Sailing vessel under 7 m, or a vessel under oars
+#
+#  For those the program printed, beside a picture of one all-round white
+#  light, "You are on her starboard beam: you see her whole starboard
+#  side." In the lights reference that is at worst incomplete -- you
+#  typed the bearing. In the QUIZ REVEAL it is the answer, presented as
+#  something the lights told you, and nothing on that screen can give a
+#  side at all.
+#
+#  THE ONE EXCEPTION IS PRESCRIBED, which is why it can be read. Rule
+#  30(a) puts a second anchor light on a vessel of 50 metres or more "at
+#  or near the stern and at a lower level": a same-coloured pair set
+#  deliberately fore and aft, so how far apart they open tells you
+#  roughly how far off end-on you are, though never which side or which
+#  end. A gap between lights of DIFFERENT colours is not prescribed --
+#  Rule 30(d) says only "where they can best be seen" for the two reds of
+#  a vessel aground -- so any separation our own drawing happens to show
+#  between her anchor light and her reds is ours, not the Convention's,
+#  and nothing may be read off it.
+function aspect_line(idx,th,   v){
+  ar_look(idx,th)
+  if(AR_DIR) return aspect_words(th)
+  if(AR_N==0) return "Not one of her lights bears on you from here."
+  if(AR_PAIR){
+    v = "Her two " colname(AR_PCOL) "s are "
+    if(AR_FA >= 0.45) return v "wide apart, so you are nearer her beam than end-on -- but which side is not in her lights."
+    if(AR_FA <= 0.20) return v "nearly in line, so you are nearer end-on than abeam -- but whether that is her bow or her stern is not in her lights."
+    return v "part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights."
+  }
+  return "Her lights give you no aspect at all: " AR_SAY " " (AR_N>1?"look":"looks") " the same from every bearing."
+}
+
 #  WHEN ONE LIGHT HIDES ANOTHER, SAY SO.
 #
 #  Larry marked mot-13 wrong: "here you say she shows three greens, but
@@ -714,7 +799,7 @@ function show_lights(key,th){
   hr()
   #  Browsing tells you the aspect.  The quiz must not: Q2 is asking
   #  you to work the aspect out from the lights themselves.
-  if(!Q_NOASPECT) printf "  %s\n", aspect_words(th)
+  if(!Q_NOASPECT) printf "  %s\n", aspect_line(V_IDX,th)
   #  Same guard as the aspect, and for the same reason: "she shows three
   #  green lights" answers Q1 before it is asked. The quiz gets this in
   #  the reveal instead, where it is teaching rather than telling.
@@ -1115,7 +1200,7 @@ function enc_lights(i,   a,relher,we){
   if(draw_lights(a[11], relher)) return 1
   gshow()
   hr()
-  printf "  %s\n", aspect_words(relher)
+  printf "  %s\n", aspect_line(V_IDX,relher)
   printf "  Letters are the colours: %s white  %s red  %s green  %s yellow\n",
      cw("W",K_W), cw("R",K_R), cw("G",K_G), cw("Y",K_Y)
   hr()
@@ -1787,7 +1872,7 @@ function quiz_lights_reveal(){
   print ""
   printf "  Q2  %s -- %s\n", cw(toupper(QZ_MANS) " is right",C_ACC), motion_text(QZ_MOT)
   printf "      %s\n", motion_why(QZ_MOT,QZ_C,QZ_TH)
-  printf "      %s\n", aspect_words(QZ_TH)
+  printf "      %s\n", aspect_line(QZ_C,QZ_TH)
   if(QZ_SAME!=""){
     print ""
     printf "  %s\n", cw("But from this angle she is genuinely ambiguous.",C_ACC)

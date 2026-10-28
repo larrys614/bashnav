@@ -703,7 +703,7 @@ WXLOG
         tests/contacts-check.awk tests/review-check.awk tests/tides-check.awk \
         tests/annex1-check.awk tests/fields-check.awk tests/count-check.awk \
         tests/colregs-wind.awk tests/colregs-vessel.awk tests/colregs-bearing.awk \
-        tests/colregs-r18.awk tests/motion-seen-check.awk)
+        tests/colregs-r18.awk tests/motion-seen-check.awk tests/aspect-check.awk)
   n=$(echo "$r" | tail -1 | $AW '{print $2}')
   if [ "$n" = 0 ]; then ok "no code assigns to one of awk's built-in variables"
   else bad "$n assignments to awk built-ins"; echo "$r" | grep -v "^BAD" | head -5; fi
@@ -1349,6 +1349,17 @@ WXLOG
       *"BAD 0"*) ok "a review verdict reaches disk before the note is asked for, and skip advances" ;;
       *) bad "a review mark can be lost"; echo "$o" | grep -E "FAIL" | head -4 ;;
     esac
+  fi
+
+  # ---- an aspect that cannot be read is not claimed ------------------
+  #  Five vessels show only all-round lights at every bearing, and the
+  #  aspect line was stated from the true bearing regardless -- in the
+  #  quiz reveal, as the answer.
+  if r=$($AW $CSRC -f tests/aspect-check.awk -v cmode=plain </dev/null); then
+    echo "$r" | grep '^  ok' >/dev/null && ok "$(echo "$r" | sed -n 's/^  ok  *//p')"
+  else
+    bad "an aspect is claimed that her lights cannot give"
+    echo "$r" | grep -A1 FAIL | head -6
   fi
 
   # ---- the words match the display ---------------------------------

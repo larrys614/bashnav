@@ -753,7 +753,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are on her port beam: you see her whole port side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  B is right -- Vessel at anchor, under 50 m
@@ -761,7 +761,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are on her port beam: you see her whole port side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  B is right -- Vessel at anchor, under 50 m
@@ -769,7 +769,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are on her port beam: you see her whole port side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  B is right -- Vessel at anchor, under 50 m
@@ -777,7 +777,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are on her port beam: you see her whole port side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
 === qlight 11 ===
 
@@ -928,7 +928,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are fine on her starboard quarter.
+      Her two whites are nearly in line, so you are nearer end-on than abeam -- but whether that is her bow or her stern is not in her lights.
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
@@ -936,7 +936,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are fine on her starboard quarter.
+      Her two whites are nearly in line, so you are nearer end-on than abeam -- but whether that is her bow or her stern is not in her lights.
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
@@ -944,7 +944,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are fine on her starboard quarter.
+      Her two whites are nearly in line, so you are nearer end-on than abeam -- but whether that is her bow or her stern is not in her lights.
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
@@ -952,7 +952,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are fine on her starboard quarter.
+      Her two whites are nearly in line, so you are nearer end-on than abeam -- but whether that is her bow or her stern is not in her lights.
 
 === qlight 13 ===
 
@@ -1104,7 +1104,7 @@
 
   Q2  D is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are broad on her starboard bow.
+      Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
 
   Not quite.
   Q1  C is right -- Vessel at anchor, 50 m or more
@@ -1112,7 +1112,7 @@
 
   Q2  D is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are broad on her starboard bow.
+      Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
 
   Not quite.
   Q1  C is right -- Vessel at anchor, 50 m or more
@@ -1120,7 +1120,7 @@
 
   Q2  D is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are broad on her starboard bow.
+      Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
 
   Not quite.
   Q1  C is right -- Vessel at anchor, 50 m or more
@@ -1128,7 +1128,7 @@
 
   Q2  D is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are broad on her starboard bow.
+      Her two whites are wide apart, so you are nearer her beam than end-on -- but which side is not in her lights.
 
 === qlight 15 ===
 
@@ -1256,7 +1256,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round reds over an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
-      You are on her port beam: you see her whole port side.
+      Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
 
   Not quite.
   Q1  B is right -- Vessel aground
@@ -1264,7 +1264,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round reds over an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
-      You are on her port beam: you see her whole port side.
+      Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
 
   Not quite.
   Q1  B is right -- Vessel aground
@@ -1272,7 +1272,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round reds over an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
-      You are on her port beam: you see her whole port side.
+      Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
 
   Not quite.
   Q1  B is right -- Vessel aground
@@ -1280,7 +1280,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round reds over an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AGROUND, Rule 30(d): the anchor lights plus two all-round reds. She is not going anywhere, and the water she is sitting in may be shoaler than your chart makes it look.
-      You are on her port beam: you see her whole port side.
+      Her lights give you no aspect at all: two all-round reds over an all-round white look the same from every bearing.
 
 === qlight 17 ===
 
@@ -1404,7 +1404,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
-      You are fine on her starboard quarter.
+      Her lights give you no aspect at all: two all-round reds look the same from every bearing.
 
   Not quite.
   Q1  C is right -- Not under command, making no way
@@ -1412,7 +1412,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
-      You are fine on her starboard quarter.
+      Her lights give you no aspect at all: two all-round reds look the same from every bearing.
 
   Not quite.
   Q1  C is right -- Not under command, making no way
@@ -1420,7 +1420,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
-      You are fine on her starboard quarter.
+      Her lights give you no aspect at all: two all-round reds look the same from every bearing.
 
   Not quite.
   Q1  C is right -- Not under command, making no way
@@ -1428,7 +1428,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows two all-round reds. No sidelights and no sternlight, so she is not making way through the water. And she is NOT UNDER COMMAND: two all-round reds, Rule 27(a), shown by a vessel that through some exceptional circumstance is unable to manoeuvre as the rules require. Rule 18(a)(i) -- you keep out of her way, and she cannot keep out of yours. That is what the lights are for.
-      You are fine on her starboard quarter.
+      Her lights give you no aspect at all: two all-round reds look the same from every bearing.
 
 === qlight 19 ===
 
@@ -1478,7 +1478,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      You are on her starboard beam: you see her whole starboard side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  B is right -- Sailing vessel under 7 m, or a vessel under oars
@@ -1486,7 +1486,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      You are on her starboard beam: you see her whole starboard side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  B is right -- Sailing vessel under 7 m, or a vessel under oars
@@ -1494,7 +1494,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      You are on her starboard beam: you see her whole starboard side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  B is right -- Sailing vessel under 7 m, or a vessel under oars
@@ -1502,7 +1502,7 @@
 
   Q2  A is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      You are on her starboard beam: you see her whole starboard side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
 === qlight 20 ===
 
@@ -1625,7 +1625,7 @@
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      You are fine on her port bow.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  A is right -- Sailing vessel under 7 m, or a vessel under oars
@@ -1633,7 +1633,7 @@
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      You are fine on her port bow.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  A is right -- Sailing vessel under 7 m, or a vessel under oars
@@ -1641,7 +1641,7 @@
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      You are fine on her port bow.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  A is right -- Sailing vessel under 7 m, or a vessel under oars
@@ -1649,7 +1649,7 @@
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. And she is UNDER SAIL. Rule 18(a)(iv) if you are power-driven; but lying stopped she may also be a vessel under oars, or under 7 metres, showing what she can rather than what a larger vessel must.
-      You are fine on her port bow.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
 === qlight 22 ===
 
@@ -2936,7 +2936,7 @@
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are on her starboard beam: you see her whole starboard side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  C is right -- Vessel at anchor, under 50 m
@@ -2944,14 +2944,14 @@
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are on her starboard beam: you see her whole starboard side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Q1  C is right -- Vessel at anchor, under 50 m
       Rule 30.  A single all-round white light where it can best be seen.
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are on her starboard beam: you see her whole starboard side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
   Not quite.
   Q1  C is right -- Vessel at anchor, under 50 m
@@ -2959,7 +2959,7 @@
 
   Q2  C is right -- She is not under way, or not making way through the water.
       She shows an all-round white. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are on her starboard beam: you see her whole starboard side.
+      Her lights give you no aspect at all: an all-round white looks the same from every bearing.
 
 === qlight 38 ===
 
@@ -3111,7 +3111,7 @@
 
   Q2  D is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are fine on her port bow.
+      Her two whites are part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights.
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
@@ -3119,7 +3119,7 @@
 
   Q2  D is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are fine on her port bow.
+      Her two whites are part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights.
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
@@ -3127,7 +3127,7 @@
 
   Q2  D is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are fine on her port bow.
+      Her two whites are part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights.
 
   Not quite.
   Q1  A is right -- Vessel at anchor, 50 m or more
@@ -3135,7 +3135,7 @@
 
   Q2  D is right -- She is not under way, or not making way through the water.
       She shows two all-round whites. No sidelights and no sternlight, so she is not making way through the water. She is AT ANCHOR, Rule 30: an all-round white forward, and a second one aft if she is 50 metres or more. Anchored is not aground and it is not under way; she is where she chose to be, and she is holding.
-      You are fine on her port bow.
+      Her two whites are part-way open, so you are between end-on and abeam -- but which side, and which end, are not in her lights.
 
 === qlight 40 ===
 
