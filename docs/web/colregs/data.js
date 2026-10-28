@@ -193,6 +193,13 @@ window.COLREGS_DATA = {
    "rule": "Rule 23(d)",
    "lights": [{"x": 0.0, "y": 0.0, "h": 0.35, "arc": "A", "col": "W"}],
    "note": "Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable."
+  },
+  {
+   "key": "fishgear",
+   "name": "Fishing other than trawling, gear out over 150 m",
+   "rule": "Rule 26(c)(ii)",
+   "lights": [{"x": 0.15, "y": 0.0, "h": 0.88, "arc": "A", "col": "R"}, {"x": 0.15, "y": 0.0, "h": 0.76, "arc": "A", "col": "W"}, {"x": 0.06, "y": 0.11, "h": 0.42, "arc": "S", "col": "G"}, {"x": 0.06, "y": -0.11, "h": 0.42, "arc": "P", "col": "R"}, {"x": -0.46, "y": 0.0, "h": 0.36, "arc": "T", "col": "W"}, {"x": 0.1, "y": 0.22, "h": 0.55, "arc": "A", "col": "W"}],
+   "note": "Red over white for fishing other than trawling, and in addition an all-round white out towards her gear: it is streamed more than 150 metres in that direction. Here it is out to starboard."
   }
  ],
  "shapes": [

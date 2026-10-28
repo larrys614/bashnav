@@ -56,6 +56,8 @@
                  Rule 23(d)  Under 12 metres she may show an all-round white light and sidelights, in place of the masthead light and the sternlight.
   power7         Power-driven vessel under 7 m, 7 knots or less
                  Rule 23(d)  Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable.
+  fishgear       Fishing other than trawling, gear out over 150 m
+                 Rule 26(c)(ii)  Red over white for fishing other than trawling, and in addition an all-round white out towards her gear: it is streamed more than 150 metres in that direction. Here it is out to starboard.
   ----------------------------------------------------------------------
   Show any one from any angle:  colregs light <key> <bearing>
 

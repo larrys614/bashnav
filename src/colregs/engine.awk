@@ -205,7 +205,23 @@ function ves_init(   i,n,a){
   #  answer: the ambiguity is the lesson, not a fault to design around.
   VT[27] = "power7|Power-driven vessel under 7 m, 7 knots or less|Rule 23(d)|"            ar(0.000,0,0.350,"W")            "|Under 7 metres, and not able to exceed 7 knots, she may show an all-round white light alone -- with sidelights as well if that is practicable.|A single white light is the most ambiguous thing you can see at night. It is this, or a vessel at anchor, or a sailing vessel under 7 m showing a torch, or the sternlight of a ship. It will not tell you which, and it will not tell you her heading."
 
-  NVES=27
+  #  Rule 26(c)(ii). Held back from the first five because the sentence
+  #  could not yet describe her: an all-round white out towards the gear
+  #  sorted into the vertical stack and came out as "an all-round red
+  #  over two all-round whites", which is not what the picture shows.
+  #  Displaced all-round lights are named separately now, so she can be
+  #  described as she looks.
+  #
+  #  AND NO MASTHEAD LIGHT. The first draft of this entry carried one,
+  #  copied from the power-driven pattern. Rule 26(c) prescribes the
+  #  red-over-white pair, the gear light, and -- when making way --
+  #  sidelights and a sternlight. Nothing else. The masthead light of
+  #  Rule 26(b)(ii) belongs to a TRAWLER, and there only above 50 metres.
+  #  Our existing `fishing` entry has never carried one, which is what
+  #  caught it.
+  VT[28] = "fishgear|Fishing other than trawling, gear out over 150 m|Rule 26(c)(ii)|"            ar(0.15,0,0.88,"R") ";" ar(0.15,0,0.76,"W") ";"            SG ";" SR ";" ST ";" ar(0.10,0.22,0.55,"W")            "|Red over white for fishing other than trawling, and in addition an all-round white out towards her gear: it is streamed more than 150 metres in that direction. Here it is out to starboard.|That third white is not a masthead light and not an anchor light. It points along 150 metres or more of gear you cannot see, and she is the near end of it -- so the water to pass her in is on the other side, and the room you need is not the room she occupies."
+
+  NVES=28
   VES_READY=1
   return 0
 }
@@ -1093,7 +1109,7 @@ function enc_init(){
   #
   #  wind:   the true wind direction, relative to YOUR head, where Rule
   #          12 turns on which side it is. Empty on a power scenario.
-  #  vessel: a key into the twenty-seven the lights drill renders, so the
+  #  vessel: a key into the twenty-eight the lights drill renders, so the
   #          scenario can draw her at the aspect it was drawn from
   #          instead of describing her. Empty on the two fog signals,
   #          where you cannot see her, and on the seaplane, whose lights

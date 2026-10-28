@@ -140,7 +140,7 @@ about_needs() {
     '  much damage a wrong one would do.' \
     '' \
     '  1  WHO GIVES WAY, AND WHAT TO DO.  The twenty-eight encounters,' \
-    '     and the ninety distinct give-way calls the lights quiz' \
+    '     and the ninety-four distinct give-way calls the lights quiz' \
     '     can make.  A wrong light table makes you misname a ship.  A' \
     '     wrong verdict here makes you TURN THE WRONG WAY, which is' \
     '     the difference between a training aid that is imperfect and' \
@@ -148,7 +148,7 @@ about_needs() {
     '     once during development and caught by hand, by a reader, not' \
     '     by any test.  Rules 12 to 18.' \
     '' \
-    '  2  THE LIGHT TABLES.  Twenty-seven vessels, and every picture,' \
+    '  2  THE LIGHT TABLES.  Twenty-eight vessels, and every picture,' \
     '     question and answer is computed from them.  Two errors in' \
     '     them have already been found by users - both by somebody' \
     '     looking at a picture, trying to account for every light in' \
